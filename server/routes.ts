@@ -4081,6 +4081,102 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
+  // Universal Consultation Request - works for location, design, listing, or general inquiries
+  app.post("/api/consultation-request", async (req, res) => {
+    try {
+      const { name, email, phone, notes, consultationType, consultationData, timestamp } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // Build context-specific information
+      let contextInfo = "";
+      if (consultationData) {
+        switch (consultationType) {
+          case "location":
+            contextInfo = `
+📍 LOCATION ANALYSIS
+• Address: ${consultationData.locationAddress || 'Not specified'}
+• CLEANBI Score: ${consultationData.locationScore || 'N/A'}/100
+• Grade: ${consultationData.locationGrade || 'N/A'}
+`;
+            break;
+          case "design":
+            contextInfo = `
+📐 DESIGN STUDIO PROJECT
+• Space: ${consultationData.designSqft?.toLocaleString() || 'N/A'} sq ft
+• Equipment Count: ${consultationData.equipmentCount || 'N/A'}
+• Projected Monthly Revenue: $${consultationData.projectedRevenue?.toLocaleString() || 'N/A'}
+• Viability Score: ${consultationData.viabilityScore || 'N/A'}
+`;
+            break;
+          case "listing":
+            contextInfo = `
+🏢 MARKETPLACE LISTING
+• Listing: ${consultationData.listingName || 'Not specified'}
+• Asking Price: $${consultationData.listingPrice?.toLocaleString() || 'N/A'}
+• Listing ID: ${consultationData.listingId || 'N/A'}
+`;
+            break;
+          default:
+            contextInfo = "General consultation inquiry";
+        }
+      }
+      
+      const emailContent = `
+🎯 NEW CONSULTATION COUNCIL REQUEST
+
+═══════════════════════════════════════════
+📋 CONTACT INFORMATION
+═══════════════════════════════════════════
+• Name: ${name || 'Not provided'}
+• Email: ${email}
+• Phone: ${phone || 'Not provided'}
+• Submitted: ${new Date(timestamp || Date.now()).toLocaleString()}
+
+═══════════════════════════════════════════
+📊 REQUEST CONTEXT
+═══════════════════════════════════════════
+Type: ${consultationType?.toUpperCase() || 'GENERAL'}
+${contextInfo}
+
+═══════════════════════════════════════════
+💬 CLIENT MESSAGE
+═══════════════════════════════════════════
+${notes || 'No additional notes provided'}
+
+---
+⚡ Action Required: Expert Council Review + Nick Kremers Verification
+📧 Reply to: ${email}
+`;
+      
+      // Send notification
+      await notifyConsultationRequest({
+        name: name || 'Website Visitor',
+        email,
+        phone: phone || undefined,
+        message: emailContent,
+      });
+      
+      // Log to admin activity
+      try {
+        await db.insert(adminActivityLog).values({
+          type: 'consultation_request',
+          description: `${consultationType || 'General'} consultation from ${email}`,
+          email,
+        });
+      } catch (logError) {
+        console.error('Failed to log consultation activity:', logError);
+      }
+      
+      res.json({ success: true, message: 'Consultation request submitted successfully' });
+    } catch (error: any) {
+      console.error('Consultation request error:', error);
+      res.status(500).json({ message: error.message || 'Failed to submit consultation request' });
+    }
+  });
+
   // Design Studio Consultation Request - sends complete design package to consultants
   app.post("/api/send-design-consultation", isAuthenticated, async (req, res) => {
     try {
