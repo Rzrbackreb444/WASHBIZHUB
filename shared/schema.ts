@@ -92,6 +92,55 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
+// Saved Items - for storing user's saved analyses, designs, calculations
+export const savedItems = pgTable("saved_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  itemType: text("item_type").notNull(), // "cleanbi_analysis", "design", "calculation", "listing", "template"
+  itemId: varchar("item_id").notNull(),
+  itemData: jsonb("item_data"), // Cached snapshot of the item data for quick access
+  title: text("title").notNull(),
+  notes: text("notes"),
+  pinned: boolean("pinned").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("saved_items_user_id_idx").on(table.userId),
+  itemTypeIdx: index("saved_items_item_type_idx").on(table.itemType),
+}));
+
+export const insertSavedItemSchema = createInsertSchema(savedItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSavedItem = z.infer<typeof insertSavedItemSchema>;
+export type SavedItem = typeof savedItems.$inferSelect;
+
+// Recently Viewed - for tracking user's browsing history
+export const recentlyViewed = pgTable("recently_viewed", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  itemType: text("item_type").notNull(), // "listing", "cleanbi", "design", "calculator", "page"
+  itemId: varchar("item_id").notNull(),
+  itemData: jsonb("item_data"), // Basic snapshot for display
+  title: text("title").notNull(),
+  url: text("url").notNull(),
+  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
+  viewCount: integer("view_count").default(1).notNull(),
+}, (table) => ({
+  userIdIdx: index("recently_viewed_user_id_idx").on(table.userId),
+  viewedAtIdx: index("recently_viewed_viewed_at_idx").on(table.viewedAt),
+}));
+
+export const insertRecentlyViewedSchema = createInsertSchema(recentlyViewed).omit({
+  id: true,
+  viewedAt: true,
+  viewCount: true,
+});
+
+export type InsertRecentlyViewed = z.infer<typeof insertRecentlyViewedSchema>;
+export type RecentlyViewed = typeof recentlyViewed.$inferSelect;
+
 // Equipment Placement Schema (for 2D/3D designs)
 export const equipmentPlacementSchema = z.object({
   id: z.string(),
@@ -3151,6 +3200,8 @@ export const brokerProfiles = pgTable("broker_profiles", {
   bio: text("bio"),
   specializations: text("specializations").array(), // ["laundromats", "car_washes"]
   yearsExperience: integer("years_experience"),
+  profileImageUrl: text("profile_image_url"),
+  nickname: text("nickname"), // e.g. "Laundromat Larry"
   
   // Service Areas
   countries: text("countries").array(),
@@ -3166,12 +3217,21 @@ export const brokerProfiles = pgTable("broker_profiles", {
   verified: boolean("verified").default(false),
   verificationDocument: text("verification_document"),
   
+  // Storefront Settings
+  slug: varchar("slug", { length: 100 }).unique(), // URL-friendly identifier like "laundromat-larry"
+  storefrontEnabled: boolean("storefront_enabled").default(false),
+  storefrontBanner: text("storefront_banner"), // Banner image URL
+  storefrontTheme: jsonb("storefront_theme"), // Theme customization options
+  
+  // Testimonials (stored as JSON array for simplicity)
+  testimonials: jsonb("testimonials"), // [{name, role, text, rating}]
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => {
   return {
-    // Index for broker user lookups
     userIdx: index("broker_profiles_user_idx").on(table.userId),
+    slugIdx: uniqueIndex("broker_profiles_slug_idx").on(table.slug),
   };
 });
 

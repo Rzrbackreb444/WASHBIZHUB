@@ -183,6 +183,8 @@ import {
   businessListingCategories,
   businessListingInquiries,
   businessListingAnalytics,
+  savedItems,
+  recentlyViewed,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -7673,6 +7675,219 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // ==================== BROKER DASHBOARD ====================
 
+  // GET /api/brokers/:slug/storefront - Get public broker storefront data (no auth required)
+  app.get("/api/brokers/:slug/storefront", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      
+      const brokerProfile = await storage.getBrokerProfileBySlug(slug);
+      if (!brokerProfile) {
+        return res.status(404).json({ error: "Broker not found" });
+      }
+
+      // Check if storefront is enabled
+      if (!brokerProfile.storefrontEnabled) {
+        return res.status(404).json({ error: "Broker storefront is not public" });
+      }
+
+      // Get broker's active listings
+      const allListings = brokerProfile.userId 
+        ? await storage.getListingsByUserId(brokerProfile.userId)
+        : [];
+      const activeListings = allListings.filter(l => l.status === "active");
+
+      // Return public storefront data
+      res.json({
+        profile: {
+          id: brokerProfile.id,
+          companyName: brokerProfile.companyName,
+          bio: brokerProfile.bio,
+          phone: brokerProfile.phone,
+          email: brokerProfile.email,
+          website: brokerProfile.website,
+          licenseNumber: brokerProfile.licenseNumber,
+          specializations: brokerProfile.specializations,
+          yearsExperience: brokerProfile.yearsExperience,
+          regions: brokerProfile.regions,
+          verified: brokerProfile.verified,
+          profileImageUrl: brokerProfile.profileImageUrl,
+          nickname: brokerProfile.nickname,
+          storefrontBanner: brokerProfile.storefrontBanner,
+          storefrontTheme: brokerProfile.storefrontTheme,
+          testimonials: brokerProfile.testimonials,
+          totalListings: brokerProfile.totalListings,
+          activeListings: brokerProfile.activeListings,
+          soldListings: brokerProfile.soldListings,
+        },
+        listings: activeListings,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/brokers/my-profile - Get current user's broker profile (auth required)
+  app.get("/api/brokers/my-profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const brokerProfile = await storage.getBrokerProfileByUserId(currentUser.userId);
+      if (!brokerProfile) {
+        return res.status(404).json({ error: "Broker profile not found" });
+      }
+
+      res.json(brokerProfile);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/brokers/my-profile - Update broker profile (auth required)
+  app.put("/api/brokers/my-profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const brokerProfile = await storage.getBrokerProfileByUserId(currentUser.userId);
+      if (!brokerProfile) {
+        return res.status(404).json({ error: "Broker profile not found" });
+      }
+
+      const updatedProfile = await storage.updateBrokerProfile(brokerProfile.id, req.body);
+      res.json(updatedProfile);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/brokers/my-listings - Get broker's listings with stats (auth required)
+  app.get("/api/brokers/my-listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const brokerListings = await storage.getListingsByUserId(currentUser.userId);
+      
+      // Calculate days listed for each
+      const listingsWithStats = brokerListings.map(listing => {
+        const daysListed = listing.listedAt 
+          ? Math.floor((Date.now() - new Date(listing.listedAt).getTime()) / (1000 * 60 * 60 * 24))
+          : undefined;
+        
+        return {
+          ...listing,
+          daysListed,
+        };
+      });
+
+      res.json(listingsWithStats);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/brokers/my-listings - Create a new listing for broker
+  app.post("/api/brokers/my-listings", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const listingData = {
+        ...req.body,
+        userId: currentUser.userId,
+        status: req.body.status || "draft",
+        listedAt: req.body.status === "active" ? new Date() : null,
+      };
+
+      const newListing = await storage.createListing(listingData);
+      res.json(newListing);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/brokers/my-leads - Get leads/inquiries for broker's listings (auth required)
+  app.get("/api/brokers/my-leads", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      // Get all broker's listings first
+      const brokerListings = await storage.getListingsByUserId(currentUser.userId);
+      const listingIds = brokerListings.map(l => l.id);
+
+      if (listingIds.length === 0) {
+        return res.json([]);
+      }
+
+      // Get all inquiries for broker's listings
+      const leads = await storage.getListingInquiriesByListingIds(listingIds);
+      
+      // Enrich leads with listing title
+      const leadsWithListing = leads.map(lead => {
+        const listing = brokerListings.find(l => l.id === lead.listingId);
+        return {
+          ...lead,
+          listingTitle: listing?.title || "Unknown Listing",
+        };
+      });
+
+      res.json(leadsWithListing);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PATCH /api/brokers/my-leads/:id - Update lead status (contacted, qualified, etc.)
+  app.patch("/api/brokers/my-leads/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const { id } = req.params;
+      
+      // Verify the lead belongs to one of the broker's listings
+      const lead = await storage.getListingInquiry(id);
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found" });
+      }
+
+      const brokerListings = await storage.getListingsByUserId(currentUser.userId);
+      const listingIds = brokerListings.map(l => l.id);
+      
+      if (lead.listingId && !listingIds.includes(lead.listingId)) {
+        return res.status(403).json({ error: "Not authorized to update this lead" });
+      }
+
+      const { status, response } = req.body;
+      const updateData: any = {};
+      if (status) updateData.status = status;
+      if (response) {
+        updateData.response = response;
+        updateData.respondedAt = new Date();
+      }
+
+      const updatedLead = await storage.updateListingInquiry(id, updateData);
+      res.json(updatedLead);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Legacy routes for backwards compatibility
   // GET /api/broker/profile - Get broker profile for authenticated user
   app.get("/api/broker/profile", isAuthenticated, async (req: any, res) => {
     try {
@@ -16715,6 +16930,229 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error fetching dashboard stats:", error);
       res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  // ==================== USER PROFILE SAVED ITEMS & RECENTLY VIEWED ====================
+  
+  // GET /api/profile/saved - Get user's saved items (with optional type filter)
+  app.get("/api/profile/saved", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { type, pinned } = req.query;
+      
+      let query = db.select().from(savedItems).where(eq(savedItems.userId, user.userId));
+      
+      const conditions = [eq(savedItems.userId, user.userId)];
+      if (type) {
+        conditions.push(eq(savedItems.itemType, type as string));
+      }
+      if (pinned === 'true') {
+        conditions.push(eq(savedItems.pinned, true));
+      }
+      
+      const items = await db.select()
+        .from(savedItems)
+        .where(and(...conditions))
+        .orderBy(desc(savedItems.pinned), desc(savedItems.createdAt));
+      
+      res.json(items);
+    } catch (error: any) {
+      console.error("Error fetching saved items:", error);
+      res.status(500).json({ error: "Failed to fetch saved items" });
+    }
+  });
+  
+  // POST /api/profile/saved - Save an item
+  app.post("/api/profile/saved", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { itemType, itemId, itemData, title, notes, pinned } = req.body;
+      
+      if (!itemType || !itemId || !title) {
+        return res.status(400).json({ error: "itemType, itemId, and title are required" });
+      }
+      
+      const [item] = await db.insert(savedItems).values({
+        userId: user.userId,
+        itemType,
+        itemId,
+        itemData: itemData || null,
+        title,
+        notes: notes || null,
+        pinned: pinned || false,
+      }).returning();
+      
+      res.status(201).json(item);
+    } catch (error: any) {
+      console.error("Error saving item:", error);
+      res.status(500).json({ error: "Failed to save item" });
+    }
+  });
+  
+  // DELETE /api/profile/saved/:id - Remove a saved item
+  app.delete("/api/profile/saved/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { id } = req.params;
+      
+      const [deleted] = await db.delete(savedItems)
+        .where(and(eq(savedItems.id, id), eq(savedItems.userId, user.userId)))
+        .returning();
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+      
+      res.json({ success: true, deleted });
+    } catch (error: any) {
+      console.error("Error deleting saved item:", error);
+      res.status(500).json({ error: "Failed to delete saved item" });
+    }
+  });
+  
+  // PATCH /api/profile/saved/:id - Update notes or toggle pinned
+  app.patch("/api/profile/saved/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { id } = req.params;
+      const { notes, pinned, title } = req.body;
+      
+      const updates: Record<string, any> = {};
+      if (notes !== undefined) updates.notes = notes;
+      if (pinned !== undefined) updates.pinned = pinned;
+      if (title !== undefined) updates.title = title;
+      
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ error: "No valid fields to update" });
+      }
+      
+      const [updated] = await db.update(savedItems)
+        .set(updates)
+        .where(and(eq(savedItems.id, id), eq(savedItems.userId, user.userId)))
+        .returning();
+      
+      if (!updated) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+      
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating saved item:", error);
+      res.status(500).json({ error: "Failed to update saved item" });
+    }
+  });
+  
+  // GET /api/profile/recent - Get recently viewed items (limit 20)
+  app.get("/api/profile/recent", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+      const { type } = req.query;
+      
+      const conditions = [eq(recentlyViewed.userId, user.userId)];
+      if (type) {
+        conditions.push(eq(recentlyViewed.itemType, type as string));
+      }
+      
+      const items = await db.select()
+        .from(recentlyViewed)
+        .where(and(...conditions))
+        .orderBy(desc(recentlyViewed.viewedAt))
+        .limit(limit);
+      
+      res.json(items);
+    } catch (error: any) {
+      console.error("Error fetching recently viewed:", error);
+      res.status(500).json({ error: "Failed to fetch recently viewed" });
+    }
+  });
+  
+  // POST /api/profile/recent - Track a view (upsert with viewCount increment)
+  app.post("/api/profile/recent", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { itemType, itemId, itemData, title, url } = req.body;
+      
+      if (!itemType || !itemId || !title || !url) {
+        return res.status(400).json({ error: "itemType, itemId, title, and url are required" });
+      }
+      
+      // Check if already exists
+      const [existing] = await db.select()
+        .from(recentlyViewed)
+        .where(and(
+          eq(recentlyViewed.userId, user.userId),
+          eq(recentlyViewed.itemType, itemType),
+          eq(recentlyViewed.itemId, itemId)
+        ))
+        .limit(1);
+      
+      if (existing) {
+        // Update existing record
+        const [updated] = await db.update(recentlyViewed)
+          .set({
+            viewedAt: sql`NOW()`,
+            viewCount: sql`${recentlyViewed.viewCount} + 1`,
+            itemData: itemData || existing.itemData,
+            title: title || existing.title,
+            url: url || existing.url,
+          })
+          .where(eq(recentlyViewed.id, existing.id))
+          .returning();
+        
+        res.json(updated);
+      } else {
+        // Insert new record
+        const [item] = await db.insert(recentlyViewed).values({
+          userId: user.userId,
+          itemType,
+          itemId,
+          itemData: itemData || null,
+          title,
+          url,
+        }).returning();
+        
+        res.status(201).json(item);
+      }
+    } catch (error: any) {
+      console.error("Error tracking view:", error);
+      res.status(500).json({ error: "Failed to track view" });
+    }
+  });
+  
+  // DELETE /api/profile/recent/:id - Remove from history
+  app.delete("/api/profile/recent/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+      
+      const { id } = req.params;
+      
+      const [deleted] = await db.delete(recentlyViewed)
+        .where(and(eq(recentlyViewed.id, id), eq(recentlyViewed.userId, user.userId)))
+        .returning();
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Item not found" });
+      }
+      
+      res.json({ success: true, deleted });
+    } catch (error: any) {
+      console.error("Error deleting from history:", error);
+      res.status(500).json({ error: "Failed to delete from history" });
     }
   });
 

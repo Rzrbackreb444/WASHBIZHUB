@@ -216,6 +216,7 @@ const OwnerCommandCenter = lazy(() => import("@/pages/owner-command-center"));
 const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
 const BrokerDashboard = lazy(() => import("@/pages/broker-dashboard"));
+const BrokerStorefront = lazy(() => import("@/pages/broker-storefront"));
 const VendorDashboard = lazy(() => import("@/pages/vendor-dashboard"));
 const SellerDashboard = lazy(() => import("@/pages/seller-dashboard"));
 
@@ -709,6 +710,11 @@ function Router() {
       <Route path="/broker-dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <BrokerDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/broker/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <BrokerStorefront />
         </Suspense>
       </Route>
       <Route path="/vendor-dashboard">
