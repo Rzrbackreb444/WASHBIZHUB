@@ -1,0 +1,58 @@
+New CLEANBI Component Suite (client/src/components/cleanbi/)
+1. CLEANBIGradeBadge - Premium Animated Badge
+Animated score ring with SVG gradient
+Motion effects on load
+Industry percentile display
+4 size variants (sm/md/lg/xl)
+2. CLEANBIScoreCard - Full Grade Card
+Grade label + plain-English description
+EBITDA multiple range display
+Industry percentile progress bar
+"Top X%" ranking visualization
+3. GradeExplanation - Strengths/Weaknesses Analysis
+Automatic identification of top 3 strengths (score ≥75)
+Automatic identification of top 3 weaknesses (score <60)
+Actionable recommendation based on grade
+Color-coded visual indicators
+4. FactorBreakdown - 17-Factor Detail View
+Grouped by category (Financial, Operations, Demographics, Location, Market, Services)
+Progress bars with color coding
+Weight percentage display for each factor
+Animated load-in
+5. CLEANBIRadarChart - Nivo Radar Visualization
+Full 17-factor spider chart
+Optional benchmark overlay
+Tooltips on hover
+Legend with grade color scale
+6. CLEANBICategoryChart - Category Performance Bars
+Aggregated scores by category
+Gradient fill bars
+Quick category health assessment
+7. BenchmarkComparison - Industry Data Comparison
+CLA industry averages (18,375 laundromats analyzed)
+Regional benchmarks (Northeast, Southeast, Midwest, Southwest, West)
+"Top X%" percentile ranking
+Grade tier comparison with EBITDA multiples
+Protected against divide-by-zero
+8. ImprovementRoadmap - Prioritized Action Plan
+Calculates point impact for each improvement
+Sorted by ROI (quick wins first)
+Difficulty/Cost/Timeframe tags
+Projected grade upgrade visualization
+12 built-in improvement guides
+9. DataConfidence - Data Quality Indicator
+Verified vs Estimated vs Default breakdown
+Completeness percentage
+Source indicator for each of 17 factors
+Guidance on improving confidence
+Usage
+import { 
+  CLEANBIGradeBadge, 
+  CLEANBIScoreCard,
+  GradeExplanation,
+  CLEANBIRadarChart,
+  BenchmarkComparison,
+  ImprovementRoadmap,
+  DataConfidence 
+} from '@/components/cleanbi';
+This makes WashBizHub's CLEANBI system the most sophisticated property grading visualization in the laundromat industry - truly institutional-grade.
