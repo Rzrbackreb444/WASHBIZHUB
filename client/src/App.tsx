@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { LocationDesignProvider } from "@/contexts/LocationDesignContext";
+import { AuthModalProvider } from "@/components/AuthModal";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
@@ -333,6 +334,7 @@ const AccountSubscription = lazy(() => import("@/pages/account-subscription"));
 const Login = lazy(() => import("@/pages/login"));
 const Signup = lazy(() => import("@/pages/signup"));
 const AuthVerify = lazy(() => import("@/pages/auth-verify"));
+const AuthPage = lazy(() => import("@/pages/auth"));
 const ForgotPassword = lazy(() => import("@/pages/forgot-password"));
 const VerifyEmail = lazy(() => import("@/pages/verify-email"));
 const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
@@ -1403,6 +1405,16 @@ function Router() {
           <Login />
         </Suspense>
       </Route>
+      <Route path="/auth">
+        <Suspense fallback={<LoadingFallback />}>
+          <AuthPage />
+        </Suspense>
+      </Route>
+      <Route path="/signin">
+        <Suspense fallback={<LoadingFallback />}>
+          <AuthPage />
+        </Suspense>
+      </Route>
       <Route path="/signup">
         <Suspense fallback={<LoadingFallback />}>
           <Signup />
@@ -1676,9 +1688,11 @@ function App() {
             <ThemeProvider>
               <LocationDesignProvider>
                 <TooltipProvider>
-                  <AppContent />
-                  <Toaster />
-                  <ExitIntentModal />
+                  <AuthModalProvider>
+                    <AppContent />
+                    <Toaster />
+                    <ExitIntentModal />
+                  </AuthModalProvider>
                 </TooltipProvider>
               </LocationDesignProvider>
             </ThemeProvider>
