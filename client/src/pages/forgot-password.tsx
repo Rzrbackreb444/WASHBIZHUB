@@ -49,7 +49,7 @@ export default function ForgotPassword() {
     setIsSending(true);
 
     try {
-      const response = await fetch("/api/auth/email/forgot-password", {
+      const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -91,7 +91,7 @@ export default function ForgotPassword() {
     setIsResetting(true);
 
     try {
-      const response = await fetch("/api/auth/email/reset-password", {
+      const response = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -179,7 +179,7 @@ export default function ForgotPassword() {
                       Your password has been successfully reset.
                     </p>
                   </div>
-                  <Button onClick={() => setLocation("/login")} className="w-full" data-testid="button-go-login">
+                  <Button onClick={() => setLocation("/auth")} className="w-full" data-testid="button-go-login">
                     Sign In
                   </Button>
                 </div>
@@ -257,7 +257,7 @@ export default function ForgotPassword() {
           </Card>
 
           <p className="text-center text-sm text-muted-foreground">
-            <Link href="/login" className="text-primary font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
+            <Link href="/auth" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
               <ArrowLeft className="w-4 h-4" />
               Back to Sign In
             </Link>
@@ -273,15 +273,16 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center">
-              <KeyRound className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-[#0A1628] rounded-2xl flex items-center justify-center">
+              <KeyRound className="w-8 h-8 text-[#C8A661]" />
             </div>
           </div>
           <h1 className="text-3xl font-bold">Forgot Password?</h1>
           <p className="text-muted-foreground">No worries, we'll send you reset instructions</p>
         </div>
 
-        <Card>
+        <Card className="border-0 shadow-lg">
+          <div className="h-1 bg-[#C8A661] rounded-t-lg" />
           <CardHeader className="pb-4">
             <CardTitle className="text-xl">Reset Password</CardTitle>
             <CardDescription>Enter your email to receive a reset link</CardDescription>
@@ -316,7 +317,7 @@ export default function ForgotPassword() {
 
                 <Button
                   type="submit"
-                  className="w-full h-11"
+                  className="w-full h-11 bg-[#0A1628] hover:bg-[#1a3a5c]"
                   disabled={isSending || !email}
                   data-testid="button-send-reset"
                 >
@@ -358,7 +359,7 @@ export default function ForgotPassword() {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          <Link href="/login" className="text-primary font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
+          <Link href="/auth" className="text-[#C8A661] font-medium hover:underline inline-flex items-center gap-1" data-testid="link-back-login">
             <ArrowLeft className="w-4 h-4" />
             Back to Sign In
           </Link>

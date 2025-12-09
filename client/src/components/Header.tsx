@@ -99,24 +99,36 @@ function UserDropdown() {
     ? user.firstName.charAt(0).toUpperCase() 
     : user?.email?.charAt(0).toUpperCase() || 'U';
   
-  const displayName = user?.firstName || user?.email?.split('@')[0] || 'User';
+  const displayName = user?.firstName 
+    ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}`
+    : user?.email?.split('@')[0] || 'User';
   const displayEmail = user?.email || '';
+  const membershipTier = user?.subscriptionTier || 'free';
+  const tierBadge = membershipTier === 'free' ? null : membershipTier.charAt(0).toUpperCase() + membershipTier.slice(1);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          size="icon"
-          className="relative h-9 w-9 rounded-full"
+          className="relative h-9 gap-2 px-2 rounded-full hover-elevate"
           data-testid="button-user-menu"
         >
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 ring-2 ring-[#C8A661]/30">
             <AvatarImage src={user?.profileImage || undefined} alt={displayName} />
             <AvatarFallback className="bg-[#0A1628] text-[#C8A661] text-sm font-medium">
               {userInitials}
             </AvatarFallback>
           </Avatar>
+          <span className="hidden md:inline text-sm font-medium max-w-[100px] truncate">
+            {displayName}
+          </span>
+          {tierBadge && (
+            <span className="hidden md:inline text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#C8A661] text-white">
+              {tierBadge}
+            </span>
+          )}
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
@@ -126,16 +138,36 @@ function UserDropdown() {
         data-testid="dropdown-user-menu"
       >
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none text-foreground" data-testid="text-user-name">
-              {displayName}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground" data-testid="text-user-email">
-              {displayEmail}
-            </p>
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 ring-2 ring-[#C8A661]/30">
+              <AvatarImage src={user?.profileImage || undefined} alt={displayName} />
+              <AvatarFallback className="bg-[#0A1628] text-[#C8A661] text-sm font-medium">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col space-y-0.5">
+              <p className="text-sm font-semibold leading-none text-foreground" data-testid="text-user-name">
+                {displayName}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground" data-testid="text-user-email">
+                {displayEmail}
+              </p>
+              {tierBadge && (
+                <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#C8A661] text-white w-fit mt-1">
+                  {tierBadge} Member
+                </span>
+              )}
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        
+        <Link href="/profile">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-dropdown-profile">
+            <User className="mr-2 h-4 w-4" />
+            My Profile
+          </DropdownMenuItem>
+        </Link>
         
         <Link href="/dashboard">
           <DropdownMenuItem className="cursor-pointer" data-testid="link-dropdown-dashboard">
@@ -446,29 +478,40 @@ export function Header() {
                       <UserDropdown />
                     </div>
                   ) : (
-                    <>
+                    <div className="hidden sm:flex items-center gap-2">
                       <Link href="/auth">
                         <Button 
                           variant="ghost"
                           size="sm"
-                          className="hidden sm:flex text-sm"
+                          className="text-sm"
                           data-testid="button-signin"
                         >
                           <LogIn className="h-4 w-4 mr-1.5" />
-                          Sign in
+                          Sign In
+                        </Button>
+                      </Link>
+                      
+                      <Link href="/signup">
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="text-sm border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10"
+                          data-testid="button-signup"
+                        >
+                          Sign Up
                         </Button>
                       </Link>
                       
                       <Link href="/pricing">
                         <Button 
-                          className="hidden sm:flex bg-[#C8A661] hover:bg-[#b8963d] text-white font-medium text-sm"
+                          className="bg-[#C8A661] hover:bg-[#b8963d] text-white font-medium text-sm"
                           size="sm"
                           data-testid="button-get-started"
                         >
                           Get Started
                         </Button>
                       </Link>
-                    </>
+                    </div>
                   )}
                 </>
               )}
