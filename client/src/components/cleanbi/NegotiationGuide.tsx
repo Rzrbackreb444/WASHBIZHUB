@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, AlertTriangle, CheckCircle, TrendingDown, DollarSign, FileText, Copy, Check } from "lucide-react";
+import { MessageSquare, AlertTriangle, CheckCircle, TrendingDown, DollarSign, FileText, Copy, Check, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ interface NegotiationGuideProps {
     category: string;
   }[];
   askingPrice?: number;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 interface NegotiationPoint {
@@ -99,7 +101,9 @@ export function NegotiationGuide({
   cleanbiScore, 
   grade, 
   factors,
-  askingPrice = 300000 
+  askingPrice = 300000,
+  isSubscriber = false,
+  onUpgradeClick
 }: NegotiationGuideProps) {
   const { toast } = useToast();
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -110,6 +114,35 @@ export function NegotiationGuide({
   
   const highLeverageCount = negotiationPoints.filter(p => p.leverage === "high").length;
   const negotiatingPosition = highLeverageCount >= 3 ? "Strong" : highLeverageCount >= 1 ? "Moderate" : "Limited";
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Negotiation guides require a Pro subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-blue-500" />
+            Negotiation Guide
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   const copyTalkingPoint = async (index: number, text: string) => {
     try {

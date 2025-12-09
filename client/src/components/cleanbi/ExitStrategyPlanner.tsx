@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { LogOut, TrendingUp, Calendar, DollarSign, Target, Info, Calculator } from "lucide-react";
+import { LogOut, TrendingUp, Calendar, DollarSign, Target, Info, Calculator, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ interface ExitStrategyPlannerProps {
   grade: string;
   purchasePrice?: number;
   currentNOI?: number;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 interface ExitScenario {
@@ -51,7 +53,9 @@ export function ExitStrategyPlanner({
   cleanbiScore,
   grade,
   purchasePrice = 300000,
-  currentNOI = 75000
+  currentNOI = 75000,
+  isSubscriber = false,
+  onUpgradeClick
 }: ExitStrategyPlannerProps) {
   const [acquisitionCost, setAcquisitionCost] = useState(purchasePrice);
   const [annualNOI, setAnnualNOI] = useState(currentNOI);
@@ -103,6 +107,35 @@ export function ExitStrategyPlanner({
     cashFlow: s.totalCashFlow,
     totalReturn: s.totalReturn
   }));
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Exit strategy planning requires a Pro subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <LogOut className="h-5 w-5 text-purple-500" />
+            Exit Strategy Planner
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card>

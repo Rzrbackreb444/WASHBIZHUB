@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trophy, TrendingUp, TrendingDown, Minus, MapPin, Users, DollarSign, Car, Building } from "lucide-react";
+import { Trophy, TrendingUp, TrendingDown, Minus, MapPin, Users, DollarSign, Car, Building, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ interface LocationData {
 interface LocationComparisonProps {
   locations: LocationData[];
   onRemoveLocation?: (index: number) => void;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 const GRADE_COLORS: Record<string, string> = {
@@ -119,8 +121,37 @@ function MetricRow({
   );
 }
 
-export function LocationComparison({ locations, onRemoveLocation }: LocationComparisonProps) {
+export function LocationComparison({ locations, onRemoveLocation, isSubscriber = false, onUpgradeClick }: LocationComparisonProps) {
   const [showDetails, setShowDetails] = useState(true);
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Location comparison requires a Pro subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Trophy className="h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Location Comparison
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   if (locations.length === 0) {
     return (

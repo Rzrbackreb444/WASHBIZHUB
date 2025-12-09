@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Target, AlertTriangle, TrendingUp, Shield, Info, Sparkles } from "lucide-react";
+import { Target, AlertTriangle, TrendingUp, Shield, Info, Sparkles, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ interface RiskRewardMatrixProps {
     growth: number;
   };
   address?: string;
+  isSubscriber?: boolean;
+  onUpgradeClick?: () => void;
 }
 
 interface QuadrantData {
@@ -90,8 +92,37 @@ function calculateRewardScore(factors: RiskRewardMatrixProps['factors']): number
   return rewardFactors.reduce((sum, f) => sum + f, 0) / rewardFactors.length;
 }
 
-export function RiskRewardMatrix({ cleanbiScore, grade, factors, address }: RiskRewardMatrixProps) {
+export function RiskRewardMatrix({ cleanbiScore, grade, factors, address, isSubscriber = false, onUpgradeClick }: RiskRewardMatrixProps) {
   const [showDetails, setShowDetails] = useState(false);
+  
+  if (!isSubscriber) {
+    return (
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
+          <div className="text-center p-6">
+            <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
+            <p className="text-muted-foreground mb-4">
+              Risk/Reward analysis requires a Pro subscription
+            </p>
+            <Button onClick={onUpgradeClick} className="gap-2">
+              <Crown className="h-4 w-4" />
+              Upgrade to Pro
+            </Button>
+          </div>
+        </div>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-purple-500" />
+            Risk/Reward Matrix
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="blur-sm">
+          <div className="h-64 bg-muted rounded-lg" />
+        </CardContent>
+      </Card>
+    );
+  }
   
   const riskScore = calculateRiskScore(factors);
   const rewardScore = calculateRewardScore(factors);
