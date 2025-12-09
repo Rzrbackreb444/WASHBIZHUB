@@ -17,7 +17,8 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { storage } from "../storage";
 
-export type SubscriptionTier = "free" | "starter" | "pro" | "enterprise";
+// NEW 2-TIER STRUCTURE: Free + All-Access
+export type SubscriptionTier = "free" | "all_access" | "starter" | "pro" | "enterprise";
 
 // Platform owner emails with full admin access (bypass all tier checks)
 const ADMIN_BYPASS_EMAILS = [
@@ -26,25 +27,30 @@ const ADMIN_BYPASS_EMAILS = [
   "rzrbackreb444@gmail.com"
 ];
 
+// Simplified: free (0) vs all_access (10) - legacy tiers map to all_access
 const TIER_LEVELS: Record<SubscriptionTier, number> = {
   free: 0,
-  starter: 1,
-  pro: 2,
-  enterprise: 3,
+  all_access: 10,
+  // Legacy tiers map to all_access level for backward compatibility
+  starter: 10,
+  pro: 10,
+  enterprise: 10,
 };
 
 const TIER_NAMES: Record<SubscriptionTier, string> = {
   free: "Free",
-  starter: "Starter",
-  pro: "Pro",
-  enterprise: "Enterprise",
+  all_access: "All-Access",
+  starter: "All-Access", // Legacy mapping
+  pro: "All-Access",     // Legacy mapping
+  enterprise: "All-Access", // Legacy mapping
 };
 
 const TIER_PRICING: Record<SubscriptionTier, string> = {
   free: "$0/mo",
-  starter: "$29/mo",
-  pro: "$99/mo",
-  enterprise: "$699/mo",
+  all_access: "$129/mo",
+  starter: "$129/mo", // Legacy mapping
+  pro: "$129/mo",     // Legacy mapping
+  enterprise: "$129/mo", // Legacy mapping
 };
 
 function getTierLevel(tier: string | null | undefined): number {
@@ -57,9 +63,11 @@ function normalizeTier(tier: string | null | undefined): SubscriptionTier {
   if (t in TIER_LEVELS) {
     return t as SubscriptionTier;
   }
-  if (t === "accelerate") return "starter";
-  if (t === "scale") return "pro";
-  if (t === "summit") return "enterprise";
+  // Map legacy tier names to all_access
+  if (t === "accelerate" || t === "starter") return "all_access";
+  if (t === "scale" || t === "pro") return "all_access";
+  if (t === "summit" || t === "enterprise") return "all_access";
+  if (t === "all_access" || t === "allaccess" || t === "all-access") return "all_access";
   return "free";
 }
 
