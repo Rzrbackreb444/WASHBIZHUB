@@ -14323,5 +14323,423 @@ export type DesignOrder = typeof designOrders.$inferSelect;
 export type InsertDesignOrder = z.infer<typeof insertDesignOrderSchema>;
 
 // ============================================================================
+// ENTERPRISE FEATURES - Notifications, Voice, Intelligence, Reports, Equipment
+// ============================================================================
+
+// Notification Preferences
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Notification channels
+  emailEnabled: boolean("email_enabled").default(true),
+  smsEnabled: boolean("sms_enabled").default(false),
+  pushEnabled: boolean("push_enabled").default(true),
+  
+  // Phone for SMS
+  phoneNumber: varchar("phone_number"),
+  phoneVerified: boolean("phone_verified").default(false),
+  
+  // Push subscription
+  pushSubscription: jsonb("push_subscription"), // Web Push subscription object
+  
+  // Notification types
+  equipmentAlerts: boolean("equipment_alerts").default(true),
+  dealAlerts: boolean("deal_alerts").default(true),
+  marketUpdates: boolean("market_updates").default(true),
+  reportDelivery: boolean("report_delivery").default(true),
+  priceChanges: boolean("price_changes").default(false),
+  competitorUpdates: boolean("competitor_updates").default(false),
+  
+  // Frequency settings
+  digestFrequency: text("digest_frequency").default("daily"), // "instant", "daily", "weekly"
+  quietHoursStart: integer("quiet_hours_start"), // Hour 0-23
+  quietHoursEnd: integer("quiet_hours_end"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreferences = z.infer<typeof insertNotificationPreferencesSchema>;
+
+// Notification Log
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  type: text("type").notNull(), // "equipment_alert", "deal_alert", "market_update", "report_ready", "competitor_update"
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data"), // Additional context data
+  
+  // Delivery status
+  emailSent: boolean("email_sent").default(false),
+  smsSent: boolean("sms_sent").default(false),
+  pushSent: boolean("push_sent").default(false),
+  
+  read: boolean("read").default(false),
+  readAt: timestamp("read_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("notifications_user_id_idx").on(table.userId),
+  typeIdx: index("notifications_type_idx").on(table.type),
+  readIdx: index("notifications_read_idx").on(table.read),
+}));
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+// Competitor Tracking
+export const competitors = pgTable("competitors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: text("name").notNull(),
+  address: text("address").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  placeId: text("place_id"), // Google Place ID
+  
+  // Business details
+  businessType: text("business_type").default("laundromat"), // "laundromat", "laundry_service", "dry_cleaner"
+  washPrice: decimal("wash_price", { precision: 6, scale: 2 }),
+  dryPrice: decimal("dry_price", { precision: 6, scale: 2 }),
+  dropOffPrice: decimal("drop_off_price", { precision: 6, scale: 2 }), // per lb
+  
+  // Operating info
+  hoursOpen: jsonb("hours_open"), // {mon: "6am-10pm", tue: ...}
+  machineCount: integer("machine_count"),
+  hasAttendant: boolean("has_attendant"),
+  hasWifi: boolean("has_wifi"),
+  hasParking: boolean("has_parking"),
+  
+  // Ratings and reviews
+  googleRating: decimal("google_rating", { precision: 2, scale: 1 }),
+  reviewCount: integer("review_count"),
+  
+  // Tracking
+  lastChecked: timestamp("last_checked"),
+  priceHistory: jsonb("price_history"), // [{date, washPrice, dryPrice}]
+  notes: text("notes"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("competitors_user_id_idx").on(table.userId),
+  placeIdIdx: index("competitors_place_id_idx").on(table.placeId),
+}));
+
+export const insertCompetitorSchema = createInsertSchema(competitors).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Competitor = typeof competitors.$inferSelect;
+export type InsertCompetitor = z.infer<typeof insertCompetitorSchema>;
+
+// Market Intelligence Alerts
+export const marketAlerts = pgTable("market_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  alertType: text("alert_type").notNull(), // "new_competitor", "price_change", "closing", "for_sale"
+  radius: integer("radius").default(5), // miles
+  centerAddress: text("center_address"),
+  centerLat: decimal("center_lat", { precision: 10, scale: 7 }),
+  centerLng: decimal("center_lng", { precision: 10, scale: 7 }),
+  
+  priceThreshold: decimal("price_threshold", { precision: 6, scale: 2 }), // Alert if competitor below this price
+  
+  isActive: boolean("is_active").default(true),
+  lastTriggered: timestamp("last_triggered"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("market_alerts_user_id_idx").on(table.userId),
+}));
+
+export const insertMarketAlertSchema = createInsertSchema(marketAlerts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type MarketAlert = typeof marketAlerts.$inferSelect;
+export type InsertMarketAlert = z.infer<typeof insertMarketAlertSchema>;
+
+// Scheduled Reports
+export const scheduledReports = pgTable("scheduled_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  reportType: text("report_type").notNull(), // "cleanbi_market", "competitor_analysis", "equipment_status", "financial_summary"
+  reportName: text("report_name").notNull(),
+  
+  // Schedule
+  frequency: text("frequency").notNull(), // "daily", "weekly", "monthly"
+  dayOfWeek: integer("day_of_week"), // 0-6 for weekly
+  dayOfMonth: integer("day_of_month"), // 1-31 for monthly
+  preferredHour: integer("preferred_hour").default(8), // Hour to send (0-23)
+  timezone: text("timezone").default("America/New_York"),
+  
+  // Report configuration
+  config: jsonb("config"), // Report-specific settings (addresses, metrics, etc.)
+  
+  // Delivery
+  deliveryEmail: text("delivery_email"),
+  includesPdf: boolean("includes_pdf").default(true),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  lastRun: timestamp("last_run"),
+  nextRun: timestamp("next_run"),
+  runCount: integer("run_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("scheduled_reports_user_id_idx").on(table.userId),
+  nextRunIdx: index("scheduled_reports_next_run_idx").on(table.nextRun),
+}));
+
+export const insertScheduledReportSchema = createInsertSchema(scheduledReports).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ScheduledReport = typeof scheduledReports.$inferSelect;
+export type InsertScheduledReport = z.infer<typeof insertScheduledReportSchema>;
+
+// Report History
+export const reportHistory = pgTable("report_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  scheduledReportId: varchar("scheduled_report_id").references(() => scheduledReports.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  reportType: text("report_type").notNull(),
+  reportName: text("report_name").notNull(),
+  
+  // File storage
+  pdfUrl: text("pdf_url"),
+  pdfKey: text("pdf_key"), // Object storage key
+  
+  // Delivery
+  emailSent: boolean("email_sent").default(false),
+  emailSentAt: timestamp("email_sent_at"),
+  recipientEmail: text("recipient_email"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "generated", "sent", "failed"
+  errorMessage: text("error_message"),
+  
+  generatedAt: timestamp("generated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("report_history_user_id_idx").on(table.userId),
+  scheduledReportIdIdx: index("report_history_scheduled_report_id_idx").on(table.scheduledReportId),
+}));
+
+export const insertReportHistorySchema = createInsertSchema(reportHistory).omit({
+  id: true,
+  generatedAt: true,
+});
+
+export type ReportHistory = typeof reportHistory.$inferSelect;
+export type InsertReportHistory = z.infer<typeof insertReportHistorySchema>;
+
+// Equipment Lifecycle Tracker
+export const equipment = pgTable("equipment", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Equipment identification
+  name: text("name").notNull(), // "Washer #1", "Dryer Bank A"
+  type: text("type").notNull(), // "washer", "dryer", "folding_table", "change_machine", "soap_dispenser"
+  brand: text("brand"),
+  model: text("model"),
+  serialNumber: text("serial_number"),
+  
+  // Location
+  locationName: text("location_name"), // If user has multiple locations
+  locationAddress: text("location_address"),
+  position: text("position"), // "Row 1 - Left", "Back Wall"
+  
+  // Purchase info
+  purchaseDate: timestamp("purchase_date"),
+  purchasePrice: decimal("purchase_price", { precision: 10, scale: 2 }),
+  vendor: text("vendor"),
+  warrantyExpires: timestamp("warranty_expires"),
+  
+  // Depreciation
+  usefulLifeYears: integer("useful_life_years").default(10),
+  salvageValue: decimal("salvage_value", { precision: 10, scale: 2 }).default("0"),
+  depreciationMethod: text("depreciation_method").default("straight_line"), // "straight_line", "declining_balance"
+  
+  // Current status
+  status: text("status").default("operational"), // "operational", "needs_service", "out_of_service", "retired"
+  currentValue: decimal("current_value", { precision: 10, scale: 2 }),
+  lastValueUpdate: timestamp("last_value_update"),
+  
+  // Usage tracking
+  cycleCount: integer("cycle_count").default(0),
+  lastCycleReset: timestamp("last_cycle_reset"),
+  averageCyclesPerDay: decimal("average_cycles_per_day", { precision: 6, scale: 2 }),
+  
+  // Revenue tracking
+  pricePerCycle: decimal("price_per_cycle", { precision: 6, scale: 2 }),
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).default("0"),
+  
+  notes: text("notes"),
+  imageUrl: text("image_url"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("equipment_user_id_idx").on(table.userId),
+  typeIdx: index("equipment_type_idx").on(table.type),
+  statusIdx: index("equipment_status_idx").on(table.status),
+}));
+
+export const insertEquipmentSchema = createInsertSchema(equipment).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Equipment = typeof equipment.$inferSelect;
+export type InsertEquipment = z.infer<typeof insertEquipmentSchema>;
+
+// Equipment Maintenance Records
+export const maintenanceRecords = pgTable("maintenance_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  equipmentId: varchar("equipment_id").notNull().references(() => equipment.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Maintenance details
+  type: text("type").notNull(), // "preventive", "repair", "inspection", "replacement"
+  description: text("description").notNull(),
+  performedBy: text("performed_by"), // Technician name/company
+  
+  // Costs
+  laborCost: decimal("labor_cost", { precision: 10, scale: 2 }),
+  partsCost: decimal("parts_cost", { precision: 10, scale: 2 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  
+  // Parts used
+  partsUsed: jsonb("parts_used"), // [{name, partNumber, quantity, cost}]
+  
+  // Timing
+  scheduledDate: timestamp("scheduled_date"),
+  completedDate: timestamp("completed_date"),
+  downtime: integer("downtime"), // Hours equipment was out of service
+  
+  // Follow-up
+  nextMaintenanceDue: timestamp("next_maintenance_due"),
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  equipmentIdIdx: index("maintenance_records_equipment_id_idx").on(table.equipmentId),
+  userIdIdx: index("maintenance_records_user_id_idx").on(table.userId),
+  typeIdx: index("maintenance_records_type_idx").on(table.type),
+}));
+
+export const insertMaintenanceRecordSchema = createInsertSchema(maintenanceRecords).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type MaintenanceRecord = typeof maintenanceRecords.$inferSelect;
+export type InsertMaintenanceRecord = z.infer<typeof insertMaintenanceRecordSchema>;
+
+// Equipment Maintenance Templates (recurring maintenance for equipment lifecycle)
+export const equipmentMaintenanceTemplates = pgTable("equipment_maintenance_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  equipmentId: varchar("equipment_id").notNull().references(() => equipment.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: text("name").notNull(), // "Monthly Bearing Check", "Quarterly Belt Inspection"
+  description: text("description"),
+  
+  // Schedule
+  intervalType: text("interval_type").notNull(), // "days", "weeks", "months", "cycles"
+  intervalValue: integer("interval_value").notNull(), // e.g., 30 for every 30 days
+  
+  // Reminders
+  reminderDaysBefore: integer("reminder_days_before").default(7),
+  lastCompleted: timestamp("last_completed"),
+  nextDue: timestamp("next_due"),
+  
+  // Estimated costs
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 2 }),
+  estimatedDuration: integer("estimated_duration"), // Minutes
+  
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  equipmentIdIdx: index("equipment_maint_templates_equipment_id_idx").on(table.equipmentId),
+  nextDueIdx: index("equipment_maint_templates_next_due_idx").on(table.nextDue),
+}));
+
+export const insertEquipmentMaintenanceTemplateSchema = createInsertSchema(equipmentMaintenanceTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type EquipmentMaintenanceTemplate = typeof equipmentMaintenanceTemplates.$inferSelect;
+export type InsertEquipmentMaintenanceTemplate = z.infer<typeof insertEquipmentMaintenanceTemplateSchema>;
+
+// Voice Command Log (for AI Voice Assistant)
+export const voiceCommands = pgTable("voice_commands", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  
+  transcript: text("transcript").notNull(), // Raw voice transcript
+  intent: text("intent"), // Detected intent: "analyze_location", "check_equipment", "market_report"
+  entities: jsonb("entities"), // Extracted entities: {address: "123 Main St", metric: "revenue"}
+  
+  // Processing
+  processed: boolean("processed").default(false),
+  response: text("response"), // AI response
+  actionTaken: text("action_taken"), // What action was executed
+  
+  // Metadata
+  confidence: decimal("confidence", { precision: 4, scale: 3 }), // Speech recognition confidence
+  duration: integer("duration"), // Audio duration in ms
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("voice_commands_user_id_idx").on(table.userId),
+  intentIdx: index("voice_commands_intent_idx").on(table.intent),
+}));
+
+export const insertVoiceCommandSchema = createInsertSchema(voiceCommands).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type VoiceCommand = typeof voiceCommands.$inferSelect;
+export type InsertVoiceCommand = z.infer<typeof insertVoiceCommandSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
