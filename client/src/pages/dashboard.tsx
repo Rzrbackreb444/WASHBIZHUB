@@ -75,6 +75,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 
 interface DashboardSummary {
   user: {
@@ -119,13 +120,6 @@ const QUICK_ACTIONS = [
   { label: "Service Guy AI", href: "/service-guy-ai", icon: Bot, description: "AI equipment troubleshooting", color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-500/10" },
 ];
 
-const DASHBOARD_NAV_ITEMS = [
-  { id: "overview", label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { id: "analytics", label: "Analytics", href: "/analytics-dashboard", icon: LineChart },
-  { id: "broker", label: "Broker", href: "/broker-dashboard", icon: Briefcase, roles: ["broker", "admin"] },
-  { id: "buyer", label: "Buyer", href: "/buyer-dashboard", icon: ShoppingCart },
-  { id: "admin", label: "Admin", href: "/admin", icon: Settings, roles: ["admin"] },
-];
 
 const TIER_CONFIG: Record<string, { icon: any; label: string; variant: "success" | "warning" | "gold" | "default" }> = {
   free: { icon: Gift, label: "Free Plan", variant: "default" },
@@ -292,7 +286,7 @@ export default function Dashboard() {
         >
           <motion.div variants={itemVariants}>
             <DashboardNav
-              items={DASHBOARD_NAV_ITEMS}
+              items={getNavItemsForRole(summary?.user.role)}
               currentPath="/dashboard"
               userRole={summary?.user.role || "user"}
               variant="tabs"

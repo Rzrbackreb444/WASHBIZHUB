@@ -17,6 +17,7 @@ import {
   KPIGroup,
   DashboardNav
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import { 
   Heart, 
   MessageSquare, 
@@ -59,13 +60,6 @@ const navItems = [
   { id: "analytics", label: "Analytics", href: "/buyer-dashboard?tab=analytics", icon: Activity },
 ];
 
-const dashboardNavItems = [
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
-  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
-  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
-  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
-  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
-];
 
 const mockActivityData = [
   { date: "Mon", views: 12, saves: 3 },
@@ -159,7 +153,7 @@ export default function BuyerDashboard() {
         headerActions={
           <div className="flex items-center gap-2">
             <DashboardNav 
-              items={dashboardNavItems} 
+              items={getNavItemsForRole(user?.role)} 
               variant="dropdown" 
               className="hidden md:flex"
             />

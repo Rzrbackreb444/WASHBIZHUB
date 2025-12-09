@@ -27,6 +27,7 @@ import {
   KPIGroup,
   DashboardNav,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import { 
   Calculator, 
   LayoutDashboard, 
@@ -64,13 +65,6 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-const dashboardNavItems = [
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard" },
-  { id: "seller", label: "Seller Dashboard", href: "/seller-dashboard" },
-  { id: "vendor", label: "Vendor Dashboard", href: "/vendor-dashboard" },
-  { id: "affiliate", label: "Affiliate Dashboard", href: "/affiliate-dashboard" },
-  { id: "owner", label: "Owner Dashboard", href: "/owner-dashboard" },
-];
 
 const QUICK_ACTIONS = [
   {
@@ -335,7 +329,7 @@ export default function OwnerDashboard() {
         headerActions={
           <div className="flex items-center gap-2">
             <DashboardNav 
-              items={dashboardNavItems} 
+              items={getNavItemsForRole(user?.role)} 
               variant="dropdown" 
               className="hidden md:flex"
             />

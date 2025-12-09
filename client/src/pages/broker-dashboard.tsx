@@ -51,6 +51,7 @@ import {
   DashboardNav,
   type DateRange,
 } from "@/components/dashboard";
+import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import { DashboardSkeleton } from "@/components/premium/skeletons";
 import {
   LineChart,
@@ -83,11 +84,6 @@ interface Inquiry {
   status: "new" | "contacted" | "qualified" | "closed";
 }
 
-const dashboardNavItems = [
-  { id: "broker", label: "Broker Dashboard", href: "/broker-dashboard", icon: Building2 },
-  { id: "buyer", label: "Buyer Dashboard", href: "/buyer-dashboard", icon: ShoppingCart },
-  { id: "admin", label: "Admin Dashboard", href: "/admin-dashboard", icon: Users, roles: ["admin"] },
-];
 
 const mockViewsData = [
   { date: "Dec 1", views: 45, inquiries: 3 },
@@ -265,7 +261,7 @@ export default function BrokerDashboard() {
       >
         <div className="space-y-6">
           <DashboardNav
-            items={dashboardNavItems}
+            items={getNavItemsForRole(user?.role)}
             currentPath="/broker-dashboard"
             userRole={user?.role}
           />
