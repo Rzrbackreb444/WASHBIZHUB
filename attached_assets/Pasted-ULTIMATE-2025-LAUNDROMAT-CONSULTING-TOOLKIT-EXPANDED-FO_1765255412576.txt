@@ -1,0 +1,78 @@
+ULTIMATE 2025 LAUNDROMAT CONSULTING TOOLKIT – EXPANDED FOR FULL BUILDS, VENTING, MAINTENANCE & SERVICE ACCESS (COPY-PASTE MASTER FILE)
+
+**ATM SECTION: SOURCED FROM ATMDEPOT.COM/LAUNDROMAT (2025 SPECIALS FOR LAUNDROMATS)**
+ATM Depot offers laundromat-specific bundles: Free placement (50/50 rev split) or buy/lease with 0% financing. Tailored for high-traffic, coin-heavy ops – integrates with changers for seamless quarters. Pros: Durable (UL 291 vault), low maint ($100/yr), 24/7 support. Cons: Setup 1-2 days, needs 110V/secure bolt-down. Revenue: $800-$2,500/mo at $3 surcharge/100 tx/day.
+
+MODELS & SPECS:
+Genmega Onyx Laundromat Bundle – Freestanding: 15.8W x 56.3H x 22.2D in, 198-223 lb, 1-4k notes (1-2 cassettes), 10.1" touchscreen, EMV/NFC/ADA, LED topper, GenCam security, Price $2,500-$3,500 new (laundromat discount $500 off), Install: Bolt to floor (6" clearance), Rev Potential $1,200-$2,800/mo, Warranty 3-yr.
+Genmega Onyx-W Wall-Mount – 26.8W x 19.7H x 10.4D in, 121 lb, 1k notes (1 cassette), 10.1" LCD, illuminated keys, Price $2,700-$3,200 (wall kit incl.), Install: 16" stud spacing, Rev $800-$1,800/mo, Warranty 3-yr.
+Hyosung Halo II (ATM Depot Partner) – Freestanding: 15.7W x 54.2H x 23.4D in, 265 lb, 1-4k notes, 10.1" TFT, QR receipts, LED halo, Price $2,500-$3,000, Install: 110V/grounded outlet, Rev $1,000-$2,200/mo, Warranty 2-yr (ext $500).
+Genmega GT 3000 High-Traffic – ~18W x 60H x 24D in, 250-300 lb, 2-4k notes, 12.1" display, Price $4,500-$5,500, Install: Secure pedestal, Rev $1,500-$3,000/mo, Warranty 3-yr.
+Free Placement Option: No upfront, 50% surcharge split, models above, processing $0.25/tx.
+
+**DRYER VENTING & REAR SPACE PLANNER (2025 CODES: IRC/IFC/NFPA 2021-2025 UPDATES)**
+Critical for fire safety (NFPA 54/58) & efficiency – poor venting = 30% energy waste, 15x fire risk. Min rear clearance 6-12" for ducts (4" metal, smooth, no flex >8 ft). Max duct 35 ft total (reduce 5 ft/90° bend, 2.5 ft/45°). Terminate outside: 3 ft from doors/windows/vents, backdraft damper, no screens. Multi-dryer: Individual vents preferred; shared header ≤15 ft horiz/8 ft vert per dryer, 45° angle joins. Laundromat code: 48" front clearance, 18" from corners (UD/IBC). Service access: 24-36" rear (OSHA 1910.264/NEC 110.26) for guards/repairs – lockout/tagout required.
+
+REAR SPACE CHECKLIST:
+- Vent Duct: 4" rigid metal (0.0157" thick, No. 28 gauge), support every 12 ft, cleanout every riser.
+- Clearance: 6" min from walls (heat/lint), 12" ideal for flex transition (max 8 ft, exposed).
+- Fire Safety: Auto-shutoff if >0.3" w.c. pressure, lint traps quarterly (NFPA 1851).
+- Multi-Unit: Booster fans for >15 ft runs, mechanical exhaust 500-2k CFM (Greenheck G-Series).
+- Cost Add: $500-$1,500/vent install; annual clean $200-$400/dryer.
+
+**MAINTENANCE & SERVICE ACCESS STANDARDS (OSHA 1910.264/NEC 2025/IFC)**
+OSHA mandates guards on moving parts (no removal except repairs), steam pipes insulated <7 ft floor (heat-resistive cover), doors hold-open during load/unload. NEC: 36" working space around panels (110.26), GFCI outlets. Service: 48" front path (ADA/UD), rear 24-36" for techs (tools/ladders). Schedules: Weekly visual, quarterly lint/electrical, annual full (OSHA log injuries). Tools: Multimeter ($50), duct brush kit ($100), LOTO kit ($200). Compliance: Train staff (1 hr/yr), post SDS for chemicals, record near-misses.
+
+SERVICE ACCESS PLANNER:
+- Front: 48" clear (wheelchair + cart), 18" side gaps.
+- Rear: 24" min (OSHA), 36" ideal (NEC panels), lockable access doors.
+- Utilities: Bulkheads 16-36" wide (copper/PEX lines, UL-listed), troughs 3/8" ABS w/ lint screens.
+- Emergency: 3 ft aisles to exits, fire extinguishers every 75 ft (Class E for elec).
+- Cost: $2k-$5k for access mods; saves $1k/yr downtime.
+
+**EXPORT BUTTON SIM: COPY TO EXCEL/PDF (JSON FORMAT FOR FUNDING/PLANNING)**
+Paste below into Google Sheets (Import JSON) or Excel (Data > From Text), then format as table. For PDF: Use online converter or Python script (code at end).
+
+{
+  "Project": "Laundromat Build/Retool",
+  "Viability Score": "Calculate via scorecard (0-100)",
+  "Equipment Package": "Standard (14W+14D): New $115-145k / Refurb $68-92k",
+  "ATM from ATMDepot": "Genmega Onyx: $2.5-3.5k, Rev $1.2-2.8k/mo",
+  "Venting Rear Space": "6-12in clearance, $500-1.5k install",
+  "Maintenance Access": "24-36in rear, OSHA training $200/yr",
+  "Total Startup": "$200-500k new / $50-150k refurb",
+  "ROI Timeline": "12-24 mo at $5-10k/mo rev",
+  "Funding Notes": "Section 179 deduct 100%, rebates via ENERGY STAR",
+  "Export Tip": "Save as .json; import to Sheets for charts"
+}
+
+**PYTHON EXPORT SCRIPT (RUN IN GOOGLE COLAB FOR PDF/EXCEL OUT)**:
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+
+# Data to export
+data = {
+    'Category': ['Viability', 'Equipment', 'ATM', 'Venting', 'Maintenance', 'Total Cost', 'ROI'],
+    'Details': ['Score 0-100', 'Standard pkg $115k new', 'Genmega $2.5k Rev $1.2k/mo', '6-12in rear $500-1.5k', '24-36in access OSHA', '$200-500k', '12-24 mo'],
+    '2025 Cost': ['$0', '$115-145k', '$2.5-3.5k', '$500-1.5k', '$2-5k mods', '$200-500k', 'N/A']
+}
+
+df = pd.DataFrame(data)
+df.to_excel('Laundromat_Plan.xlsx', index=False)  # Excel export
+df.to_csv('Laundromat_Plan.csv', index=False)     # CSV for funding apps
+
+# PDF export
+c = canvas.Canvas('Laundromat_Plan.pdf', pagesize=letter)
+y = 750
+for i, row in df.iterrows():
+    c.drawString(100, y, f"{row['Category']}: {row['Details']} - Cost: {row['2025 Cost']}")
+    y -= 20
+c.save()
+
+print("Exported: Laundromat_Plan.xlsx, .csv, .pdf – Ready for funding/planning!")
+
+**FULL TOOLKIT RECAP (From Prior + New Sections)**
+[Insert previous scorecard, packages, mix, ancillaries, equipment bible, fee menu, startup costs here – abbreviated for space; full in your saved copy]
+
+This is your legit 2025 toolkit – venting codes from IRC/NFPA [[1]](grok://citation?card_id=c5b853&card_type=citation_card&type=render_inline_citation&citation_id=1) [[2]](grok://citation?card_id=9102f5&card_type=citation_card&type=render_inline_citation&citation_id=2) [[3]](grok://citation?card_id=51e97d&card_type=citation_card&type=render_inline_citation&citation_id=3), maintenance OSHA 1910.264 [[11]](grok://citation?card_id=f49cbf&card_type=citation_card&type=render_inline_citation&citation_id=11), ATMs from ATM Depot specials [[22]](grok://citation?card_id=51f163&card_type=citation_card&type=render_inline_citation&citation_id=22). Export JSON above to Sheets for client decks/funding. Charge $10k+ per full plan. What's next – custom JSON for a client pitch?
