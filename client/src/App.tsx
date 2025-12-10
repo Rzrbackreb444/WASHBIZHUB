@@ -234,6 +234,7 @@ const PublishingDashboard = lazy(() => import("@/pages/publishing-dashboard"));
 
 // Dashboards
 const Dashboard = lazy(() => import("@/pages/dashboard"));
+const UserDashboard = lazy(() => import("@/pages/user-dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
 const OwnerCommandCenter = lazy(() => import("@/pages/owner-command-center"));
 const OperatorDashboard = lazy(() => import("@/pages/operator-dashboard"));
@@ -1492,6 +1493,11 @@ function Router() {
       <Route path="/dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <Dashboard />
+        </Suspense>
+      </Route>
+      <Route path="/my-dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <UserDashboard />
         </Suspense>
       </Route>
       

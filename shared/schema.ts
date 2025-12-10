@@ -4010,6 +4010,127 @@ export type InsertTemplateDownload = z.infer<typeof insertTemplateDownloadSchema
 export type TemplateDownload = typeof templateDownloads.$inferSelect;
 
 // ============================================================================
+// USER SAVED ITEMS - Calculators, Reports, Templates, Configurations
+// ============================================================================
+
+// Saved Calculator Configurations (User's saved calculator inputs/results)
+export const savedCalculators = pgTable("saved_calculators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Calculator Reference
+  calculatorType: text("calculator_type").notNull(), // "valuation", "roi", "cash_flow", "loan", "expense", "break_even", etc.
+  name: text("name").notNull(), // User-defined name for this saved calculation
+  description: text("description"),
+  
+  // Saved Configuration
+  inputs: jsonb("inputs").notNull(), // All input values user entered
+  results: jsonb("results"), // Calculated results for quick display
+  
+  // Associated Address/Business (optional)
+  address: text("address"),
+  businessName: text("business_name"),
+  
+  // Sharing
+  isPublic: boolean("is_public").notNull().default(false),
+  shareSlug: text("share_slug").unique(),
+  
+  // Metadata
+  lastUsedAt: timestamp("last_used_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("saved_calculators_user_idx").on(table.userId),
+  typeIdx: index("saved_calculators_type_idx").on(table.calculatorType),
+  shareIdx: index("saved_calculators_share_idx").on(table.shareSlug),
+}));
+
+export const insertSavedCalculatorSchema = createInsertSchema(savedCalculators).omit({
+  id: true,
+  lastUsedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSavedCalculator = z.infer<typeof insertSavedCalculatorSchema>;
+export type SavedCalculator = typeof savedCalculators.$inferSelect;
+
+// User Purchased Reports (Track purchased single-analysis reports)
+export const userPurchasedReports = pgTable("user_purchased_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Report Details
+  reportType: text("report_type").notNull(), // "demographic", "competition", "cleanbi_valuation", "complete_bundle"
+  address: text("address").notNull(),
+  
+  // Status & Delivery
+  status: text("status").notNull().default("processing"), // "processing", "completed", "failed"
+  pdfUrl: text("pdf_url"),
+  googleSheetsUrl: text("google_sheets_url"),
+  googleSlidesUrl: text("google_slides_url"),
+  
+  // Payment
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  stripePaymentId: text("stripe_payment_id"),
+  
+  // Metadata
+  expiresAt: timestamp("expires_at"), // Optional expiration for time-limited access
+  downloadCount: integer("download_count").default(0).notNull(),
+  lastDownloadedAt: timestamp("last_downloaded_at"),
+  
+  purchasedAt: timestamp("purchased_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_purchased_reports_user_idx").on(table.userId),
+  statusIdx: index("user_purchased_reports_status_idx").on(table.status),
+}));
+
+export const insertUserPurchasedReportSchema = createInsertSchema(userPurchasedReports).omit({
+  id: true,
+  downloadCount: true,
+  lastDownloadedAt: true,
+  purchasedAt: true,
+});
+
+export type InsertUserPurchasedReport = z.infer<typeof insertUserPurchasedReportSchema>;
+export type UserPurchasedReport = typeof userPurchasedReports.$inferSelect;
+
+// User Activity Feed (Social network-style activity tracking)
+export const userActivityFeed = pgTable("user_activity_feed", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Activity Type
+  activityType: text("activity_type").notNull(), // "saved_search", "favorite_listing", "purchased_report", "saved_calculator", "message_sent", "listing_created", "profile_updated"
+  
+  // Referenced Entity
+  entityType: text("entity_type"), // "listing", "report", "calculator", "search", "message", "broker"
+  entityId: varchar("entity_id"),
+  
+  // Activity Details
+  title: text("title").notNull(),
+  description: text("description"),
+  metadata: jsonb("metadata"), // Additional context
+  
+  // Visibility
+  isPublic: boolean("is_public").notNull().default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_activity_feed_user_idx").on(table.userId),
+  createdAtIdx: index("user_activity_feed_created_idx").on(table.createdAt),
+  publicIdx: index("user_activity_feed_public_idx").on(table.isPublic),
+}));
+
+export const insertUserActivityFeedSchema = createInsertSchema(userActivityFeed).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUserActivityFeed = z.infer<typeof insertUserActivityFeedSchema>;
+export type UserActivityFeed = typeof userActivityFeed.$inferSelect;
+
+// ============================================================================
 // COMPREHENSIVE RESOURCE LIBRARY (Industry Ecosystem)
 // ============================================================================
 

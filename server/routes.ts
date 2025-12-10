@@ -25,6 +25,7 @@ import driverTrackingRoutes from "./routes/driver-tracking";
 import profileRoutes, { activityRouter } from "./profile-routes";
 import bookingRoutes from "./booking-routes";
 import singleAnalysisRoutes from "./single-analysis-routes";
+import userDashboardRoutes from "./user-dashboard-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -489,6 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== PROFILE & SOCIAL ====================
   app.use("/api/profile", profileRoutes);
+  app.use("/api/user-dashboard", userDashboardRoutes);
   
   // Machine Booking System
   app.use(bookingRoutes);
