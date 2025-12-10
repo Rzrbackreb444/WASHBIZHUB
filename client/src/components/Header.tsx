@@ -824,6 +824,42 @@ export function Header() {
                             </span>
                           </Link>
                         </SheetClose>
+
+                        {/* Mobile Quick Access - Saved Items */}
+                        <div className="grid grid-cols-2 gap-2 mt-3">
+                          <SheetClose asChild>
+                            <Link href="/dashboard?tab=favorites">
+                              <span className="flex flex-col items-center gap-1 px-3 py-2.5 rounded-md text-xs cursor-pointer transition-colors bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground" data-testid="link-mobile-favorites">
+                                <Heart className="w-4 h-4 text-red-500" />
+                                Favorites
+                              </span>
+                            </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
+                            <Link href="/dashboard?tab=searches">
+                              <span className="flex flex-col items-center gap-1 px-3 py-2.5 rounded-md text-xs cursor-pointer transition-colors bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground" data-testid="link-mobile-searches">
+                                <Search className="w-4 h-4 text-blue-500" />
+                                Searches
+                              </span>
+                            </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
+                            <Link href="/dashboard?tab=calculators">
+                              <span className="flex flex-col items-center gap-1 px-3 py-2.5 rounded-md text-xs cursor-pointer transition-colors bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground" data-testid="link-mobile-saved-calcs">
+                                <Calculator className="w-4 h-4 text-green-500" />
+                                Saved Calcs
+                              </span>
+                            </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
+                            <Link href="/dashboard?tab=templates">
+                              <span className="flex flex-col items-center gap-1 px-3 py-2.5 rounded-md text-xs cursor-pointer transition-colors bg-muted/30 hover:bg-muted text-muted-foreground hover:text-foreground" data-testid="link-mobile-templates">
+                                <FileText className="w-4 h-4 text-purple-500" />
+                                Templates
+                              </span>
+                            </Link>
+                          </SheetClose>
+                        </div>
                       </div>
                     )}
 
