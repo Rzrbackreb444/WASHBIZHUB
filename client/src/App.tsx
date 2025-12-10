@@ -92,6 +92,7 @@ import NotFound from "@/pages/not-found";
 // ============================================================================
 const CleanBI = lazy(() => import("@/pages/cleanbi"));
 const Pricing = lazy(() => import("@/pages/pricing"));
+const SingleAnalysis = lazy(() => import("@/pages/single-analysis"));
 const Blog = lazy(() => import("@/pages/blog"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
 const CoursesHub = lazy(() => import("@/pages/courses-hub"));
@@ -452,6 +453,16 @@ function Router() {
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
+      <Route path="/single-analysis">
+        <Suspense fallback={<LoadingFallback />}>
+          <SingleAnalysis />
+        </Suspense>
+      </Route>
+      <Route path="/reports">
+        <Suspense fallback={<LoadingFallback />}>
+          <SingleAnalysis />
+        </Suspense>
+      </Route>
       <Route path="/blog" component={Blog} />
       <Route path="/blog/:id">
         <Suspense fallback={<LoadingFallback />}>
