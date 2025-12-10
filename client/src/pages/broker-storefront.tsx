@@ -209,23 +209,51 @@ export default function BrokerStorefront() {
 
   const contactMutation = useMutation({
     mutationFn: async (values: ContactFormValues) => {
-      const brokerEmail = data?.profile.email || CONSULT_EMAIL;
-      window.location.href = `mailto:${brokerEmail}?subject=${encodeURIComponent(
-        `Inquiry from WashBizHub - ${values.name}`
-      )}&body=${encodeURIComponent(
-        `Name: ${values.name}\nEmail: ${values.email}\nPhone: ${values.phone || 'Not provided'}\n\nMessage:\n${values.message}`
-      )}`;
+      // Try to send via API first
+      try {
+        await apiRequest("/api/brokers/contact", {
+          method: "POST",
+          body: JSON.stringify({
+            brokerSlug: slug,
+            ...values,
+          }),
+        });
+        return { method: "api" };
+      } catch {
+        // Fallback to mailto if API fails
+        if (typeof window !== "undefined") {
+          const brokerEmail = data?.profile.email || CONSULT_EMAIL;
+          const mailtoUrl = `mailto:${brokerEmail}?subject=${encodeURIComponent(
+            `Inquiry from WashBizHub - ${values.name}`
+          )}&body=${encodeURIComponent(
+            `Name: ${values.name}\nEmail: ${values.email}\nPhone: ${values.phone || 'Not provided'}\n\nMessage:\n${values.message}`
+          )}`;
+          window.location.href = mailtoUrl;
+          return { method: "mailto" };
+        }
+        throw new Error("Unable to send message");
+      }
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       toast({
-        title: "Opening Email",
-        description: "Your default email client will open to send your message.",
+        title: result?.method === "api" ? "Message Sent" : "Opening Email",
+        description: result?.method === "api" 
+          ? "Your message has been sent to the broker."
+          : "Your default email client will open to send your message.",
       });
       form.reset();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Unable to send message. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
   const onSubmit = (values: ContactFormValues) => {
+    if (contactMutation.isPending) return;
     contactMutation.mutate(values);
   };
 
