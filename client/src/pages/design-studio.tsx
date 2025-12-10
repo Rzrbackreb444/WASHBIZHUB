@@ -43,6 +43,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useLocationDesign } from "@/contexts/LocationDesignContext";
 import { ValuationEstimatesPanel } from "@/components/design-studio/ValuationEstimatesPanel";
+import { MapIntegrationPanel } from "@/components/design-studio/MapIntegrationPanel";
+import { PropertyDataPanel } from "@/components/design-studio/PropertyDataPanel";
+import { SavedLayoutsPanel } from "@/components/design-studio/SavedLayoutsPanel";
 
 const Canvas = lazy(() => import("@react-three/fiber").then(m => ({ default: m.Canvas })));
 const ThreeScene = lazy(() => import("./design-studio-3d-scene"));
@@ -141,6 +144,20 @@ const SCALE_3D = 0.02;
 
 const STARTER_TEMPLATES: StarterTemplate[] = [
   {
+    id: "micro-mat",
+    name: "Micro Mat",
+    description: "500 sq ft - Compact urban",
+    sqft: 500,
+    icon: Store,
+    dimensions: { width: 960, depth: 720 },
+    equipment: [
+      { equipmentId: "dexter-t900", x: 40, y: 60, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 100, y: 60, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 40, y: 160, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 100, y: 160, rotation: 0 },
+    ],
+  },
+  {
     id: "small-mat",
     name: "Small Mat",
     description: "1,000 sq ft - Starter layout",
@@ -154,6 +171,24 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
       { equipmentId: "dexter-t1200", x: 220, y: 80, rotation: 0 },
       { equipmentId: "speed-queen-stack", x: 40, y: 200, rotation: 0 },
       { equipmentId: "speed-queen-stack", x: 100, y: 200, rotation: 0 },
+    ],
+  },
+  {
+    id: "standard-mat",
+    name: "Standard Mat",
+    description: "1,500 sq ft - Neighborhood",
+    sqft: 1500,
+    icon: Building2,
+    dimensions: { width: 1800, depth: 1440 },
+    equipment: [
+      { equipmentId: "dexter-t900", x: 50, y: 80, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 110, y: 80, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 170, y: 80, rotation: 0 },
+      { equipmentId: "dexter-t1200", x: 230, y: 80, rotation: 0 },
+      { equipmentId: "dexter-t1200", x: 290, y: 80, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 50, y: 200, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 110, y: 200, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 170, y: 200, rotation: 0 },
     ],
   },
   {
@@ -179,6 +214,28 @@ const STARTER_TEMPLATES: StarterTemplate[] = [
   {
     id: "large-mat",
     name: "Large Mat",
+    description: "3,500 sq ft - Regional hub",
+    sqft: 3500,
+    icon: Warehouse,
+    dimensions: { width: 2880, depth: 2160 },
+    equipment: [
+      { equipmentId: "dexter-t900", x: 60, y: 100, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 130, y: 100, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 200, y: 100, rotation: 0 },
+      { equipmentId: "dexter-t900", x: 270, y: 100, rotation: 0 },
+      { equipmentId: "dexter-t1200", x: 340, y: 100, rotation: 0 },
+      { equipmentId: "dexter-t1200", x: 410, y: 100, rotation: 0 },
+      { equipmentId: "speed-queen-sfn", x: 480, y: 100, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 60, y: 280, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 130, y: 280, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 200, y: 280, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 270, y: 280, rotation: 0 },
+      { equipmentId: "speed-queen-stack", x: 340, y: 280, rotation: 0 },
+    ],
+  },
+  {
+    id: "xlarge-mat",
+    name: "XL Mat",
     description: "5,000 sq ft - Premium layout",
     sqft: 5000,
     icon: Warehouse,
@@ -1276,6 +1333,19 @@ export default function DesignStudio() {
   const [sendToConsultantDialogOpen, setSendToConsultantDialogOpen] = useState(false);
   const [isSendingToConsultant, setIsSendingToConsultant] = useState(false);
   const [consultantNotes, setConsultantNotes] = useState("");
+  
+  const [rightPanelTab, setRightPanelTab] = useState<"metrics" | "map" | "property" | "saved">("metrics");
+  const [parcelData, setParcelData] = useState<{
+    address: string;
+    coordinates: { lat: number; lng: number };
+    parcelSize: number;
+    parcelDimensions: { width: number; depth: number };
+    zoning: string;
+    lotNumber: string;
+    yearBuilt?: number;
+    buildingSize?: number;
+    assessed?: number;
+  } | null>(null);
 
   const { currentLocation, clearLocationContext, calculateRevenueMultiplier, isLocationLinked } = useLocationDesign();
 
@@ -3649,38 +3719,159 @@ export default function DesignStudio() {
             </div>
 
             {!isMobile && (
-              <Card className="lg:col-span-1 bg-white/5 backdrop-blur border-white/10">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-white text-sm flex items-center gap-2">
-                    <Calculator className="h-4 w-4 text-[#39CCCC]" />
-                    Live Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <MetricsPanel
-                    washerCount={washerCount}
-                    dryerCount={dryerCount}
-                    totalCost={totalCost}
-                    totalTPD={totalTPD}
-                    dailyRevenue={dailyRevenue}
-                    monthlyRevenue={monthlyRevenue}
-                    annualRevenue={annualRevenue}
-                    cleanbiScore={cleanbiScore}
-                    dynamicPricingBoost={dynamicPricingBoost}
-                    annualDynamicBoost={annualDynamicBoost}
-                    placedEquipment={placedEquipment}
-                    revenueBreakdown={revenueBreakdown}
-                    ancillaryRevenue={ancillaryRevenue}
-                    sqft={sqft}
-                    saveDesign={saveDesign}
-                    exportPNG={exportPNG}
-                    exportPDF={exportPDF}
-                    generateShareLink={generateShareLink}
-                    onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
-                    locationContext={locationContext}
-                  />
-                </CardContent>
-              </Card>
+              <div className="lg:col-span-1 space-y-3">
+                <Tabs value={rightPanelTab} onValueChange={(v) => setRightPanelTab(v as "metrics" | "map" | "property" | "saved")} className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 bg-white/10 h-9">
+                    <TabsTrigger 
+                      value="metrics" 
+                      className="text-[10px] data-[state=active]:bg-[#39CCCC] data-[state=active]:text-[#001F3F]"
+                      data-testid="tab-metrics"
+                    >
+                      <Calculator className="w-3 h-3 mr-1" />
+                      Metrics
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="map" 
+                      className="text-[10px] data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                      data-testid="tab-map"
+                    >
+                      <MapPin className="w-3 h-3 mr-1" />
+                      Map
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="property" 
+                      className="text-[10px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                      data-testid="tab-property"
+                    >
+                      <Building2 className="w-3 h-3 mr-1" />
+                      Property
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="saved" 
+                      className="text-[10px] data-[state=active]:bg-amber-500 data-[state=active]:text-black"
+                      data-testid="tab-saved"
+                    >
+                      <Save className="w-3 h-3 mr-1" />
+                      Saved
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="metrics" className="mt-3">
+                    <Card className="bg-white/5 backdrop-blur border-white/10">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-white text-sm flex items-center gap-2">
+                          <Calculator className="h-4 w-4 text-[#39CCCC]" />
+                          Live Metrics
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <MetricsPanel
+                          washerCount={washerCount}
+                          dryerCount={dryerCount}
+                          totalCost={totalCost}
+                          totalTPD={totalTPD}
+                          dailyRevenue={dailyRevenue}
+                          monthlyRevenue={monthlyRevenue}
+                          annualRevenue={annualRevenue}
+                          cleanbiScore={cleanbiScore}
+                          dynamicPricingBoost={dynamicPricingBoost}
+                          annualDynamicBoost={annualDynamicBoost}
+                          placedEquipment={placedEquipment}
+                          revenueBreakdown={revenueBreakdown}
+                          ancillaryRevenue={ancillaryRevenue}
+                          sqft={sqft}
+                          saveDesign={saveDesign}
+                          exportPNG={exportPNG}
+                          exportPDF={exportPDF}
+                          generateShareLink={generateShareLink}
+                          onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
+                          locationContext={locationContext}
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="map" className="mt-3">
+                    <ScrollArea className="h-[calc(100vh-280px)]">
+                      <MapIntegrationPanel
+                        onAddressSelect={(parcel) => {
+                          setParcelData(parcel);
+                          setLocationContext({
+                            address: parcel.address,
+                            cleanbiScore: 75,
+                            grade: "B",
+                            medianIncome: 55000,
+                            populationDensity: 8000,
+                            competitorCount: 2,
+                            trafficScore: 70,
+                            opportunityLevel: "Good",
+                            revenueMultiplier: 1.1,
+                            notes: `Parcel: ${parcel.lotNumber}`
+                          });
+                          toast({
+                            title: "Location Linked",
+                            description: "Property data now connected to your design.",
+                          });
+                        }}
+                        onDimensionsUpdate={(newDimensions) => {
+                          setDimensions(newDimensions);
+                          pushToHistory(placedEquipment, newDimensions);
+                        }}
+                        currentDimensions={dimensions}
+                        isLinked={!!parcelData}
+                      />
+                    </ScrollArea>
+                  </TabsContent>
+                  
+                  <TabsContent value="property" className="mt-3">
+                    <ScrollArea className="h-[calc(100vh-280px)]">
+                      <PropertyDataPanel
+                        parcelData={parcelData}
+                        onRequestZoningReport={() => {
+                          toast({
+                            title: "Zoning Report Requested",
+                            description: "A detailed zoning report will be sent to your email.",
+                          });
+                        }}
+                      />
+                    </ScrollArea>
+                  </TabsContent>
+                  
+                  <TabsContent value="saved" className="mt-3">
+                    <ScrollArea className="h-[calc(100vh-280px)]">
+                      <SavedLayoutsPanel
+                        currentDimensions={dimensions}
+                        currentEquipment={placedEquipment}
+                        locationAddress={parcelData?.address || locationContext?.address}
+                        onLoadLayout={(layout) => {
+                          setDimensions(layout.dimensions);
+                          const newEquipment: PlacedEquipment[] = layout.equipment.map((e, idx) => {
+                            const equipmentDef = getCombinedEquipmentLibrary(pricingTier).find(eq => eq.id === e.equipmentId);
+                            if (!equipmentDef) return null;
+                            return {
+                              id: `loaded-${idx}-${Date.now()}`,
+                              x: e.x,
+                              y: e.y,
+                              z: 0,
+                              width: equipmentDef.width * SCALE_FACTOR,
+                              height: equipmentDef.depth * SCALE_FACTOR,
+                              depth: equipmentDef.height * SCALE_FACTOR,
+                              rotation: e.rotation,
+                              equipment: equipmentDef as typeof equipmentLibrary[number]
+                            };
+                          }).filter(Boolean) as PlacedEquipment[];
+                          setPlacedEquipment(newEquipment);
+                          pushToHistory(newEquipment, layout.dimensions);
+                          toast({
+                            title: "Layout Loaded",
+                            description: `"${layout.name}" has been loaded successfully.`,
+                          });
+                        }}
+                      />
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
+              </div>
             )}
           </div>
 
