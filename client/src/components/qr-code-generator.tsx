@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useId, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Download, Copy, QrCode, Gift, CreditCard, MapPin, User, Link, Printer } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +45,8 @@ export function QRCodeGenerator({
     website: ""
   });
   const { toast } = useToast();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const instanceId = useId();
 
   const generateQRValue = (): string => {
     switch (qrType) {
@@ -74,8 +75,14 @@ END:VCARD`;
 
   const currentQRValue = generateQRValue();
 
+  useEffect(() => {
+    if (currentQRValue && onGenerate) {
+      onGenerate({ type: qrType, value: currentQRValue });
+    }
+  }, [currentQRValue, qrType, onGenerate]);
+
   const downloadQRCode = () => {
-    const svg = document.getElementById("qr-code-svg");
+    const svg = svgRef.current;
     if (!svg) return;
 
     const svgData = new XMLSerializer().serializeToString(svg);
@@ -117,7 +124,7 @@ END:VCARD`;
   };
 
   const printQRCode = () => {
-    const svg = document.getElementById("qr-code-svg");
+    const svg = svgRef.current;
     if (!svg) return;
     
     const printWindow = window.open("", "_blank");
@@ -314,14 +321,14 @@ END:VCARD`;
           <div className="flex flex-col items-center space-y-4 pt-4 border-t">
             <div className="p-4 bg-white rounded-lg shadow-inner">
               <QRCodeSVG
-                id="qr-code-svg"
+                ref={svgRef as any}
                 value={currentQRValue}
                 size={size}
                 level="H"
                 includeMargin={true}
                 fgColor="#0A1628"
                 bgColor="#FFFFFF"
-                data-testid="qr-code-preview"
+                data-testid={`qr-code-preview-${instanceId}`}
               />
             </div>
             
