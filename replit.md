@@ -88,7 +88,15 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **SEO & Marketing:** Includes an AI-generated blog suite, global email capture, and global SEO/AEO tracking.
 - **Regional Pricing System:** PPP-adjusted pricing for 220+ countries with multi-currency support.
 - **Deal Flow & Funding:** Features a "Deal Flow Dashboard" and a "Funding Marketplace" with integrated partners.
-- **Laundromat Marketplace (/buy-laundromat):** Verified listings marketplace with CLEANBI analysis on every card. Features real verified listings with broker information, price filtering, and search. All leads route to consult@washbizhub.com.
+- **Laundromat Marketplace (/buy-laundromat):** Enhanced US Marketplace with advanced search features:
+  - **Faceted Filters:** Price range slider ($50K-$5M+), cap rate (4%-15%+), annual revenue, attended/unattended toggle, pickup & delivery, lease terms
+  - **Geo-Radius Search:** Location autocomplete with "within X miles of" search, interactive map view with markers, list/map view toggle
+  - **CLEANBI Integration:** Grade filter (A, B, C, Needs Work), CLEANBIGradeBadge on every listing card, "Analyze with CLEANBI" button
+  - **Categories & Tags:** Primary categories (Retail Laundromat, Hybrid, Route/PUD, Equipment Package, Development Site), Deal types (Turnkey, Value-Add, Distressed, Portfolio, Franchise), Financing tags (SBA-Ready, Seller Financing, Assume Lease)
+  - **Saved Searches & Alerts:** Save search criteria with alert frequency (instant, daily, weekly), email notifications for new matching listings
+  - API Endpoints: GET/POST /api/marketplace/search, GET/POST/DELETE /api/saved-searches
+  - Schema: listings table extended with capRate, annualRevenue, isAttended, hasPickupDelivery, leaseYearsRemaining, primaryCategory, dealType, financingTags, cleanbiScore, cleanbiGrade
+  - All leads route to consult@washbizhub.com
 - **Broker Directory (/brokers):** Featured brokers including Lawrence Larsen "Laundromat Larry" (DRE 49460). Verified broker profiles with contact options and listing counts.
 - **Sell Your Laundromat (/sell-your-laundromat):** Seller assistance page with listing form and direct contact to consult@washbizhub.com.
 - **Business Directory:** A "Verified Directory" for service providers.

@@ -219,6 +219,7 @@ const BuyersGuides = lazy(() => import("@/pages/buyers-guides"));
 // Website Builder
 const WebsiteBuilder = lazy(() => import("@/pages/website-builder"));
 const WebsiteTemplates = lazy(() => import("@/pages/website-templates"));
+const PublishingDashboard = lazy(() => import("@/pages/publishing-dashboard"));
 
 // Dashboards
 const Dashboard = lazy(() => import("@/pages/dashboard"));
@@ -781,6 +782,11 @@ function Router() {
       <Route path="/website-templates">
         <Suspense fallback={<LoadingFallback />}>
           <WebsiteTemplates />
+        </Suspense>
+      </Route>
+      <Route path="/publishing-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <PublishingDashboard />
         </Suspense>
       </Route>
 

@@ -146,9 +146,15 @@ export default function WebsiteTemplatesPage() {
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Professional Website Templates
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
             Launch your laundromat website in minutes. Choose a template, customize it, and deploy to your own subdomain instantly.
           </p>
+          <Link href="/publishing-dashboard">
+            <Button variant="outline" data-testid="button-publishing-dashboard">
+              <Rocket className="w-4 h-4 mr-2" />
+              Manage My Websites
+            </Button>
+          </Link>
         </div>
 
         {/* Filter Tabs */}
