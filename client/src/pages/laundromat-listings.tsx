@@ -17,6 +17,7 @@ import {
   ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import FeaturedListingsCarousel from "@/components/FeaturedListingsCarousel";
 
 const listingsStructuredData = {
   "@context": "https://schema.org",
@@ -123,36 +124,47 @@ export default function LaundromatListings() {
   const [sortBy, setSortBy] = useState<string>("featured");
   const [cleanbiLoadingId, setCleanbiLoadingId] = useState<string | null>(null);
 
-  // Fetch from the same source as the FeaturedListingsCarousel
-  const { data: carouselListings = [], isLoading } = useQuery<any[]>({
+  // Fetch ALL active listings from the marketplace
+  const { data: allListingsData = [], isLoading } = useQuery<any[]>({
+    queryKey: ['/api/listings?status=active'],
+    staleTime: 60000,
+  });
+
+  // Fetch featured carousel listings separately (for carousel display)
+  const { data: carouselData = [] } = useQuery<any[]>({
     queryKey: ['/api/listings/featured-carousel'],
     staleTime: 60000,
   });
 
-  // Transform carousel listings to the expected format (real listings only, images optional)
-  const listings: LaundroListing[] = carouselListings
-    .map((l: any) => ({
-      id: l.id?.toString() || l.slug || "unknown",
-      title: l.title || "Untitled Listing",
-      location: l.city || "Unknown",
-      state: l.region || "",
-      address: l.exactAddress || `${l.city || ""}, ${l.region || ""}`,
-      price: parseFloat(l.priceInUSD || l.priceOriginal || "0"),
-      annualRevenue: l.financials?.annualRevenue ? parseFloat(l.financials.annualRevenue) : 0,
-      monthlyProfit: l.financials?.cashFlow ? parseFloat(l.financials.cashFlow) / 12 : 0,
-      featured: l.subscriptionTier === 'diamond' || l.subscriptionTier === 'showcase' || l.featured,
-      verified: true,
-      cleanbiScore: l.cleanbiScore || 75,
-      cleanbiGrade: l.cleanbiGrade || getGradeFromScore(l.cleanbiScore || 75),
-      includesRealEstate: l.includesRealEstate || false,
-      machineCount: l.machineCount || undefined,
-      sqft: l.squareFeet || undefined,
-      leaseTerms: l.leaseTerms || undefined,
-      images: l.featuredImage ? [l.featuredImage] : l.images || [],
-      description: l.tagline || l.description || "",
-      contactEmail: "consult@washbizhub.com",
-      createdAt: l.createdAt || new Date().toISOString(),
-    }));
+  // Transform function for consistent listing format
+  const transformListing = (l: any): LaundroListing => ({
+    id: l.id?.toString() || l.slug || "unknown",
+    title: l.title || "Untitled Listing",
+    location: l.city || "Unknown",
+    state: l.region || "",
+    address: l.exactAddress || `${l.city || ""}, ${l.region || ""}`,
+    price: parseFloat(l.priceInUSD || l.priceOriginal || "0"),
+    annualRevenue: l.financials?.annualRevenue ? parseFloat(l.financials.annualRevenue) : 0,
+    monthlyProfit: l.financials?.cashFlow ? parseFloat(l.financials.cashFlow) / 12 : 0,
+    featured: l.subscriptionTier === 'diamond' || l.subscriptionTier === 'showcase' || l.featured || l.carouselFeatured,
+    verified: true,
+    cleanbiScore: l.cleanbiScore || 75,
+    cleanbiGrade: l.cleanbiGrade || getGradeFromScore(l.cleanbiScore || 75),
+    includesRealEstate: l.includesRealEstate || false,
+    machineCount: l.machineCount || undefined,
+    sqft: l.squareFeet || undefined,
+    leaseTerms: l.leaseTerms || undefined,
+    images: l.featuredImage ? [l.featuredImage] : l.images || [],
+    description: l.tagline || l.description || "",
+    contactEmail: "consult@washbizhub.com",
+    createdAt: l.createdAt || new Date().toISOString(),
+  });
+
+  // All marketplace listings
+  const listings: LaundroListing[] = allListingsData.map(transformListing);
+  
+  // Featured carousel listings (subset displayed at top)
+  const featuredCarouselIds = new Set(carouselData.map((l: any) => l.id?.toString()));
 
   const filteredListings = listings
     .filter((l) => {
@@ -254,7 +266,37 @@ export default function LaundromatListings() {
           </div>
         </div>
 
+        {/* Featured Listings Carousel - Select Premium Listings */}
+        {carouselData.length > 0 && (
+          <div className="border-b border-white/10 bg-black/10 py-8">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Crown className="w-6 h-6 text-[#C8A661]" />
+                  <h2 className="text-xl font-bold text-white">Featured Opportunities</h2>
+                  <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                    Premium
+                  </Badge>
+                </div>
+                <p className="text-white/50 text-sm hidden md:block">
+                  Hand-selected from {listings.length} total listings
+                </p>
+              </div>
+              <FeaturedListingsCarousel />
+            </div>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto px-6 py-6">
+          {/* All Listings Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <Store className="w-5 h-5 text-white/60" />
+            <h2 className="text-lg font-semibold text-white">All Listings</h2>
+            <Badge variant="outline" className="border-white/20 text-white/60">
+              {filteredListings.length} of {listings.length}
+            </Badge>
+          </div>
+
           {/* Search & Filters Bar */}
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
