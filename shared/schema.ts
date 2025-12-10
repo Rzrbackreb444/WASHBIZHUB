@@ -14837,5 +14837,818 @@ export type VoiceCommand = typeof voiceCommands.$inferSelect;
 export type InsertVoiceCommand = z.infer<typeof insertVoiceCommandSchema>;
 
 // ============================================================================
+// POS COMMAND CENTER - ENTERPRISE MODULES
+// ============================================================================
+
+// ==================== PROMOTIONS & COUPONS ====================
+
+export const promoCodes = pgTable("promo_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Promo details
+  code: varchar("code", { length: 50 }).notNull(), // e.g., "SAVE20", "FIRSTWASH"
+  name: varchar("name", { length: 100 }).notNull(), // Descriptive name
+  description: text("description"),
+  
+  // Discount type
+  discountType: varchar("discount_type", { length: 20 }).notNull(), // "percentage", "fixed_amount", "free_item", "bogo"
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(), // Percentage or dollar amount
+  freeItemType: varchar("free_item_type", { length: 50 }), // "dry", "wash", "fold" for free_item type
+  
+  // Constraints
+  minimumOrder: decimal("minimum_order", { precision: 10, scale: 2 }).default("0"), // Minimum order amount
+  maximumDiscount: decimal("maximum_discount", { precision: 10, scale: 2 }), // Cap on discount for percentage
+  maxRedemptions: integer("max_redemptions"), // Total usage limit (null = unlimited)
+  maxRedemptionsPerCustomer: integer("max_redemptions_per_customer").default(1), // Per-customer limit
+  
+  // Validity
+  validFrom: timestamp("valid_from").defaultNow(),
+  validUntil: timestamp("valid_until"),
+  
+  // Targeting
+  targetAudience: varchar("target_audience", { length: 30 }).default("all"), // "all", "new_customers", "vip", "inactive", "custom"
+  targetCustomerIds: jsonb("target_customer_ids"), // Array of specific customer IDs
+  applicableServices: jsonb("applicable_services"), // ["wash_dry_fold", "dry_cleaning", "pickup_delivery"]
+  
+  // Analytics
+  totalRedemptions: integer("total_redemptions").default(0),
+  totalDiscountGiven: decimal("total_discount_given", { precision: 12, scale: 2 }).default("0"),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("promo_codes_user_id_idx").on(table.userId),
+  codeIdx: uniqueIndex("promo_codes_code_user_idx").on(table.userId, table.code),
+  activeIdx: index("promo_codes_active_idx").on(table.isActive, table.validFrom, table.validUntil),
+}));
+
+export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({
+  id: true,
+  totalRedemptions: true,
+  totalDiscountGiven: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type InsertPromoCode = z.infer<typeof insertPromoCodeSchema>;
+
+// Promo redemption history
+export const promoRedemptions = pgTable("promo_redemptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  promoCodeId: varchar("promo_code_id").notNull().references(() => promoCodes.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id"), // Customer who redeemed
+  orderId: varchar("order_id"), // Related order
+  
+  discountApplied: decimal("discount_applied", { precision: 10, scale: 2 }).notNull(),
+  orderTotal: decimal("order_total", { precision: 10, scale: 2 }),
+  
+  redeemedAt: timestamp("redeemed_at").defaultNow(),
+}, (table) => ({
+  promoCodeIdIdx: index("promo_redemptions_promo_id_idx").on(table.promoCodeId),
+  customerIdIdx: index("promo_redemptions_customer_idx").on(table.customerId),
+}));
+
+export const insertPromoRedemptionSchema = createInsertSchema(promoRedemptions).omit({
+  id: true,
+  redeemedAt: true,
+});
+
+export type PromoRedemption = typeof promoRedemptions.$inferSelect;
+export type InsertPromoRedemption = z.infer<typeof insertPromoRedemptionSchema>;
+
+// ==================== DYNAMIC PRICING ====================
+
+export const pricingProfiles = pgTable("pricing_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: varchar("name", { length: 100 }).notNull(), // "Peak Hours", "Weekend Special"
+  description: text("description"),
+  
+  // Base pricing
+  basePricePerPound: decimal("base_price_per_pound", { precision: 6, scale: 2 }),
+  basePriceWasher: decimal("base_price_washer", { precision: 6, scale: 2 }),
+  basePriceDryer: decimal("base_price_dryer", { precision: 6, scale: 2 }),
+  
+  isDefault: boolean("is_default").default(false),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("pricing_profiles_user_id_idx").on(table.userId),
+}));
+
+export const insertPricingProfileSchema = createInsertSchema(pricingProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PricingProfile = typeof pricingProfiles.$inferSelect;
+export type InsertPricingProfile = z.infer<typeof insertPricingProfileSchema>;
+
+// Time-based pricing rules
+export const pricingRules = pgTable("pricing_rules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  profileId: varchar("profile_id").notNull().references(() => pricingProfiles.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: varchar("name", { length: 100 }).notNull(), // "Morning Rush", "Late Night Discount"
+  
+  // Time schedule
+  dayOfWeek: jsonb("day_of_week").notNull(), // [0,1,2,3,4,5,6] (0=Sunday)
+  startTime: varchar("start_time", { length: 5 }).notNull(), // "06:00"
+  endTime: varchar("end_time", { length: 5 }).notNull(), // "09:00"
+  
+  // Price adjustment
+  adjustmentType: varchar("adjustment_type", { length: 20 }).notNull(), // "percentage", "fixed_amount", "fixed_price"
+  adjustmentValue: decimal("adjustment_value", { precision: 6, scale: 2 }).notNull(), // +20% or +$0.50
+  
+  // Apply to
+  appliesToMachineTypes: jsonb("applies_to_machine_types"), // ["washer", "dryer", "both"]
+  appliesToMachineSizes: jsonb("applies_to_machine_sizes"), // ["small", "medium", "large", "mega"]
+  
+  // Priority (higher = applied first when overlapping)
+  priority: integer("priority").default(0),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  profileIdIdx: index("pricing_rules_profile_id_idx").on(table.profileId),
+  activeIdx: index("pricing_rules_active_idx").on(table.isActive),
+}));
+
+export const insertPricingRuleSchema = createInsertSchema(pricingRules).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type PricingRule = typeof pricingRules.$inferSelect;
+export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
+
+// Special pricing overrides (holidays, events)
+export const pricingOverrides = pgTable("pricing_overrides", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: varchar("name", { length: 100 }).notNull(), // "Black Friday", "Memorial Day"
+  description: text("description"),
+  
+  // Date range
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  
+  // All-day or specific hours
+  isAllDay: boolean("is_all_day").default(true),
+  startTime: varchar("start_time", { length: 5 }), // "00:00" if not all-day
+  endTime: varchar("end_time", { length: 5 }),
+  
+  // Price adjustment
+  adjustmentType: varchar("adjustment_type", { length: 20 }).notNull(),
+  adjustmentValue: decimal("adjustment_value", { precision: 6, scale: 2 }).notNull(),
+  
+  // Recurrence
+  isRecurringYearly: boolean("is_recurring_yearly").default(false),
+  
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("pricing_overrides_user_id_idx").on(table.userId),
+  dateRangeIdx: index("pricing_overrides_date_range_idx").on(table.startDate, table.endDate),
+}));
+
+export const insertPricingOverrideSchema = createInsertSchema(pricingOverrides).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type PricingOverride = typeof pricingOverrides.$inferSelect;
+export type InsertPricingOverride = z.infer<typeof insertPricingOverrideSchema>;
+
+// ==================== LOYALTY & REWARDS ====================
+
+export const loyaltyPrograms = pgTable("loyalty_programs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  name: varchar("name", { length: 100 }).notNull(), // "WashBucks Rewards"
+  description: text("description"),
+  
+  // Program type
+  programType: varchar("program_type", { length: 20 }).notNull(), // "punch_card", "points", "tiered", "cashback"
+  
+  // Punch card settings
+  punchesRequired: integer("punches_required"), // e.g., 10 punches = 1 free wash
+  punchReward: varchar("punch_reward", { length: 100 }), // "Free Wash", "50% off"
+  
+  // Points settings
+  pointsPerDollar: decimal("points_per_dollar", { precision: 4, scale: 2 }), // e.g., 1 point per $1
+  pointsRedemptionRate: decimal("points_redemption_rate", { precision: 6, scale: 4 }), // e.g., 100 points = $1
+  minimumPointsToRedeem: integer("minimum_points_to_redeem"),
+  
+  // Tier thresholds (for tiered programs)
+  tierThresholds: jsonb("tier_thresholds"), // [{name: "Bronze", minSpend: 0}, {name: "Silver", minSpend: 500}...]
+  tierBenefits: jsonb("tier_benefits"), // [{tier: "Bronze", discount: 5}, {tier: "Silver", discount: 10}...]
+  
+  // General settings
+  expirationDays: integer("expiration_days"), // Points/punches expire after X days (null = no expiry)
+  welcomeBonus: integer("welcome_bonus").default(0), // Bonus points/punches for joining
+  birthdayBonus: integer("birthday_bonus").default(0), // Birthday reward
+  referralBonus: integer("referral_bonus").default(0), // For referring friends
+  
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("loyalty_programs_user_id_idx").on(table.userId),
+}));
+
+export const insertLoyaltyProgramSchema = createInsertSchema(loyaltyPrograms).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type LoyaltyProgram = typeof loyaltyPrograms.$inferSelect;
+export type InsertLoyaltyProgram = z.infer<typeof insertLoyaltyProgramSchema>;
+
+// Customer loyalty balances
+export const loyaltyBalances = pgTable("loyalty_balances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  programId: varchar("program_id").notNull().references(() => loyaltyPrograms.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id").notNull(), // References POS customer
+  
+  // Balance
+  currentPoints: integer("current_points").default(0),
+  currentPunches: integer("current_punches").default(0),
+  lifetimePoints: integer("lifetime_points").default(0),
+  lifetimeSpend: decimal("lifetime_spend", { precision: 12, scale: 2 }).default("0"),
+  
+  // Tier (for tiered programs)
+  currentTier: varchar("current_tier", { length: 50 }),
+  tierAchievedAt: timestamp("tier_achieved_at"),
+  
+  // Rewards earned
+  rewardsEarned: integer("rewards_earned").default(0),
+  rewardsRedeemed: integer("rewards_redeemed").default(0),
+  
+  // Engagement
+  lastActivityAt: timestamp("last_activity_at"),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  
+  // Birthday for birthday rewards
+  customerBirthday: timestamp("customer_birthday"),
+  
+  isActive: boolean("is_active").default(true),
+}, (table) => ({
+  programIdIdx: index("loyalty_balances_program_id_idx").on(table.programId),
+  customerIdIdx: index("loyalty_balances_customer_id_idx").on(table.customerId),
+  programCustomerIdx: uniqueIndex("loyalty_balances_program_customer_idx").on(table.programId, table.customerId),
+}));
+
+export const insertLoyaltyBalanceSchema = createInsertSchema(loyaltyBalances).omit({
+  id: true,
+  currentPoints: true,
+  currentPunches: true,
+  lifetimePoints: true,
+  lifetimeSpend: true,
+  rewardsEarned: true,
+  rewardsRedeemed: true,
+  enrolledAt: true,
+});
+
+export type LoyaltyBalance = typeof loyaltyBalances.$inferSelect;
+export type InsertLoyaltyBalance = z.infer<typeof insertLoyaltyBalanceSchema>;
+
+// Loyalty transaction ledger
+export const loyaltyLedger = pgTable("loyalty_ledger", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  balanceId: varchar("balance_id").notNull().references(() => loyaltyBalances.id, { onDelete: "cascade" }),
+  
+  // Transaction details
+  transactionType: varchar("transaction_type", { length: 30 }).notNull(), // "earn", "redeem", "expire", "bonus", "adjust"
+  pointsChange: integer("points_change").notNull(), // Positive or negative
+  punchesChange: integer("punches_change"),
+  
+  // Reference
+  orderId: varchar("order_id"),
+  description: text("description"), // "Earned from order #123", "Birthday bonus", "Redeemed free wash"
+  
+  // For redemptions
+  rewardRedeemed: varchar("reward_redeemed", { length: 100 }),
+  redemptionValue: decimal("redemption_value", { precision: 10, scale: 2 }),
+  
+  // Balance after transaction
+  balanceAfter: integer("balance_after").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  balanceIdIdx: index("loyalty_ledger_balance_id_idx").on(table.balanceId),
+  createdAtIdx: index("loyalty_ledger_created_at_idx").on(table.createdAt),
+}));
+
+export const insertLoyaltyLedgerSchema = createInsertSchema(loyaltyLedger).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type LoyaltyLedger = typeof loyaltyLedger.$inferSelect;
+export type InsertLoyaltyLedger = z.infer<typeof insertLoyaltyLedgerSchema>;
+
+// ==================== MACHINE BOOKING/RESERVATIONS ====================
+
+export const machineBookings = pgTable("machine_bookings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }), // Store owner
+  machineId: varchar("machine_id").notNull(), // References machine
+  customerId: varchar("customer_id"), // Customer who booked
+  
+  // Booking details
+  bookingDate: timestamp("booking_date").notNull(),
+  startTime: varchar("start_time", { length: 5 }).notNull(), // "14:00"
+  endTime: varchar("end_time", { length: 5 }).notNull(), // "15:00"
+  duration: integer("duration").notNull(), // Minutes
+  
+  // Customer info (if not logged in)
+  customerName: varchar("customer_name", { length: 100 }),
+  customerPhone: varchar("customer_phone", { length: 20 }),
+  customerEmail: varchar("customer_email", { length: 255 }),
+  
+  // Status
+  status: varchar("status", { length: 20 }).default("confirmed"), // "pending", "confirmed", "checked_in", "completed", "no_show", "cancelled"
+  
+  // Reminders
+  reminderSent: boolean("reminder_sent").default(false),
+  reminderSentAt: timestamp("reminder_sent_at"),
+  
+  // Check-in
+  checkedInAt: timestamp("checked_in_at"),
+  
+  // Cancellation
+  cancelledAt: timestamp("cancelled_at"),
+  cancellationReason: text("cancellation_reason"),
+  
+  // Pricing
+  bookingFee: decimal("booking_fee", { precision: 6, scale: 2 }).default("0"),
+  depositPaid: decimal("deposit_paid", { precision: 6, scale: 2 }).default("0"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("machine_bookings_user_id_idx").on(table.userId),
+  machineIdIdx: index("machine_bookings_machine_id_idx").on(table.machineId),
+  dateIdx: index("machine_bookings_date_idx").on(table.bookingDate),
+  statusIdx: index("machine_bookings_status_idx").on(table.status),
+}));
+
+export const insertMachineBookingSchema = createInsertSchema(machineBookings).omit({
+  id: true,
+  reminderSent: true,
+  reminderSentAt: true,
+  checkedInAt: true,
+  cancelledAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type MachineBooking = typeof machineBookings.$inferSelect;
+export type InsertMachineBooking = z.infer<typeof insertMachineBookingSchema>;
+
+// Booking settings per location
+export const bookingSettings = pgTable("booking_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Availability
+  bookingEnabled: boolean("booking_enabled").default(true),
+  advanceBookingDays: integer("advance_booking_days").default(7), // How far ahead customers can book
+  minimumAdvanceMinutes: integer("minimum_advance_minutes").default(60), // Minimum notice required
+  
+  // Time slots
+  slotDuration: integer("slot_duration").default(60), // Default booking duration in minutes
+  bufferBetweenSlots: integer("buffer_between_slots").default(15), // Gap between bookings
+  
+  // Business hours for booking
+  bookingHours: jsonb("booking_hours"), // {0: {open: "06:00", close: "22:00"}, 1: {...}}
+  
+  // No-show policy
+  noShowFee: decimal("no_show_fee", { precision: 6, scale: 2 }).default("0"),
+  noShowThreshold: integer("no_show_threshold").default(15), // Minutes late before no-show
+  
+  // Reminders
+  sendEmailReminders: boolean("send_email_reminders").default(true),
+  sendSmsReminders: boolean("send_sms_reminders").default(false),
+  reminderHoursBefore: integer("reminder_hours_before").default(24),
+  
+  // Deposits
+  requireDeposit: boolean("require_deposit").default(false),
+  depositAmount: decimal("deposit_amount", { precision: 6, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: uniqueIndex("booking_settings_user_id_idx").on(table.userId),
+}));
+
+export const insertBookingSettingsSchema = createInsertSchema(bookingSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type BookingSettings = typeof bookingSettings.$inferSelect;
+export type InsertBookingSettings = z.infer<typeof insertBookingSettingsSchema>;
+
+// ==================== MARKETING CAMPAIGNS ====================
+
+export const marketingCampaigns = pgTable("marketing_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Campaign details
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  
+  // Type
+  campaignType: varchar("campaign_type", { length: 20 }).notNull(), // "sms", "email", "push", "multi_channel"
+  
+  // Content
+  subject: varchar("subject", { length: 200 }), // Email subject
+  messageContent: text("message_content").notNull(),
+  htmlContent: text("html_content"), // For email campaigns
+  
+  // Targeting
+  targetAudience: varchar("target_audience", { length: 30 }).default("all"), // "all", "active", "inactive", "new", "vip", "custom"
+  targetCustomerIds: jsonb("target_customer_ids"), // Specific customer IDs
+  targetFilters: jsonb("target_filters"), // {minSpend: 100, lastVisitDays: 30, tier: "Gold"}
+  
+  // Scheduling
+  status: varchar("status", { length: 20 }).default("draft"), // "draft", "scheduled", "sending", "sent", "cancelled"
+  scheduledFor: timestamp("scheduled_for"),
+  sentAt: timestamp("sent_at"),
+  
+  // Attached promo
+  promoCodeId: varchar("promo_code_id").references(() => promoCodes.id, { onDelete: "set null" }),
+  
+  // Analytics
+  totalRecipients: integer("total_recipients").default(0),
+  totalSent: integer("total_sent").default(0),
+  totalDelivered: integer("total_delivered").default(0),
+  totalOpened: integer("total_opened").default(0),
+  totalClicked: integer("total_clicked").default(0),
+  totalUnsubscribed: integer("total_unsubscribed").default(0),
+  totalBounced: integer("total_bounced").default(0),
+  totalConversions: integer("total_conversions").default(0),
+  conversionRevenue: decimal("conversion_revenue", { precision: 12, scale: 2 }).default("0"),
+  
+  // Cost tracking
+  smsCost: decimal("sms_cost", { precision: 10, scale: 4 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("marketing_campaigns_user_id_idx").on(table.userId),
+  statusIdx: index("marketing_campaigns_status_idx").on(table.status),
+  scheduledIdx: index("marketing_campaigns_scheduled_idx").on(table.scheduledFor),
+}));
+
+export const insertMarketingCampaignSchema = createInsertSchema(marketingCampaigns).omit({
+  id: true,
+  totalRecipients: true,
+  totalSent: true,
+  totalDelivered: true,
+  totalOpened: true,
+  totalClicked: true,
+  totalUnsubscribed: true,
+  totalBounced: true,
+  totalConversions: true,
+  conversionRevenue: true,
+  smsCost: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type MarketingCampaign = typeof marketingCampaigns.$inferSelect;
+export type InsertMarketingCampaign = z.infer<typeof insertMarketingCampaignSchema>;
+
+// Campaign message delivery log
+export const campaignMessages = pgTable("campaign_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: varchar("campaign_id").notNull().references(() => marketingCampaigns.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id").notNull(),
+  
+  // Delivery
+  channel: varchar("channel", { length: 10 }).notNull(), // "sms", "email"
+  recipient: varchar("recipient", { length: 255 }).notNull(), // Phone or email
+  
+  // Status
+  status: varchar("status", { length: 20 }).default("pending"), // "pending", "sent", "delivered", "failed", "bounced"
+  errorMessage: text("error_message"),
+  
+  // Engagement
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  convertedAt: timestamp("converted_at"),
+  conversionOrderId: varchar("conversion_order_id"),
+  
+  // External IDs
+  externalMessageId: varchar("external_message_id", { length: 100 }), // Twilio SID, SendGrid ID
+  
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  campaignIdIdx: index("campaign_messages_campaign_id_idx").on(table.campaignId),
+  customerIdIdx: index("campaign_messages_customer_id_idx").on(table.customerId),
+  statusIdx: index("campaign_messages_status_idx").on(table.status),
+}));
+
+export const insertCampaignMessageSchema = createInsertSchema(campaignMessages).omit({
+  id: true,
+  sentAt: true,
+  createdAt: true,
+});
+
+export type CampaignMessage = typeof campaignMessages.$inferSelect;
+export type InsertCampaignMessage = z.infer<typeof insertCampaignMessageSchema>;
+
+// Campaign templates
+export const campaignTemplates = pgTable("campaign_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }), // null = system templates
+  
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }), // "promotional", "retention", "feedback", "seasonal"
+  
+  // Template content
+  subject: varchar("subject", { length: 200 }),
+  smsTemplate: text("sms_template"),
+  emailTemplate: text("email_template"),
+  htmlTemplate: text("html_template"),
+  
+  // Preview image
+  thumbnailUrl: text("thumbnail_url"),
+  
+  // Suggested timing
+  suggestedAudience: varchar("suggested_audience", { length: 30 }),
+  suggestedTiming: varchar("suggested_timing", { length: 100 }), // "Weekend mornings", "After 1st visit"
+  
+  isSystemTemplate: boolean("is_system_template").default(false),
+  isActive: boolean("is_active").default(true),
+  
+  usageCount: integer("usage_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("campaign_templates_user_id_idx").on(table.userId),
+  categoryIdx: index("campaign_templates_category_idx").on(table.category),
+}));
+
+export const insertCampaignTemplateSchema = createInsertSchema(campaignTemplates).omit({
+  id: true,
+  usageCount: true,
+  createdAt: true,
+});
+
+export type CampaignTemplate = typeof campaignTemplates.$inferSelect;
+export type InsertCampaignTemplate = z.infer<typeof insertCampaignTemplateSchema>;
+
+// ==================== FINANCIAL / BOOKS ====================
+
+export const financialTransactions = pgTable("financial_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Transaction details
+  transactionType: varchar("transaction_type", { length: 20 }).notNull(), // "revenue", "expense", "refund", "adjustment"
+  category: varchar("category", { length: 50 }).notNull(), // "machine_revenue", "wash_fold", "utilities", "supplies", "labor", etc.
+  subcategory: varchar("subcategory", { length: 50 }),
+  
+  // Amount
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  
+  // Description
+  description: text("description"),
+  notes: text("notes"),
+  
+  // Reference
+  orderId: varchar("order_id"),
+  paymentMethod: varchar("payment_method", { length: 30 }), // "cash", "card", "mobile", "coin"
+  
+  // For expenses
+  vendorName: varchar("vendor_name", { length: 100 }),
+  receiptUrl: text("receipt_url"),
+  
+  // Tax
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
+  taxCategory: varchar("tax_category", { length: 50 }), // "sales_tax", "payroll_tax", "property_tax"
+  isTaxDeductible: boolean("is_tax_deductible").default(false),
+  
+  // Reconciliation
+  isReconciled: boolean("is_reconciled").default(false),
+  reconciledAt: timestamp("reconciled_at"),
+  
+  transactionDate: timestamp("transaction_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("financial_transactions_user_id_idx").on(table.userId),
+  typeIdx: index("financial_transactions_type_idx").on(table.transactionType),
+  categoryIdx: index("financial_transactions_category_idx").on(table.category),
+  dateIdx: index("financial_transactions_date_idx").on(table.transactionDate),
+}));
+
+export const insertFinancialTransactionSchema = createInsertSchema(financialTransactions).omit({
+  id: true,
+  isReconciled: true,
+  reconciledAt: true,
+  createdAt: true,
+});
+
+export type FinancialTransaction = typeof financialTransactions.$inferSelect;
+export type InsertFinancialTransaction = z.infer<typeof insertFinancialTransactionSchema>;
+
+// Daily reconciliation records
+export const dailyReconciliations = pgTable("daily_reconciliations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  reconciliationDate: timestamp("reconciliation_date").notNull(),
+  
+  // Expected vs Actual
+  expectedRevenue: decimal("expected_revenue", { precision: 12, scale: 2 }).notNull(),
+  actualRevenue: decimal("actual_revenue", { precision: 12, scale: 2 }).notNull(),
+  variance: decimal("variance", { precision: 12, scale: 2 }).notNull(),
+  variancePercent: decimal("variance_percent", { precision: 6, scale: 2 }),
+  
+  // Breakdown
+  cashRevenue: decimal("cash_revenue", { precision: 12, scale: 2 }).default("0"),
+  cardRevenue: decimal("card_revenue", { precision: 12, scale: 2 }).default("0"),
+  mobileRevenue: decimal("mobile_revenue", { precision: 12, scale: 2 }).default("0"),
+  coinRevenue: decimal("coin_revenue", { precision: 12, scale: 2 }).default("0"),
+  
+  // Order counts
+  totalOrders: integer("total_orders").default(0),
+  totalRefunds: integer("total_refunds").default(0),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }).default("0"),
+  
+  // Notes
+  notes: text("notes"),
+  discrepancyNotes: text("discrepancy_notes"),
+  
+  // Status
+  status: varchar("status", { length: 20 }).default("pending"), // "pending", "reviewed", "approved", "flagged"
+  reviewedBy: varchar("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("daily_reconciliations_user_id_idx").on(table.userId),
+  dateIdx: uniqueIndex("daily_reconciliations_date_idx").on(table.userId, table.reconciliationDate),
+}));
+
+export const insertDailyReconciliationSchema = createInsertSchema(dailyReconciliations).omit({
+  id: true,
+  reviewedAt: true,
+  createdAt: true,
+});
+
+export type DailyReconciliation = typeof dailyReconciliations.$inferSelect;
+export type InsertDailyReconciliation = z.infer<typeof insertDailyReconciliationSchema>;
+
+// Tax categories for expense tracking
+export const expenseCategories = pgTable("expense_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }), // null = system categories
+  
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 50 }),
+  color: varchar("color", { length: 7 }), // Hex color
+  
+  // Tax info
+  taxCategory: varchar("tax_category", { length: 50 }), // IRS category
+  isTaxDeductible: boolean("is_tax_deductible").default(true),
+  
+  // Budget
+  monthlyBudget: decimal("monthly_budget", { precision: 10, scale: 2 }),
+  
+  isSystemCategory: boolean("is_system_category").default(false),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("expense_categories_user_id_idx").on(table.userId),
+}));
+
+export const insertExpenseCategorySchema = createInsertSchema(expenseCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type ExpenseCategory = typeof expenseCategories.$inferSelect;
+export type InsertExpenseCategory = z.infer<typeof insertExpenseCategorySchema>;
+
+// ==================== WEBSITE BUILDER TEMPLATES ====================
+
+export const websiteTemplates = pgTable("website_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template info
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).notNull(), // "modern", "classic", "family", "eco", "luxury", "minimal"
+  
+  // Preview
+  thumbnailUrl: text("thumbnail_url"),
+  previewUrl: text("preview_url"),
+  previewImages: jsonb("preview_images"), // Array of preview screenshots
+  
+  // Template structure
+  blocks: jsonb("blocks").notNull(), // Default block configuration
+  styles: jsonb("styles"), // Default style overrides
+  colorScheme: jsonb("color_scheme"), // {primary, secondary, accent, background}
+  fonts: jsonb("fonts"), // {heading, body}
+  
+  // Features
+  features: jsonb("features"), // ["hero", "services", "testimonials", "contact", "gallery"]
+  
+  // Tier requirements
+  requiredTier: varchar("required_tier", { length: 20 }).default("free"), // "free", "starter", "pro", "enterprise"
+  
+  // Popularity
+  usageCount: integer("usage_count").default(0),
+  rating: decimal("rating", { precision: 2, scale: 1 }),
+  
+  isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  categoryIdx: index("website_templates_category_idx").on(table.category),
+  featuredIdx: index("website_templates_featured_idx").on(table.isFeatured),
+}));
+
+export const insertWebsiteTemplateSchema = createInsertSchema(websiteTemplates).omit({
+  id: true,
+  usageCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type WebsiteTemplate = typeof websiteTemplates.$inferSelect;
+export type InsertWebsiteTemplate = z.infer<typeof insertWebsiteTemplateSchema>;
+
+// Website-POS integration widgets
+export const websiteWidgets = pgTable("website_widgets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Widget type
+  widgetType: varchar("widget_type", { length: 30 }).notNull(), // "machine_availability", "booking", "loyalty_portal", "promo_banner", "pricing", "order_status"
+  
+  // Configuration
+  name: varchar("name", { length: 100 }).notNull(),
+  config: jsonb("config").notNull(), // Widget-specific settings
+  styles: jsonb("styles"), // Custom styling
+  
+  // Placement
+  position: varchar("position", { length: 20 }), // "header", "footer", "sidebar", "popup", "inline"
+  
+  // Display rules
+  displayRules: jsonb("display_rules"), // {pages: ["home", "services"], showOnMobile: true}
+  
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("website_widgets_user_id_idx").on(table.userId),
+  typeIdx: index("website_widgets_type_idx").on(table.widgetType),
+}));
+
+export const insertWebsiteWidgetSchema = createInsertSchema(websiteWidgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type WebsiteWidget = typeof websiteWidgets.$inferSelect;
+export type InsertWebsiteWidget = z.infer<typeof insertWebsiteWidgetSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
