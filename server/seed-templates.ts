@@ -1827,4 +1827,740 @@ export const laundromatTemplates: InsertWebsiteTemplate[] = [
       "Simple maintenance-friendly",
     ],
   },
+  
+  // ========================================
+  // CAR WASH TEMPLATES
+  // ========================================
+  
+  {
+    name: "Sparkle Auto Spa",
+    description: "Premium car wash template with a luxurious, high-end aesthetic. Deep blue and gold accents convey professionalism and quality for detailing services and premium wash packages.",
+    industry: "car_wash",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800",
+    demoUrl: "/templates/sparkle-auto-spa/demo",
+    isPro: true,
+    
+    theme: {
+      colors: {
+        primary: "#1e3a5f", // Deep Navy
+        secondary: "#C8A661", // Gold
+        accent: "#2563eb",
+        background: "#ffffff",
+        text: "#1e293b",
+        muted: "#64748b",
+      },
+      fonts: {
+        heading: "Playfair Display, serif",
+        body: "Inter, sans-serif",
+      },
+      spacing: "spacious",
+      borderRadius: "modern",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "Premium Auto Detailing",
+            subtitle: "Where your vehicle receives the royal treatment it deserves",
+            cta: { text: "Book Your Detail", link: "#services" },
+            backgroundImage: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=1920",
+          },
+          {
+            type: "features",
+            heading: "The Sparkle Difference",
+            items: [
+              { icon: "Sparkles", title: "Hand Wash Only", description: "Every vehicle washed by trained technicians" },
+              { icon: "Shield", title: "Premium Products", description: "Only the finest detailing chemicals and waxes" },
+              { icon: "Award", title: "Certified Detailers", description: "IDA-certified professional team" },
+              { icon: "Clock", title: "While You Wait", description: "Comfortable lounge with complimentary refreshments" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Detailing Packages",
+            items: [
+              { name: "Express Wash", price: "$35", description: "Exterior hand wash, tire shine, windows" },
+              { name: "Premium Wash", price: "$75", description: "Full wash plus interior vacuum and wipe-down" },
+              { name: "Complete Detail", price: "$150", description: "Full interior/exterior detail with wax" },
+              { name: "Ceramic Coating", price: "From $500", description: "Long-lasting paint protection" },
+            ],
+          },
+          {
+            type: "gallery",
+            heading: "Our Work",
+            images: [
+              "https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=600",
+              "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600",
+              "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=600",
+            ],
+          },
+        ],
+      },
+      {
+        name: "Services",
+        slug: "/services",
+        sections: [
+          {
+            type: "content",
+            heading: "Our Services",
+            text: "From quick express washes to comprehensive ceramic coating packages, we offer a full range of auto care services to keep your vehicle looking showroom-new.",
+          },
+          {
+            type: "pricing",
+            heading: "Service Menu",
+            plans: [
+              { name: "Basic", price: "$35", features: ["Exterior hand wash", "Tire dressing", "Window cleaning"] },
+              { name: "Premium", price: "$75", features: ["Full exterior wash", "Interior vacuum", "Dashboard wipe", "Air freshener"] },
+              { name: "Ultimate", price: "$150", features: ["Complete detail", "Hand wax", "Leather conditioning", "Engine bay cleaning"] },
+            ],
+          },
+        ],
+      },
+      {
+        name: "About",
+        slug: "/about",
+        sections: [
+          {
+            type: "content",
+            heading: "About Sparkle Auto Spa",
+            text: "Founded by automotive enthusiasts, Sparkle Auto Spa brings professional-grade detailing to everyday drivers. Our team combines passion with precision to deliver results that exceed expectations.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Visit Our Spa",
+            address: "500 Auto Plaza Drive, Your City, ST 12345",
+            phone: "(555) 789-0123",
+            email: "appointments@sparkleautospa.com",
+            hours: [
+              { day: "Monday-Saturday", time: "8:00 AM - 6:00 PM" },
+              { day: "Sunday", time: "10:00 AM - 4:00 PM" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Online booking integration",
+      "Service package display",
+      "Photo gallery",
+      "Contact form",
+      "Google Maps integration",
+      "SEO optimized",
+    ],
+  },
+  
+  {
+    name: "Express Wash Bay",
+    description: "Fast-paced, energetic design for express car wash businesses. Bold colors and clear pricing emphasize speed and value. Perfect for high-volume tunnel washes.",
+    industry: "car_wash",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    demoUrl: "/templates/express-wash-bay/demo",
+    isPro: false,
+    
+    theme: {
+      colors: {
+        primary: "#dc2626", // Red
+        secondary: "#fbbf24", // Yellow
+        accent: "#0891b2",
+        background: "#ffffff",
+        text: "#1f2937",
+        muted: "#6b7280",
+      },
+      fonts: {
+        heading: "Montserrat, sans-serif",
+        body: "Open Sans, sans-serif",
+      },
+      spacing: "compact",
+      borderRadius: "sharp",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "In & Out in Minutes!",
+            subtitle: "Express car wash - clean, fast, affordable",
+            cta: { text: "See Our Prices", link: "#pricing" },
+            backgroundImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920",
+          },
+          {
+            type: "features",
+            heading: "Why Express Wash?",
+            items: [
+              { icon: "Zap", title: "3-Minute Wash", description: "Our tunnel wash gets you clean fast" },
+              { icon: "DollarSign", title: "From $8", description: "Best prices in town, guaranteed" },
+              { icon: "Car", title: "Unlimited Plans", description: "Wash as much as you want monthly" },
+              { icon: "Clock", title: "Open Late", description: "7 AM - 9 PM, 7 days a week" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Wash Packages",
+            items: [
+              { name: "Basic Wash", price: "$8", description: "Exterior wash and rinse" },
+              { name: "Super Wash", price: "$12", description: "Wash, wax, tire shine" },
+              { name: "Ultimate Wash", price: "$18", description: "Everything plus underbody and triple foam" },
+              { name: "Unlimited Monthly", price: "$29.99/mo", description: "Unlimited Super Washes" },
+            ],
+          },
+          {
+            type: "cta",
+            heading: "Join Our Wash Club",
+            text: "Unlimited washes starting at $29.99/month",
+            buttonText: "Sign Up Now",
+            buttonLink: "#membership",
+          },
+        ],
+      },
+      {
+        name: "Pricing",
+        slug: "/pricing",
+        sections: [
+          {
+            type: "pricing",
+            heading: "Wash Menu",
+            plans: [
+              { name: "Basic", price: "$8", features: ["Exterior wash", "Spot-free rinse", "Air dry"] },
+              { name: "Super", price: "$12", features: ["All Basic features", "Tire shine", "Rain-X", "Wax coating"] },
+              { name: "Ultimate", price: "$18", features: ["All Super features", "Underbody wash", "Triple foam", "Interior fragrance"] },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Locations",
+        slug: "/locations",
+        sections: [
+          {
+            type: "content",
+            heading: "Find Us Near You",
+            text: "With 5 convenient locations, there's always an Express Wash Bay nearby. All locations offer the same great service at the same low prices.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Get In Touch",
+            address: "Multiple Locations - See Locations Page",
+            phone: "(555) CAR-WASH",
+            email: "hello@expresswashbay.com",
+            hours: [
+              { day: "Every Day", time: "7:00 AM - 9:00 PM" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Multi-location support",
+      "Membership signup",
+      "Pricing display",
+      "Contact form",
+      "SEO optimized",
+    ],
+  },
+  
+  {
+    name: "Eco Green Car Wash",
+    description: "Environmentally conscious car wash template emphasizing water conservation and eco-friendly products. Natural colors and sustainability messaging appeal to green-minded customers.",
+    industry: "car_wash",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?w=800",
+    demoUrl: "/templates/eco-green-car-wash/demo",
+    isPro: false,
+    
+    theme: {
+      colors: {
+        primary: "#059669", // Emerald
+        secondary: "#10b981",
+        accent: "#0d9488",
+        background: "#f0fdf4",
+        text: "#14532d",
+        muted: "#6b7280",
+      },
+      fonts: {
+        heading: "Nunito, sans-serif",
+        body: "Source Sans Pro, sans-serif",
+      },
+      spacing: "comfortable",
+      borderRadius: "organic",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "Clean Car, Clean Planet",
+            subtitle: "Eco-friendly car wash that saves 80% more water than home washing",
+            cta: { text: "Learn Our Process", link: "#sustainability" },
+            backgroundImage: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?w=1920",
+          },
+          {
+            type: "features",
+            heading: "Our Green Promise",
+            items: [
+              { icon: "Droplet", title: "Water Recycling", description: "85% of our water is reclaimed and reused" },
+              { icon: "Leaf", title: "Biodegradable Soaps", description: "All-natural, plant-based cleaning products" },
+              { icon: "Sun", title: "Solar Powered", description: "100% renewable energy facility" },
+              { icon: "Recycle", title: "Zero Runoff", description: "No chemicals enter storm drains" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Eco Wash Packages",
+            items: [
+              { name: "Eco Express", price: "$12", description: "Quick exterior wash with recycled water" },
+              { name: "Eco Plus", price: "$18", description: "Full wash with organic wax protection" },
+              { name: "Eco Premium", price: "$28", description: "Complete detail with plant-based products" },
+            ],
+          },
+          {
+            type: "content",
+            heading: "Why Wash Green?",
+            text: "Washing your car at home can use 80-140 gallons of water. Our eco-friendly system uses just 15-20 gallons per wash, and 85% of that water is recycled. Plus, our biodegradable products keep harmful chemicals out of waterways.",
+          },
+        ],
+      },
+      {
+        name: "Sustainability",
+        slug: "/sustainability",
+        sections: [
+          {
+            type: "content",
+            heading: "Our Environmental Commitment",
+            text: "At Eco Green Car Wash, we believe a clean car shouldn't come at the cost of a clean environment. Our facility is designed from the ground up to minimize environmental impact while delivering sparkling results.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Visit Our Green Facility",
+            address: "123 Sustainability Way, Green City, ST 12345",
+            phone: "(555) ECO-WASH",
+            email: "info@ecogreenwash.com",
+            hours: [
+              { day: "Monday-Saturday", time: "7:00 AM - 7:00 PM" },
+              { day: "Sunday", time: "8:00 AM - 5:00 PM" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Sustainability messaging",
+      "Environmental impact stats",
+      "Service pricing",
+      "Contact form",
+      "SEO optimized",
+    ],
+  },
+  
+  // ========================================
+  // DRY CLEANER TEMPLATES
+  // ========================================
+  
+  {
+    name: "Pristine Dry Cleaners",
+    description: "Elegant, sophisticated template for premium dry cleaning services. Rich colors and refined typography convey quality and attention to detail for discerning customers.",
+    industry: "dry_cleaner",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    demoUrl: "/templates/pristine-dry-cleaners/demo",
+    isPro: true,
+    
+    theme: {
+      colors: {
+        primary: "#1e3a5f", // Navy
+        secondary: "#C8A661", // Gold
+        accent: "#7c3aed",
+        background: "#ffffff",
+        text: "#1e293b",
+        muted: "#64748b",
+      },
+      fonts: {
+        heading: "Cormorant Garamond, serif",
+        body: "Raleway, sans-serif",
+      },
+      spacing: "spacious",
+      borderRadius: "subtle",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "Excellence in Garment Care",
+            subtitle: "Professional dry cleaning with the attention to detail your wardrobe deserves",
+            cta: { text: "Schedule Pickup", link: "#contact" },
+            backgroundImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920",
+          },
+          {
+            type: "features",
+            heading: "The Pristine Difference",
+            items: [
+              { icon: "Award", title: "Master Cleaners", description: "Certified professionals with 20+ years experience" },
+              { icon: "Shirt", title: "Specialty Care", description: "Expert handling of delicates, silks, and designer items" },
+              { icon: "Truck", title: "Free Pickup & Delivery", description: "Convenient service to your home or office" },
+              { icon: "Sparkles", title: "Eco-Friendly", description: "GreenEarth certified cleaning process" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Our Services",
+            items: [
+              { name: "Dry Cleaning", price: "From $8", description: "Professional solvent cleaning for suits, dresses, coats" },
+              { name: "Shirt Laundry", price: "$3.50", description: "Laundered, pressed, and perfectly finished" },
+              { name: "Wedding Gown", price: "From $175", description: "Preservation and specialty cleaning" },
+              { name: "Leather & Suede", price: "From $45", description: "Expert leather care and restoration" },
+              { name: "Alterations", price: "Varies", description: "Expert tailoring and alterations on-site" },
+            ],
+          },
+          {
+            type: "testimonials",
+            heading: "What Our Clients Say",
+            items: [
+              { name: "Margaret S.", text: "The only cleaners I trust with my designer pieces. Impeccable quality.", rating: 5 },
+              { name: "James R.", text: "Their shirt service is outstanding. Perfect creases every time.", rating: 5 },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Services",
+        slug: "/services",
+        sections: [
+          {
+            type: "content",
+            heading: "Complete Garment Care",
+            text: "From everyday business attire to heirloom wedding gowns, we provide expert care for every garment in your wardrobe. Our master cleaners use state-of-the-art equipment and eco-friendly processes.",
+          },
+          {
+            type: "pricing",
+            heading: "Price List",
+            plans: [
+              { name: "Standard", price: "", features: ["Suits from $16", "Dresses from $12", "Pants $8", "Shirts $3.50"] },
+              { name: "Specialty", price: "", features: ["Wedding gowns from $175", "Leather from $45", "Drapes per pleat $3", "Comforters from $35"] },
+            ],
+          },
+        ],
+      },
+      {
+        name: "About",
+        slug: "/about",
+        sections: [
+          {
+            type: "content",
+            heading: "Our Story",
+            text: "For over three decades, Pristine Dry Cleaners has served discerning clients who demand the highest quality garment care. Our family-owned business combines traditional craftsmanship with modern technology.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Schedule Service",
+            address: "789 Fashion Avenue, Uptown District, ST 12345",
+            phone: "(555) 456-7890",
+            email: "care@pristinecleaners.com",
+            hours: [
+              { day: "Monday-Friday", time: "7:00 AM - 7:00 PM" },
+              { day: "Saturday", time: "8:00 AM - 5:00 PM" },
+              { day: "Sunday", time: "Closed" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Pickup scheduling",
+      "Price list display",
+      "Testimonials section",
+      "Contact form",
+      "Google Maps integration",
+      "SEO optimized",
+    ],
+  },
+  
+  {
+    name: "Quick Press",
+    description: "Modern, efficient design for express dry cleaning services. Clean lines and clear pricing emphasize speed and convenience for busy professionals.",
+    industry: "dry_cleaner",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800",
+    demoUrl: "/templates/quick-press/demo",
+    isPro: false,
+    
+    theme: {
+      colors: {
+        primary: "#0891b2", // Cyan
+        secondary: "#06b6d4",
+        accent: "#8b5cf6",
+        background: "#ffffff",
+        text: "#0f172a",
+        muted: "#64748b",
+      },
+      fonts: {
+        heading: "Poppins, sans-serif",
+        body: "Inter, sans-serif",
+      },
+      spacing: "comfortable",
+      borderRadius: "modern",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "Same-Day Dry Cleaning",
+            subtitle: "Drop off by 10 AM, pick up by 5 PM. It's that simple.",
+            cta: { text: "Find a Location", link: "#locations" },
+            backgroundImage: "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920",
+          },
+          {
+            type: "features",
+            heading: "Why Quick Press?",
+            items: [
+              { icon: "Clock", title: "Same-Day Service", description: "In by 10, out by 5 - every day" },
+              { icon: "Smartphone", title: "Text When Ready", description: "Get notified when your clothes are done" },
+              { icon: "CreditCard", title: "Simple Pricing", description: "No hidden fees, no surprises" },
+              { icon: "MapPin", title: "15 Locations", description: "Convenient spots across the city" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Simple Pricing",
+            items: [
+              { name: "Suits", price: "$14.99", description: "Jacket and pants, ready same-day" },
+              { name: "Dress Shirts", price: "$2.99", description: "Laundered and pressed" },
+              { name: "Dresses", price: "$11.99", description: "Most styles and fabrics" },
+              { name: "Pants/Skirts", price: "$7.99", description: "Dry cleaned and pressed" },
+            ],
+          },
+          {
+            type: "cta",
+            heading: "New Customer Special",
+            text: "First order 50% off - no minimum!",
+            buttonText: "Get Offer",
+            buttonLink: "#contact",
+          },
+        ],
+      },
+      {
+        name: "Pricing",
+        slug: "/pricing",
+        sections: [
+          {
+            type: "pricing",
+            heading: "Our Prices",
+            plans: [
+              { name: "Everyday Items", price: "", features: ["Shirts $2.99", "Pants $7.99", "Suits $14.99", "Dresses $11.99"] },
+              { name: "Specialty Items", price: "", features: ["Coats from $18", "Sweaters $9.99", "Ties $5.99", "Comforters from $29"] },
+            ],
+          },
+        ],
+      },
+      {
+        name: "Locations",
+        slug: "/locations",
+        sections: [
+          {
+            type: "content",
+            heading: "Find a Location",
+            text: "With 15 locations across the metro area, there's always a Quick Press nearby. All stores offer the same great prices and same-day service.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Questions?",
+            address: "Multiple Locations - See Map",
+            phone: "(555) QUICK-DC",
+            email: "help@quickpress.com",
+            hours: [
+              { day: "Monday-Friday", time: "7:00 AM - 8:00 PM" },
+              { day: "Saturday", time: "8:00 AM - 6:00 PM" },
+              { day: "Sunday", time: "10:00 AM - 4:00 PM" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Multi-location support",
+      "Clear pricing display",
+      "Text notifications mention",
+      "Contact form",
+      "SEO optimized",
+    ],
+  },
+  
+  {
+    name: "Neighborhood Cleaners",
+    description: "Warm, community-focused template for local dry cleaners. Friendly colors and personal touch appeal to families and long-time neighborhood customers.",
+    industry: "dry_cleaner",
+    category: "business",
+    previewImage: "https://images.unsplash.com/photo-1545259742-12f1d7514ca4?w=800",
+    demoUrl: "/templates/neighborhood-cleaners/demo",
+    isPro: false,
+    
+    theme: {
+      colors: {
+        primary: "#7c3aed", // Purple
+        secondary: "#a78bfa",
+        accent: "#f59e0b",
+        background: "#faf5ff",
+        text: "#1e1b4b",
+        muted: "#6b7280",
+      },
+      fonts: {
+        heading: "Quicksand, sans-serif",
+        body: "Lato, sans-serif",
+      },
+      spacing: "relaxed",
+      borderRadius: "rounded",
+    },
+    
+    pages: [
+      {
+        name: "Home",
+        slug: "/",
+        sections: [
+          {
+            type: "hero",
+            title: "Your Neighborhood Cleaners",
+            subtitle: "Family-owned since 1985. Where quality meets community.",
+            cta: { text: "Meet Our Family", link: "#about" },
+            backgroundImage: "https://images.unsplash.com/photo-1545259742-12f1d7514ca4?w=1920",
+          },
+          {
+            type: "features",
+            heading: "Why Our Neighbors Love Us",
+            items: [
+              { icon: "Heart", title: "Family Owned", description: "Three generations of caring service" },
+              { icon: "Users", title: "Know Your Name", description: "Personal service, not a number" },
+              { icon: "Shield", title: "Guaranteed Quality", description: "If you're not happy, we'll redo it free" },
+              { icon: "Gift", title: "Loyalty Rewards", description: "Every 10th item free for regulars" },
+            ],
+          },
+          {
+            type: "services",
+            heading: "Services",
+            items: [
+              { name: "Dry Cleaning", price: "From $6", description: "Suits, dresses, coats, and more" },
+              { name: "Laundry Service", price: "$1.50/lb", description: "Wash, dry, and fold" },
+              { name: "Alterations", price: "From $10", description: "Expert tailoring on-site" },
+              { name: "Household Items", price: "Varies", description: "Comforters, drapes, table linens" },
+            ],
+          },
+          {
+            type: "testimonials",
+            heading: "From Our Neighbors",
+            items: [
+              { name: "The Johnson Family", text: "We've been coming here for 20 years. They're like family!", rating: 5 },
+              { name: "Maria G.", text: "Always friendly, always reliable. Wouldn't go anywhere else.", rating: 5 },
+              { name: "Tom S.", text: "Best alterations in town. Maria works magic!", rating: 5 },
+            ],
+          },
+        ],
+      },
+      {
+        name: "About",
+        slug: "/about",
+        sections: [
+          {
+            type: "content",
+            heading: "Our Story",
+            text: "When Rosa and Antonio opened our doors in 1985, they had one goal: treat every customer like family. Today, their grandchildren continue that tradition, providing the same personal, quality service that made us a neighborhood favorite.",
+          },
+        ],
+      },
+      {
+        name: "Services",
+        slug: "/services",
+        sections: [
+          {
+            type: "content",
+            heading: "What We Do",
+            text: "From everyday dry cleaning to wedding gown preservation, from simple hemming to complete wardrobe alterations - we handle it all with the care and attention your clothes deserve.",
+          },
+        ],
+      },
+      {
+        name: "Contact",
+        slug: "/contact",
+        sections: [
+          {
+            type: "contact",
+            heading: "Stop By & Say Hello",
+            address: "Corner of Main & Oak, Your Town, ST 12345",
+            phone: "(555) 123-WASH",
+            email: "hello@neighborhoodcleaners.com",
+            hours: [
+              { day: "Monday-Friday", time: "7:00 AM - 6:30 PM" },
+              { day: "Saturday", time: "8:00 AM - 4:00 PM" },
+              { day: "Sunday", time: "Closed (Family Day)" },
+            ],
+          },
+        ],
+      },
+    ],
+    
+    features: [
+      "Mobile responsive",
+      "Family story section",
+      "Customer testimonials",
+      "Service catalog",
+      "Contact form",
+      "SEO optimized",
+    ],
+  },
 ];
