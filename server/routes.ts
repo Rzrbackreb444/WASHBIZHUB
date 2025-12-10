@@ -5,6 +5,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { setupGoogleAuth, verifyGoogleToken } from "./googleAuth";
 import { ObjectStorageService } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import adminRoutes from "./admin-routes";
@@ -469,6 +470,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Replit Auth (login, logout, callback routes)
   // This also initializes session middleware - MUST come before email/password auth routes
   await setupAuth(app);
+  
+  // Setup Google OAuth (if configured)
+  await setupGoogleAuth(app);
   
   // ==================== EMAIL/PASSWORD AUTH ====================
   // Mounted after setupAuth() so session middleware is available
