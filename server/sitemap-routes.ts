@@ -1,9 +1,21 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { db } from "./db";
 import { blogPosts, listings, courses, forumTopics, vendors, diagnosticCodes, users } from "@shared/schema";
 import { eq, desc, and, isNotNull, or } from "drizzle-orm";
 
-const BASE_URL = "https://washbizhub.com";
+const ALLOWED_DOMAINS = ["washbizhub.com", "washbizhub.xyz"];
+const DEFAULT_BASE_URL = "https://washbizhub.com";
+
+function getBaseUrl(req: Request): string {
+  const host = req.get('host') || '';
+  if (host.includes('washbizhub.xyz')) {
+    return 'https://washbizhub.xyz';
+  }
+  if (host.includes('washbizhub.com')) {
+    return 'https://washbizhub.com';
+  }
+  return DEFAULT_BASE_URL;
+}
 
 const staticPages = [
   { url: "/", priority: 1.0, changefreq: "daily" },
@@ -78,6 +90,8 @@ function formatDate(date: Date | string | null): string {
 export function registerSitemapRoutes(app: Express) {
   app.get("/sitemap.xml", async (req, res) => {
     try {
+      const BASE_URL = getBaseUrl(req);
+      
       const [blogs, allListings, allCourses, topics, errorCodes, brokerUsers] = await Promise.all([
         db.select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
           .from(blogPosts)

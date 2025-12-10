@@ -83,6 +83,8 @@ export function corsMiddleware(req: Request, res: Response, next: NextFunction) 
     process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER?.toLowerCase()}.repl.co` : '',
     'https://washbizhub.com',
     'https://www.washbizhub.com',
+    'https://washbizhub.xyz',
+    'https://www.washbizhub.xyz',
     'https://strokerecoveryacademy.com',
     'https://www.strokerecoveryacademy.com',
   ].filter(Boolean);

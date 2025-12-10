@@ -1,5 +1,5 @@
 # WashBizHub - #1 Laundromat Resource & Education Hub
-# https://washbizhub.com
+# https://washbizhub.com | https://washbizhub.xyz
 # Total indexed content: 807+ blog posts, 120+ calculators & tools, 2000+ error codes
 
 User-agent: *
@@ -9,9 +9,8 @@ Crawl-delay: 1
 # ============================================================================
 # SITEMAP INDEX - Contains ALL content sitemaps (807+ blog posts, listings, etc.)
 # ============================================================================
+# Primary Domain (washbizhub.com)
 Sitemap: https://washbizhub.com/sitemap_index.xml
-
-# Individual sitemaps for faster discovery
 Sitemap: https://washbizhub.com/sitemap.xml
 Sitemap: https://washbizhub.com/sitemap-blogs.xml
 Sitemap: https://washbizhub.com/sitemap-listings.xml
@@ -20,6 +19,17 @@ Sitemap: https://washbizhub.com/sitemap-resources.xml
 Sitemap: https://washbizhub.com/sitemap-courses.xml
 Sitemap: https://washbizhub.com/sitemap-forum.xml
 Sitemap: https://washbizhub.com/sitemap-vendors.xml
+
+# Secondary Domain (washbizhub.xyz)
+Sitemap: https://washbizhub.xyz/sitemap_index.xml
+Sitemap: https://washbizhub.xyz/sitemap.xml
+Sitemap: https://washbizhub.xyz/sitemap-blogs.xml
+Sitemap: https://washbizhub.xyz/sitemap-listings.xml
+Sitemap: https://washbizhub.xyz/sitemap-error-codes.xml
+Sitemap: https://washbizhub.xyz/sitemap-resources.xml
+Sitemap: https://washbizhub.xyz/sitemap-courses.xml
+Sitemap: https://washbizhub.xyz/sitemap-forum.xml
+Sitemap: https://washbizhub.xyz/sitemap-vendors.xml
 
 # ============================================================================
 # SEARCH ENGINE SPECIFIC RULES
