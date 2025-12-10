@@ -981,4 +981,113 @@ router.post("/send-verification", async (req: Request, res: Response) => {
   }
 });
 
+// ==================== GOOGLE ONE-TAP / ID TOKEN AUTH ====================
+
+// POST /api/auth/google/token - Verify Google ID token from frontend (One-Tap, @react-oauth/google)
+router.post("/google/token", async (req: Request, res: Response) => {
+  try {
+    const { credential } = req.body;
+    
+    if (!credential) {
+      return res.status(400).json({ error: "Google credential token required" });
+    }
+    
+    const { OAuth2Client } = await import("google-auth-library");
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).json({ error: "Invalid Google token" });
+    }
+    
+    const { sub: googleId, email, given_name: firstName, family_name: lastName, picture: profileImageUrl } = payload;
+    const normalizedEmail = email.toLowerCase();
+    
+    // Check if user exists
+    let existingUser = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+    
+    let userId: string;
+    let isNewUser = false;
+    
+    if (existingUser.length > 0) {
+      userId = existingUser[0].id;
+      
+      // Update googleId if not set
+      if (!existingUser[0].googleId) {
+        await db.update(users)
+          .set({ 
+            googleId,
+            profileImageUrl: existingUser[0].profileImageUrl || profileImageUrl,
+            emailVerified: true,
+          })
+          .where(eq(users.id, userId));
+      }
+    } else {
+      // Create new user
+      userId = googleId!;
+      isNewUser = true;
+      
+      await db.insert(users).values({
+        id: userId,
+        email: normalizedEmail,
+        firstName: firstName || "",
+        lastName: lastName || "",
+        profileImageUrl,
+        googleId,
+        emailVerified: true,
+        subscriptionTier: "free",
+      });
+      
+      // Send welcome email for new users
+      try {
+        await sendFreeWelcomeEmail(normalizedEmail, firstName || "");
+      } catch (e) {
+        console.error("Failed to send welcome email:", e);
+      }
+    }
+    
+    // Set session
+    const sessionUser = {
+      id: userId,
+      sub: userId,
+      email: normalizedEmail,
+      claims: {
+        sub: userId,
+        email: normalizedEmail,
+        first_name: firstName,
+        last_name: lastName,
+        exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      },
+      expires_at: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    };
+    
+    (req as any).login(sessionUser, (err: any) => {
+      if (err) {
+        console.error("Session login error:", err);
+        return res.status(500).json({ error: "Failed to create session" });
+      }
+      
+      res.json({
+        success: true,
+        user: {
+          id: userId,
+          email: normalizedEmail,
+          firstName,
+          lastName,
+          profileImageUrl,
+        },
+        isNewUser,
+      });
+    });
+  } catch (error: any) {
+    console.error("Google token verification error:", error);
+    res.status(401).json({ error: "Invalid Google token" });
+  }
+});
+
 export default router;

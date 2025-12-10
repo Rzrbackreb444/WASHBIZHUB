@@ -3,6 +3,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider, Helmet } from "react-helmet-async";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -22,6 +23,8 @@ import { PageTransition } from "@/components/PageTransition";
 import AdminBar from "@/components/AdminBar";
 import { TrialBanner } from "@/components/monetization";
 import { ExitIntentModal } from "@/components/ExitIntentModal";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -1729,19 +1732,21 @@ function App() {
     <ErrorBoundary variant="page" showError={process.env.NODE_ENV === "development"}>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <TenantProvider>
-            <ThemeProvider>
-              <LocationDesignProvider>
-                <TooltipProvider>
-                  <AuthModalProvider>
-                    <AppContent />
-                    <Toaster />
-                    <ExitIntentModal />
-                  </AuthModalProvider>
-                </TooltipProvider>
-              </LocationDesignProvider>
-            </ThemeProvider>
-          </TenantProvider>
+          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+            <TenantProvider>
+              <ThemeProvider>
+                <LocationDesignProvider>
+                  <TooltipProvider>
+                    <AuthModalProvider>
+                      <AppContent />
+                      <Toaster />
+                      <ExitIntentModal />
+                    </AuthModalProvider>
+                  </TooltipProvider>
+                </LocationDesignProvider>
+              </ThemeProvider>
+            </TenantProvider>
+          </GoogleOAuthProvider>
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>

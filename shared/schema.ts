@@ -38,6 +38,9 @@ export const users = pgTable("users", {
   passwordResetToken: text("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
   
+  // OAuth Provider IDs
+  googleId: varchar("google_id").unique(), // Google OAuth user ID
+  
   // Personal/Contact Information
   phone: varchar("phone"),
   bio: text("bio"),
