@@ -1,0 +1,69 @@
+High-Impact Opportunities
+1. Utility Intelligence Dashboard
+Real-time tracking of water, gas, electricity costs per machine/wash cycle. The industry's biggest variable cost with no good tools to optimize it.
+
+Cost-per-pound calculator
+Utility rate comparison by region
+ROI calculator for high-efficiency upgrades
+Anomaly detection (leak alerts, equipment malfunction)
+2. Route Optimization for Pickup & Delivery (PUD)
+The wash-dry-fold pickup/delivery segment is exploding. No good route planning tools exist for laundromat operators.
+
+Google Maps integration for optimized routes
+Customer scheduling portal
+Driver app with turn-by-turn
+Delivery zone profitability analysis
+3. Staffing & Payroll Calculator
+Labor is the #2 expense. Operators guess at scheduling.
+
+Revenue-per-labor-hour benchmarks
+Optimal staffing by time-of-day/day-of-week
+Break-even calculator for attended vs. unattended
+Payroll integration
+4. Insurance & Compliance Hub
+Every operator needs it, nobody understands it.
+
+Coverage comparison tool
+Premium calculator by location/equipment value
+ADA compliance checklist
+Fire code requirements by state
+Document vault for certificates
+5. Customer Loyalty & Retention System
+Missing from most laundromat tech stacks.
+
+Digital punch cards
+SMS marketing campaigns
+Review solicitation automation
+Customer lifetime value calculator
+Churn prediction (for PUD customers)
+6. Equipment Lifecycle Manager
+Track every machine from purchase to retirement.
+
+Depreciation schedules
+Maintenance history
+Repair vs. replace calculator
+Resale value estimator (feeds into marketplace)
+Warranty tracking
+7. Water Reclamation ROI Calculator
+Environmental regulations are tightening. Green laundromats get incentives.
+
+Payback period for reclaim systems
+Local rebate finder
+Before/after utility comparison
+8. Competitor Intelligence Tool
+Operators want to know what's around them.
+
+Map of nearby laundromats with machine counts
+Google review sentiment analysis
+Price comparison by neighborhood
+Market saturation scoring
+Quick Wins (Low Effort, High Value)
+Tool	Why It Matters
+Coin vs. Card Calculator	The #1 debate in the industry
+Retool Timer	When to replace equipment (age + repairs)
+Rent-to-Revenue Ratio	Industry standard is 15-20%, but nobody knows theirs
+Break-Even Occupancy	How many washes/day to cover fixed costs
+Premium Add-Ons for Power Pass
+Monte Carlo Exit Planning - Simulate 10,000 sale scenarios
+Multi-Location Consolidation Analysis - Should you merge locations?
+Franchise Feasibility Study - Can your model scale?
