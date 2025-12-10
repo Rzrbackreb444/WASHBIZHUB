@@ -1,6 +1,14 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users } from "lucide-react";
+import { Menu, LogIn, LogOut, User, ChevronDown, ChevronRight, X, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -91,6 +99,230 @@ const megaMenuSections = [
     ]
   }
 ];
+
+// Notification Bell Component for Social Network Features
+function NotificationBell() {
+  const { isAuthenticated } = useAuth();
+  
+  const { data: notifications } = useQuery<{
+    unreadCount: number;
+    items: Array<{
+      id: string;
+      type: string;
+      title: string;
+      message: string;
+      createdAt: string;
+      read: boolean;
+    }>;
+  }>({
+    queryKey: ['/api/user-dashboard/notifications'],
+    enabled: isAuthenticated,
+    staleTime: 30000,
+  });
+
+  const unreadCount = notifications?.unreadCount || 0;
+  const recentNotifications = notifications?.items?.slice(0, 5) || [];
+
+  if (!isAuthenticated) return null;
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'favorite': return Heart;
+      case 'message': return MessageSquare;
+      case 'saved': return Bookmark;
+      case 'report': return FileText;
+      default: return Bell;
+    }
+  };
+
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative hover-elevate"
+          data-testid="button-notifications"
+        >
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end" sideOffset={8}>
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <h4 className="font-semibold text-sm">Notifications</h4>
+          {unreadCount > 0 && (
+            <Badge variant="secondary" className="text-[10px]">
+              {unreadCount} new
+            </Badge>
+          )}
+        </div>
+        <ScrollArea className="h-[280px]">
+          {recentNotifications.length > 0 ? (
+            <div className="divide-y">
+              {recentNotifications.map((notification) => {
+                const Icon = getNotificationIcon(notification.type);
+                return (
+                  <div 
+                    key={notification.id}
+                    className={`flex items-start gap-3 px-4 py-3 hover-elevate cursor-pointer ${
+                      !notification.read ? 'bg-muted/30' : ''
+                    }`}
+                    data-testid={`notification-item-${notification.id}`}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-tight">{notification.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {notification.message}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {formatTimeAgo(notification.createdAt)}
+                      </p>
+                    </div>
+                    {!notification.read && (
+                      <div className="flex-shrink-0">
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+              <Bell className="h-8 w-8 mb-2 opacity-50" />
+              <p className="text-sm">No notifications yet</p>
+            </div>
+          )}
+        </ScrollArea>
+        <div className="border-t px-4 py-2">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm" className="w-full text-xs" data-testid="link-view-all-notifications">
+              View All Activity
+            </Button>
+          </Link>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// Saved Items Quick Access
+function SavedItemsDropdown() {
+  const { isAuthenticated } = useAuth();
+  
+  const { data: savedItems } = useQuery<{
+    savedSearches: number;
+    savedCalculators: number;
+    favoriteListings: number;
+    savedTemplates: number;
+  }>({
+    queryKey: ['/api/user-dashboard/saved-counts'],
+    enabled: isAuthenticated,
+    staleTime: 60000,
+  });
+
+  if (!isAuthenticated) return null;
+
+  const totalSaved = (savedItems?.savedSearches || 0) + 
+                     (savedItems?.savedCalculators || 0) + 
+                     (savedItems?.favoriteListings || 0) +
+                     (savedItems?.savedTemplates || 0);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative hover-elevate"
+          data-testid="button-saved-items"
+        >
+          <Bookmark className="h-5 w-5" />
+          {totalSaved > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-[#C8A661] text-[10px] font-bold text-white flex items-center justify-center">
+              {totalSaved > 9 ? '9+' : totalSaved}
+            </span>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end" sideOffset={8}>
+        <DropdownMenuLabel className="text-xs text-muted-foreground">
+          Your Saved Items
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        
+        <Link href="/dashboard?tab=searches">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-saved-searches">
+            <Search className="mr-2 h-4 w-4 text-blue-500" />
+            <span className="flex-1">Saved Searches</span>
+            <Badge variant="secondary" className="text-[10px]">
+              {savedItems?.savedSearches || 0}
+            </Badge>
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/dashboard?tab=calculators">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-saved-calculators">
+            <Calculator className="mr-2 h-4 w-4 text-green-500" />
+            <span className="flex-1">Saved Calculators</span>
+            <Badge variant="secondary" className="text-[10px]">
+              {savedItems?.savedCalculators || 0}
+            </Badge>
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/dashboard?tab=favorites">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-favorite-listings">
+            <Heart className="mr-2 h-4 w-4 text-red-500" />
+            <span className="flex-1">Favorite Listings</span>
+            <Badge variant="secondary" className="text-[10px]">
+              {savedItems?.favoriteListings || 0}
+            </Badge>
+          </DropdownMenuItem>
+        </Link>
+        
+        <Link href="/dashboard?tab=templates">
+          <DropdownMenuItem className="cursor-pointer" data-testid="link-saved-templates">
+            <FileText className="mr-2 h-4 w-4 text-purple-500" />
+            <span className="flex-1">Saved Templates</span>
+            <Badge variant="secondary" className="text-[10px]">
+              {savedItems?.savedTemplates || 0}
+            </Badge>
+          </DropdownMenuItem>
+        </Link>
+        
+        <DropdownMenuSeparator />
+        <Link href="/dashboard">
+          <DropdownMenuItem className="cursor-pointer text-xs text-muted-foreground" data-testid="link-manage-saved">
+            Manage all saved items
+          </DropdownMenuItem>
+        </Link>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function UserDropdown() {
   const { user } = useAuth();
@@ -475,7 +707,9 @@ export function Header() {
               ) : (
                 <>
                   {isAuthenticated ? (
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-1">
+                      <SavedItemsDropdown />
+                      <NotificationBell />
                       <UserDropdown />
                     </div>
                   ) : (
