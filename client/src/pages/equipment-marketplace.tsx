@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box } from "lucide-react";
-import equipmentCoverUrl from "@assets/Untitled_design_(26)_1764811756099.png";
+import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box, Award } from "lucide-react";
+import industrialMachines from "@assets/dexter_laundromat_corner_shot_1765330859864.jpg";
+import dexterStock from "@assets/Dexter_Laundromat_Stock_photo_1765330872542.jpg";
 
 interface AmazonProduct {
   asin: string;
@@ -241,33 +242,33 @@ export default function EquipmentMarketplace() {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* SEO-optimized header */}
-          <header>
-            <h1 className="text-4xl font-bold flex items-center gap-3">
-              <Package className="w-10 h-10 text-primary" />
-              Commercial Laundromat Equipment Marketplace
+      <div className="min-h-screen bg-background">
+        {/* Premium Hero Section */}
+        <section className="relative h-[300px] md:h-[400px] w-full overflow-hidden">
+          <img 
+            src={industrialMachines} 
+            alt="Premium commercial laundromat equipment - industrial washers and dryers" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/70 to-transparent" />
+          <div className="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-center">
+            <Badge className="w-fit mb-4 bg-[#C8A661] text-[#0A1628] hover:bg-[#C8A661]" data-testid="badge-affiliate">
+              <Award className="w-3 h-3 mr-1.5" />
+              Amazon Affiliate Partner
+            </Badge>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3" data-testid="hero-headline">
+              Premium Laundromat Equipment
             </h1>
-            <p className="text-muted-foreground mt-2 text-lg">
-              Buy new and used commercial laundromat equipment at wholesale prices - Washers, Dryers, Folding Tables, Carts, Parts & Supplies
+            <p className="text-lg md:text-xl text-gray-200 max-w-xl mb-6" data-testid="hero-subheadline">
+              Commercial-Grade Washers, Dryers & Supplies
             </p>
-          </header>
-
-          {/* Hero Image */}
-          <div className="relative rounded-xl overflow-hidden shadow-lg">
-            <img 
-              src={equipmentCoverUrl} 
-              alt="Commercial laundromat washers and dryers lineup" 
-              className="w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex items-center">
-              <div className="px-8 text-white">
-                <h2 className="text-2xl md:text-3xl font-bold mb-2">Quality Commercial Equipment</h2>
-                <p className="text-white/90 max-w-md">Find washers, dryers, folding tables, and supplies from trusted brands with Prime delivery</p>
-              </div>
-            </div>
+            <p className="text-gray-300 max-w-lg text-sm md:text-base">
+              Shop wholesale prices on Speed Queen, Maytag, and Dexter equipment with Prime delivery
+            </p>
           </div>
+        </section>
+
+        <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
 
           {/* Search & Category Filter */}
           <Card>

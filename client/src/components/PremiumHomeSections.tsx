@@ -24,6 +24,13 @@ import aerialView from "@assets/laundromat_aerial_view_1764705500503.jpg";
 import aadvantageLogo from "@assets/image_1764781537875.png";
 import aadvantageMarketing from "@assets/aadvantage_marketing_dexter_dryer_1764781473596.jpg";
 
+import goldBlueFabrics from "@assets/AdobeStock_711286802_1765330642120.jpeg";
+import modernWashersRow from "@assets/AdobeStock_790549884_1765330669101.jpeg";
+import brightModernInterior from "@assets/AdobeStock_832897447_1765330812967.jpeg";
+import nycSkyline from "@assets/City_Lights_54_1765330986805.png";
+import bigDexterColorful from "@assets/big_dexter_laundromat_1765330833076.jpg";
+import dexterRowsSymmetrical from "@assets/Dexter_Laundromat_1765330885903.jpg";
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
@@ -82,7 +89,7 @@ const TEMPLATES = [
     description: "Comprehensive business plan for laundromat startups and acquisitions",
     price: "FREE",
     isPremium: false,
-    image: laundromatImage
+    image: bigDexterColorful
   },
   {
     title: "Financial Model Pro",
@@ -90,7 +97,7 @@ const TEMPLATES = [
     description: "Advanced Excel model with 5-year projections, sensitivity analysis",
     price: "$49",
     isPremium: true,
-    image: equipmentImage
+    image: brightModernInterior
   },
   {
     title: "Operations Checklist",
@@ -98,7 +105,7 @@ const TEMPLATES = [
     description: "Daily, weekly, and monthly operational checklists for staff",
     price: "FREE",
     isPremium: false,
-    image: washerDetailImage
+    image: dexterRowsSymmetrical
   },
   {
     title: "Employee Handbook",
@@ -106,7 +113,7 @@ const TEMPLATES = [
     description: "Customizable employee handbook with policies and procedures",
     price: "$29",
     isPremium: true,
-    image: laundromatImage
+    image: modernWashersRow
   }
 ];
 
@@ -169,8 +176,15 @@ export function FeaturesSection() {
   
   return (
     <>
-      <section className="py-24 bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <section className="py-24 bg-white border-t border-gray-100 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e3a5f' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+        
+        <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-gradient-to-br from-[#C8A661]/5 to-transparent blur-3xl" />
+        <div className="absolute -right-20 top-1/4 w-32 h-32 rounded-full bg-gradient-to-br from-[#1e3a5f]/5 to-transparent blur-3xl" />
+        
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
           <motion.div 
             ref={ref}
             variants={staggerContainer}
@@ -182,9 +196,9 @@ export function FeaturesSection() {
               <motion.div 
                 key={feature.title} 
                 variants={cardItem}
-                className="text-center p-8"
+                className="text-center p-8 rounded-2xl hover:bg-gray-50/50 transition-colors duration-300"
               >
-                <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-gradient-to-br from-[#C8A661]/10 to-[#1e3a5f]/10">
+                <div className="inline-flex items-center justify-center w-14 h-14 mb-6 rounded-2xl bg-gradient-to-br from-[#C8A661]/15 to-[#1e3a5f]/10 shadow-lg shadow-[#C8A661]/10">
                   <feature.icon className="w-7 h-7 text-[#C8A661]" />
                 </div>
                 <h3 
@@ -1126,43 +1140,89 @@ export function CTASection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+    <section className="relative min-h-[500px] flex items-center overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${goldBlueFabrics})` }}
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/95 via-[#0A1628]/85 to-[#0A1628]/60" />
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/40 to-transparent" />
+      
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-8 py-24">
         <motion.div
           ref={ref}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, x: -40 }}
+          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-2xl"
         >
-          <h2 
-            className="text-5xl md:text-6xl font-bold tracking-tight text-gray-900 uppercase mb-12"
-            style={{ fontFamily: 'var(--font-bebas)', fontSize: '48px' }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            Ready to Build a Stronger Laundry Business?
+            <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 hover:bg-[#C8A661]/30">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Join 72,000+ Professionals
+            </Badge>
+          </motion.div>
+          
+          <h2 
+            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white uppercase mb-6 leading-tight"
+            style={{ fontFamily: 'var(--font-bebas)' }}
+          >
+            Ready to Transform Your Laundromat Business?
           </h2>
+          
+          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-xl">
+            Access premium tools, verified listings, and expert resources trusted by laundromat owners across the nation.
+          </p>
           
           <motion.div 
             variants={staggerContainer}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
-            className="flex flex-wrap justify-center gap-6"
+            className="flex flex-wrap gap-4"
           >
             <motion.div variants={cardItem}>
-              <Link href="/templates">
-                <Button variant="outline" size="lg" className="h-14 px-10 border-gray-300 hover:border-[#1e3a5f] text-lg" data-testid="button-cta-templates">
-                  Get Free Templates
+              <Link href="/login">
+                <Button size="lg" className="h-14 px-10 bg-[#C8A661] hover:bg-[#B8963F] text-white shadow-xl shadow-[#C8A661]/25 text-lg font-semibold" data-testid="button-cta-get-started">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </motion.div>
             <motion.div variants={cardItem}>
-              <Link href="/consultation">
-                <Button size="lg" className="h-14 px-10 bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-lg text-lg" data-testid="button-cta-consultation">
-                  Book a Consultation
+              <Link href="/pricing">
+                <Button variant="outline" size="lg" className="h-14 px-10 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm text-lg" data-testid="button-cta-see-pricing">
+                  See Pricing
                 </Button>
               </Link>
             </motion.div>
           </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-10 flex items-center gap-6 text-sm text-white/60"
+          >
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#C8A661]" />
+              <span>No credit card required</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#C8A661]" />
+              <span>Free tier available</span>
+            </div>
+          </motion.div>
         </motion.div>
+      </div>
+      
+      <div className="absolute right-0 bottom-0 w-1/3 h-full hidden lg:block">
+        <div className="absolute inset-0 bg-gradient-to-l from-[#C8A661]/10 to-transparent" />
       </div>
     </section>
   );

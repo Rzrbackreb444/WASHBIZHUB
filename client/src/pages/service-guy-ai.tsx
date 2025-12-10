@@ -74,6 +74,8 @@ const InvoiceGenerator = lazy(() => import("@/components/InvoiceGenerator").then
 import { FixOutcomeFeedback } from "@/components/FixOutcomeFeedback";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
+import waterOverflowImage from "@assets/AdobeStock_824530835_1765330793538.jpeg";
+import steelDrumImage from "@assets/AdobeStock_561067303_1765330620231.jpeg";
 
 interface Manufacturer {
   id: string;
@@ -1198,7 +1200,76 @@ export default function ServiceGuyAI() {
           }
         }}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+      {/* Dramatic Hero Section */}
+      <section className="relative w-full h-[500px] md:h-[600px] overflow-hidden" data-testid="section-hero">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${waterOverflowImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+        
+        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
+          <div className="max-w-3xl">
+            <Badge 
+              className="mb-6 bg-[#C8A661] text-[#0A1628] border-none text-sm px-4 py-1.5"
+              data-testid="badge-error-codes"
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              15,867+ Error Codes in Database
+            </Badge>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              Diagnose & Fix Equipment Problems <span className="text-[#C8A661]">Fast</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl">
+              AI-powered diagnostics for commercial laundry equipment. Get instant troubleshooting steps, 
+              repair guides, and part numbers for Speed Queen, Dexter, Maytag, and 35+ manufacturers.
+            </p>
+            
+            <div className="flex flex-wrap items-center gap-4">
+              <Button 
+                size="lg"
+                className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold"
+                onClick={() => document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-hero-search"
+              >
+                <Search className="w-5 h-5 mr-2" />
+                Search Error Codes
+              </Button>
+              <Button 
+                size="lg"
+                variant="outline"
+                className="border-white/40 text-white backdrop-blur-sm bg-white/10 hover:bg-white/20"
+                onClick={() => document.getElementById('ai-diagnose-section')?.scrollIntoView({ behavior: 'smooth' })}
+                data-testid="button-hero-ai-diagnose"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                AI Diagnose Symptoms
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-6 mt-8 text-white/80 text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
+                <span>Free to Use</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
+                <span>35+ Manufacturers</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#C8A661]" />
+                <span>24/7 Available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-8">
             <img 
@@ -2144,7 +2215,26 @@ export default function ServiceGuyAI() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="ai-diagnose" className="space-y-6">
+          <TabsContent id="ai-diagnose-section" value="ai-diagnose" className="space-y-6">
+            {/* Decorative Banner with Steel Drum Image */}
+            <div className="relative rounded-lg overflow-hidden h-32 md:h-40" data-testid="section-ai-diagnose-banner">
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${steelDrumImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/70 to-transparent" />
+              <div className="relative h-full flex items-center px-6 md:px-8">
+                <div>
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
+                    Know Your Machine Inside & Out
+                  </h3>
+                  <p className="text-gray-300 text-sm md:text-base">
+                    AI-powered analysis of symptoms, parts, and repair strategies
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
