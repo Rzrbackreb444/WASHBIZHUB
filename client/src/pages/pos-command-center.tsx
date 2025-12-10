@@ -202,6 +202,7 @@ const NAV_ITEMS = [
   { id: "machines", icon: Wrench, label: "Machines" },
   { id: "routes", icon: Truck, label: "Routes" },
   { id: "inventory", icon: Package, label: "Inventory" },
+  { id: "promotions", icon: Percent, label: "Promotions" },
   { id: "analytics", icon: BarChart3, label: "Analytics" },
   { id: "ai-council", icon: Bot, label: "AI Council", href: "/ai-consultation" },
   { id: "calculators", icon: Calculator, label: "Calculators" },
@@ -627,6 +628,23 @@ export default function POSCommandCenter() {
     return false;
   });
   const [planComparisonOpen, setPlanComparisonOpen] = useState(false);
+
+  // Promotions state
+  const [promoSearchQuery, setPromoSearchQuery] = useState("");
+  const [promoStatusFilter, setPromoStatusFilter] = useState<"all" | "active" | "expired" | "disabled">("all");
+  const [newPromoOpen, setNewPromoOpen] = useState(false);
+  const [newPromoForm, setNewPromoForm] = useState({
+    code: "",
+    description: "",
+    discountType: "percent" as "percent" | "fixed" | "bogo" | "free_item",
+    discountAmount: 0,
+    maxRedemptions: null as number | null,
+    maxRedemptionsPerUser: 1,
+    startsAt: new Date().toISOString().split('T')[0],
+    expiresAt: "",
+    applicableProducts: [] as string[],
+    targetAudience: "all" as "all" | "new" | "returning" | "vip",
+  });
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -1175,6 +1193,103 @@ export default function POSCommandCenter() {
     },
   });
 
+  // Create promo code mutation
+  const createPromoCodeMutation = useMutation({
+    mutationFn: async (promoData: typeof newPromoForm) => {
+      const response = await apiRequest("/api/pos/promo-codes", {
+        method: "POST",
+        body: JSON.stringify({
+          code: promoData.code.toUpperCase().replace(/\s/g, ""),
+          description: promoData.description || undefined,
+          discountType: promoData.discountType,
+          discountAmount: promoData.discountAmount,
+          maxRedemptions: promoData.maxRedemptions || undefined,
+          maxRedemptionsPerUser: promoData.maxRedemptionsPerUser,
+          startsAt: new Date(promoData.startsAt).toISOString(),
+          expiresAt: promoData.expiresAt ? new Date(promoData.expiresAt).toISOString() : undefined,
+          applicableProducts: promoData.applicableProducts.length > 0 ? promoData.applicableProducts : undefined,
+        }),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/promo-codes"] });
+      toast({
+        title: "Promo Code Created",
+        description: "New promotional code has been created successfully",
+      });
+      setNewPromoOpen(false);
+      setNewPromoForm({
+        code: "",
+        description: "",
+        discountType: "percent",
+        discountAmount: 0,
+        maxRedemptions: null,
+        maxRedemptionsPerUser: 1,
+        startsAt: new Date().toISOString().split('T')[0],
+        expiresAt: "",
+        applicableProducts: [],
+        targetAudience: "all",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create promo code",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update promo code mutation (toggle active, edit)
+  const updatePromoCodeMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<{ isActive: boolean; code: string; description: string; discountAmount: number; expiresAt: string }> }) => {
+      const response = await apiRequest(`/api/pos/promo-codes/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/promo-codes"] });
+      toast({
+        title: "Promo Code Updated",
+        description: "Promotional code has been updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update promo code",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete promo code mutation
+  const deletePromoCodeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest(`/api/pos/promo-codes/${id}`, {
+        method: "DELETE",
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pos/promo-codes"] });
+      toast({
+        title: "Promo Code Deleted",
+        description: "Promotional code has been deleted",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete promo code",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Pricing calculator mutation
   const pricingCalculatorMutation = useMutation({
     mutationFn: async (data: typeof pricingForm) => {
@@ -1374,6 +1489,42 @@ export default function POSCommandCenter() {
   // Fetch inventory from real API
   const { data: inventoryData, isLoading: inventoryLoading } = useQuery({
     queryKey: ["/api/pos/inventory"],
+  });
+
+  // Fetch promo codes for Promotions section
+  const { data: promoCodesData, isLoading: promoCodesLoading } = useQuery<{
+    promoCodes: Array<{
+      id: string;
+      code: string;
+      description: string | null;
+      discountType: string;
+      discountAmount: number;
+      maxRedemptions: number | null;
+      maxRedemptionsPerUser: number;
+      currentRedemptions: number;
+      startsAt: string;
+      expiresAt: string | null;
+      applicableProducts: string[] | null;
+      isActive: boolean;
+      createdAt: string;
+    }>;
+    redemptions: Array<{
+      id: string;
+      promoCodeId: string;
+      discountApplied: string;
+      orderTotal: string | null;
+      redeemedAt: string;
+    }>;
+    analytics: {
+      totalCodes: number;
+      activeCodes: number;
+      totalRedemptions: number;
+      totalDiscountGiven: number;
+      conversionRate: number;
+    };
+  }>({
+    queryKey: ["/api/pos/promo-codes"],
+    enabled: activeSection === "promotions",
   });
 
   // Fetch upgrade prompts

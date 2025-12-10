@@ -125,9 +125,13 @@ export function UpgradeModal({
     }
   };
 
-  const availableTiers: PlatformTier[] = ["starter", "pro", "enterprise"].filter(
-    t => PLATFORM_TIERS[t as PlatformTier].price > (PLATFORM_TIERS[currentTier as PlatformTier]?.price || 0)
-  ) as PlatformTier[];
+  const currentTierPrice = PLATFORM_TIERS[currentTier as PlatformTier]?.price || 0;
+  const availableTiers: PlatformTier[] = (["starter", "pro", "enterprise"] as PlatformTier[]).filter(
+    t => {
+      const tierConfig = PLATFORM_TIERS[t];
+      return tierConfig && tierConfig.price > currentTierPrice;
+    }
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
