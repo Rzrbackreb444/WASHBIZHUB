@@ -587,4 +587,85 @@ router.get("/metrics", isAuthenticated, async (req: Request, res: Response) => {
   }
 });
 
+// Get notifications for header bell
+router.get("/notifications", isAuthenticated, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Get recent activity as notifications
+    const recentActivity = await db
+      .select()
+      .from(activityEvents)
+      .where(eq(activityEvents.userId, userId))
+      .orderBy(desc(activityEvents.createdAt))
+      .limit(10);
+
+    // Format as notifications
+    const items = recentActivity.map(activity => ({
+      id: activity.id,
+      type: activity.eventType || 'activity',
+      title: formatEventTitle(activity.eventType),
+      message: activity.entityType ? `Activity on ${activity.entityType}` : 'Platform activity',
+      createdAt: activity.createdAt,
+      read: true, // Mark all as read for now - can track with separate table later
+    }));
+
+    // Count unread (for now, show 0 - can implement read tracking later)
+    const unreadCount = 0;
+
+    res.json({
+      unreadCount,
+      items,
+    });
+  } catch (error: any) {
+    console.error("Notifications error:", error);
+    res.status(500).json({ error: "Failed to fetch notifications" });
+  }
+});
+
+// Get saved counts for header quick access
+router.get("/saved-counts", isAuthenticated, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Get counts for all saved item types
+    const [searchCount, favoriteCount] = await Promise.all([
+      db.select({ count: count() }).from(savedSearches).where(eq(savedSearches.userId, userId)),
+      db.select({ count: count() }).from(favoriteListings).where(eq(favoriteListings.userId, userId)),
+    ]);
+
+    res.json({
+      savedSearches: searchCount[0]?.count || 0,
+      savedCalculators: 0, // Will connect when calculator saving is implemented
+      favoriteListings: favoriteCount[0]?.count || 0,
+      savedTemplates: 0, // Will connect when template saving is implemented
+    });
+  } catch (error: any) {
+    console.error("Saved counts error:", error);
+    res.status(500).json({ error: "Failed to fetch saved counts" });
+  }
+});
+
+// Helper function to format event titles
+function formatEventTitle(eventType: string | null): string {
+  if (!eventType) return 'Activity';
+  const titles: Record<string, string> = {
+    saved_search: 'Search Saved',
+    favorite_listing: 'Listing Favorited',
+    follow: 'New Follow',
+    listing_created: 'Listing Created',
+    cleanbi_analysis: 'CLEANBI Analysis',
+    profile_view: 'Profile Viewed',
+    message_sent: 'Message Sent',
+    report_generated: 'Report Generated',
+  };
+  return titles[eventType] || eventType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
 export default router;
