@@ -370,6 +370,7 @@ export default function POSCommandCenter() {
   const [, navigate] = useLocation();
   const [activeSection, setActiveSection] = useState("dashboard");
   const [selectedTimeframe, setSelectedTimeframe] = useState("today");
+  const [selectedLaundromat, setSelectedLaundromat] = useState<{ id: string; name: string } | null>(null);
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [newCustomerOpen, setNewCustomerOpen] = useState(false);
   const [newMachineOpen, setNewMachineOpen] = useState(false);

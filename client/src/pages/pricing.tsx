@@ -651,25 +651,25 @@ export default function Pricing() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
               {CONSULTING_ADDONS.map((addon) => {
                 const Icon = addon.icon;
                 return (
                   <Card 
                     key={addon.id}
-                    className={`relative bg-card border shadow-sm overflow-hidden ${addon.popular ? 'border-[#C8A661] border-2' : ''}`}
+                    className={`relative bg-card border shadow-sm overflow-hidden flex flex-col h-full ${addon.popular ? 'border-[#C8A661] border-2' : ''}`}
                     data-testid={`card-consulting-${addon.id}`}
                   >
                     <div className={`h-1 ${addon.popular ? 'bg-[#C8A661]' : 'bg-muted'}`} />
                     {addon.popular && (
-                      <div className="absolute -top-3 right-4">
-                        <Badge className="bg-[#C8A661] text-[#0A1628] text-xs">
+                      <div className="absolute top-2 right-4 z-10">
+                        <Badge className="bg-[#C8A661] text-[#0A1628] text-xs font-semibold">
                           POPULAR
                         </Badge>
                       </div>
                     )}
                     
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 flex flex-col flex-1">
                       <div className="flex items-start gap-4 mb-4">
                         <div className={`h-12 w-12 rounded-lg ${addon.iconBg} flex items-center justify-center shrink-0`}>
                           <Icon className={`h-6 w-6 ${addon.iconColor}`} />
@@ -693,7 +693,7 @@ export default function Pricing() {
                         {addon.description}
                       </p>
                       
-                      <ul className="space-y-2 mb-6">
+                      <ul className="space-y-2 mb-6 flex-1">
                         {addon.features.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-2">
                             <Check className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
@@ -702,19 +702,21 @@ export default function Pricing() {
                         ))}
                       </ul>
                       
-                      <Link href={getConsultingCTALink(addon)}>
-                        <Button 
-                          className={`w-full ${
-                            addon.popular 
-                              ? 'bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]' 
-                              : 'bg-[#0A1628] hover:bg-[#1a3a5c] text-white'
-                          }`}
-                          data-testid={`button-cta-consulting-${addon.id}`}
-                        >
-                          {addon.cta}
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </Link>
+                      <div className="mt-auto">
+                        <Link href={getConsultingCTALink(addon)}>
+                          <Button 
+                            className={`w-full ${
+                              addon.popular 
+                                ? 'bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]' 
+                                : 'bg-[#0A1628] hover:bg-[#1a3a5c] text-white'
+                            }`}
+                            data-testid={`button-cta-consulting-${addon.id}`}
+                          >
+                            {addon.cta}
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Button>
+                        </Link>
+                      </div>
                     </CardContent>
                   </Card>
                 );
