@@ -1,0 +1,62 @@
+Add an application
+Configure the policies, authentication, and settings of your application.
+Select type
+>
+Configure application
+>
+Experience settings (optional)
+>
+Advanced settings (optional)
+Basic information
+Configure your application’s basic details and paths. Enter hostnames or IPs to protect an entire website or specific subdomains and paths.
+Application name
+(Required)
+WashBizHub
+10 / 350
+Session Duration
+(Required)
+24 hours
+Public hostname
+Input method
+Default
+Subdomain
+(optional) subdomain
+.
+Domain
+(Required)
+Select or type to search...
+/
+Path
+(optional) path
+Remove
+
+Add public hostname
+
+Add private hostname
+
+Add private IP
+Hidden
+Browser rendering settings
+Cloudflare currently supports rendering a terminal for SSH, VNC, or RDP sessions in a user’s browser.
+Create reusable application policies
+Configure policies that include your identity provider groups, IP, device, certificates, or service tokens. Reuse policies across Access Applications.
+
+Grant or restrict user access
+Create a group of employees, IP addresses, or countries.
+Allow or block a group of employees, IP addresses, or countries.
+Policies consist of an Action and rules which determine the action’s scope.
+Access evaluates policies with Bypass and Service Auth actions first.
+Apply across Access applications
+Updates automatically transfer across all applications using the policy.
+Create up to 50 policies, or reach out to your account team to request an increase.
+Add a policyThis link opens in a new tab
+Policy tester
+The policy tester evaluates the last seen identity of active users. Login decisions may differ if there are changes to user attributes evaluated by this policy.
+Test policies
+Login methods
+Select the identity providers your users can use to log in to this application. If you do not add an identity provider, a one time pin will be used by default.
+Manage login methods.This link opens in a new tab
+Accept all available identity providers
+On
+
+Allow users to log in with any identity providers configured on your account, including ones added in the future.
