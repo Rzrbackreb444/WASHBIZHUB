@@ -22,7 +22,7 @@ import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -9593,6 +9593,389 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
       });
     } catch (error: any) {
       console.error("Error starting conversation with user:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/members/:userId - Get member profile
+  app.get("/api/members/:userId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const targetUserId = req.params.userId;
+      const currentUserId = (req.user as any).id;
+
+      // Get user basic info
+      const [user] = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          profileImageUrl: users.profileImageUrl,
+          role: users.role,
+          companyName: users.companyName,
+          phone: users.phone,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .where(eq(users.id, targetUserId))
+        .limit(1);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Get member profile
+      const [profile] = await db
+        .select()
+        .from(memberProfiles)
+        .where(eq(memberProfiles.userId, targetUserId))
+        .limit(1);
+
+      // Get follower count
+      const [{ followerCount }] = await db
+        .select({ followerCount: sql<number>`count(*)::int` })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followingId, targetUserId),
+          eq(userConnections.status, "active")
+        ));
+
+      // Get following count
+      const [{ followingCount }] = await db
+        .select({ followingCount: sql<number>`count(*)::int` })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followerId, targetUserId),
+          eq(userConnections.status, "active")
+        ));
+
+      // Check if current user is following this user
+      const [isFollowing] = await db
+        .select({ id: userConnections.id })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followerId, currentUserId),
+          eq(userConnections.followingId, targetUserId),
+          eq(userConnections.status, "active")
+        ))
+        .limit(1);
+
+      // Build response, respecting privacy settings
+      const response: any = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        role: user.role,
+        companyName: user.companyName,
+        memberSince: user.createdAt,
+        followerCount,
+        followingCount,
+        isFollowing: !!isFollowing,
+        isOwnProfile: currentUserId === targetUserId,
+      };
+
+      // Add member profile data if exists
+      if (profile) {
+        response.headline = profile.headline;
+        response.specialties = profile.specialties;
+        response.services = profile.services;
+        response.yearsInIndustry = profile.yearsInIndustry;
+        response.certifications = profile.certifications;
+        response.location = profile.location;
+        response.isOpenToNetwork = profile.isOpenToNetwork;
+        response.isAvailableForConsulting = profile.isAvailableForConsulting;
+        response.badges = profile.badges;
+        response.endorsements = profile.endorsements;
+        
+        // Only show contact info if user has opted in or viewing own profile
+        if (profile.showEmail || currentUserId === targetUserId) {
+          response.email = user.email;
+        }
+        if (profile.showPhone || currentUserId === targetUserId) {
+          response.phone = user.phone;
+        }
+        if (profile.websiteUrl) {
+          response.websiteUrl = profile.websiteUrl;
+        }
+        if (profile.linkedinUrl) {
+          response.linkedinUrl = profile.linkedinUrl;
+        }
+        if (profile.facebookUrl) {
+          response.facebookUrl = profile.facebookUrl;
+        }
+      }
+
+      res.json(response);
+    } catch (error: any) {
+      console.error("Error fetching member profile:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/members/profile - Update own member profile
+  app.put("/api/members/profile", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const data = req.body;
+
+      // Check if profile exists
+      const [existingProfile] = await db
+        .select()
+        .from(memberProfiles)
+        .where(eq(memberProfiles.userId, userId))
+        .limit(1);
+
+      if (existingProfile) {
+        // Update existing profile
+        const [updated] = await db
+          .update(memberProfiles)
+          .set({
+            headline: data.headline,
+            specialties: data.specialties,
+            services: data.services,
+            yearsInIndustry: data.yearsInIndustry,
+            certifications: data.certifications,
+            websiteUrl: data.websiteUrl,
+            linkedinUrl: data.linkedinUrl,
+            facebookUrl: data.facebookUrl,
+            location: data.location,
+            isOpenToNetwork: data.isOpenToNetwork,
+            isAvailableForConsulting: data.isAvailableForConsulting,
+            showEmail: data.showEmail,
+            showPhone: data.showPhone,
+            updatedAt: new Date(),
+          })
+          .where(eq(memberProfiles.userId, userId))
+          .returning();
+        
+        res.json(updated);
+      } else {
+        // Create new profile
+        const [created] = await db
+          .insert(memberProfiles)
+          .values({
+            userId,
+            headline: data.headline,
+            specialties: data.specialties,
+            services: data.services,
+            yearsInIndustry: data.yearsInIndustry,
+            certifications: data.certifications,
+            websiteUrl: data.websiteUrl,
+            linkedinUrl: data.linkedinUrl,
+            facebookUrl: data.facebookUrl,
+            location: data.location,
+            isOpenToNetwork: data.isOpenToNetwork ?? true,
+            isAvailableForConsulting: data.isAvailableForConsulting ?? false,
+            showEmail: data.showEmail ?? false,
+            showPhone: data.showPhone ?? false,
+          })
+          .returning();
+        
+        res.json(created);
+      }
+    } catch (error: any) {
+      console.error("Error updating member profile:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/members/:userId/follow - Follow a user
+  app.post("/api/members/:userId/follow", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const currentUserId = (req.user as any).id;
+      const targetUserId = req.params.userId;
+
+      if (currentUserId === targetUserId) {
+        return res.status(400).json({ error: "Cannot follow yourself" });
+      }
+
+      // Check target user exists
+      const [targetUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, targetUserId))
+        .limit(1);
+
+      if (!targetUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Check if already following
+      const [existingConnection] = await db
+        .select()
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followerId, currentUserId),
+          eq(userConnections.followingId, targetUserId)
+        ))
+        .limit(1);
+
+      if (existingConnection) {
+        if (existingConnection.status === "active") {
+          return res.status(400).json({ error: "Already following this user" });
+        }
+        // Reactivate if blocked/inactive
+        const [updated] = await db
+          .update(userConnections)
+          .set({ status: "active", createdAt: new Date() })
+          .where(eq(userConnections.id, existingConnection.id))
+          .returning();
+        
+        return res.json({ success: true, connection: updated });
+      }
+
+      // Create new connection
+      const [connection] = await db
+        .insert(userConnections)
+        .values({
+          followerId: currentUserId,
+          followingId: targetUserId,
+          status: "active",
+        })
+        .returning();
+
+      // Create activity event for the follow action
+      await db.insert(activityEvents).values({
+        userId: currentUserId,
+        eventType: "follow",
+        entityType: "user",
+        entityId: targetUserId,
+        isPublic: true,
+      });
+
+      res.json({ success: true, connection });
+    } catch (error: any) {
+      console.error("Error following user:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/members/:userId/follow - Unfollow a user
+  app.delete("/api/members/:userId/follow", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const currentUserId = (req.user as any).id;
+      const targetUserId = req.params.userId;
+
+      if (currentUserId === targetUserId) {
+        return res.status(400).json({ error: "Cannot unfollow yourself" });
+      }
+
+      // Delete the connection
+      const result = await db
+        .delete(userConnections)
+        .where(and(
+          eq(userConnections.followerId, currentUserId),
+          eq(userConnections.followingId, targetUserId)
+        ))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Not following this user" });
+      }
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error unfollowing user:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/activity-feed - Get activity feed from followed users
+  app.get("/api/activity-feed", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+      const offset = parseInt(req.query.offset as string) || 0;
+      const includeOwn = req.query.includeOwn === "true";
+
+      // Get list of users the current user is following
+      const following = await db
+        .select({ followingId: userConnections.followingId })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followerId, userId),
+          eq(userConnections.status, "active")
+        ));
+
+      const followingIds = following.map(f => f.followingId);
+
+      // Include own activities if requested
+      if (includeOwn) {
+        followingIds.push(userId);
+      }
+
+      if (followingIds.length === 0) {
+        return res.json({ activities: [], total: 0 });
+      }
+
+      // Get activities from followed users
+      const activities = await db
+        .select({
+          id: activityEvents.id,
+          userId: activityEvents.userId,
+          eventType: activityEvents.eventType,
+          entityType: activityEvents.entityType,
+          entityId: activityEvents.entityId,
+          metadata: activityEvents.metadata,
+          createdAt: activityEvents.createdAt,
+          userFirstName: users.firstName,
+          userLastName: users.lastName,
+          userProfileImageUrl: users.profileImageUrl,
+        })
+        .from(activityEvents)
+        .innerJoin(users, eq(users.id, activityEvents.userId))
+        .where(and(
+          inArray(activityEvents.userId, followingIds),
+          eq(activityEvents.isPublic, true)
+        ))
+        .orderBy(desc(activityEvents.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      // Transform to include user object
+      const formattedActivities = activities.map(a => ({
+        id: a.id,
+        eventType: a.eventType,
+        entityType: a.entityType,
+        entityId: a.entityId,
+        metadata: a.metadata,
+        createdAt: a.createdAt,
+        user: {
+          id: a.userId,
+          firstName: a.userFirstName,
+          lastName: a.userLastName,
+          profileImageUrl: a.userProfileImageUrl,
+        },
+      }));
+
+      // Get total count
+      const [{ total }] = await db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(activityEvents)
+        .where(and(
+          inArray(activityEvents.userId, followingIds),
+          eq(activityEvents.isPublic, true)
+        ));
+
+      res.json({ activities: formattedActivities, total });
+    } catch (error: any) {
+      console.error("Error fetching activity feed:", error);
       res.status(500).json({ error: error.message });
     }
   });
