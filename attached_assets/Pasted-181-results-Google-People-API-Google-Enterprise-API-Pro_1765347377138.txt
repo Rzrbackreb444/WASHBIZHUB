@@ -1,0 +1,199 @@
+181 results
+
+Google People API
+Google Enterprise API 
+Provides access to information about profiles and contacts.
+
+
+Maps Embed API
+Google Enterprise API 
+Make places easily discoverable with interactive Google Maps.
+
+
+Cloud Run Admin API
+Google Enterprise API 
+Serverless agility for containerized apps
+
+
+Enterprise License Manager API
+Google Enterprise API 
+Manage Google Workspace and related licenses for users
+
+
+Google Chat API
+Google Enterprise API 
+Create apps for Google Chat.
+
+
+Geocoding API
+Google Enterprise API 
+Convert between addresses and geographic coordinates.
+
+
+Maps Static API
+Google Enterprise API 
+Simple, embeddable map image with minimal code.
+
+
+Places API
+Google Enterprise API 
+Get detailed information about 100 million places
+
+
+Aerial View API
+Google Enterprise API 
+Get 3D cinematic videos of places
+
+
+Maps Elevation API
+Google Enterprise API 
+Elevation data for any point in the world.
+
+
+Google Tasks API
+Google Enterprise API 
+Manage your tasks and task lists
+
+
+Gmail API
+Google Enterprise API 
+View and manage Gmail mailbox data.
+
+
+Google Drive API
+Google Enterprise API 
+Create and manage resources in Google Drive.
+
+
+CalDAV API
+Google Enterprise API 
+Manage calendars and events in Google Calendar using the CalDAV protocol.
+
+
+Google Calendar API
+Google Enterprise API 
+Manage calendars and events in Google Calendar.
+
+
+AlloyDB API
+Google Enterprise API 
+
+Google Workspace Alert Center API
+Google Enterprise API 
+Manage alerts on issues affecting your account.
+
+
+Google Workspace Reseller API
+Google Enterprise API 
+Set up and manage accounts as a Google Workspace reseller
+
+
+Roads API
+Google Enterprise API 
+Snap-to-road functionality to accurately trace GPS breadcrumbs.
+
+
+Google Docs API
+Google Enterprise API 
+Reads and writes Google Docs documents.
+
+
+Groups Migration API
+Google Enterprise API 
+Archive emails into Google Groups
+
+
+Places Aggregate API
+Google Enterprise API 
+Analyze and understand place distributions with precise location insights.
+
+
+Analytics Hub API
+Google Enterprise API 
+Exchange data and analytics assets securely and efficiently.
+
+
+Directions API
+Google Enterprise API 
+Directions between multiple locations.
+
+
+Distance Matrix API
+Google Enterprise API 
+Travel time and distance for multiple destinations.
+
+
+Street View Static API
+Google Enterprise API 
+Real-world imagery and panoramas.
+
+
+Apps Script API
+Google Enterprise API 
+An API for managing and executing Google Apps Script projects.
+
+
+Sensitive Data Protection (DLP)
+Google Enterprise API 
+Fully managed service designed to help you discover, classify, and protect your most sensitive data
+
+
+Maps Datasets API
+Google Enterprise API 
+Use your own geospatial data with Google Maps Platform APIs
+
+
+Google Sheets API
+Google Enterprise API 
+Read and write Google Sheets data
+
+
+Groups Settings API
+Google Enterprise API 
+Manage access levels and advanced settings for Google Groups
+
+
+Google Drive Activity API
+Google Enterprise API 
+Get info about activity on files and folders in Google Drive.
+
+
+Time Zone API
+Google Enterprise API 
+Time zone data for anywhere in the world.
+
+
+Google Vault API
+Google Enterprise API 
+Data management and eDiscovery for Google Workspace.
+
+
+Admin SDK API
+Google Enterprise API 
+Manage Google Workspace account resources and audit usage.
+
+
+Places API (New)
+Google Enterprise API 
+Next generation of the Places API with access to more than 200 million places
+
+
+Geolocation API
+Google Enterprise API 
+Location data from cell towers and WiFi nodes.
+
+
+Data Lineage API
+Google Enterprise API 
+Dataplex data lineage tracks movement of data across systems.
+
+
+Google Slides API
+Google Enterprise API 
+Read and write Google Slides presentations
+
+
+Cloud Monitoring API
+Google Enterprise API 
+Cloud Monitoring
+
