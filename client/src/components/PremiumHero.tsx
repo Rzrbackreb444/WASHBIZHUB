@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/Untitled_design_(33)_1765330024631.png";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
+import heroVideo from "@assets/grok-video-c1b47cc0-3cae-4df8-aab3-c6d7516a6d89_1765337440628.mp4";
 
 // SSR-safe hook to detect mobile devices for performance optimization
 function useIsMobile() {
@@ -115,10 +116,24 @@ export function PremiumHero() {
         <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 72,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
       </div>
 
-      {/* Premium gradient mesh background */}
+      {/* Premium video background with fallback image */}
       <div className="absolute inset-0">
+        {/* Video background - desktop only for performance */}
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover hidden md:block"
+          poster={heroImage}
+          aria-hidden="true"
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+        
+        {/* Fallback image for mobile and when video can't play */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden"
           style={{ 
             backgroundImage: `url(${heroImage})`,
             backgroundPosition: 'center 30%'
@@ -126,23 +141,24 @@ export function PremiumHero() {
           role="img"
           aria-label="Authentic laundromat storefront with classic signage"
         />
-        {/* Dynamic overlay - darker on left for text readability, lighter on right to show image */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/95 via-[#0A1628]/80 to-[#0A1628]/60" />
+        
+        {/* Dynamic overlay - darker on left for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
         {/* Additional bottom gradient for depth */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/90 via-transparent to-transparent" />
-        {/* Gold accent glow - enhanced for storefront image */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/85 via-transparent to-transparent" />
+        {/* Gold accent glow - enhanced */}
         <div 
           className="absolute top-1/4 right-0 w-2/3 h-2/3"
-          style={{ background: 'radial-gradient(ellipse at 70% 40%, rgba(200,166,97,0.15) 0%, transparent 60%)' }}
+          style={{ background: 'radial-gradient(ellipse at 70% 40%, rgba(200,166,97,0.12) 0%, transparent 60%)' }}
         />
         <div 
           className="absolute bottom-0 left-0 w-1/2 h-1/2"
-          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(200,166,97,0.1) 0%, transparent 50%)' }}
+          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(200,166,97,0.08) 0%, transparent 50%)' }}
         />
         {/* Subtle vignette effect */}
         <div 
           className="absolute inset-0"
-          style={{ boxShadow: 'inset 0 0 150px 50px rgba(10,22,40,0.5)' }}
+          style={{ boxShadow: 'inset 0 0 150px 50px rgba(10,22,40,0.4)' }}
         />
       </div>
       
