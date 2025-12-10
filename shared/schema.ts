@@ -2564,6 +2564,36 @@ export const listings = pgTable("listings", {
   cleanbiReportId: varchar("cleanbi_report_id"), // Link to pre-generated CLEANBI report
   hasValuationReport: boolean("has_valuation_report").default(false),
   
+  // ===== MARKETPLACE FILTER FIELDS =====
+  
+  // Financial Metrics (for filtering)
+  capRate: decimal("cap_rate", { precision: 5, scale: 2 }), // Cap rate percentage (e.g., 8.50 = 8.5%)
+  annualRevenue: decimal("annual_revenue", { precision: 12, scale: 2 }), // Annual gross revenue in USD
+  
+  // Operations
+  isAttended: boolean("is_attended").default(true), // Attended vs Unattended
+  hasPickupDelivery: boolean("has_pickup_delivery").default(false), // Pickup & Delivery (PUD) service
+  
+  // Lease Terms
+  leaseYearsRemaining: integer("lease_years_remaining"), // Years remaining on lease
+  hasLeaseOptions: boolean("has_lease_options").default(false), // Extension options available
+  
+  // Primary Category: Retail Laundromat, Hybrid, Route/PUD, Equipment Package, Development Site
+  primaryCategory: text("primary_category").default("retail_laundromat"), // "retail_laundromat", "hybrid", "route_pud", "equipment_package", "development_site"
+  
+  // Deal Type: Turnkey, Value-Add, Distressed, Portfolio, Franchise
+  dealType: text("deal_type"), // "turnkey", "value_add", "distressed", "portfolio", "franchise"
+  
+  // Financing Tags (array)
+  financingTags: text("financing_tags").array(), // ["sba_ready", "seller_financing", "assume_lease"]
+  
+  // CLEANBI Score (cached for search filtering)
+  cleanbiScore: integer("cleanbi_score"), // 0-100 CLEANBI score
+  cleanbiGrade: text("cleanbi_grade"), // "A", "B", "C", "Needs Work"
+  
+  // Square Footage (for search)
+  squareFootage: integer("square_footage"),
+  
   // Larry Larsen Verification
   larryVerified: boolean("larry_verified").default(false), // Verified by Larry Larsen
   larryVerifiedAt: timestamp("larry_verified_at"),
@@ -5164,9 +5194,19 @@ export const customerWebsites = pgTable("customer_websites", {
   pages: jsonb("pages").notNull(),
   theme: jsonb("theme").notNull(),
   
+  // Version Control
+  version: integer("version").default(1).notNull(), // Current version number
+  publishHistory: jsonb("publish_history").default(sql`'[]'::jsonb`), // Array of {version, pages, theme, publishedAt, publishedBy}
+  
   // Status
   status: text("status").default("draft").notNull(), // draft, published, archived
   publishedAt: timestamp("published_at"),
+  
+  // Domain Management
+  domainStatus: text("domain_status").default("none"), // none, pending, verified, active
+  sslStatus: text("ssl_status").default("none"), // none, pending, active, failed
+  dnsRecords: jsonb("dns_records"), // Required DNS records for verification
+  domainVerifiedAt: timestamp("domain_verified_at"),
   
   // Stats
   pageviews: integer("pageviews").default(0).notNull(),
@@ -5178,6 +5218,12 @@ export const customerWebsites = pgTable("customer_websites", {
 
 export const insertCustomerWebsiteSchema = createInsertSchema(customerWebsites).omit({
   id: true,
+  version: true,
+  publishHistory: true,
+  domainStatus: true,
+  sslStatus: true,
+  dnsRecords: true,
+  domainVerifiedAt: true,
   pageviews: true,
   lastVisitedAt: true,
   createdAt: true,
@@ -5186,6 +5232,41 @@ export const insertCustomerWebsiteSchema = createInsertSchema(customerWebsites).
 
 export type InsertCustomerWebsite = z.infer<typeof insertCustomerWebsiteSchema>;
 export type CustomerWebsite = typeof customerWebsites.$inferSelect;
+
+// Website Assets (CDN Asset Management)
+export const websiteAssets = pgTable("website_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Asset Info
+  name: text("name").notNull(),
+  fileName: text("file_name").notNull(),
+  fileType: text("file_type").notNull(), // image/png, image/jpeg, etc.
+  fileSize: integer("file_size").notNull(), // bytes
+  
+  // Storage
+  storagePath: text("storage_path").notNull(), // Object storage path
+  publicUrl: text("public_url").notNull(), // CDN URL
+  
+  // Metadata
+  category: text("category").default("image"), // image, logo, favicon, video
+  width: integer("width"),
+  height: integer("height"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  websiteIdx: index("website_assets_website_idx").on(table.websiteId),
+  userIdx: index("website_assets_user_idx").on(table.userId),
+}));
+
+export const insertWebsiteAssetSchema = createInsertSchema(websiteAssets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertWebsiteAsset = z.infer<typeof insertWebsiteAssetSchema>;
+export type WebsiteAsset = typeof websiteAssets.$inferSelect;
 
 // Custom Domains for Website Builder (Cloudflare for SaaS)
 export const customDomains = pgTable("custom_domains", {

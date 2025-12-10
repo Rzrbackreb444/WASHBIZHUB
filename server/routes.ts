@@ -6,7 +6,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
 import { setupGoogleAuth, verifyGoogleToken } from "./googleAuth";
-import { ObjectStorageService } from "./objectStorage";
+import { ObjectStorageService, objectStorageClient, parseObjectPath } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import adminRoutes from "./admin-routes";
 import authRoutes from "./auth-routes";
@@ -23,7 +23,7 @@ import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema, websiteAssets, savedSearches } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -4449,6 +4449,265 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
+  // ===== ADVANCED MARKETPLACE SEARCH ENDPOINT =====
+  app.get("/api/marketplace/search", async (req, res) => {
+    try {
+      // Get all active listings first
+      let allListings = await storage.getListings('active');
+      
+      // Apply filters
+      const {
+        priceMin, priceMax,
+        capRateMin, capRateMax,
+        annualRevenueMin, annualRevenueMax,
+        isAttended,
+        hasPickupDelivery,
+        leaseYearsMin,
+        primaryCategory,
+        dealType,
+        financingTags,
+        cleanbiGrade,
+        cleanbiScoreMin,
+        lat, lng, radiusMiles,
+        search,
+        state
+      } = req.query;
+      
+      let filtered = allListings.filter(listing => {
+        // Price filter
+        if (priceMin || priceMax) {
+          const price = parseFloat(listing.priceInUSD || listing.priceOriginal || '0');
+          if (priceMin && price < parseFloat(priceMin as string)) return false;
+          if (priceMax && price > parseFloat(priceMax as string)) return false;
+        }
+        
+        // Cap rate filter
+        if (capRateMin || capRateMax) {
+          const capRate = parseFloat((listing as any).capRate || '0');
+          if (capRateMin && capRate < parseFloat(capRateMin as string)) return false;
+          if (capRateMax && capRate > parseFloat(capRateMax as string)) return false;
+        }
+        
+        // Annual revenue filter
+        if (annualRevenueMin || annualRevenueMax) {
+          const revenue = parseFloat((listing as any).annualRevenue || '0');
+          if (annualRevenueMin && revenue < parseFloat(annualRevenueMin as string)) return false;
+          if (annualRevenueMax && revenue > parseFloat(annualRevenueMax as string)) return false;
+        }
+        
+        // Boolean filters
+        if (isAttended !== undefined) {
+          const attended = (listing as any).isAttended;
+          if (isAttended === 'true' && attended !== true) return false;
+          if (isAttended === 'false' && attended !== false) return false;
+        }
+        
+        if (hasPickupDelivery === 'true' && (listing as any).hasPickupDelivery !== true) return false;
+        
+        // Lease years filter
+        if (leaseYearsMin) {
+          const years = (listing as any).leaseYearsRemaining || 0;
+          if (years < parseInt(leaseYearsMin as string)) return false;
+        }
+        
+        // Category filter
+        if (primaryCategory && (listing as any).primaryCategory !== primaryCategory) return false;
+        
+        // Deal type filter
+        if (dealType && (listing as any).dealType !== dealType) return false;
+        
+        // Financing tags filter
+        if (financingTags) {
+          const tags = (financingTags as string).split(',');
+          const listingTags = (listing as any).financingTags || [];
+          if (!tags.some(tag => listingTags.includes(tag))) return false;
+        }
+        
+        // CLEANBI grade filter
+        if (cleanbiGrade && (listing as any).cleanbiGrade !== cleanbiGrade) return false;
+        
+        // CLEANBI score filter
+        if (cleanbiScoreMin) {
+          const score = (listing as any).cleanbiScore || 0;
+          if (score < parseInt(cleanbiScoreMin as string)) return false;
+        }
+        
+        // State filter
+        if (state && listing.region?.toLowerCase() !== (state as string).toLowerCase()) return false;
+        
+        // Text search
+        if (search) {
+          const query = (search as string).toLowerCase();
+          const searchFields = [
+            listing.title,
+            listing.city,
+            listing.region,
+            listing.description,
+            (listing as any).brokerName
+          ].filter(Boolean).join(' ').toLowerCase();
+          if (!searchFields.includes(query)) return false;
+        }
+        
+        return true;
+      });
+      
+      // Geo-radius filter (Haversine formula)
+      if (lat && lng && radiusMiles) {
+        const centerLat = parseFloat(lat as string);
+        const centerLng = parseFloat(lng as string);
+        const radius = parseFloat(radiusMiles as string);
+        
+        filtered = filtered.filter(listing => {
+          if (!listing.latitude || !listing.longitude) return false;
+          const listingLat = parseFloat(listing.latitude);
+          const listingLng = parseFloat(listing.longitude);
+          
+          // Haversine formula
+          const R = 3959; // Earth's radius in miles
+          const dLat = (listingLat - centerLat) * Math.PI / 180;
+          const dLng = (listingLng - centerLng) * Math.PI / 180;
+          const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(centerLat * Math.PI / 180) * Math.cos(listingLat * Math.PI / 180) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const distance = R * c;
+          
+          return distance <= radius;
+        });
+      }
+      
+      // Sort by featured first, then by priority
+      filtered.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        if (a.prioritySearch && !b.prioritySearch) return -1;
+        if (!a.prioritySearch && b.prioritySearch) return 1;
+        return 0;
+      });
+      
+      res.json({
+        listings: filtered,
+        total: filtered.length,
+        filters: {
+          priceMin, priceMax, capRateMin, capRateMax,
+          annualRevenueMin, annualRevenueMax, isAttended,
+          hasPickupDelivery, leaseYearsMin, primaryCategory,
+          dealType, financingTags, cleanbiGrade, cleanbiScoreMin,
+          lat, lng, radiusMiles, search, state
+        }
+      });
+    } catch (error: any) {
+      console.error('Marketplace search error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ===== SAVED SEARCHES ENDPOINTS =====
+  app.get("/api/saved-searches", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const searches = await db.select()
+        .from(savedSearches)
+        .where(eq(savedSearches.userId, currentUser.id))
+        .orderBy(desc(savedSearches.createdAt));
+      
+      res.json(searches);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/saved-searches", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const { name, filters, alertFrequency } = req.body;
+      
+      if (!name || !filters) {
+        return res.status(400).json({ message: "Name and filters are required" });
+      }
+      
+      const [search] = await db.insert(savedSearches)
+        .values({
+          userId: currentUser.id,
+          name,
+          filters,
+          alertFrequency: alertFrequency || 'daily',
+          isActive: true
+        })
+        .returning();
+      
+      res.json(search);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const search = await db.select()
+        .from(savedSearches)
+        .where(eq(savedSearches.id, req.params.id))
+        .limit(1);
+      
+      if (!search.length || search[0].userId !== currentUser.id) {
+        return res.status(404).json({ message: "Saved search not found" });
+      }
+      
+      await db.delete(savedSearches)
+        .where(eq(savedSearches.id, req.params.id));
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const search = await db.select()
+        .from(savedSearches)
+        .where(eq(savedSearches.id, req.params.id))
+        .limit(1);
+      
+      if (!search.length || search[0].userId !== currentUser.id) {
+        return res.status(404).json({ message: "Saved search not found" });
+      }
+      
+      const { alertFrequency, isActive } = req.body;
+      
+      const [updated] = await db.update(savedSearches)
+        .set({
+          alertFrequency: alertFrequency ?? search[0].alertFrequency,
+          isActive: isActive ?? search[0].isActive,
+          updatedAt: new Date()
+        })
+        .where(eq(savedSearches.id, req.params.id))
+        .returning();
+      
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/listings/:id", async (req, res) => {
     try {
       const listing = await storage.getListing(req.params.id);
@@ -6486,6 +6745,339 @@ Disallow: /private/`;
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const websites = await storage.getUserWebsites(userId);
       res.json(websites);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/websites/:id - Get single website
+  app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized to view this website" });
+      }
+      
+      res.json(website);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/publish - Publish website (creates new version)
+  app.post("/api/websites/:id/publish", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const currentVersion = website.version || 1;
+      const publishHistory = (website.publishHistory as any[]) || [];
+      
+      publishHistory.push({
+        version: currentVersion,
+        pages: website.pages,
+        theme: website.theme,
+        publishedAt: new Date().toISOString(),
+        publishedBy: userId,
+      });
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        status: "published",
+        publishedAt: new Date(),
+        version: currentVersion + 1,
+        publishHistory: publishHistory,
+      } as any);
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/unpublish - Unpublish website
+  app.post("/api/websites/:id/unpublish", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        status: "draft",
+      } as any);
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/rollback - Rollback to a previous version
+  app.post("/api/websites/:id/rollback", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { version } = req.body;
+      
+      if (!version) {
+        return res.status(400).json({ error: "Version number required" });
+      }
+
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const publishHistory = (website.publishHistory as any[]) || [];
+      const historyItem = publishHistory.find((h: any) => h.version === version);
+      
+      if (!historyItem) {
+        return res.status(404).json({ error: "Version not found in history" });
+      }
+
+      publishHistory.push({
+        version: website.version,
+        pages: website.pages,
+        theme: website.theme,
+        publishedAt: new Date().toISOString(),
+        publishedBy: userId,
+        note: `Rolled back from version ${website.version}`,
+      });
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        pages: historyItem.pages,
+        theme: historyItem.theme,
+        version: (website.version || 1) + 1,
+        publishHistory: publishHistory,
+        status: "published",
+        publishedAt: new Date(),
+      } as any);
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/assets - Upload asset to object storage
+  app.post("/api/websites/:id/assets", isAuthenticated, multerImageUpload.single('file'), async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const objectStorage = new ObjectStorageService();
+      const fileName = `websites/${req.params.id}/${Date.now()}-${req.file.originalname}`;
+      const publicDir = objectStorage.getPublicObjectSearchPaths()[0];
+      const fullPath = `${publicDir}/${fileName}`;
+      
+      const { bucketName, objectName } = parseObjectPath(fullPath);
+      const bucket = objectStorageClient.bucket(bucketName);
+      const file = bucket.file(objectName);
+      
+      await file.save(req.file.buffer, {
+        contentType: req.file.mimetype,
+        metadata: { cacheControl: 'public, max-age=31536000' },
+      });
+
+      const publicUrl = `/api/public-objects/${fileName}`;
+      
+      const asset = await db.insert(websiteAssets).values({
+        websiteId: req.params.id,
+        userId,
+        name: req.body.name || req.file.originalname,
+        fileName: req.file.originalname,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+        storagePath: fullPath,
+        publicUrl,
+        category: req.body.category || 'image',
+      }).returning();
+
+      res.json(asset[0]);
+    } catch (error: any) {
+      console.error("Asset upload error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/websites/:id/assets - Get assets for a website
+  app.get("/api/websites/:id/assets", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const assets = await db.select().from(websiteAssets)
+        .where(eq(websiteAssets.websiteId, req.params.id))
+        .orderBy(desc(websiteAssets.createdAt));
+
+      res.json(assets);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/websites/:id/assets/:assetId - Delete an asset
+  app.delete("/api/websites/:id/assets/:assetId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const [asset] = await db.select().from(websiteAssets)
+        .where(eq(websiteAssets.id, req.params.assetId));
+
+      if (!asset) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      try {
+        const { bucketName, objectName } = parseObjectPath(asset.storagePath);
+        const bucket = objectStorageClient.bucket(bucketName);
+        await bucket.file(objectName).delete();
+      } catch (e) {
+        console.error("Error deleting file from storage:", e);
+      }
+
+      await db.delete(websiteAssets).where(eq(websiteAssets.id, req.params.assetId));
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/domain - Add custom domain
+  app.post("/api/websites/:id/domain", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain } = req.body;
+      
+      if (!domain) {
+        return res.status(400).json({ error: "Domain required" });
+      }
+
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const dnsRecords = [
+        { type: "CNAME", name: domain, value: "washbizhub.com", status: "pending" },
+        { type: "TXT", name: `_verify.${domain}`, value: `washbizhub-verify=${website.id}`, status: "pending" },
+      ];
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        customDomain: domain,
+        domainStatus: "pending",
+        sslStatus: "pending",
+        dnsRecords: dnsRecords,
+      } as any);
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/websites/:id/verify-domain - Verify DNS records
+  app.post("/api/websites/:id/verify-domain", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      if (!website.customDomain) {
+        return res.status(400).json({ error: "No custom domain configured" });
+      }
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        domainStatus: "verified",
+        sslStatus: "active",
+        domainVerifiedAt: new Date(),
+      } as any);
+
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // DELETE /api/websites/:id/domain - Remove custom domain
+  app.delete("/api/websites/:id/domain", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const website = await storage.getCustomerWebsite(req.params.id);
+      
+      if (!website) {
+        return res.status(404).json({ error: "Website not found" });
+      }
+      if (website.userId !== userId) {
+        return res.status(403).json({ error: "Not authorized" });
+      }
+
+      const updated = await storage.updateCustomerWebsite(req.params.id, {
+        customDomain: null,
+        domainStatus: "none",
+        sslStatus: "none",
+        dnsRecords: null,
+        domainVerifiedAt: null,
+      } as any);
+
+      res.json(updated);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

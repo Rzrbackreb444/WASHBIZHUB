@@ -35,11 +35,24 @@ import {
   Linkedin,
   Globe,
   Youtube,
+  Key,
+  Plug,
+  Shield,
+  Receipt,
+  UserCog,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import {
+  BusinessProfileTab,
+  BillingPaymentsTab,
+  ApiKeysWebhooksTab,
+  IntegrationsTab,
+  SecurityTab,
+  TeamManagementTab,
+} from "@/components/settings";
 
 export default function SettingsPage() {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -414,34 +427,54 @@ export default function SettingsPage() {
         </div>
 
         <Tabs defaultValue="subscription" className="space-y-6">
-          <TabsList className="flex flex-wrap gap-1 h-auto p-1 w-full max-w-4xl">
-            <TabsTrigger value="subscription" data-testid="tab-subscription" className="flex-1 min-w-[80px]">
+          <TabsList className="flex flex-wrap gap-1 h-auto p-1 w-full">
+            <TabsTrigger value="subscription" data-testid="tab-subscription" className="min-w-[70px]">
               <CreditCard className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Subscription</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" data-testid="tab-profile" className="flex-1 min-w-[80px]">
+            <TabsTrigger value="profile" data-testid="tab-profile" className="min-w-[70px]">
               <User className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="professional" data-testid="tab-professional" className="flex-1 min-w-[80px]">
+            <TabsTrigger value="business" data-testid="tab-business" className="min-w-[70px]">
+              <Building2 className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Business</span>
+            </TabsTrigger>
+            <TabsTrigger value="billing-payments" data-testid="tab-billing-payments" className="min-w-[70px]">
+              <Receipt className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Billing</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-keys" data-testid="tab-api-keys" className="min-w-[70px]">
+              <Key className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">API</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" data-testid="tab-integrations" className="min-w-[70px]">
+              <Plug className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Integrations</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" data-testid="tab-security" className="min-w-[70px]">
+              <Shield className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="team" data-testid="tab-team" className="min-w-[70px]">
+              <UserCog className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Team</span>
+            </TabsTrigger>
+            <TabsTrigger value="professional" data-testid="tab-professional" className="min-w-[70px]">
               <Briefcase className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Professional</span>
             </TabsTrigger>
-            <TabsTrigger value="social" data-testid="tab-social" className="flex-1 min-w-[80px]">
+            <TabsTrigger value="social" data-testid="tab-social" className="min-w-[70px]">
               <Share2 className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Social</span>
             </TabsTrigger>
-            <TabsTrigger value="community" data-testid="tab-community" className="flex-1 min-w-[80px]">
+            <TabsTrigger value="community" data-testid="tab-community" className="min-w-[70px]">
               <Users className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Community</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" data-testid="tab-notifications" className="flex-1 min-w-[80px]">
+            <TabsTrigger value="notifications" data-testid="tab-notifications" className="min-w-[70px]">
               <Bell className="w-4 h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Notifications</span>
-            </TabsTrigger>
-            <TabsTrigger value="billing" data-testid="tab-billing" className="flex-1 min-w-[80px]">
-              <FileText className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Billing</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1257,6 +1290,36 @@ export default function SettingsPage() {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Business Profile Tab */}
+          <TabsContent value="business" className="space-y-6">
+            <BusinessProfileTab />
+          </TabsContent>
+
+          {/* Billing & Payments Tab */}
+          <TabsContent value="billing-payments" className="space-y-6">
+            <BillingPaymentsTab user={user} />
+          </TabsContent>
+
+          {/* API Keys & Webhooks Tab */}
+          <TabsContent value="api-keys" className="space-y-6">
+            <ApiKeysWebhooksTab user={user} />
+          </TabsContent>
+
+          {/* Integrations Tab */}
+          <TabsContent value="integrations" className="space-y-6">
+            <IntegrationsTab />
+          </TabsContent>
+
+          {/* Security Tab */}
+          <TabsContent value="security" className="space-y-6">
+            <SecurityTab user={user} />
+          </TabsContent>
+
+          {/* Team Management Tab */}
+          <TabsContent value="team" className="space-y-6">
+            <TeamManagementTab user={user} />
           </TabsContent>
         </Tabs>
       </div>
