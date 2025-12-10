@@ -103,6 +103,48 @@ app.use((req, res, next) => {
   next();
 });
 
+// API response caching with stale-while-revalidate for lightning-fast responses
+app.use('/api', (req, res, next) => {
+  // Skip caching for mutations and auth endpoints
+  if (req.method !== 'GET' || req.url.includes('/auth') || req.url.includes('/webhook')) {
+    return next();
+  }
+  
+  // Cache-friendly API endpoints with stale-while-revalidate
+  const cacheableEndpoints = [
+    '/api/tenant',           // 5 min cache
+    '/api/listings',         // 2 min cache
+    '/api/equipment-listings', // 2 min cache
+    '/api/blog',             // 5 min cache
+    '/api/resources',        // 5 min cache
+    '/api/templates',        // 10 min cache
+    '/api/brokers',          // 5 min cache
+    '/api/error-codes',      // 1 hour cache (rarely changes)
+  ];
+  
+  // Set appropriate cache headers based on endpoint
+  const fullUrl = '/api' + req.url.split('?')[0];
+  if (fullUrl.includes('/error-codes') || fullUrl.includes('/diagnostic-codes')) {
+    // Long cache for reference data
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+  } else if (fullUrl.includes('/templates') || fullUrl.includes('/tenant')) {
+    // Medium cache for semi-static data
+    res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  } else if (cacheableEndpoints.some(ep => fullUrl.startsWith(ep))) {
+    // Short cache with revalidation for dynamic listings
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+  } else {
+    // Default: no-cache but allow Cloudflare edge caching
+    res.setHeader('Cache-Control', 'public, max-age=0, stale-while-revalidate=60');
+  }
+  
+  // Enable Cloudflare edge caching
+  res.setHeader('CDN-Cache-Control', 'max-age=60');
+  res.setHeader('Cloudflare-CDN-Cache-Control', 'max-age=60');
+  
+  next();
+});
+
 // Serve attached_assets as static files for real listing images
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets'), {
   maxAge: '30d',
