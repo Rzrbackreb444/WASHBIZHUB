@@ -9,10 +9,12 @@
  */
 
 import { Router, Request, Response } from "express";
+import express from "express";
 import { z } from "zod";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { isAuthenticated } from "./replitAuth";
+import { generateEnhancedReport } from "./enhanced-report-generator";
 
 const router = Router();
 
@@ -212,7 +214,7 @@ router.post("/webhook", async (req: Request, res: Response) => {
         });
 
         // Trigger report generation (async)
-        generatePremiumReport(reportId, productId, address).catch(console.error);
+        generateEnhancedReport(reportId, productId, address).catch(console.error);
       }
     }
 
@@ -248,24 +250,5 @@ router.get("/report/:reportId", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to get report" });
   }
 });
-
-// Generate premium report with visualizations
-async function generatePremiumReport(reportId: string, productId: ProductId, address: string) {
-  try {
-    console.log(`Generating ${productId} report for: ${address}`);
-    
-    // Import the enhanced report generator
-    const { generateEnhancedReport } = await import("./enhanced-report-generator");
-    
-    await generateEnhancedReport(reportId, productId, address);
-    
-    console.log(`Report ${reportId} generated successfully`);
-  } catch (error) {
-    console.error(`Report generation failed for ${reportId}:`, error);
-    await storage.updateCleanbiReport(reportId, {
-      status: "failed",
-    });
-  }
-}
 
 export default router;

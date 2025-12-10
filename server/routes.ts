@@ -24,6 +24,7 @@ import routeOptimizationRoutes from "./routes/route-optimization";
 import driverTrackingRoutes from "./routes/driver-tracking";
 import profileRoutes, { activityRouter } from "./profile-routes";
 import bookingRoutes from "./booking-routes";
+import singleAnalysisRoutes from "./single-analysis-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -464,6 +465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/calculators", calculatorRoutes);
   app.use("/api/cleanbi-explorer", cleanbiExplorerRoutes);
   app.use("/api/cleanbi/reports", cleanbiReportsRoutes);
+  app.use("/api/single-analysis", singleAnalysisRoutes);
   app.use("/api/expansion-planner", expansionPlannerRoutes);
   app.use("/api/bulk-analysis", bulkAnalysisRoutes);
   app.use("/api/route-optimization", routeOptimizationRoutes);
