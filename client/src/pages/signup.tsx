@@ -157,7 +157,7 @@ export default function Signup() {
   }, [isAuthenticated, isLoading, setLocation]);
 
   const handleGoogleSignup = useCallback(() => {
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
   }, []);
 
   const handleMagicLinkRequest = useCallback(async (data: MagicLinkFormData) => {
