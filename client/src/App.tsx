@@ -111,6 +111,14 @@ const DesignStudioPro = lazy(() => import("@/pages/design-studio-pro"));
 const POSCommandCenter = lazy(() => import("@/pages/pos-command-center"));
 const PosSuite = lazy(() => import("@/pages/pos-suite"));
 const PosLanding = lazy(() => import("@/pages/landing/pos-landing"));
+const MarketingLoyalty = lazy(() => import("@/pages/marketing-loyalty"));
+
+// IoT Dashboard (machine monitoring & dynamic pricing)
+const IoTDashboard = lazy(() => import("@/pages/iot-dashboard"));
+
+// Machine Booking System
+const Bookings = lazy(() => import("@/pages/bookings"));
+const BookingManagement = lazy(() => import("@/pages/booking-management"));
 
 // Admin Pages (authenticated only)
 const AdminDashboard = lazy(() => import("@/pages/admin/index"));
@@ -227,6 +235,7 @@ const PublishingDashboard = lazy(() => import("@/pages/publishing-dashboard"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
 const OwnerCommandCenter = lazy(() => import("@/pages/owner-command-center"));
+const OperatorDashboard = lazy(() => import("@/pages/operator-dashboard"));
 const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
 const BrokerDashboard = lazy(() => import("@/pages/broker-dashboard"));
@@ -557,6 +566,30 @@ function Router() {
           <POSCommandCenter />
         </Suspense>
       </Route>
+
+      {/* IoT Dashboard - Machine Monitoring & Dynamic Pricing */}
+      <Route path="/iot-dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <IoTDashboard />
+        </Suspense>
+      </Route>
+      
+      {/* Machine Booking System */}
+      <Route path="/bookings">
+        <Suspense fallback={<LoadingFallback />}>
+          <Bookings />
+        </Suspense>
+      </Route>
+      <Route path="/book-machine">
+        <Suspense fallback={<LoadingFallback />}>
+          <Bookings />
+        </Suspense>
+      </Route>
+      <Route path="/booking-management">
+        <Suspense fallback={<LoadingFallback />}>
+          <BookingManagement />
+        </Suspense>
+      </Route>
       <Route path="/pos-landing">
         <Suspense fallback={<LoadingFallback />}>
           <PosLanding />
@@ -565,6 +598,11 @@ function Router() {
       <Route path="/pos-suite">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <PosSuite />
+        </Suspense>
+      </Route>
+      <Route path="/marketing-loyalty">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <MarketingLoyalty />
         </Suspense>
       </Route>
 
@@ -1443,6 +1481,13 @@ function Router() {
       <Route path="/dashboard">
         <Suspense fallback={<LoadingFallback />}>
           <Dashboard />
+        </Suspense>
+      </Route>
+      
+      {/* Operator Dashboard - Unified Command Center */}
+      <Route path="/operator-dashboard">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <OperatorDashboard />
         </Suspense>
       </Route>
 
