@@ -2,8 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
-import { Zap, Users, Target, Globe } from 'lucide-react';
+import { Zap, Users, Target, Globe, Building2, Award, TrendingUp, Lightbulb } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { motion } from 'framer-motion';
+import neonSignImage from "@assets/AdobeStock_111864759_1765330581864.jpeg";
+import modernInteriorImage from "@assets/AdobeStock_832897447_1765330812967.jpeg";
 
 export default function AboutUs() {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
@@ -136,49 +139,181 @@ export default function AboutUs() {
       />
 
       <div className="min-h-screen bg-background">
-        {/* Hero */}
-        <div className="bg-primary/5 py-16 border-b border-border">
-          <div className="max-w-4xl mx-auto px-6">
-            <h1 className="text-5xl font-bold mb-4 text-foreground">About WashBizHub</h1>
-            <p className="text-xl text-muted-foreground">
-              The #1 Laundromat Resource Hub. We're modernizing the $40B laundromat industry through enterprise software, IoT integration, and business intelligence.
-            </p>
+        {/* Premium Hero Section with Neon Sign */}
+        <section className="relative w-full min-h-[70vh] flex items-center justify-center overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${neonSignImage})` }}
+          />
+          
+          {/* Dark Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/90 via-[#0A1628]/80 to-[#0A1628]/95" />
+          
+          {/* Vignette Effect */}
+          <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]" />
+          
+          {/* Hero Content */}
+          <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/40 px-4 py-2">
+                <Building2 className="w-4 h-4 mr-2" />
+                Est. 2024 • Trusted by 72,000+ Professionals
+              </Badge>
+            </motion.div>
+            
+            <motion.h1 
+              className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              About WashBizHub
+            </motion.h1>
+            
+            <motion.p 
+              className="text-xl md:text-2xl text-[#C8A661] font-semibold mb-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              The #1 Laundromat Resource Hub
+            </motion.p>
+            
+            <motion.p 
+              className="text-lg text-gray-300 max-w-3xl mx-auto mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              Modernizing the $40B laundromat industry through enterprise software, 
+              IoT integration, and business intelligence.
+            </motion.p>
+            
+            {/* Stats Badges */}
+            <motion.div 
+              className="flex flex-wrap justify-center gap-4 md:gap-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
+                <div className="text-3xl font-bold text-[#C8A661]">72K+</div>
+                <div className="text-sm text-gray-300">Community Members</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
+                <div className="text-3xl font-bold text-[#C8A661]">220+</div>
+                <div className="text-sm text-gray-300">Countries</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
+                <div className="text-3xl font-bold text-[#C8A661]">80+</div>
+                <div className="text-sm text-gray-300">Tools & Calculators</div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
+                <div className="text-3xl font-bold text-[#C8A661]">2,200+</div>
+                <div className="text-sm text-gray-300">Error Codes</div>
+              </div>
+            </motion.div>
           </div>
-        </div>
+        </section>
 
-        {/* Mission */}
-        <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-4 text-foreground">Our Mission</h2>
-              <p className="text-lg text-muted-foreground mb-4">
-                To empower laundromat operators with enterprise-grade tools that drive profitability, optimize operations, and transform the industry.
-              </p>
-              <p className="text-muted-foreground mb-6">
-                Founded on the principle that laundromats deserve the same level of sophistication as any other business, WashBizHub combines cutting-edge technology with deep industry expertise.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">Enterprise-grade SaaS platform</span>
+        {/* Vision/Mission Section with Modern Interior Image */}
+        <section className="relative w-full py-20 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Image Side */}
+              <motion.div 
+                className="relative"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                  <img 
+                    src={modernInteriorImage} 
+                    alt="Modern laundromat interior showcasing our vision" 
+                    className="w-full h-[400px] lg:h-[500px] object-cover"
+                  />
+                  {/* Subtle overlay for premium feel */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/40 to-transparent" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">72,000+ laundromat owners served</span>
+                {/* Floating accent badge */}
+                <div className="absolute -bottom-6 -right-6 bg-[#C8A661] text-[#0A1628] rounded-xl px-6 py-4 shadow-xl">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-6 h-6" />
+                    <div>
+                      <div className="font-bold text-lg">Industry Leader</div>
+                      <div className="text-sm opacity-80">Since 2024</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">Global reach, local expertise</span>
+              </motion.div>
+              
+              {/* Content Side */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
+                  <Lightbulb className="w-3 h-3 mr-1.5" />
+                  Our Vision
+                </Badge>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                  Empowering the Future of Laundromats
+                </h2>
+                <p className="text-lg text-muted-foreground mb-6">
+                  To empower laundromat operators with enterprise-grade tools that drive profitability, 
+                  optimize operations, and transform the industry.
+                </p>
+                <p className="text-muted-foreground mb-8">
+                  Founded on the principle that laundromats deserve the same level of sophistication 
+                  as any other business, WashBizHub combines cutting-edge technology with deep industry expertise.
+                </p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <Zap className="h-6 w-6 text-[#C8A661]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">Enterprise-grade SaaS Platform</div>
+                      <div className="text-sm text-muted-foreground">Professional tools for every operator</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <Users className="h-6 w-6 text-[#C8A661]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">72,000+ Laundromat Owners Served</div>
+                      <div className="text-sm text-muted-foreground">The largest industry community</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                      <Globe className="h-6 w-6 text-[#C8A661]" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">Global Reach, Local Expertise</div>
+                      <div className="text-sm text-muted-foreground">Supporting operators in 220+ countries</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-12 aspect-square flex items-center justify-center border border-border">
-              <div className="text-center">
-                <Zap className="w-24 h-24 mx-auto text-primary mb-4" />
-                <p className="text-sm text-muted-foreground">Transforming the laundromat industry</p>
-              </div>
+              </motion.div>
             </div>
           </div>
+        </section>
+
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto px-6 py-16 space-y-16">
 
           {/* Core Values */}
           <div>
@@ -285,26 +420,6 @@ export default function AboutUs() {
                   WYSIWYG editor, SEO automation, Google Search Console integration, custom domains.
                 </CardContent>
               </Card>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-6 py-12 border-t border-b border-border">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">72K+</div>
-              <p className="text-muted-foreground">Community Members</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">220+</div>
-              <p className="text-muted-foreground">Countries Covered</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">80+</div>
-              <p className="text-muted-foreground">Calculators & Tools</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary mb-2">2,200+</div>
-              <p className="text-muted-foreground">Error Codes Database</p>
             </div>
           </div>
 

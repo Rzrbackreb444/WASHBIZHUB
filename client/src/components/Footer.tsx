@@ -1,8 +1,9 @@
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Twitter } from "lucide-react";
+import { ExternalLink, Facebook, Twitter, MapPin, Building2 } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
+import nycSkyline from "@assets/City_Lights_54_1765330986805.png";
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
 
@@ -286,6 +287,30 @@ export function Footer() {
               >
                 Sitemap
               </a>
+            </div>
+          </div>
+        </div>
+
+        {/* NYC Skyline Enterprise Banner */}
+        <div className="relative h-32 md:h-40 overflow-hidden border-t border-white/10">
+          <img 
+            src={nycSkyline} 
+            alt="Nationwide coverage across major cities" 
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0f1d30]/95 via-[#0f1d30]/80 to-[#0f1d30]/95" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0f1d30] via-transparent to-[#0f1d30]/90" />
+          <div className="relative h-full flex items-center justify-center">
+            <div className="text-center px-4">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Building2 className="h-5 w-5 text-[#C8A661]" />
+                <span className="text-[#C8A661] font-semibold tracking-wide text-sm uppercase">Enterprise Coverage</span>
+                <Building2 className="h-5 w-5 text-[#C8A661]" />
+              </div>
+              <p className="text-white/70 text-sm max-w-xl">
+                Serving <span className="text-[#C8A661] font-bold">72,000+</span> laundromat professionals across{" "}
+                <span className="text-[#C8A661] font-bold">220+ countries</span> with enterprise-grade tools
+              </p>
             </div>
           </div>
         </div>
