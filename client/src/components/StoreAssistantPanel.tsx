@@ -53,6 +53,9 @@ const QUICK_ACTIONS = [
   { icon: Wrench, label: "Machine Status", prompt: "Any machines down?" },
   { icon: Truck, label: "Deliveries", prompt: "How many deliveries today?" },
   { icon: Clock, label: "Pending Pickup", prompt: "What orders are pending pickup?" },
+  { icon: TrendingUp, label: "Week Stats", prompt: "Show me this week's revenue and orders" },
+  { icon: AlertCircle, label: "Dormant Customers", prompt: "Who hasn't ordered in 30 days?" },
+  { icon: Package, label: "Processing", prompt: "What's currently being processed?" },
 ];
 
 const WELCOME_MESSAGE = `**Welcome to Store Assistant AI!**
