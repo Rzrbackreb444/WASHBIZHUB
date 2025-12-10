@@ -1,0 +1,198 @@
+
+Cloud Functions API
+Google Enterprise API 
+Manages lightweight user-provided functions executed in response to events.
+
+
+Cloud Healthcare API
+Google Enterprise API 
+Store and access healthcare data on Google Cloud Platform.
+
+
+Cloud Identity-Aware Proxy API
+Google Enterprise API 
+Controls access to cloud applications running on Google Cloud Platform.
+
+
+Cloud Key Management Service (KMS) API
+Google Enterprise API 
+Cloud KMS extends customer control over encryption keys
+
+
+Cloud Logging API
+Google Enterprise API 
+Writes log entries and manages your Cloud Logging configuration.
+
+
+Cloud Memorystore for Memcached API
+Google Enterprise API 
+Google Cloud Memorystore for Memcached API is used for creating and managing Memcached instances in…
+
+
+Cloud Natural Language API
+Google Enterprise API 
+Provides natural language understanding technologies, such as sentiment analysis, entity…
+
+
+Cloud OS Login API
+Google Enterprise API 
+You can use OS Login to manage access to your VM instances using IAM roles.
+
+
+Cloud Profiler API
+Google Enterprise API 
+Manages continuous profiling information.
+
+
+Cloud Pub/Sub API
+Google Enterprise API 
+Provides reliable, many-to-many, asynchronous messaging between applications.
+
+
+Cloud Resource Manager API
+Google Enterprise API 
+Creates, reads, and updates metadata for Google Cloud Platform resource containers.
+
+
+Cloud Runtime Configuration API
+Google Enterprise API 
+The Runtime Configurator allows you to dynamically configure and expose variables through Google…
+
+
+Cloud Scheduler API
+Google Enterprise API 
+A fully managed enterprise-grade cron job scheduler
+
+
+Cloud Shell API
+Google Enterprise API 
+Allows users to start, configure, and connect to interactive shell sessions running in the cloud.
+
+
+Cloud Spanner API
+Google Enterprise API 
+Cloud Spanner is a managed, mission-critical, globally consistent and scalable relational database…
+
+
+Cloud Speech-to-Text API
+Google Enterprise API 
+Speech recognition
+
+
+Cloud SQL
+Google Enterprise API 
+Google Cloud SQL is a hosted and fully managed relational database service on Google's…
+
+
+Cloud SQL Admin API
+Google Enterprise API 
+API for Cloud SQL database instance management
+
+
+Cloud Storage
+Google Enterprise API 
+Google Cloud Storage is a RESTful service for storing and accessing your data on Google's …
+
+
+Cloud Storage API
+Google Enterprise API 
+Lets you store and retrieve potentially-large, immutable data objects.
+
+
+Cloud Talent Solution API
+Google Enterprise API 
+Cloud Talent Solution provides the capability to create, read, update, and delete job postings, as…
+
+
+Cloud Tasks API
+Google Enterprise API 
+Distributed task queues for the Cloud
+
+
+Cloud Text-to-Speech API
+Google Enterprise API 
+Synthesizes natural-sounding speech by applying powerful neural network models.
+
+
+Cloud TPU API
+Google Enterprise API 
+TPU API provides customers with access to Google TPU technology.
+
+
+Cloud Trace API
+Google Enterprise API 
+Sends application trace data to Cloud Trace for viewing. Trace d
+
+
+Cloud Translation API
+Google Enterprise API 
+Integrates text translation into your website or application.
+
+
+Cloud Video Intelligence API
+Google Enterprise API 
+Detects objects, explicit content, and scene changes in videos. It also specifies the region for…
+
+
+Cloud Vision API
+Google Enterprise API 
+Image Content Analysis
+
+
+Compute Engine API
+Google Enterprise API 
+Compute Engine API
+
+
+Compute Engine Instance Group Manager API
+Google Enterprise API 
+The Google Compute Engine Instance Group Manager API provides services for creating and managing…
+
+
+Compute Engine Instance Group Updater API
+Google Enterprise API 
+The Google Compute Engine Instance Group Updater API provides services for updating groups of…
+
+
+Compute Engine Instance Groups API
+Google Enterprise API 
+Google Compute Engine Instance Groups API provides services for grouping together cloud instances…
+
+
+Connect Gateway API
+Google Enterprise API 
+The Connect Gateway service allows connectivity from external parties to connected Kubernetes…
+
+
+Container Analysis API
+Google Enterprise API 
+This API is a prerequisite for leveraging Artifact Analysis scanning capabilities in Artifact…
+
+
+Container File System API
+Google Enterprise API 
+Stream images stored in Artifact Registry to GKE
+
+
+Container Scanning API
+Google Enterprise API 
+A service to scan containers for vulnerabilities.
+
+
+Container Threat Detection API
+Google Enterprise API 
+
+Data Labeling API
+Google Enterprise API 
+Public API for Google Cloud AI Data Labeling Service.
+
+
+Database Migration API
+Google Enterprise API 
+Manage Cloud Database Migration Service resources on Google Cloud Platform.
+
+
+Dataflow API
+Google Enterprise API 
+Manages Google Cloud Dataflow projects on Google Cloud Platform.
+
