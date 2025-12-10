@@ -13,6 +13,7 @@ import { eq, and, desc, asc, sql, gte, lte, like, or, count, inArray } from "dri
 import {
   posTransactions,
   posItems,
+  posShifts,
   weighEvents,
   householdAccounts,
   serviceOrders,
@@ -4131,5 +4132,359 @@ Format your response as JSON with these fields:
     }
   });
   
+  // ============================================================================
+  // POS SUITE - SHIFT MANAGEMENT
+  // ============================================================================
+
+  // GET /api/pos/shifts/current - Get current open shift
+  app.get("/api/pos/shifts/current", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.json(null);
+      }
+
+      const [currentShift] = await db
+        .select()
+        .from(posShifts)
+        .where(and(
+          inArray(posShifts.laundromatId, userLaundromatIds),
+          eq(posShifts.status, "open")
+        ))
+        .orderBy(desc(posShifts.startTime))
+        .limit(1);
+
+      res.json(currentShift || null);
+    } catch (error) {
+      console.error("Error fetching current shift:", error);
+      res.status(500).json({ error: "Failed to fetch current shift" });
+    }
+  });
+
+  // POST /api/pos/shifts/start - Start a new shift
+  app.post("/api/pos/shifts/start", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.status(400).json({ error: "No laundromat associated with user" });
+      }
+
+      const { openingCash } = req.body;
+      const laundromatId = userLaundromatIds[0];
+
+      const [existingShift] = await db
+        .select()
+        .from(posShifts)
+        .where(and(
+          eq(posShifts.laundromatId, laundromatId),
+          eq(posShifts.status, "open")
+        ));
+
+      if (existingShift) {
+        return res.status(400).json({ error: "A shift is already open" });
+      }
+
+      const [newShift] = await db
+        .insert(posShifts)
+        .values({
+          laundromatId,
+          userId,
+          openingCash: openingCash?.toString() || "0.00",
+          status: "open",
+        })
+        .returning();
+
+      res.json(newShift);
+    } catch (error) {
+      console.error("Error starting shift:", error);
+      res.status(500).json({ error: "Failed to start shift" });
+    }
+  });
+
+  // POST /api/pos/shifts/end - End current shift
+  app.post("/api/pos/shifts/end", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      const { closingCash, cashBreakdown } = req.body;
+      const laundromatId = userLaundromatIds[0];
+
+      const [currentShift] = await db
+        .select()
+        .from(posShifts)
+        .where(and(
+          eq(posShifts.laundromatId, laundromatId),
+          eq(posShifts.status, "open")
+        ));
+
+      if (!currentShift) {
+        return res.status(400).json({ error: "No open shift found" });
+      }
+
+      const openingAmount = parseFloat(currentShift.openingCash || "0");
+      const closingAmount = parseFloat(closingCash || "0");
+      
+      const [shiftSales] = await db
+        .select({
+          totalCashSales: sql<number>`COALESCE(SUM(CASE WHEN ${posTransactions.paymentMethod} = 'cash' THEN ${posTransactions.total} ELSE 0 END), 0)`,
+        })
+        .from(posTransactions)
+        .where(and(
+          eq(posTransactions.laundromatId, laundromatId),
+          gte(posTransactions.createdAt, currentShift.startTime),
+          eq(posTransactions.status, "completed")
+        ));
+
+      const expectedCash = openingAmount + Number(shiftSales?.totalCashSales || 0);
+      const variance = closingAmount - expectedCash;
+
+      const [updatedShift] = await db
+        .update(posShifts)
+        .set({
+          endTime: new Date(),
+          closingCash: closingCash?.toString(),
+          expectedCash: expectedCash.toString(),
+          variance: variance.toString(),
+          cashBreakdown: cashBreakdown,
+          status: "closed",
+          updatedAt: new Date(),
+        })
+        .where(eq(posShifts.id, currentShift.id))
+        .returning();
+
+      res.json(updatedShift);
+    } catch (error) {
+      console.error("Error ending shift:", error);
+      res.status(500).json({ error: "Failed to end shift" });
+    }
+  });
+
+  // GET /api/pos/customers - Get customers list
+  app.get("/api/pos/customers", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.json([]);
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.json([]);
+      }
+
+      const customers = await db
+        .select({
+          id: householdAccounts.id,
+          accountName: householdAccounts.accountName,
+          contactName: householdAccounts.contactName,
+          phone: householdAccounts.phone,
+          email: householdAccounts.email,
+          currentBalance: householdAccounts.currentBalance,
+          loyaltyPoints: sql<number>`COALESCE(0, 0)`,
+        })
+        .from(householdAccounts)
+        .where(inArray(householdAccounts.laundromatId, userLaundromatIds))
+        .orderBy(desc(householdAccounts.createdAt))
+        .limit(100);
+
+      res.json(customers);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      res.status(500).json({ error: "Failed to fetch customers" });
+    }
+  });
+
+  // GET /api/pos/transactions/today - Get today's transactions
+  app.get("/api/pos/transactions/today", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.json([]);
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.json([]);
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const transactions = await db
+        .select({
+          id: posTransactions.id,
+          transactionNumber: posTransactions.transactionNumber,
+          customerName: posTransactions.customerName,
+          total: posTransactions.total,
+          paymentMethod: posTransactions.paymentMethod,
+          status: posTransactions.status,
+          createdAt: posTransactions.createdAt,
+          orderType: posTransactions.orderType,
+        })
+        .from(posTransactions)
+        .where(and(
+          inArray(posTransactions.laundromatId, userLaundromatIds),
+          gte(posTransactions.createdAt, today)
+        ))
+        .orderBy(desc(posTransactions.createdAt))
+        .limit(50);
+
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching today's transactions:", error);
+      res.status(500).json({ error: "Failed to fetch transactions" });
+    }
+  });
+
+  // GET /api/pos/summary/today - Get today's summary
+  app.get("/api/pos/summary/today", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.json({
+          totalSales: 0,
+          totalCashSales: 0,
+          totalCardSales: 0,
+          totalAccountSales: 0,
+          transactionCount: 0,
+          avgTicket: 0,
+          totalWeight: 0,
+        });
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.json({
+          totalSales: 0,
+          totalCashSales: 0,
+          totalCardSales: 0,
+          totalAccountSales: 0,
+          transactionCount: 0,
+          avgTicket: 0,
+          totalWeight: 0,
+        });
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [summary] = await db
+        .select({
+          totalSales: sql<number>`COALESCE(SUM(${posTransactions.total}), 0)`,
+          totalCashSales: sql<number>`COALESCE(SUM(CASE WHEN ${posTransactions.paymentMethod} = 'cash' THEN ${posTransactions.total} ELSE 0 END), 0)`,
+          totalCardSales: sql<number>`COALESCE(SUM(CASE WHEN ${posTransactions.paymentMethod} = 'card' THEN ${posTransactions.total} ELSE 0 END), 0)`,
+          totalAccountSales: sql<number>`COALESCE(SUM(CASE WHEN ${posTransactions.paymentMethod} = 'account' THEN ${posTransactions.total} ELSE 0 END), 0)`,
+          transactionCount: sql<number>`COUNT(*)`,
+          totalWeight: sql<number>`COALESCE(SUM(${posTransactions.totalWeight}), 0)`,
+        })
+        .from(posTransactions)
+        .where(and(
+          inArray(posTransactions.laundromatId, userLaundromatIds),
+          gte(posTransactions.createdAt, today),
+          eq(posTransactions.status, "completed")
+        ));
+
+      const totalSales = Number(summary?.totalSales) || 0;
+      const transactionCount = Number(summary?.transactionCount) || 0;
+      const avgTicket = transactionCount > 0 ? totalSales / transactionCount : 0;
+
+      res.json({
+        totalSales,
+        totalCashSales: Number(summary?.totalCashSales) || 0,
+        totalCardSales: Number(summary?.totalCardSales) || 0,
+        totalAccountSales: Number(summary?.totalAccountSales) || 0,
+        transactionCount,
+        avgTicket,
+        totalWeight: Number(summary?.totalWeight) || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching today's summary:", error);
+      res.status(500).json({ error: "Failed to fetch summary" });
+    }
+  });
+
+  // POST /api/pos/transactions - Create new transaction
+  app.post("/api/pos/transactions", async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const userLaundromatIds = await getUserLaundromats(userId);
+      if (userLaundromatIds.length === 0) {
+        return res.status(400).json({ error: "No laundromat associated with user" });
+      }
+
+      const laundromatId = userLaundromatIds[0];
+      const { customerId, customerName, items, subtotal, tax, total, paymentMethod, status } = req.body;
+
+      const transactionNumber = generateTransactionNumber();
+      const totalWeight = items?.reduce((sum: number, item: any) => sum + (item.weight || 0), 0) || 0;
+
+      const [transaction] = await db
+        .insert(posTransactions)
+        .values({
+          laundromatId,
+          customerId: customerId || null,
+          customerName: customerName || "Walk-in",
+          transactionNumber,
+          orderType: "wash_dry_fold",
+          status: status || "completed",
+          subtotal: subtotal?.toString() || "0.00",
+          tax: tax?.toString() || "0.00",
+          total: total?.toString() || "0.00",
+          totalWeight: totalWeight?.toString() || null,
+          paymentMethod: paymentMethod || "cash",
+          paymentStatus: "paid",
+          assignedTo: userId,
+          dropoffTime: new Date(),
+          completedTime: new Date(),
+        })
+        .returning();
+
+      if (items && items.length > 0) {
+        for (const item of items) {
+          await db.insert(posItems).values({
+            transactionId: transaction.id,
+            itemType: item.serviceId || "wash_dry_fold",
+            description: item.name || "Service",
+            quantity: item.quantity || 1,
+            weight: item.weight?.toString() || null,
+            pricePerPound: item.weight ? item.unitPrice?.toString() : null,
+            unitPrice: !item.weight ? item.unitPrice?.toString() : null,
+            subtotal: item.subtotal?.toString() || "0.00",
+            status: "completed",
+          });
+        }
+      }
+
+      res.json({
+        ...transaction,
+        transactionNumber,
+        subtotal: parseFloat(transaction.subtotal || "0"),
+        tax: parseFloat(transaction.tax || "0"),
+        total: parseFloat(transaction.total || "0"),
+      });
+    } catch (error) {
+      console.error("Error creating transaction:", error);
+      res.status(500).json({ error: "Failed to create transaction" });
+    }
+  });
+
   console.log("✅ POS Command Center routes registered");
 }

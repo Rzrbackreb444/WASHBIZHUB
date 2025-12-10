@@ -109,6 +109,7 @@ const DesignStudioPro = lazy(() => import("@/pages/design-studio-pro"));
 
 // POS Command Center (large dashboard)
 const POSCommandCenter = lazy(() => import("@/pages/pos-command-center"));
+const PosSuite = lazy(() => import("@/pages/pos-suite"));
 const PosLanding = lazy(() => import("@/pages/landing/pos-landing"));
 
 // Admin Pages (authenticated only)
@@ -205,6 +206,7 @@ const EquipmentWizard = lazy(() => import("@/pages/equipment-wizard"));
 const EquipmentGuides = lazy(() => import("@/pages/equipment-guides"));
 const EquipmentDiagnostics = lazy(() => import("@/pages/equipment-diagnostics"));
 const EquipmentFinancing = lazy(() => import("@/pages/equipment-financing"));
+const PartsInventory = lazy(() => import("@/pages/parts-inventory"));
 const ListEquipment = lazy(() => import("@/pages/list-equipment"));
 const ListSupplies = lazy(() => import("@/pages/list-supplies"));
 const ListServices = lazy(() => import("@/pages/list-services"));
@@ -553,6 +555,11 @@ function Router() {
       <Route path="/pos-landing">
         <Suspense fallback={<LoadingFallback />}>
           <PosLanding />
+        </Suspense>
+      </Route>
+      <Route path="/pos-suite">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <PosSuite />
         </Suspense>
       </Route>
 
@@ -1042,6 +1049,11 @@ function Router() {
       <Route path="/equipment-guides">
         <Suspense fallback={<LoadingFallback />}>
           <EquipmentGuides />
+        </Suspense>
+      </Route>
+      <Route path="/parts-inventory">
+        <Suspense fallback={<LoadingFallback />}>
+          <PartsInventory />
         </Suspense>
       </Route>
       <Route path="/equipment-diagnostics">

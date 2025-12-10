@@ -5983,6 +5983,56 @@ export const insertPaymentSettlementSchema = createInsertSchema(paymentSettlemen
 export type InsertPaymentSettlement = z.infer<typeof insertPaymentSettlementSchema>;
 export type PaymentSettlement = typeof paymentSettlements.$inferSelect;
 
+// POS Shifts - Cash drawer and shift management
+export const posShifts = pgTable("pos_shifts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Shift Timing
+  startTime: timestamp("start_time").defaultNow().notNull(),
+  endTime: timestamp("end_time"),
+  
+  // Cash Drawer
+  openingCash: decimal("opening_cash", { precision: 10, scale: 2 }).notNull(),
+  closingCash: decimal("closing_cash", { precision: 10, scale: 2 }),
+  expectedCash: decimal("expected_cash", { precision: 10, scale: 2 }),
+  variance: decimal("variance", { precision: 10, scale: 2 }),
+  
+  // Shift Totals
+  totalSales: decimal("total_sales", { precision: 10, scale: 2 }).default("0.00"),
+  totalCashSales: decimal("total_cash_sales", { precision: 10, scale: 2 }).default("0.00"),
+  totalCardSales: decimal("total_card_sales", { precision: 10, scale: 2 }).default("0.00"),
+  totalAccountSales: decimal("total_account_sales", { precision: 10, scale: 2 }).default("0.00"),
+  transactionCount: integer("transaction_count").default(0),
+  
+  // Cash Breakdown at close
+  cashBreakdown: jsonb("cash_breakdown"), // { hundreds: 0, fifties: 0, twenties: 5, tens: 3, fives: 2, ones: 10, quarters: 20, ... }
+  
+  // Notes
+  notes: text("notes"),
+  
+  // Status
+  status: text("status").notNull().default("open"), // "open", "closed", "reconciled"
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("pos_shifts_laundromat_idx").on(table.laundromatId),
+  userIdx: index("pos_shifts_user_idx").on(table.userId),
+  statusIdx: index("pos_shifts_status_idx").on(table.status),
+  startTimeIdx: index("pos_shifts_start_time_idx").on(table.startTime),
+}));
+
+export const insertPosShiftSchema = createInsertSchema(posShifts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPosShift = z.infer<typeof insertPosShiftSchema>;
+export type PosShift = typeof posShifts.$inferSelect;
+
 // Household Accounts - Customer accounts with credit
 export const householdAccounts = pgTable("household_accounts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -15519,6 +15569,204 @@ export const insertWebsiteWidgetSchema = createInsertSchema(websiteWidgets).omit
 
 export type WebsiteWidget = typeof websiteWidgets.$inferSelect;
 export type InsertWebsiteWidget = z.infer<typeof insertWebsiteWidgetSchema>;
+
+// ============================================================================
+// PARTS ORDERING & INVENTORY MANAGEMENT SYSTEM
+// ============================================================================
+
+// Parts Catalog - Supplier catalog with affiliate links
+export const partsCatalog = pgTable("parts_catalog", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  partNumber: varchar("part_number", { length: 100 }).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  manufacturer: varchar("manufacturer", { length: 100 }),
+  machineType: varchar("machine_type", { length: 50 }), // "washer", "dryer", "payment", "other"
+  
+  category: varchar("category", { length: 100 }), // "Motors", "Belts", "Bearings", "Controls", "Seals", etc.
+  
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  supplierPrice: decimal("supplier_price", { precision: 10, scale: 2 }), // Our cost (if different)
+  
+  supplier: varchar("supplier", { length: 100 }).notNull(), // "Amazon", "AAdvantage Laundry", "Direct", etc.
+  affiliateUrl: text("affiliate_url"), // Amazon affiliate link
+  supplierSku: varchar("supplier_sku", { length: 100 }), // Supplier's part number
+  
+  inStock: boolean("in_stock").default(true).notNull(),
+  leadTimeDays: integer("lead_time_days").default(3),
+  
+  imageUrl: text("image_url"),
+  
+  compatibleModels: text("compatible_models").array(), // Array of compatible machine models
+  tags: text("tags").array(), // Search tags
+  
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  partNumberIdx: index("parts_catalog_part_number_idx").on(table.partNumber),
+  manufacturerIdx: index("parts_catalog_manufacturer_idx").on(table.manufacturer),
+  supplierIdx: index("parts_catalog_supplier_idx").on(table.supplier),
+  machineTypeIdx: index("parts_catalog_machine_type_idx").on(table.machineType),
+}));
+
+export const insertPartsCatalogSchema = createInsertSchema(partsCatalog).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PartsCatalog = typeof partsCatalog.$inferSelect;
+export type InsertPartsCatalog = z.infer<typeof insertPartsCatalogSchema>;
+
+// Inventory Items - Stock tracking per location
+export const inventoryItems = pgTable("inventory_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  locationId: varchar("location_id"), // References laundromat location, null = main warehouse
+  locationName: varchar("location_name", { length: 200 }), // Denormalized for display
+  
+  partNumber: varchar("part_number", { length: 100 }).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  quantity: integer("quantity").default(0).notNull(),
+  reorderPoint: integer("reorder_point").default(2).notNull(), // Alert when below this
+  maxQuantity: integer("max_quantity"), // Target stock level
+  
+  unitCost: decimal("unit_cost", { precision: 10, scale: 2 }).notNull(),
+  lastPurchasePrice: decimal("last_purchase_price", { precision: 10, scale: 2 }),
+  
+  supplier: varchar("supplier", { length: 100 }),
+  preferredSupplierId: varchar("preferred_supplier_id"), // Foreign key to parts_catalog
+  
+  category: varchar("category", { length: 100 }),
+  machineType: varchar("machine_type", { length: 50 }),
+  
+  binLocation: varchar("bin_location", { length: 50 }), // Physical storage location
+  
+  lastCountDate: timestamp("last_count_date"),
+  lastUsedDate: timestamp("last_used_date"),
+  
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("inventory_items_user_id_idx").on(table.userId),
+  locationIdIdx: index("inventory_items_location_id_idx").on(table.locationId),
+  partNumberIdx: index("inventory_items_part_number_idx").on(table.partNumber),
+  reorderAlertIdx: index("inventory_items_reorder_alert_idx").on(table.quantity, table.reorderPoint),
+}));
+
+export const insertInventoryItemSchema = createInsertSchema(inventoryItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type InsertInventoryItem = z.infer<typeof insertInventoryItemSchema>;
+
+// Inventory Usage History - Track part usage
+export const inventoryUsage = pgTable("inventory_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  inventoryItemId: varchar("inventory_item_id").notNull().references(() => inventoryItems.id, { onDelete: "cascade" }),
+  
+  quantityUsed: integer("quantity_used").notNull(),
+  usageType: varchar("usage_type", { length: 30 }).notNull(), // "repair", "maintenance", "adjustment", "loss", "return"
+  
+  repairTicketId: varchar("repair_ticket_id"), // Link to repair ticket if applicable
+  machineId: varchar("machine_id"), // Which machine used the part
+  machineName: varchar("machine_name", { length: 200 }),
+  
+  notes: text("notes"),
+  
+  usedAt: timestamp("used_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("inventory_usage_user_id_idx").on(table.userId),
+  inventoryItemIdIdx: index("inventory_usage_item_id_idx").on(table.inventoryItemId),
+  usedAtIdx: index("inventory_usage_used_at_idx").on(table.usedAt),
+}));
+
+export const insertInventoryUsageSchema = createInsertSchema(inventoryUsage).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InventoryUsage = typeof inventoryUsage.$inferSelect;
+export type InsertInventoryUsage = z.infer<typeof insertInventoryUsageSchema>;
+
+// Purchase Orders - Order management
+export const purchaseOrders = pgTable("purchase_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  poNumber: varchar("po_number", { length: 50 }).notNull(), // User-friendly order number
+  
+  supplierId: varchar("supplier_id"), // Optional foreign key to parts_catalog
+  supplierName: varchar("supplier_name", { length: 100 }).notNull(),
+  supplierContact: varchar("supplier_contact", { length: 200 }),
+  
+  status: varchar("status", { length: 30 }).notNull().default("draft"), // "draft", "ordered", "shipped", "partial", "received", "cancelled"
+  
+  items: jsonb("items").notNull(), // Array of {catalogId, partNumber, name, quantity, unitPrice, receivedQty}
+  
+  subtotal: decimal("subtotal", { precision: 12, scale: 2 }).notNull(),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0"),
+  shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }).default("0"),
+  totalCost: decimal("total_cost", { precision: 12, scale: 2 }).notNull(),
+  
+  locationId: varchar("location_id"), // Delivery location
+  locationName: varchar("location_name", { length: 200 }),
+  
+  shippingAddress: text("shipping_address"),
+  trackingNumber: varchar("tracking_number", { length: 100 }),
+  
+  notes: text("notes"),
+  
+  orderDate: timestamp("order_date"),
+  expectedDeliveryDate: timestamp("expected_delivery_date"),
+  shippedDate: timestamp("shipped_date"),
+  receivedDate: timestamp("received_date"),
+  
+  repairTicketId: varchar("repair_ticket_id"), // Link to repair ticket if ordering for specific repair
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("purchase_orders_user_id_idx").on(table.userId),
+  poNumberIdx: uniqueIndex("purchase_orders_po_number_idx").on(table.userId, table.poNumber),
+  statusIdx: index("purchase_orders_status_idx").on(table.status),
+  orderDateIdx: index("purchase_orders_order_date_idx").on(table.orderDate),
+}));
+
+export const insertPurchaseOrderSchema = createInsertSchema(purchaseOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PurchaseOrder = typeof purchaseOrders.$inferSelect;
+export type InsertPurchaseOrder = z.infer<typeof insertPurchaseOrderSchema>;
+
+// Purchase Order Item Schema for validation
+export const purchaseOrderItemSchema = z.object({
+  catalogId: z.string().optional(),
+  partNumber: z.string(),
+  name: z.string(),
+  quantity: z.number().min(1),
+  unitPrice: z.number().min(0),
+  receivedQty: z.number().min(0).default(0),
+});
+
+export type PurchaseOrderItem = z.infer<typeof purchaseOrderItemSchema>;
 
 // ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
