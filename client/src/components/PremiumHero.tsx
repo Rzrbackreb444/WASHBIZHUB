@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useMemo, useEffect, useState } from "react";
-import heroImage from "@assets/big_dexter_laundromat_1764704943944.jpg";
+import heroImage from "@assets/Untitled_design_(33)_1765330024631.png";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
 
 // SSR-safe hook to detect mobile devices for performance optimization
@@ -118,30 +118,31 @@ export function PremiumHero() {
       {/* Premium gradient mesh background */}
       <div className="absolute inset-0">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
-          style={{ backgroundImage: `url(${heroImage})` }}
-          role="img"
-          aria-label="Modern laundromat facility showcasing commercial equipment"
-        />
-        {/* Navy overlay with mesh gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a5f]/95 via-[#1e3a5f]/85 to-[#0f2744]/90" />
-        {/* Gold accent glow */}
-        <div 
-          className="absolute top-0 right-0 w-1/2 h-1/2"
-          style={{ background: 'radial-gradient(circle at center, rgba(184,134,11,0.2) 0%, transparent 70%)' }}
-        />
-        <div 
-          className="absolute bottom-0 left-1/4 w-1/3 h-1/3"
-          style={{ background: 'radial-gradient(circle at center, rgba(184,134,11,0.1) 0%, transparent 70%)' }}
-        />
-        {/* Subtle grid pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: `url(${heroImage})`,
+            backgroundPosition: 'center 30%'
           }}
+          role="img"
+          aria-label="Authentic laundromat storefront with classic signage"
+        />
+        {/* Dynamic overlay - darker on left for text readability, lighter on right to show image */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/95 via-[#0A1628]/80 to-[#0A1628]/60" />
+        {/* Additional bottom gradient for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/90 via-transparent to-transparent" />
+        {/* Gold accent glow - enhanced for storefront image */}
+        <div 
+          className="absolute top-1/4 right-0 w-2/3 h-2/3"
+          style={{ background: 'radial-gradient(ellipse at 70% 40%, rgba(200,166,97,0.15) 0%, transparent 60%)' }}
+        />
+        <div 
+          className="absolute bottom-0 left-0 w-1/2 h-1/2"
+          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(200,166,97,0.1) 0%, transparent 50%)' }}
+        />
+        {/* Subtle vignette effect */}
+        <div 
+          className="absolute inset-0"
+          style={{ boxShadow: 'inset 0 0 150px 50px rgba(10,22,40,0.5)' }}
         />
       </div>
       
