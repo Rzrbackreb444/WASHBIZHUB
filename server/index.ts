@@ -1350,6 +1350,10 @@ app.use((req, res, next) => {
     const { seedRealListings } = await import('./seed-real-listings');
     await seedRealListings();
     
+    // Seed enterprise demo data (premium brokers, featured listings)
+    const { seedEnterpriseDemos } = await import('./seed-enterprise-demos');
+    await seedEnterpriseDemos();
+    
     await seedTemplatesIfNeeded();
   });
 })();
