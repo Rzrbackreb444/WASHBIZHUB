@@ -14840,62 +14840,7 @@ export type InsertVoiceCommand = z.infer<typeof insertVoiceCommandSchema>;
 // POS COMMAND CENTER - ENTERPRISE MODULES
 // ============================================================================
 
-// ==================== PROMOTIONS & COUPONS ====================
-
-export const promoCodes = pgTable("promo_codes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  
-  // Promo details
-  code: varchar("code", { length: 50 }).notNull(), // e.g., "SAVE20", "FIRSTWASH"
-  name: varchar("name", { length: 100 }).notNull(), // Descriptive name
-  description: text("description"),
-  
-  // Discount type
-  discountType: varchar("discount_type", { length: 20 }).notNull(), // "percentage", "fixed_amount", "free_item", "bogo"
-  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(), // Percentage or dollar amount
-  freeItemType: varchar("free_item_type", { length: 50 }), // "dry", "wash", "fold" for free_item type
-  
-  // Constraints
-  minimumOrder: decimal("minimum_order", { precision: 10, scale: 2 }).default("0"), // Minimum order amount
-  maximumDiscount: decimal("maximum_discount", { precision: 10, scale: 2 }), // Cap on discount for percentage
-  maxRedemptions: integer("max_redemptions"), // Total usage limit (null = unlimited)
-  maxRedemptionsPerCustomer: integer("max_redemptions_per_customer").default(1), // Per-customer limit
-  
-  // Validity
-  validFrom: timestamp("valid_from").defaultNow(),
-  validUntil: timestamp("valid_until"),
-  
-  // Targeting
-  targetAudience: varchar("target_audience", { length: 30 }).default("all"), // "all", "new_customers", "vip", "inactive", "custom"
-  targetCustomerIds: jsonb("target_customer_ids"), // Array of specific customer IDs
-  applicableServices: jsonb("applicable_services"), // ["wash_dry_fold", "dry_cleaning", "pickup_delivery"]
-  
-  // Analytics
-  totalRedemptions: integer("total_redemptions").default(0),
-  totalDiscountGiven: decimal("total_discount_given", { precision: 12, scale: 2 }).default("0"),
-  
-  // Status
-  isActive: boolean("is_active").default(true),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  userIdIdx: index("promo_codes_user_id_idx").on(table.userId),
-  codeIdx: uniqueIndex("promo_codes_code_user_idx").on(table.userId, table.code),
-  activeIdx: index("promo_codes_active_idx").on(table.isActive, table.validFrom, table.validUntil),
-}));
-
-export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({
-  id: true,
-  totalRedemptions: true,
-  totalDiscountGiven: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type PromoCode = typeof promoCodes.$inferSelect;
-export type InsertPromoCode = z.infer<typeof insertPromoCodeSchema>;
+// ==================== PROMO REDEMPTION HISTORY ====================
 
 // Promo redemption history
 export const promoRedemptions = pgTable("promo_redemptions", {
@@ -14952,45 +14897,6 @@ export const insertPricingProfileSchema = createInsertSchema(pricingProfiles).om
 
 export type PricingProfile = typeof pricingProfiles.$inferSelect;
 export type InsertPricingProfile = z.infer<typeof insertPricingProfileSchema>;
-
-// Time-based pricing rules
-export const pricingRules = pgTable("pricing_rules", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  profileId: varchar("profile_id").notNull().references(() => pricingProfiles.id, { onDelete: "cascade" }),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  
-  name: varchar("name", { length: 100 }).notNull(), // "Morning Rush", "Late Night Discount"
-  
-  // Time schedule
-  dayOfWeek: jsonb("day_of_week").notNull(), // [0,1,2,3,4,5,6] (0=Sunday)
-  startTime: varchar("start_time", { length: 5 }).notNull(), // "06:00"
-  endTime: varchar("end_time", { length: 5 }).notNull(), // "09:00"
-  
-  // Price adjustment
-  adjustmentType: varchar("adjustment_type", { length: 20 }).notNull(), // "percentage", "fixed_amount", "fixed_price"
-  adjustmentValue: decimal("adjustment_value", { precision: 6, scale: 2 }).notNull(), // +20% or +$0.50
-  
-  // Apply to
-  appliesToMachineTypes: jsonb("applies_to_machine_types"), // ["washer", "dryer", "both"]
-  appliesToMachineSizes: jsonb("applies_to_machine_sizes"), // ["small", "medium", "large", "mega"]
-  
-  // Priority (higher = applied first when overlapping)
-  priority: integer("priority").default(0),
-  isActive: boolean("is_active").default(true),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => ({
-  profileIdIdx: index("pricing_rules_profile_id_idx").on(table.profileId),
-  activeIdx: index("pricing_rules_active_idx").on(table.isActive),
-}));
-
-export const insertPricingRuleSchema = createInsertSchema(pricingRules).omit({
-  id: true,
-  createdAt: true,
-});
-
-export type PricingRule = typeof pricingRules.$inferSelect;
-export type InsertPricingRule = z.infer<typeof insertPricingRuleSchema>;
 
 // Special pricing overrides (holidays, events)
 export const pricingOverrides = pgTable("pricing_overrides", {
@@ -15270,77 +15176,7 @@ export const insertBookingSettingsSchema = createInsertSchema(bookingSettings).o
 export type BookingSettings = typeof bookingSettings.$inferSelect;
 export type InsertBookingSettings = z.infer<typeof insertBookingSettingsSchema>;
 
-// ==================== MARKETING CAMPAIGNS ====================
-
-export const marketingCampaigns = pgTable("marketing_campaigns", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  
-  // Campaign details
-  name: varchar("name", { length: 100 }).notNull(),
-  description: text("description"),
-  
-  // Type
-  campaignType: varchar("campaign_type", { length: 20 }).notNull(), // "sms", "email", "push", "multi_channel"
-  
-  // Content
-  subject: varchar("subject", { length: 200 }), // Email subject
-  messageContent: text("message_content").notNull(),
-  htmlContent: text("html_content"), // For email campaigns
-  
-  // Targeting
-  targetAudience: varchar("target_audience", { length: 30 }).default("all"), // "all", "active", "inactive", "new", "vip", "custom"
-  targetCustomerIds: jsonb("target_customer_ids"), // Specific customer IDs
-  targetFilters: jsonb("target_filters"), // {minSpend: 100, lastVisitDays: 30, tier: "Gold"}
-  
-  // Scheduling
-  status: varchar("status", { length: 20 }).default("draft"), // "draft", "scheduled", "sending", "sent", "cancelled"
-  scheduledFor: timestamp("scheduled_for"),
-  sentAt: timestamp("sent_at"),
-  
-  // Attached promo
-  promoCodeId: varchar("promo_code_id").references(() => promoCodes.id, { onDelete: "set null" }),
-  
-  // Analytics
-  totalRecipients: integer("total_recipients").default(0),
-  totalSent: integer("total_sent").default(0),
-  totalDelivered: integer("total_delivered").default(0),
-  totalOpened: integer("total_opened").default(0),
-  totalClicked: integer("total_clicked").default(0),
-  totalUnsubscribed: integer("total_unsubscribed").default(0),
-  totalBounced: integer("total_bounced").default(0),
-  totalConversions: integer("total_conversions").default(0),
-  conversionRevenue: decimal("conversion_revenue", { precision: 12, scale: 2 }).default("0"),
-  
-  // Cost tracking
-  smsCost: decimal("sms_cost", { precision: 10, scale: 4 }).default("0"),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  userIdIdx: index("marketing_campaigns_user_id_idx").on(table.userId),
-  statusIdx: index("marketing_campaigns_status_idx").on(table.status),
-  scheduledIdx: index("marketing_campaigns_scheduled_idx").on(table.scheduledFor),
-}));
-
-export const insertMarketingCampaignSchema = createInsertSchema(marketingCampaigns).omit({
-  id: true,
-  totalRecipients: true,
-  totalSent: true,
-  totalDelivered: true,
-  totalOpened: true,
-  totalClicked: true,
-  totalUnsubscribed: true,
-  totalBounced: true,
-  totalConversions: true,
-  conversionRevenue: true,
-  smsCost: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type MarketingCampaign = typeof marketingCampaigns.$inferSelect;
-export type InsertMarketingCampaign = z.infer<typeof insertMarketingCampaignSchema>;
+// ==================== CAMPAIGN DELIVERY LOG ====================
 
 // Campaign message delivery log
 export const campaignMessages = pgTable("campaign_messages", {
@@ -15561,56 +15397,7 @@ export const insertExpenseCategorySchema = createInsertSchema(expenseCategories)
 export type ExpenseCategory = typeof expenseCategories.$inferSelect;
 export type InsertExpenseCategory = z.infer<typeof insertExpenseCategorySchema>;
 
-// ==================== WEBSITE BUILDER TEMPLATES ====================
-
-export const websiteTemplates = pgTable("website_templates", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  
-  // Template info
-  name: varchar("name", { length: 100 }).notNull(),
-  description: text("description"),
-  category: varchar("category", { length: 50 }).notNull(), // "modern", "classic", "family", "eco", "luxury", "minimal"
-  
-  // Preview
-  thumbnailUrl: text("thumbnail_url"),
-  previewUrl: text("preview_url"),
-  previewImages: jsonb("preview_images"), // Array of preview screenshots
-  
-  // Template structure
-  blocks: jsonb("blocks").notNull(), // Default block configuration
-  styles: jsonb("styles"), // Default style overrides
-  colorScheme: jsonb("color_scheme"), // {primary, secondary, accent, background}
-  fonts: jsonb("fonts"), // {heading, body}
-  
-  // Features
-  features: jsonb("features"), // ["hero", "services", "testimonials", "contact", "gallery"]
-  
-  // Tier requirements
-  requiredTier: varchar("required_tier", { length: 20 }).default("free"), // "free", "starter", "pro", "enterprise"
-  
-  // Popularity
-  usageCount: integer("usage_count").default(0),
-  rating: decimal("rating", { precision: 2, scale: 1 }),
-  
-  isActive: boolean("is_active").default(true),
-  isFeatured: boolean("is_featured").default(false),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => ({
-  categoryIdx: index("website_templates_category_idx").on(table.category),
-  featuredIdx: index("website_templates_featured_idx").on(table.isFeatured),
-}));
-
-export const insertWebsiteTemplateSchema = createInsertSchema(websiteTemplates).omit({
-  id: true,
-  usageCount: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type WebsiteTemplate = typeof websiteTemplates.$inferSelect;
-export type InsertWebsiteTemplate = z.infer<typeof insertWebsiteTemplateSchema>;
+// ==================== WEBSITE-POS INTEGRATION WIDGETS ====================
 
 // Website-POS integration widgets
 export const websiteWidgets = pgTable("website_widgets", {
