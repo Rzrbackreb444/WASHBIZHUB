@@ -1,13 +1,7 @@
 # Multi-Tenant SaaS Platform: Enterprise & Healthcare
 
 ## Overview
-This project is a multi-tenant SaaS platform featuring **WashBizHub.com** for the laundromat industry and **StrokeRecoveryAcademy.com** for healthcare education.
-
-**WashBizHub.com** offers business intelligence, market analysis, AI consulting, valuation tools, and the "CLEANBI System" for global property analysis, aiming for market leadership in the laundromat sector.
-
-**StrokeRecoveryAcademy.com** provides AI-powered educational courses, a community forum, tracking tools with an AI companion, and peer-to-peer knowledge sharing for stroke recovery.
-
-The platform uses multi-AI orchestration (OpenAI, Anthropic, Gemini, Perplexity, Grok) to deliver personalized experiences and expert insights across both verticals.
+This project is a multi-tenant SaaS platform serving the laundromat industry with **WashBizHub.com** and healthcare education with **StrokeRecoveryAcademy.com**. WashBizHub.com offers business intelligence, market analysis, AI consulting, valuation tools, and the "CLEANBI System" for global property analysis. StrokeRecoveryAcademy.com provides AI-powered courses, community features, tracking tools with an AI companion, and peer-to-peer knowledge sharing for stroke recovery. The platform leverages multi-AI orchestration to deliver personalized experiences and expert insights across both verticals.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -23,7 +17,7 @@ Branding Guidelines:
 - WashBizHub is the #1 laundromat resource and educational hub
 - CLEANBI is the universal property intelligence scoring system
 
-**CLEANBI™ Grading System (MANDATORY - Chrome Web Store Style):**
+**CLEANBI™ Grading System:**
 - ONLY A, B, C are positive grades. NEVER use D or F grades.
 - Everything below C is labeled "Needs Work" (encouraging, not negative)
 - Grade thresholds:
@@ -35,89 +29,44 @@ Branding Guidelines:
 - Opportunity levels should also be positive: "Gold Mine Zone", "High Opportunity", "Good Potential", "Room to Grow", "Strategic Location"
 
 Owner Contact & Notifications:
-- Owner: Nick Kremers (Founder)
-- Owner phone: 479-883-4314 (AT&T)
-- SMS notifications enabled for AI chat messages via AT&T email-to-SMS gateway (4798834314@txt.att.net)
-- All AI chat widget messages trigger instant SMS + email notifications to owner
-- Backup notifications sent to nick@washbizhub.com
+- All AI chat widget messages trigger instant SMS + email notifications to owner (Nick Kremers, 479-883-4314, nick@washbizhub.com).
 
 Laundromat Consultation Council:
-- 5 specialized experts who discuss, delegate, and advise (Operations, Financial, Market, Equipment, Location)
-- Human oversight by Nick Kremers on every consultation
-- All consultation requests sent to consult@washbizhub.com
+- Human oversight by Nick Kremers on every consultation.
+- All consultation requests sent to consult@washbizhub.com.
 
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend utilizes React 18, TypeScript, Wouter, Radix UI, shadcn/ui, and Tailwind CSS. It features responsive dashboards with Chart.js/Recharts, dark-theme maps, and a Chrome Web Store-like grading system for CLEANBI, emphasizing clear, positive language. Premium homepage design includes specific brand colors (Navy, Gold), Bebas Neue typography, Framer Motion animations, and mega-menus.
+The frontend uses React 18, TypeScript, Wouter, Radix UI, shadcn/ui, and Tailwind CSS. It features responsive dashboards, Chart.js/Recharts for data visualization, dark-theme maps, and a Chrome Web Store-like grading system for CLEANBI. The premium homepage design includes specific brand colors (Navy, Gold), Bebas Neue typography, Framer Motion animations, and mega-menus.
 
 ### Technical Implementations
-The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/Express in TypeScript, providing RESTful JSON APIs and WebSockets. It employs Drizzle ORM with PostgreSQL (Neon serverless), Redis for pub/sub, and Replit Auth (OIDC) for authentication and RBAC.
+The frontend is built with Vite, TanStack Query, and PWA support. The backend uses Node.js/Express in TypeScript, providing RESTful JSON APIs and WebSockets. Data persistence is handled by Drizzle ORM with PostgreSQL (Neon serverless). Redis is used for pub/sub and caching. Authentication and RBAC are managed via Replit Auth (OIDC).
 
 ### Feature Specifications
 - **Multi-tenancy:** Supports distinct platforms like WashBizHub and StrokeRecoveryAcademy.
-- **AI Orchestration:** Integrates multiple AI models (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized content, analysis, and RAG pipelines.
-- **CLEANBI Explorer (Flagship Product):** The centerpiece of WashBizHub - a full-page location intelligence system at /cleanbi-explorer. Features:
-  - Google Maps integration with competitor mapping and 3D flyover
-  - 6-factor weighted scoring (Demographics, Competition, Traffic, Accessibility, Economic, Location Quality)
-  - Real-time quota tracking via useUsageQuota hook → UsageLimitBanner → UpgradeModal → Stripe checkout
-  - Premium feature gating: Transit/Walk Score (Starter+), Utility Costs/Catchment (Pro+), PDF/Sheets Export (Starter+)
-  - "Analyze with CLEANBI" button appears on every listing card across the platform
-  - Gold pulsing gradient navigation button (first position in header, full-width mobile CTA)
-  - All navigation links point to /cleanbi-explorer (backward-compatible /cleanbi-auto still works)
-  - **Dual View Mode:** Toggle between Map View and Charts View via ViewModeToggle component
-  - **Saved Addresses Panel:** Quick-access sidebar (SavedAddressesPanel) for previously analyzed locations with search, delete, clear all
-  - **Professional Charts View:** AnalysisChartsView with tabbed interface (Overview, Analysis, Benchmarks, Roadmap), integrated visualization components
-  - **PDF Export:** AnalysisReportGenerator creates branded PDF reports for subscribers using html2canvas + jspdf
-  - **Social Sharing:** AnalysisSocialShare enables sharing analysis results on Facebook, Twitter, LinkedIn with pre-populated text
-  - **CLEANBI Component Suite (client/src/components/cleanbi/):**
-    - `CLEANBIGradeBadge` - Premium animated badge with SVG gradient ring, EBITDA multiples
-    - `CLEANBIScoreCard` - Full grade card with radial gauge, percentile ranking, upgrade prompts
-    - `GradeExplanation` - Strengths/weaknesses analysis with actionable recommendations
-    - `FactorBreakdown` - 68-factor detailed view grouped by 8 categories (Demographics 12, Market 10, Location 12, Financial 10, Lease 6, Equipment 8, Operations 6, Growth 4)
-    - `CLEANBIRadarChart` - Recharts radar visualization comparing user score to CLA industry benchmarks
-    - `CLEANBICategoryChart` - Horizontal bar chart showing performance by category
-    - `BenchmarkComparison` - CLA industry data (18,375 laundromats), regional breakdowns, percentile ranking
-    - `ImprovementRoadmap` - Prioritized action plan with difficulty, cost, timeframe, and ROI estimates
-    - `DataConfidence` - Data quality indicator showing verified/estimated/default source breakdown
-    - All components exported via barrel file: `client/src/components/cleanbi/index.ts`
-- **POS Command Center:** An enterprise dashboard for laundromat operations, including KPIs, order management, CRM, IoT machine status, and route planning.
-- **IoT & Diagnostics:** Ingests sensor data for predictive maintenance.
+- **AI Orchestration:** Integrates multiple AI models (OpenAI, Anthropic, Gemini, Perplexity, Grok) for personalized content, analysis, and RAG.
+- **CLEANBI Explorer:** A flagship location intelligence system featuring Google Maps integration, 6-factor weighted scoring, real-time quota tracking, premium feature gating, dual view modes (Map/Charts), saved addresses, and PDF export for subscribers. Includes a comprehensive suite of CLEANBI components for grading, scoring, factor breakdowns, radar/category charts, benchmark comparisons, and improvement roadmaps.
+- **POS Command Center:** Enterprise dashboard for laundromat operations with KPIs, order management, CRM, IoT machine status, and route planning.
+- **IoT & Diagnostics:** Ingests sensor data for predictive maintenance and includes an IoT Dashboard for real-time machine monitoring and dynamic pricing.
 - **Route Optimization:** Integrates Google Maps and OR-Tools with Twilio.
 - **Website Hosting:** Provides multi-tenant provisioning, custom domains, and CDN.
-- **SEO & Marketing:** Includes an AI-generated blog suite, global email capture, and global SEO/AEO tracking.
+- **SEO & Marketing:** Includes an AI-generated blog, global email capture, and SEO/AEO tracking.
 - **Regional Pricing System:** PPP-adjusted pricing for 220+ countries with multi-currency support.
-- **Deal Flow & Funding:** Features a "Deal Flow Dashboard" and a "Funding Marketplace" with integrated partners.
-- **Laundromat Marketplace (/buy-laundromat):** Enhanced US Marketplace with advanced search features:
-  - **Faceted Filters:** Price range slider ($50K-$5M+), cap rate (4%-15%+), annual revenue, attended/unattended toggle, pickup & delivery, lease terms
-  - **Geo-Radius Search:** Location autocomplete with "within X miles of" search, interactive map view with markers, list/map view toggle
-  - **CLEANBI Integration:** Grade filter (A, B, C, Needs Work), CLEANBIGradeBadge on every listing card, "Analyze with CLEANBI" button
-  - **Categories & Tags:** Primary categories (Retail Laundromat, Hybrid, Route/PUD, Equipment Package, Development Site), Deal types (Turnkey, Value-Add, Distressed, Portfolio, Franchise), Financing tags (SBA-Ready, Seller Financing, Assume Lease)
-  - **Saved Searches & Alerts:** Save search criteria with alert frequency (instant, daily, weekly), email notifications for new matching listings
-  - API Endpoints: GET/POST /api/marketplace/search, GET/POST/DELETE /api/saved-searches
-  - Schema: listings table extended with capRate, annualRevenue, isAttended, hasPickupDelivery, leaseYearsRemaining, primaryCategory, dealType, financingTags, cleanbiScore, cleanbiGrade
-  - All leads route to consult@washbizhub.com
-- **Broker Directory (/brokers):** Featured brokers including Lawrence Larsen "Laundromat Larry" (DRE 49460). Verified broker profiles with contact options and listing counts.
-- **Sell Your Laundromat (/sell-your-laundromat):** Seller assistance page with listing form and direct contact to consult@washbizhub.com.
+- **Deal Flow & Funding:** Features a "Deal Flow Dashboard" and a "Funding Marketplace."
+- **Laundromat Marketplace:** Enhanced US marketplace with advanced search features, faceted filters, geo-radius search, and CLEANBI integration.
+- **Broker Directory & Seller Assistance:** Features a directory of verified brokers and a dedicated page for selling laundromats.
 - **Business Directory:** A "Verified Directory" for service providers.
 - **Advertising & Promotions:** Includes a Facebook Group Advertising System and a Promo Code System.
-- **WordPress-Style AdminBar:** Fixed top navigation for authenticated admin users, offering quick access, content editing, and user management.
-- **Admin Analytics Dashboard:** Live analytics dashboard pulling data from Stripe and the database, showing revenue, user, and CLEANBI usage metrics, with an activity feed.
+- **WordPress-Style AdminBar:** Fixed top navigation for authenticated admin users.
+- **Admin Analytics Dashboard:** Live analytics for revenue, user, and CLEANBI usage.
 - **Revenue Funnel Tools:** "SBA Loan Readiness Checker" and an "AI Business Plan Generator."
-- **Calculator & Formula Ecosystem:** Over 80 unique formulas for valuation, financial analysis, operations, and real estate, including core algorithm libraries.
-- **Utility Cost Calculator & UPG Tracker:** Calculates cost per load and tracks Utilities as % of Gross.
-- **Labor Cost Calculator & Staffing Optimizer:** Calculates labor cost as % of revenue and optimizes staffing.
-- **Key Industry Benchmarks & Formulas:** Includes detailed metrics for revenue, profitability, operational KPIs, cost ratios, customer metrics, equipment depreciation, and valuation multiples.
-- **Master Algorithms:** Includes 9 standalone calculators, 8 scoring algorithms (CLEANBI, WASHBI, etc.), and 10 Google Cloud combined algorithms for advanced functionalities like Utility Bill Scanning, Smart Location Scouting, Equipment Photo Appraising, and Due Diligence Document Verification.
-- **Service Guy AI (/service-guy-ai):** Protected diagnostic field tool for laundromat equipment repair with tier-based subscriptions. Features:
-  - 4-tier content protection: Free (3 lookups/month, heavily redacted), Starter ($29/mo, 50 lookups, partial steps), Pro ($79/mo, 500 lookups, full troubleshooting), Enterprise ($199/mo, unlimited, full access)
-  - 15,867-line diagnostic database worth $75K-$100K in R&D value
-  - Voice Input: Web Speech API for hands-free diagnosis in the field
-  - Photo Diagnosis: Gemini Vision AI analyzes equipment photos to identify error codes
-  - Job Tracking: Service technicians track repair jobs with status, notes, and timestamps
-  - Parts Ordering: Integrated Amazon affiliate links and AAdvantage Laundry commercial parts supplier
-  - Invoice/Quote Generator: PDF generation with customer info, labor, parts, tax calculations (jsPDF)
-  - Backend protection: Explicit isLocked flags, sanitized search queries, null requiredParts/partsWithPricing for lower tiers
+- **Calculator & Formula Ecosystem:** Over 80 unique formulas and algorithms for valuation, financial analysis, and operations.
+- **Service Guy AI:** A protected diagnostic field tool for laundromat equipment repair with tiered subscriptions, voice input, photo diagnosis via Gemini Vision AI, job tracking, parts ordering, and invoice/quote generation.
+- **Unified Operator Dashboard:** Command center for laundromat operations with KPI cards, revenue charts, machine status, quick actions, activity feed, and schedule.
+- **Machine Booking System:** Time-slot reservation system with customer booking flow, real-time availability, Stripe payment, and operator management.
+- **QR Code Generator:** Reusable component for loyalty cards, coupons, tracking URLs, and custom text with WashBizHub branding.
+- **POS Suite:** Complete point-of-sale system with transaction register, WDF pricing calculator, cash drawer, daily summary, customer lookup, and shift management.
 
 ### System Design Choices
 - **Data Storage:** PostgreSQL (Neon Serverless) with Drizzle ORM.
@@ -139,7 +88,7 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **Perplexity:** Fact-based article generation.
 - **Grok:** Trending topic content.
 
-### UI Component Library
+### UI Component Libraries
 - **Radix UI:** Accessible, unstyled primitives.
 - **Lucide React:** Icon library.
 - **React Konva:** Canvas-based 2D design studio.
@@ -147,30 +96,12 @@ The frontend uses Vite, TanStack Query, and PWA support. The backend is Node.js/
 - **React Hook Form + Zod:** Form validation.
 - **@vis.gl/react-google-maps:** Google Maps integration.
 
-### LegalDisclaimer Component (`client/src/components/LegalDisclaimer.tsx`)
-Reusable legal disclaimer component for legal protection across the platform. Available types:
-- **service:** Equipment repair/maintenance warnings (Service Guy AI, repair tools)
-- **calculator:** Informational-only disclaimers (ROI, Loan, Utility, Labor calculators)
-- **valuation:** Professional appraisal required (Valuation Calculator)
-- **investment:** Financial advisor consultation (CLEANBI Explorer, ROI Calculator)
-- **general:** Neutral platform disclaimer (default)
-
-**Convenience Components:**
-- `<ServiceDisclaimer />` - For service/repair pages
-- `<CalculatorDisclaimer />` - For calculator pages
-- `<ValuationDisclaimer />` - For valuation tools
-- `<InvestmentDisclaimer />` - For investment analysis tools
-
-**Usage:** Import from `@/components/LegalDisclaimer` and place at bottom of relevant pages.
-
-**Note:** CLEANBI Explorer has a separate product-specific disclaimer in `client/src/components/cleanbi-explorer/legal-disclaimer.tsx`.
-
 ### Third-Party Integrations
 - **Amazon Affiliate Program:** Product Advertising API 5.0.
 - **ATTOM Data:** Real estate and demographic data.
-- **US Census Bureau:** Demographic data (ACS 5-Year).
+- **US Census Bureau:** Demographic data.
 - **Mapbox:** Location mapping and analysis.
 - **Resend/SendGrid:** Email services.
 - **Twilio:** Two-way SMS for route optimization.
-- **Google APIs:** Maps (JavaScript, Places, Geocoding, Distance Matrix, etc.), AI/ML (Vision AI, Natural Language, Speech-to-Text), Data (Solar API, Air Quality), Workspace (Sheets, Docs, Drive), Analytics (GA4, Search Console), Indexing API.
+- **Google APIs:** Maps (JavaScript, Places, Geocoding, Distance Matrix), AI/ML (Vision AI, Natural Language, Speech-to-Text), Data (Solar API, Air Quality), Workspace (Sheets, Docs, Drive), Analytics (GA4, Search Console), Indexing API.
 - **IndexNow:** Search engine indexing (Bing, Yahoo, Yandex, DuckDuckGo).
