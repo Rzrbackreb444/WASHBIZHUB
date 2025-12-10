@@ -23,7 +23,7 @@ import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema, websiteAssets, savedSearches } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema, websiteAssets, savedSearches, repairTickets, insertRepairTicketSchema, maintenancePlans, insertMaintenancePlanSchema, machineAssets, insertMachineAssetSchema, laundromats, partsCatalog, inventoryItems, inventoryUsage, purchaseOrders, insertPartsCatalogSchema, insertInventoryItemSchema, insertInventoryUsageSchema, insertPurchaseOrderSchema } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -15836,6 +15836,470 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ========== REPAIR TICKETS ROUTES ==========
+  // Create repair ticket from diagnostic result
+  app.post("/api/service-guy/repair-tickets", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const { machineId, diagnosticCodeId, title, description, priority, symptoms, machineInfo } = req.body;
+      
+      if (!title || !description) {
+        return res.status(400).json({ success: false, error: "Title and description are required" });
+      }
+
+      const ticketNumber = `RT-${Date.now().toString(36).toUpperCase()}`;
+      
+      const [newTicket] = await db.insert(repairTickets).values({
+        ticketNumber,
+        machineId: machineId || null,
+        laundromatId: machineInfo?.laundromatId || null,
+        title,
+        description,
+        priority: priority || 'medium',
+        diagnosticCode: diagnosticCodeId || null,
+        symptoms: symptoms || [],
+        status: 'open',
+        reportedBy: userId,
+        reportedAt: new Date(),
+      }).returning();
+
+      console.log(`[SERVICE-GUY] Repair ticket created: ${ticketNumber} by user ${userId}`);
+
+      res.json({ success: true, ticket: newTicket, message: "Repair ticket created successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Repair ticket creation error:", error);
+      res.status(500).json({ success: false, error: "Failed to create repair ticket" });
+    }
+  });
+
+  // Get user's repair tickets
+  app.get("/api/service-guy/repair-tickets", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const status = req.query.status as string;
+      let query = db.select().from(repairTickets).where(eq(repairTickets.reportedBy, userId));
+      
+      if (status && status !== 'all') {
+        query = db.select().from(repairTickets).where(and(eq(repairTickets.reportedBy, userId), eq(repairTickets.status, status)));
+      }
+
+      const tickets = await query.orderBy(desc(repairTickets.createdAt));
+      res.json({ success: true, tickets, count: tickets.length });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Repair tickets fetch error:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch repair tickets" });
+    }
+  });
+
+  // Update repair ticket
+  app.patch("/api/service-guy/repair-tickets/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const ticketId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingTicket] = await db.select().from(repairTickets)
+        .where(and(eq(repairTickets.id, ticketId), eq(repairTickets.reportedBy, userId)))
+        .limit(1);
+
+      if (!existingTicket) {
+        return res.status(404).json({ success: false, error: "Ticket not found" });
+      }
+
+      const updateData: any = { ...req.body, updatedAt: new Date() };
+      
+      if (req.body.status === 'completed' && existingTicket.status !== 'completed') {
+        updateData.completedAt = new Date();
+      }
+      if (req.body.status === 'in_progress' && !existingTicket.startedAt) {
+        updateData.startedAt = new Date();
+      }
+
+      const [updatedTicket] = await db.update(repairTickets)
+        .set(updateData)
+        .where(eq(repairTickets.id, ticketId))
+        .returning();
+
+      res.json({ success: true, ticket: updatedTicket, message: "Ticket updated successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Repair ticket update error:", error);
+      res.status(500).json({ success: false, error: "Failed to update repair ticket" });
+    }
+  });
+
+  // Delete repair ticket
+  app.delete("/api/service-guy/repair-tickets/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const ticketId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingTicket] = await db.select().from(repairTickets)
+        .where(and(eq(repairTickets.id, ticketId), eq(repairTickets.reportedBy, userId)))
+        .limit(1);
+
+      if (!existingTicket) {
+        return res.status(404).json({ success: false, error: "Ticket not found" });
+      }
+
+      await db.delete(repairTickets).where(eq(repairTickets.id, ticketId));
+      res.json({ success: true, message: "Ticket deleted successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Repair ticket delete error:", error);
+      res.status(500).json({ success: false, error: "Failed to delete repair ticket" });
+    }
+  });
+
+  // ========== MAINTENANCE PLANS ROUTES ==========
+  // Get maintenance plans for user's machines
+  app.get("/api/service-guy/maintenance-plans", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const plans = await db.select().from(maintenancePlans)
+        .where(eq(maintenancePlans.assignedTo, userId))
+        .orderBy(asc(maintenancePlans.nextDueDate));
+
+      res.json({ success: true, plans, count: plans.length });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Maintenance plans fetch error:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch maintenance plans" });
+    }
+  });
+
+  // Create maintenance plan
+  app.post("/api/service-guy/maintenance-plans", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const { machineId, planName, description, taskType, frequency, frequencyUnit, checklistItems, requiredParts, estimatedDuration } = req.body;
+      
+      if (!planName || !frequency || !frequencyUnit) {
+        return res.status(400).json({ success: false, error: "Plan name, frequency, and frequency unit are required" });
+      }
+
+      const nextDueDate = new Date();
+      if (frequencyUnit === 'days') {
+        nextDueDate.setDate(nextDueDate.getDate() + frequency);
+      }
+
+      const [newPlan] = await db.insert(maintenancePlans).values({
+        machineId: machineId || null,
+        planName,
+        description,
+        taskType: taskType || 'monthly',
+        frequency,
+        frequencyUnit,
+        checklistItems: checklistItems || [],
+        requiredParts: requiredParts || [],
+        estimatedDuration,
+        assignedTo: userId,
+        nextDueDate,
+        isActive: true,
+      }).returning();
+
+      console.log(`[SERVICE-GUY] Maintenance plan created: ${planName} by user ${userId}`);
+      res.json({ success: true, plan: newPlan, message: "Maintenance plan created successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Maintenance plan creation error:", error);
+      res.status(500).json({ success: false, error: "Failed to create maintenance plan" });
+    }
+  });
+
+  // Update maintenance plan
+  app.patch("/api/service-guy/maintenance-plans/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const planId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingPlan] = await db.select().from(maintenancePlans)
+        .where(and(eq(maintenancePlans.id, planId), eq(maintenancePlans.assignedTo, userId)))
+        .limit(1);
+
+      if (!existingPlan) {
+        return res.status(404).json({ success: false, error: "Maintenance plan not found" });
+      }
+
+      const updateData: any = { ...req.body, updatedAt: new Date() };
+
+      const [updatedPlan] = await db.update(maintenancePlans)
+        .set(updateData)
+        .where(eq(maintenancePlans.id, planId))
+        .returning();
+
+      res.json({ success: true, plan: updatedPlan, message: "Maintenance plan updated successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Maintenance plan update error:", error);
+      res.status(500).json({ success: false, error: "Failed to update maintenance plan" });
+    }
+  });
+
+  // Complete maintenance task (updates lastCompleted and calculates nextDue)
+  app.post("/api/service-guy/maintenance-plans/:id/complete", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const planId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingPlan] = await db.select().from(maintenancePlans)
+        .where(and(eq(maintenancePlans.id, planId), eq(maintenancePlans.assignedTo, userId)))
+        .limit(1);
+
+      if (!existingPlan) {
+        return res.status(404).json({ success: false, error: "Maintenance plan not found" });
+      }
+
+      const now = new Date();
+      const nextDueDate = new Date();
+      if (existingPlan.frequencyUnit === 'days') {
+        nextDueDate.setDate(nextDueDate.getDate() + existingPlan.frequency);
+      }
+
+      const [updatedPlan] = await db.update(maintenancePlans)
+        .set({
+          lastCompletedDate: now,
+          nextDueDate,
+          updatedAt: now,
+        })
+        .where(eq(maintenancePlans.id, planId))
+        .returning();
+
+      console.log(`[SERVICE-GUY] Maintenance completed: ${existingPlan.planName} by user ${userId}`);
+      res.json({ success: true, plan: updatedPlan, message: "Maintenance completed successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Maintenance completion error:", error);
+      res.status(500).json({ success: false, error: "Failed to complete maintenance" });
+    }
+  });
+
+  // Delete maintenance plan
+  app.delete("/api/service-guy/maintenance-plans/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const planId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingPlan] = await db.select().from(maintenancePlans)
+        .where(and(eq(maintenancePlans.id, planId), eq(maintenancePlans.assignedTo, userId)))
+        .limit(1);
+
+      if (!existingPlan) {
+        return res.status(404).json({ success: false, error: "Maintenance plan not found" });
+      }
+
+      await db.delete(maintenancePlans).where(eq(maintenancePlans.id, planId));
+      res.json({ success: true, message: "Maintenance plan deleted successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Maintenance plan delete error:", error);
+      res.status(500).json({ success: false, error: "Failed to delete maintenance plan" });
+    }
+  });
+
+  // ========== MACHINE REGISTRY ROUTES ==========
+  // Get user's machine registry
+  app.get("/api/service-guy/machines", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const userLaundromats = await db.select({ id: laundromats.id }).from(laundromats)
+        .where(eq(laundromats.userId, userId));
+      
+      const laundromatIds = userLaundromats.map(l => l.id);
+      
+      if (laundromatIds.length === 0) {
+        return res.json({ success: true, machines: [], count: 0 });
+      }
+
+      const machines = await db.select().from(machineAssets)
+        .where(inArray(machineAssets.laundromatId, laundromatIds))
+        .orderBy(asc(machineAssets.machineNumber));
+
+      res.json({ success: true, machines, count: machines.length });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Machine registry fetch error:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch machines" });
+    }
+  });
+
+  // Register new machine
+  app.post("/api/service-guy/machines", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const { laundromatId, machineNumber, machineName, machineType, manufacturer, model, serialNumber, capacity, installDate, warrantyExpiration, notes } = req.body;
+      
+      if (!machineNumber || !machineType) {
+        return res.status(400).json({ success: false, error: "Machine number and type are required" });
+      }
+
+      if (laundromatId) {
+        const [existingLaundromat] = await db.select().from(laundromats)
+          .where(and(eq(laundromats.id, laundromatId), eq(laundromats.userId, userId)))
+          .limit(1);
+        
+        if (!existingLaundromat) {
+          return res.status(403).json({ success: false, error: "Not authorized to add machines to this location" });
+        }
+      }
+
+      const [newMachine] = await db.insert(machineAssets).values({
+        laundromatId: laundromatId || null,
+        machineNumber,
+        machineName,
+        machineType,
+        manufacturer,
+        model,
+        serialNumber,
+        capacity,
+        installDate: installDate ? new Date(installDate) : null,
+        warrantyExpiration: warrantyExpiration ? new Date(warrantyExpiration) : null,
+        notes,
+        status: 'active',
+      }).returning();
+
+      console.log(`[SERVICE-GUY] Machine registered: ${machineNumber} by user ${userId}`);
+      res.json({ success: true, machine: newMachine, message: "Machine registered successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Machine registration error:", error);
+      res.status(500).json({ success: false, error: "Failed to register machine" });
+    }
+  });
+
+  // Update machine
+  app.patch("/api/service-guy/machines/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const machineId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingMachine] = await db.select().from(machineAssets)
+        .where(eq(machineAssets.id, machineId))
+        .limit(1);
+
+      if (!existingMachine) {
+        return res.status(404).json({ success: false, error: "Machine not found" });
+      }
+
+      if (existingMachine.laundromatId) {
+        const [laundromat] = await db.select().from(laundromats)
+          .where(and(eq(laundromats.id, existingMachine.laundromatId), eq(laundromats.userId, userId)))
+          .limit(1);
+        
+        if (!laundromat) {
+          return res.status(403).json({ success: false, error: "Not authorized to update this machine" });
+        }
+      }
+
+      const updateData: any = { ...req.body, updatedAt: new Date() };
+
+      const [updatedMachine] = await db.update(machineAssets)
+        .set(updateData)
+        .where(eq(machineAssets.id, machineId))
+        .returning();
+
+      res.json({ success: true, machine: updatedMachine, message: "Machine updated successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Machine update error:", error);
+      res.status(500).json({ success: false, error: "Failed to update machine" });
+    }
+  });
+
+  // Get machine repair history (linked repair tickets)
+  app.get("/api/service-guy/machines/:id/history", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const machineId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const tickets = await db.select().from(repairTickets)
+        .where(eq(repairTickets.machineId, machineId))
+        .orderBy(desc(repairTickets.createdAt));
+
+      res.json({ success: true, history: tickets, count: tickets.length });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Machine history fetch error:", error);
+      res.status(500).json({ success: false, error: "Failed to fetch machine history" });
+    }
+  });
+
+  // Delete machine
+  app.delete("/api/service-guy/machines/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id || (req.user as any)?.claims?.sub;
+      const machineId = req.params.id;
+      
+      if (!userId) {
+        return res.status(401).json({ success: false, error: "Authentication required" });
+      }
+
+      const [existingMachine] = await db.select().from(machineAssets)
+        .where(eq(machineAssets.id, machineId))
+        .limit(1);
+
+      if (!existingMachine) {
+        return res.status(404).json({ success: false, error: "Machine not found" });
+      }
+
+      if (existingMachine.laundromatId) {
+        const [laundromat] = await db.select().from(laundromats)
+          .where(and(eq(laundromats.id, existingMachine.laundromatId), eq(laundromats.userId, userId)))
+          .limit(1);
+        
+        if (!laundromat) {
+          return res.status(403).json({ success: false, error: "Not authorized to delete this machine" });
+        }
+      }
+
+      await db.delete(machineAssets).where(eq(machineAssets.id, machineId));
+      res.json({ success: true, message: "Machine deleted successfully" });
+    } catch (error: any) {
+      console.error("[SERVICE-GUY] Machine delete error:", error);
+      res.status(500).json({ success: false, error: "Failed to delete machine" });
+    }
+  });
+
   // ========== AI LISTING IMAGE ANALYZER ==========
   // Extracts listing data from broker flyer images using Gemini Vision
   const { analyzeListingImage } = await import('./listing-image-analyzer');
@@ -19765,6 +20229,564 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error tracking affiliate click:", error);
       res.status(500).json({ error: "Failed to track click" });
+    }
+  });
+
+  // ==================== PARTS ORDERING & INVENTORY MANAGEMENT API ====================
+
+  // GET /api/parts-catalog - Get all catalog parts with filtering
+  app.get("/api/parts-catalog", async (req: any, res) => {
+    try {
+      const { supplier, manufacturer, machineType, category, search, inStock } = req.query;
+      
+      let query = db.select().from(partsCatalog).where(eq(partsCatalog.isActive, true));
+      
+      const conditions: any[] = [eq(partsCatalog.isActive, true)];
+      
+      if (supplier) conditions.push(eq(partsCatalog.supplier, supplier));
+      if (manufacturer) conditions.push(eq(partsCatalog.manufacturer, manufacturer));
+      if (machineType) conditions.push(eq(partsCatalog.machineType, machineType));
+      if (category) conditions.push(eq(partsCatalog.category, category));
+      if (inStock === "true") conditions.push(eq(partsCatalog.inStock, true));
+      if (search) {
+        conditions.push(or(
+          ilike(partsCatalog.name, `%${search}%`),
+          ilike(partsCatalog.partNumber, `%${search}%`),
+          ilike(partsCatalog.description, `%${search}%`)
+        ));
+      }
+
+      const catalog = await db.select().from(partsCatalog).where(and(...conditions)).orderBy(desc(partsCatalog.createdAt));
+      
+      res.json(catalog);
+    } catch (error: any) {
+      console.error("Error fetching parts catalog:", error);
+      res.status(500).json({ error: "Failed to fetch parts catalog" });
+    }
+  });
+
+  // POST /api/parts-catalog - Add part to catalog (admin only)
+  app.post("/api/parts-catalog", isAuthenticated, async (req: any, res) => {
+    try {
+      const data = insertPartsCatalogSchema.parse(req.body);
+      const [part] = await db.insert(partsCatalog).values(data).returning();
+      res.status(201).json(part);
+    } catch (error: any) {
+      console.error("Error creating catalog part:", error);
+      res.status(500).json({ error: "Failed to create catalog part" });
+    }
+  });
+
+  // PATCH /api/parts-catalog/:id - Update catalog part
+  app.patch("/api/parts-catalog/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const [updated] = await db.update(partsCatalog)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(partsCatalog.id, id))
+        .returning();
+      if (!updated) return res.status(404).json({ error: "Part not found" });
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating catalog part:", error);
+      res.status(500).json({ error: "Failed to update catalog part" });
+    }
+  });
+
+  // DELETE /api/parts-catalog/:id - Soft delete catalog part
+  app.delete("/api/parts-catalog/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      await db.update(partsCatalog).set({ isActive: false }).where(eq(partsCatalog.id, id));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting catalog part:", error);
+      res.status(500).json({ error: "Failed to delete catalog part" });
+    }
+  });
+
+  // GET /api/inventory - Get user's inventory items with optional filters
+  app.get("/api/inventory", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { locationId, category, lowStock, search } = req.query;
+      
+      const conditions: any[] = [eq(inventoryItems.userId, user.userId)];
+      
+      if (locationId) conditions.push(eq(inventoryItems.locationId, locationId));
+      if (category) conditions.push(eq(inventoryItems.category, category));
+      if (search) {
+        conditions.push(or(
+          ilike(inventoryItems.name, `%${search}%`),
+          ilike(inventoryItems.partNumber, `%${search}%`)
+        ));
+      }
+
+      let items = await db.select().from(inventoryItems).where(and(...conditions)).orderBy(desc(inventoryItems.updatedAt));
+      
+      // Filter low stock items in JS (quantity <= reorderPoint)
+      if (lowStock === "true") {
+        items = items.filter(item => item.quantity <= item.reorderPoint);
+      }
+      
+      res.json(items);
+    } catch (error: any) {
+      console.error("Error fetching inventory:", error);
+      res.status(500).json({ error: "Failed to fetch inventory" });
+    }
+  });
+
+  // GET /api/inventory/alerts - Get low stock alerts
+  app.get("/api/inventory/alerts", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const items = await db.select().from(inventoryItems).where(eq(inventoryItems.userId, user.userId));
+      const alerts = items.filter(item => item.quantity <= item.reorderPoint);
+      
+      res.json(alerts);
+    } catch (error: any) {
+      console.error("Error fetching inventory alerts:", error);
+      res.status(500).json({ error: "Failed to fetch inventory alerts" });
+    }
+  });
+
+  // POST /api/inventory - Add inventory item
+  app.post("/api/inventory", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const data = insertInventoryItemSchema.parse({ ...req.body, userId: user.userId });
+      const [item] = await db.insert(inventoryItems).values(data).returning();
+      res.status(201).json(item);
+    } catch (error: any) {
+      console.error("Error creating inventory item:", error);
+      res.status(500).json({ error: "Failed to create inventory item" });
+    }
+  });
+
+  // PATCH /api/inventory/:id - Update inventory item
+  app.patch("/api/inventory/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const [item] = await db.select().from(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, user.userId))).limit(1);
+      if (!item) return res.status(404).json({ error: "Item not found" });
+
+      const [updated] = await db.update(inventoryItems)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(inventoryItems.id, id))
+        .returning();
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating inventory item:", error);
+      res.status(500).json({ error: "Failed to update inventory item" });
+    }
+  });
+
+  // DELETE /api/inventory/:id - Delete inventory item
+  app.delete("/api/inventory/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      await db.delete(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, user.userId)));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting inventory item:", error);
+      res.status(500).json({ error: "Failed to delete inventory item" });
+    }
+  });
+
+  // POST /api/inventory/:id/use - Record inventory usage
+  app.post("/api/inventory/:id/use", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const { quantityUsed, usageType, repairTicketId, machineId, machineName, notes } = req.body;
+
+      // Get current inventory item
+      const [item] = await db.select().from(inventoryItems).where(and(eq(inventoryItems.id, id), eq(inventoryItems.userId, user.userId))).limit(1);
+      if (!item) return res.status(404).json({ error: "Item not found" });
+
+      // Record usage
+      const [usage] = await db.insert(inventoryUsage).values({
+        userId: user.userId,
+        inventoryItemId: id,
+        quantityUsed,
+        usageType: usageType || "repair",
+        repairTicketId,
+        machineId,
+        machineName,
+        notes,
+      }).returning();
+
+      // Update inventory quantity
+      const newQty = Math.max(0, item.quantity - quantityUsed);
+      await db.update(inventoryItems)
+        .set({ quantity: newQty, lastUsedDate: new Date(), updatedAt: new Date() })
+        .where(eq(inventoryItems.id, id));
+
+      res.json({ usage, newQuantity: newQty });
+    } catch (error: any) {
+      console.error("Error recording inventory usage:", error);
+      res.status(500).json({ error: "Failed to record usage" });
+    }
+  });
+
+  // GET /api/inventory/:id/usage - Get usage history for an item
+  app.get("/api/inventory/:id/usage", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const history = await db.select().from(inventoryUsage)
+        .where(and(eq(inventoryUsage.inventoryItemId, id), eq(inventoryUsage.userId, user.userId)))
+        .orderBy(desc(inventoryUsage.usedAt));
+      
+      res.json(history);
+    } catch (error: any) {
+      console.error("Error fetching usage history:", error);
+      res.status(500).json({ error: "Failed to fetch usage history" });
+    }
+  });
+
+  // GET /api/purchase-orders - Get user's purchase orders
+  app.get("/api/purchase-orders", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { status, supplier } = req.query;
+      
+      const conditions: any[] = [eq(purchaseOrders.userId, user.userId)];
+      if (status) conditions.push(eq(purchaseOrders.status, status));
+      if (supplier) conditions.push(eq(purchaseOrders.supplierName, supplier));
+
+      const orders = await db.select().from(purchaseOrders)
+        .where(and(...conditions))
+        .orderBy(desc(purchaseOrders.createdAt));
+      
+      res.json(orders);
+    } catch (error: any) {
+      console.error("Error fetching purchase orders:", error);
+      res.status(500).json({ error: "Failed to fetch purchase orders" });
+    }
+  });
+
+  // GET /api/purchase-orders/:id - Get specific purchase order
+  app.get("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const [order] = await db.select().from(purchaseOrders)
+        .where(and(eq(purchaseOrders.id, id), eq(purchaseOrders.userId, user.userId)))
+        .limit(1);
+      
+      if (!order) return res.status(404).json({ error: "Order not found" });
+      res.json(order);
+    } catch (error: any) {
+      console.error("Error fetching purchase order:", error);
+      res.status(500).json({ error: "Failed to fetch purchase order" });
+    }
+  });
+
+  // POST /api/purchase-orders - Create purchase order
+  app.post("/api/purchase-orders", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      // Generate PO number
+      const timestamp = Date.now().toString(36).toUpperCase();
+      const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+      const poNumber = `PO-${timestamp}-${random}`;
+
+      const data = insertPurchaseOrderSchema.parse({
+        ...req.body,
+        userId: user.userId,
+        poNumber,
+      });
+
+      const [order] = await db.insert(purchaseOrders).values(data).returning();
+      res.status(201).json(order);
+    } catch (error: any) {
+      console.error("Error creating purchase order:", error);
+      res.status(500).json({ error: "Failed to create purchase order" });
+    }
+  });
+
+  // PATCH /api/purchase-orders/:id - Update purchase order
+  app.patch("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const [order] = await db.select().from(purchaseOrders)
+        .where(and(eq(purchaseOrders.id, id), eq(purchaseOrders.userId, user.userId)))
+        .limit(1);
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      const [updated] = await db.update(purchaseOrders)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(purchaseOrders.id, id))
+        .returning();
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating purchase order:", error);
+      res.status(500).json({ error: "Failed to update purchase order" });
+    }
+  });
+
+  // POST /api/purchase-orders/:id/receive - Mark items as received
+  app.post("/api/purchase-orders/:id/receive", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const { items: receivedItems, updateInventory } = req.body;
+
+      const [order] = await db.select().from(purchaseOrders)
+        .where(and(eq(purchaseOrders.id, id), eq(purchaseOrders.userId, user.userId)))
+        .limit(1);
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      // Update received quantities
+      const orderItems = order.items as any[];
+      let allReceived = true;
+      let anyReceived = false;
+
+      for (const ri of receivedItems) {
+        const idx = orderItems.findIndex((i: any) => i.partNumber === ri.partNumber);
+        if (idx >= 0) {
+          orderItems[idx].receivedQty = (orderItems[idx].receivedQty || 0) + ri.quantity;
+          if (orderItems[idx].receivedQty < orderItems[idx].quantity) allReceived = false;
+          if (orderItems[idx].receivedQty > 0) anyReceived = true;
+
+          // Optionally update inventory
+          if (updateInventory) {
+            const existingItems = await db.select().from(inventoryItems)
+              .where(and(
+                eq(inventoryItems.userId, user.userId),
+                eq(inventoryItems.partNumber, ri.partNumber)
+              ));
+            
+            if (existingItems.length > 0) {
+              // Update existing inventory
+              const existing = existingItems[0];
+              await db.update(inventoryItems)
+                .set({ 
+                  quantity: existing.quantity + ri.quantity,
+                  lastPurchasePrice: orderItems[idx].unitPrice?.toString(),
+                  updatedAt: new Date()
+                })
+                .where(eq(inventoryItems.id, existing.id));
+            } else {
+              // Create new inventory item
+              await db.insert(inventoryItems).values({
+                userId: user.userId,
+                partNumber: ri.partNumber,
+                name: orderItems[idx].name,
+                quantity: ri.quantity,
+                unitCost: orderItems[idx].unitPrice?.toString() || "0",
+                supplier: order.supplierName,
+                locationId: order.locationId,
+                locationName: order.locationName,
+              });
+            }
+          }
+        }
+      }
+
+      const newStatus = allReceived ? "received" : (anyReceived ? "partial" : order.status);
+
+      const [updated] = await db.update(purchaseOrders)
+        .set({ 
+          items: orderItems,
+          status: newStatus,
+          receivedDate: allReceived ? new Date() : order.receivedDate,
+          updatedAt: new Date()
+        })
+        .where(eq(purchaseOrders.id, id))
+        .returning();
+
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error receiving purchase order:", error);
+      res.status(500).json({ error: "Failed to receive purchase order" });
+    }
+  });
+
+  // DELETE /api/purchase-orders/:id - Cancel/delete purchase order
+  app.delete("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { id } = req.params;
+      const [order] = await db.select().from(purchaseOrders)
+        .where(and(eq(purchaseOrders.id, id), eq(purchaseOrders.userId, user.userId)))
+        .limit(1);
+      if (!order) return res.status(404).json({ error: "Order not found" });
+
+      if (order.status === "received") {
+        return res.status(400).json({ error: "Cannot delete received orders" });
+      }
+
+      await db.update(purchaseOrders)
+        .set({ status: "cancelled", updatedAt: new Date() })
+        .where(eq(purchaseOrders.id, id));
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting purchase order:", error);
+      res.status(500).json({ error: "Failed to delete purchase order" });
+    }
+  });
+
+  // GET /api/inventory/reports/spend - Parts spend by period
+  app.get("/api/inventory/reports/spend", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const { startDate, endDate } = req.query;
+      
+      const conditions: any[] = [
+        eq(purchaseOrders.userId, user.userId),
+        eq(purchaseOrders.status, "received")
+      ];
+
+      if (startDate) conditions.push(gte(purchaseOrders.orderDate, new Date(startDate as string)));
+
+      const orders = await db.select().from(purchaseOrders).where(and(...conditions));
+      
+      const totalSpend = orders.reduce((sum, o) => sum + parseFloat(o.totalCost || "0"), 0);
+      const bySupplier: Record<string, number> = {};
+      
+      for (const order of orders) {
+        bySupplier[order.supplierName] = (bySupplier[order.supplierName] || 0) + parseFloat(order.totalCost || "0");
+      }
+
+      res.json({ totalSpend, bySupplier, orderCount: orders.length });
+    } catch (error: any) {
+      console.error("Error fetching spend report:", error);
+      res.status(500).json({ error: "Failed to fetch spend report" });
+    }
+  });
+
+  // GET /api/inventory/reports/most-used - Most used parts
+  app.get("/api/inventory/reports/most-used", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const usage = await db.select().from(inventoryUsage)
+        .where(eq(inventoryUsage.userId, user.userId))
+        .orderBy(desc(inventoryUsage.usedAt));
+
+      const byPart: Record<string, { itemId: string; totalUsed: number; usageCount: number }> = {};
+      
+      for (const u of usage) {
+        if (!byPart[u.inventoryItemId]) {
+          byPart[u.inventoryItemId] = { itemId: u.inventoryItemId, totalUsed: 0, usageCount: 0 };
+        }
+        byPart[u.inventoryItemId].totalUsed += u.quantityUsed;
+        byPart[u.inventoryItemId].usageCount += 1;
+      }
+
+      // Get item names
+      const itemIds = Object.keys(byPart);
+      if (itemIds.length > 0) {
+        const items = await db.select().from(inventoryItems).where(inArray(inventoryItems.id, itemIds));
+        const itemMap = new Map(items.map(i => [i.id, i]));
+        
+        const result = Object.values(byPart)
+          .map(p => ({ ...p, item: itemMap.get(p.itemId) }))
+          .sort((a, b) => b.totalUsed - a.totalUsed)
+          .slice(0, 20);
+        
+        return res.json(result);
+      }
+
+      res.json([]);
+    } catch (error: any) {
+      console.error("Error fetching most used parts:", error);
+      res.status(500).json({ error: "Failed to fetch most used parts" });
+    }
+  });
+
+  // GET /api/inventory/reports/valuation - Inventory valuation
+  app.get("/api/inventory/reports/valuation", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const items = await db.select().from(inventoryItems).where(eq(inventoryItems.userId, user.userId));
+      
+      let totalValue = 0;
+      const byLocation: Record<string, number> = {};
+      const byCategory: Record<string, number> = {};
+
+      for (const item of items) {
+        const itemValue = item.quantity * parseFloat(item.unitCost || "0");
+        totalValue += itemValue;
+        
+        const loc = item.locationName || "Main Warehouse";
+        byLocation[loc] = (byLocation[loc] || 0) + itemValue;
+        
+        const cat = item.category || "Uncategorized";
+        byCategory[cat] = (byCategory[cat] || 0) + itemValue;
+      }
+
+      res.json({ totalValue, byLocation, byCategory, itemCount: items.length });
+    } catch (error: any) {
+      console.error("Error fetching valuation report:", error);
+      res.status(500).json({ error: "Failed to fetch valuation report" });
+    }
+  });
+
+  // GET /api/inventory/suppliers - Get unique suppliers from catalog
+  app.get("/api/inventory/suppliers", async (_req: any, res) => {
+    try {
+      const items = await db.select({ supplier: partsCatalog.supplier })
+        .from(partsCatalog)
+        .where(eq(partsCatalog.isActive, true));
+      
+      const suppliers = [...new Set(items.map(i => i.supplier))].filter(Boolean);
+      res.json(suppliers);
+    } catch (error: any) {
+      console.error("Error fetching suppliers:", error);
+      res.status(500).json({ error: "Failed to fetch suppliers" });
+    }
+  });
+
+  // GET /api/inventory/manufacturers - Get unique manufacturers from catalog
+  app.get("/api/inventory/manufacturers", async (_req: any, res) => {
+    try {
+      const items = await db.select({ manufacturer: partsCatalog.manufacturer })
+        .from(partsCatalog)
+        .where(eq(partsCatalog.isActive, true));
+      
+      const manufacturers = [...new Set(items.map(i => i.manufacturer))].filter(Boolean);
+      res.json(manufacturers);
+    } catch (error: any) {
+      console.error("Error fetching manufacturers:", error);
+      res.status(500).json({ error: "Failed to fetch manufacturers" });
     }
   });
 

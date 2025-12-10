@@ -450,6 +450,678 @@ function AIDiagnoseSkeleton() {
   );
 }
 
+interface RepairTicket {
+  id: string;
+  ticketNumber: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  diagnosticCode?: string;
+  machineId?: string;
+  createdAt: string;
+  completedAt?: string;
+  laborHours?: string;
+  totalCost?: string;
+}
+
+interface MaintenancePlan {
+  id: string;
+  planName: string;
+  description?: string;
+  taskType: string;
+  frequency: number;
+  frequencyUnit: string;
+  nextDueDate?: string;
+  lastCompletedDate?: string;
+  isActive: boolean;
+  machineId?: string;
+}
+
+interface Machine {
+  id: string;
+  machineNumber: string;
+  machineName?: string;
+  machineType: string;
+  manufacturer?: string;
+  model?: string;
+  serialNumber?: string;
+  status: string;
+  warrantyExpiration?: string;
+  installDate?: string;
+  totalCycles?: number;
+}
+
+function RepairTicketsTab() {
+  const { toast } = useToast();
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newTicket, setNewTicket] = useState({
+    title: "",
+    description: "",
+    priority: "medium",
+    diagnosticCode: "",
+  });
+
+  const { data: ticketsData, isLoading, refetch } = useQuery<{ success: boolean; tickets: RepairTicket[] }>({
+    queryKey: ['/api/service-guy/repair-tickets', statusFilter],
+  });
+
+  const createTicketMutation = useMutation({
+    mutationFn: async (data: typeof newTicket) => {
+      return apiRequest("POST", "/api/service-guy/repair-tickets", data);
+    },
+    onSuccess: () => {
+      toast({ title: "Ticket Created", description: "Repair ticket created successfully" });
+      setShowCreateForm(false);
+      setNewTicket({ title: "", description: "", priority: "medium", diagnosticCode: "" });
+      refetch();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create ticket", variant: "destructive" });
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      return apiRequest("PATCH", `/api/service-guy/repair-tickets/${id}`, { status });
+    },
+    onSuccess: () => {
+      toast({ title: "Status Updated", description: "Ticket status updated" });
+      refetch();
+    },
+  });
+
+  const tickets = ticketsData?.tickets || [];
+
+  const getStatusBadge = (status: string) => {
+    const colors: Record<string, string> = {
+      open: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      parts_ordered: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    const colors: Record<string, string> = {
+      low: "border-gray-300 text-gray-600",
+      medium: "border-yellow-400 text-yellow-700",
+      high: "border-orange-400 text-orange-700",
+      critical: "border-red-500 text-red-700",
+    };
+    return colors[priority] || "border-gray-300 text-gray-600";
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          Repair Tickets
+        </CardTitle>
+        <CardDescription>Create and manage repair tickets from diagnostic results</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm">Status:</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40" data-testid="select-ticket-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Tickets</SelectItem>
+                <SelectItem value="open">Open</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="parts_ordered">Parts Ordered</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={() => setShowCreateForm(!showCreateForm)} data-testid="button-create-ticket">
+            <Plus className="w-4 h-4 mr-2" />
+            New Ticket
+          </Button>
+        </div>
+
+        {showCreateForm && (
+          <Card className="bg-muted/30">
+            <CardContent className="pt-4 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={newTicket.title}
+                    onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })}
+                    placeholder="Brief issue description"
+                    data-testid="input-ticket-title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select value={newTicket.priority} onValueChange={(v) => setNewTicket({ ...newTicket, priority: v })}>
+                    <SelectTrigger data-testid="select-ticket-priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newTicket.description}
+                  onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                  placeholder="Detailed description of the issue..."
+                  rows={3}
+                  data-testid="input-ticket-description"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Diagnostic Code (optional)</Label>
+                <Input
+                  value={newTicket.diagnosticCode}
+                  onChange={(e) => setNewTicket({ ...newTicket, diagnosticCode: e.target.value })}
+                  placeholder="E.g., E03, F21"
+                  data-testid="input-ticket-diagnostic-code"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => createTicketMutation.mutate(newTicket)}
+                  disabled={!newTicket.title || !newTicket.description || createTicketMutation.isPending}
+                  data-testid="button-submit-ticket"
+                >
+                  {createTicketMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Create Ticket
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreateForm(false)} data-testid="button-cancel-ticket">
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}><CardContent className="p-4"><Skeleton className="h-20" /></CardContent></Card>
+            ))}
+          </div>
+        ) : tickets.length === 0 ? (
+          <div className="text-center py-8">
+            <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <p className="text-muted-foreground">No repair tickets found</p>
+            <p className="text-sm text-muted-foreground mt-1">Create a ticket from a diagnostic result or manually</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {tickets.map((ticket) => (
+              <Card key={ticket.id} data-testid={`card-ticket-${ticket.id}`}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-sm text-muted-foreground">{ticket.ticketNumber}</span>
+                        <span className="font-semibold">{ticket.title}</span>
+                        <Badge className={getStatusBadge(ticket.status)}>{ticket.status.replace("_", " ")}</Badge>
+                        <Badge variant="outline" className={getPriorityBadge(ticket.priority)}>{ticket.priority}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span>Created: {new Date(ticket.createdAt).toLocaleDateString()}</span>
+                        {ticket.diagnosticCode && <span>Code: {ticket.diagnosticCode}</span>}
+                        {ticket.laborHours && <span>Labor: {ticket.laborHours}h</span>}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 min-w-[140px]">
+                      <Select
+                        value={ticket.status}
+                        onValueChange={(status) => updateStatusMutation.mutate({ id: ticket.id, status })}
+                      >
+                        <SelectTrigger data-testid={`select-status-${ticket.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="open">Open</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="parts_ordered">Parts Ordered</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MaintenancePlansTab() {
+  const { toast } = useToast();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newPlan, setNewPlan] = useState({
+    planName: "",
+    description: "",
+    taskType: "monthly",
+    frequency: 30,
+    frequencyUnit: "days",
+  });
+
+  const { data: plansData, isLoading, refetch } = useQuery<{ success: boolean; plans: MaintenancePlan[] }>({
+    queryKey: ['/api/service-guy/maintenance-plans'],
+  });
+
+  const createPlanMutation = useMutation({
+    mutationFn: async (data: typeof newPlan) => {
+      return apiRequest("POST", "/api/service-guy/maintenance-plans", data);
+    },
+    onSuccess: () => {
+      toast({ title: "Plan Created", description: "Maintenance plan created successfully" });
+      setShowCreateForm(false);
+      setNewPlan({ planName: "", description: "", taskType: "monthly", frequency: 30, frequencyUnit: "days" });
+      refetch();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to create maintenance plan", variant: "destructive" });
+    },
+  });
+
+  const completeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("POST", `/api/service-guy/maintenance-plans/${id}/complete`, {});
+    },
+    onSuccess: () => {
+      toast({ title: "Completed", description: "Maintenance marked as completed" });
+      refetch();
+    },
+  });
+
+  const plans = plansData?.plans || [];
+  const overduePlans = plans.filter((p) => p.nextDueDate && new Date(p.nextDueDate) < new Date());
+  const upcomingPlans = plans.filter((p) => p.nextDueDate && new Date(p.nextDueDate) >= new Date());
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="w-5 h-5" />
+          Maintenance Plans
+        </CardTitle>
+        <CardDescription>Manage preventive maintenance schedules for your equipment</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            {overduePlans.length > 0 && (
+              <Badge variant="destructive" data-testid="badge-overdue-count">
+                {overduePlans.length} Overdue
+              </Badge>
+            )}
+            <span className="text-sm text-muted-foreground">{plans.length} total plans</span>
+          </div>
+          <Button onClick={() => setShowCreateForm(!showCreateForm)} data-testid="button-create-plan">
+            <Plus className="w-4 h-4 mr-2" />
+            New Plan
+          </Button>
+        </div>
+
+        {showCreateForm && (
+          <Card className="bg-muted/30">
+            <CardContent className="pt-4 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Plan Name</Label>
+                  <Input
+                    value={newPlan.planName}
+                    onChange={(e) => setNewPlan({ ...newPlan, planName: e.target.value })}
+                    placeholder="E.g., Monthly Belt Inspection"
+                    data-testid="input-plan-name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Task Type</Label>
+                  <Select value={newPlan.taskType} onValueChange={(v) => setNewPlan({ ...newPlan, taskType: v })}>
+                    <SelectTrigger data-testid="select-task-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="annual">Annual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={newPlan.description}
+                  onChange={(e) => setNewPlan({ ...newPlan, description: e.target.value })}
+                  placeholder="Maintenance tasks to perform..."
+                  rows={2}
+                  data-testid="input-plan-description"
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Frequency (days)</Label>
+                  <Input
+                    type="number"
+                    value={newPlan.frequency}
+                    onChange={(e) => setNewPlan({ ...newPlan, frequency: parseInt(e.target.value) || 30 })}
+                    data-testid="input-plan-frequency"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => createPlanMutation.mutate(newPlan)}
+                  disabled={!newPlan.planName || createPlanMutation.isPending}
+                  data-testid="button-submit-plan"
+                >
+                  {createPlanMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Create Plan
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i}><CardContent className="p-4"><Skeleton className="h-16" /></CardContent></Card>
+            ))}
+          </div>
+        ) : plans.length === 0 ? (
+          <div className="text-center py-8">
+            <Settings className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <p className="text-muted-foreground">No maintenance plans yet</p>
+            <p className="text-sm text-muted-foreground mt-1">Create a plan to track preventive maintenance</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {overduePlans.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Overdue
+                </h4>
+                {overduePlans.map((plan) => (
+                  <Card key={plan.id} className="border-red-200" data-testid={`card-plan-${plan.id}`}>
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{plan.planName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Due: {plan.nextDueDate ? new Date(plan.nextDueDate).toLocaleDateString() : "N/A"}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => completeMutation.mutate(plan.id)}
+                        disabled={completeMutation.isPending}
+                        data-testid={`button-complete-${plan.id}`}
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Complete
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+            {upcomingPlans.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-semibold text-muted-foreground">Upcoming</h4>
+                {upcomingPlans.map((plan) => (
+                  <Card key={plan.id} data-testid={`card-plan-${plan.id}`}>
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold">{plan.planName}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>Next: {plan.nextDueDate ? new Date(plan.nextDueDate).toLocaleDateString() : "N/A"}</span>
+                          <Badge variant="outline">{plan.taskType}</Badge>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => completeMutation.mutate(plan.id)}
+                        disabled={completeMutation.isPending}
+                        data-testid={`button-complete-${plan.id}`}
+                      >
+                        Mark Done
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function MachineRegistryTab() {
+  const { toast } = useToast();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newMachine, setNewMachine] = useState({
+    machineNumber: "",
+    machineName: "",
+    machineType: "washer",
+    manufacturer: "",
+    model: "",
+    serialNumber: "",
+  });
+
+  const { data: machinesData, isLoading, refetch } = useQuery<{ success: boolean; machines: Machine[] }>({
+    queryKey: ['/api/service-guy/machines'],
+  });
+
+  const createMachineMutation = useMutation({
+    mutationFn: async (data: typeof newMachine) => {
+      return apiRequest("POST", "/api/service-guy/machines", data);
+    },
+    onSuccess: () => {
+      toast({ title: "Machine Registered", description: "Equipment added to registry" });
+      setShowCreateForm(false);
+      setNewMachine({ machineNumber: "", machineName: "", machineType: "washer", manufacturer: "", model: "", serialNumber: "" });
+      refetch();
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to register machine", variant: "destructive" });
+    },
+  });
+
+  const machines = machinesData?.machines || [];
+  const washers = machines.filter((m) => m.machineType === "washer");
+  const dryers = machines.filter((m) => m.machineType === "dryer");
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      maintenance: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      offline: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      retired: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Package className="w-5 h-5" />
+          Machine Registry
+        </CardTitle>
+        <CardDescription>Register and track your laundromat equipment</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span>{washers.length} Washers</span>
+            <span>{dryers.length} Dryers</span>
+            <span>{machines.length} Total</span>
+          </div>
+          <Button onClick={() => setShowCreateForm(!showCreateForm)} data-testid="button-register-machine">
+            <Plus className="w-4 h-4 mr-2" />
+            Register Machine
+          </Button>
+        </div>
+
+        {showCreateForm && (
+          <Card className="bg-muted/30">
+            <CardContent className="pt-4 space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Machine Number</Label>
+                  <Input
+                    value={newMachine.machineNumber}
+                    onChange={(e) => setNewMachine({ ...newMachine, machineNumber: e.target.value })}
+                    placeholder="E.g., W-1, D-3"
+                    data-testid="input-machine-number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Machine Type</Label>
+                  <Select value={newMachine.machineType} onValueChange={(v) => setNewMachine({ ...newMachine, machineType: v })}>
+                    <SelectTrigger data-testid="select-machine-type-register">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="washer">Washer</SelectItem>
+                      <SelectItem value="dryer">Dryer</SelectItem>
+                      <SelectItem value="combo">Combo</SelectItem>
+                      <SelectItem value="folder">Folder</SelectItem>
+                      <SelectItem value="press">Press</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Manufacturer</Label>
+                  <Input
+                    value={newMachine.manufacturer}
+                    onChange={(e) => setNewMachine({ ...newMachine, manufacturer: e.target.value })}
+                    placeholder="E.g., Speed Queen"
+                    data-testid="input-machine-manufacturer"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Model</Label>
+                  <Input
+                    value={newMachine.model}
+                    onChange={(e) => setNewMachine({ ...newMachine, model: e.target.value })}
+                    placeholder="Model number"
+                    data-testid="input-machine-model"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Serial Number</Label>
+                  <Input
+                    value={newMachine.serialNumber}
+                    onChange={(e) => setNewMachine({ ...newMachine, serialNumber: e.target.value })}
+                    placeholder="Serial number"
+                    data-testid="input-machine-serial"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Name (optional)</Label>
+                  <Input
+                    value={newMachine.machineName}
+                    onChange={(e) => setNewMachine({ ...newMachine, machineName: e.target.value })}
+                    placeholder="Friendly name"
+                    data-testid="input-machine-name"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => createMachineMutation.mutate(newMachine)}
+                  disabled={!newMachine.machineNumber || !newMachine.machineType || createMachineMutation.isPending}
+                  data-testid="button-submit-machine"
+                >
+                  {createMachineMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Register
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {isLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}><CardContent className="p-4"><Skeleton className="h-24" /></CardContent></Card>
+            ))}
+          </div>
+        ) : machines.length === 0 ? (
+          <div className="text-center py-8">
+            <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <p className="text-muted-foreground">No machines registered</p>
+            <p className="text-sm text-muted-foreground mt-1">Register your equipment to track repairs and maintenance</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {machines.map((machine) => (
+              <Card key={machine.id} data-testid={`card-machine-${machine.id}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg">{machine.machineNumber}</span>
+                        <Badge className={getStatusColor(machine.status)}>{machine.status}</Badge>
+                      </div>
+                      {machine.machineName && <p className="text-sm text-muted-foreground">{machine.machineName}</p>}
+                    </div>
+                    <Badge variant="outline">{machine.machineType}</Badge>
+                  </div>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    {machine.manufacturer && <p>{machine.manufacturer} {machine.model}</p>}
+                    {machine.serialNumber && <p className="font-mono text-xs">S/N: {machine.serialNumber}</p>}
+                    {machine.warrantyExpiration && (
+                      <p className={new Date(machine.warrantyExpiration) < new Date() ? "text-red-500" : ""}>
+                        Warranty: {new Date(machine.warrantyExpiration).toLocaleDateString()}
+                      </p>
+                    )}
+                    {machine.totalCycles !== undefined && machine.totalCycles > 0 && (
+                      <p>{machine.totalCycles.toLocaleString()} cycles</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ServiceGuyAI() {
   const { toast } = useToast();
   
@@ -1424,28 +2096,43 @@ export default function ServiceGuyAI() {
 
         <Tabs defaultValue="error-codes" className="space-y-6">
           <ScrollArea className="w-full">
-            <TabsList className="inline-flex w-full min-w-max sm:grid sm:grid-cols-5">
-              <TabsTrigger value="error-codes" className="flex items-center gap-2 min-h-[44px]">
+            <TabsList className="inline-flex w-full min-w-max">
+              <TabsTrigger value="error-codes" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-error-codes">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="hidden sm:inline">Error Codes</span>
                 <span className="sm:hidden">Codes</span>
               </TabsTrigger>
-              <TabsTrigger value="ai-diagnose" className="flex items-center gap-2 min-h-[44px]">
+              <TabsTrigger value="ai-diagnose" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-ai-diagnose">
                 <Zap className="w-4 h-4" />
                 <span className="hidden sm:inline">AI Diagnose</span>
                 <span className="sm:hidden">AI</span>
+              </TabsTrigger>
+              <TabsTrigger value="repair-tickets" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-repair-tickets">
+                <FileText className="w-4 h-4" />
+                <span className="hidden sm:inline">Repair Tickets</span>
+                <span className="sm:hidden">Tickets</span>
+              </TabsTrigger>
+              <TabsTrigger value="maintenance" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-maintenance">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Maintenance</span>
+                <span className="sm:hidden">Maint</span>
+              </TabsTrigger>
+              <TabsTrigger value="machines" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-machines">
+                <Package className="w-4 h-4" />
+                <span className="hidden sm:inline">Machines</span>
+                <span className="sm:hidden">Equip</span>
               </TabsTrigger>
               <TabsTrigger value="my-jobs" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-my-jobs">
                 <Briefcase className="w-4 h-4" />
                 <span className="hidden sm:inline">My Jobs</span>
                 <span className="sm:hidden">Jobs</span>
               </TabsTrigger>
-              <TabsTrigger value="manuals" className="flex items-center gap-2 min-h-[44px]">
+              <TabsTrigger value="manuals" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-manuals">
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">Manuals</span>
                 <span className="sm:hidden">Docs</span>
               </TabsTrigger>
-              <TabsTrigger value="technicians" className="flex items-center gap-2 min-h-[44px]">
+              <TabsTrigger value="technicians" className="flex items-center gap-2 min-h-[44px]" data-testid="tab-technicians">
                 <Users className="w-4 h-4" />
                 <span className="hidden sm:inline">Technicians</span>
                 <span className="sm:hidden">Techs</span>
@@ -2048,6 +2735,18 @@ export default function ServiceGuyAI() {
                 </p>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="repair-tickets" className="space-y-6">
+            <RepairTicketsTab />
+          </TabsContent>
+
+          <TabsContent value="maintenance" className="space-y-6">
+            <MaintenancePlansTab />
+          </TabsContent>
+
+          <TabsContent value="machines" className="space-y-6">
+            <MachineRegistryTab />
           </TabsContent>
 
           <TabsContent value="my-jobs" className="space-y-6">
