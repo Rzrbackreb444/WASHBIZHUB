@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import WdfPricingCalculator, { type CalculationResult } from "@/components/pos/WdfPricingCalculator";
+import WdfSubscriptionManager from "@/components/pos/WdfSubscriptionManager";
+import WdfPricingConfig from "@/components/pos/WdfPricingConfig";
 import {
   ShoppingCart,
   Users,
@@ -54,6 +57,8 @@ import {
   Printer,
   X,
   ChevronRight,
+  Settings,
+  Package,
 } from "lucide-react";
 import {
   LineChart,
@@ -401,10 +406,18 @@ export default function PosSuite() {
 
         <div className="max-w-7xl mx-auto px-4 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full max-w-lg grid-cols-4 mb-6">
+            <TabsList className="grid w-full max-w-4xl grid-cols-7 mb-6">
               <TabsTrigger value="register" data-testid="tab-register">
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 Register
+              </TabsTrigger>
+              <TabsTrigger value="wdf-pricing" data-testid="tab-wdf-pricing">
+                <Scale className="h-4 w-4 mr-2" />
+                WDF Pricing
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" data-testid="tab-subscriptions">
+                <Package className="h-4 w-4 mr-2" />
+                Subscriptions
               </TabsTrigger>
               <TabsTrigger value="drawer" data-testid="tab-drawer">
                 <Banknote className="h-4 w-4 mr-2" />
@@ -417,6 +430,10 @@ export default function PosSuite() {
               <TabsTrigger value="customers" data-testid="tab-customers">
                 <Users className="h-4 w-4 mr-2" />
                 Customers
+              </TabsTrigger>
+              <TabsTrigger value="settings" data-testid="tab-settings">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </TabsTrigger>
             </TabsList>
 
@@ -1107,6 +1124,124 @@ export default function PosSuite() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="wdf-pricing" className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <WdfPricingCalculator 
+                  onAddToCart={(result: CalculationResult) => {
+                    const newItem = {
+                      id: `wdf-${Date.now()}`,
+                      serviceId: "wash_dry_fold",
+                      name: `Wash & Fold (${result.weight} lbs)`,
+                      quantity: 1,
+                      weight: result.weight,
+                      unitPrice: result.subtotal / result.weight,
+                      unit: "lb",
+                      subtotal: result.total,
+                    };
+                    setCart(prev => [...prev, newItem]);
+                    setActiveTab("register");
+                    toast({ title: "Added to cart", description: `WDF order for ${result.weight} lbs added` });
+                  }}
+                />
+                
+                <Card className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-[#C8A661]" />
+                      </div>
+                      <div>
+                        <span className="text-lg font-bold">Pricing Insights</span>
+                        <p className="text-sm text-muted-foreground font-normal">Volume discount effectiveness</p>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-muted/50 rounded-lg p-4 text-center">
+                        <p className="text-2xl font-bold text-[#C8A661]" data-testid="text-avg-order-weight">18.5</p>
+                        <p className="text-xs text-muted-foreground">Avg Order Weight (lbs)</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-4 text-center">
+                        <p className="text-2xl font-bold text-green-600" data-testid="text-discount-orders">42%</p>
+                        <p className="text-xs text-muted-foreground">Orders with Discounts</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-4 text-center">
+                        <p className="text-2xl font-bold text-[#C8A661]" data-testid="text-effective-rate">$1.72</p>
+                        <p className="text-xs text-muted-foreground">Effective Rate/lb</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-4 text-center">
+                        <p className="text-2xl font-bold text-blue-600" data-testid="text-express-orders">15%</p>
+                        <p className="text-xs text-muted-foreground">Express Service</p>
+                      </div>
+                    </div>
+                    
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-3">Weight Distribution</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>0-10 lbs</span>
+                            <span className="font-medium">35%</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-[#C8A661] rounded-full" style={{ width: '35%' }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>11-25 lbs</span>
+                            <span className="font-medium">45%</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-[#C8A661] rounded-full" style={{ width: '45%' }} />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>26+ lbs</span>
+                            <span className="font-medium">20%</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-[#C8A661] rounded-full" style={{ width: '20%' }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold mb-3">Popular Add-ons</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Stain Treatment</span>
+                          <span className="font-medium text-green-600">+28%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Fabric Softener</span>
+                          <span className="font-medium text-green-600">+62%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Premium Folding</span>
+                          <span className="font-medium text-green-600">+18%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="subscriptions" className="space-y-6">
+              <WdfSubscriptionManager 
+                customerId={selectedCustomer?.id}
+              />
+            </TabsContent>
+
+            <TabsContent value="settings" className="space-y-6">
+              <WdfPricingConfig />
             </TabsContent>
           </Tabs>
         </div>

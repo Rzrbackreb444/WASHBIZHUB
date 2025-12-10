@@ -6248,6 +6248,159 @@ export const insertScaleCalibrationSchema = createInsertSchema(scaleCalibrations
 export type InsertScaleCalibration = z.infer<typeof insertScaleCalibrationSchema>;
 export type ScaleCalibration = typeof scaleCalibrations.$inferSelect;
 
+// WDF Pricing Tiers - Tiered per-pound pricing with weight breaks
+export const wdfPricingTiers = pgTable("wdf_pricing_tiers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Tier Configuration
+  tierName: text("tier_name").notNull(), // "Standard", "Bulk", "Commercial"
+  minWeight: decimal("min_weight", { precision: 10, scale: 2 }).notNull(), // e.g., 0, 10, 25
+  maxWeight: decimal("max_weight", { precision: 10, scale: 2 }), // null = unlimited
+  pricePerPound: decimal("price_per_pound", { precision: 10, scale: 2 }).notNull(),
+  
+  // Service Type
+  serviceType: text("service_type").notNull().default("regular"), // "regular", "same_day", "express", "premium"
+  serviceMultiplier: decimal("service_multiplier", { precision: 10, scale: 2 }).default("1.00"), // 1.0 = no change, 1.5 = 50% more
+  
+  // Display
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("wdf_pricing_tiers_laundromat_idx").on(table.laundromatId),
+  serviceTypeIdx: index("wdf_pricing_tiers_service_type_idx").on(table.serviceType),
+  activeIdx: index("wdf_pricing_tiers_active_idx").on(table.isActive),
+}));
+
+export const insertWdfPricingTierSchema = createInsertSchema(wdfPricingTiers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertWdfPricingTier = z.infer<typeof insertWdfPricingTierSchema>;
+export type WdfPricingTier = typeof wdfPricingTiers.$inferSelect;
+
+// WDF Add-on Services - Optional services with pricing
+export const wdfAddons = pgTable("wdf_addons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  
+  // Add-on Details
+  addonName: text("addon_name").notNull(), // "Stain Treatment", "Hang Dry", "Fabric Softener"
+  addonType: text("addon_type").notNull(), // "per_pound", "flat_fee", "per_item"
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  
+  // Display
+  description: text("description"),
+  icon: text("icon"), // Lucide icon name
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("wdf_addons_laundromat_idx").on(table.laundromatId),
+  activeIdx: index("wdf_addons_active_idx").on(table.isActive),
+}));
+
+export const insertWdfAddonSchema = createInsertSchema(wdfAddons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertWdfAddon = z.infer<typeof insertWdfAddonSchema>;
+export type WdfAddon = typeof wdfAddons.$inferSelect;
+
+// WDF Subscriptions - Customer subscription plans with pound allocations
+export const wdfSubscriptions = pgTable("wdf_subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id).notNull(),
+  customerId: varchar("customer_id").references(() => users.id),
+  householdAccountId: varchar("household_account_id").references(() => householdAccounts.id),
+  
+  // Plan Details
+  planName: text("plan_name").notNull(), // "Weekly Wash", "Monthly Bundle", "Family Plan"
+  planType: text("plan_type").notNull(), // "weekly", "monthly"
+  
+  // Pound Allocation
+  poundAllocation: integer("pound_allocation").notNull(), // e.g., 20, 40, 80 lbs
+  usedPounds: decimal("used_pounds", { precision: 10, scale: 2 }).default("0"),
+  rolloverPounds: decimal("rollover_pounds", { precision: 10, scale: 2 }).default("0"),
+  maxRollover: integer("max_rollover").default(20), // Max pounds that can roll over
+  
+  // Pricing
+  subscriptionPrice: decimal("subscription_price", { precision: 10, scale: 2 }).notNull(),
+  overageRate: decimal("overage_rate", { precision: 10, scale: 2 }).notNull(), // Price per pound over allocation
+  
+  // Billing
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  nextBillingDate: timestamp("next_billing_date"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "paused", "cancelled", "past_due"
+  pausedAt: timestamp("paused_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  pauseReason: text("pause_reason"),
+  
+  // Service Preferences
+  serviceType: text("service_type").default("regular"), // "regular", "same_day", "express"
+  preferredPickupDay: text("preferred_pickup_day"), // "monday", "wednesday", etc.
+  preferredDeliveryDay: text("preferred_delivery_day"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("wdf_subscriptions_laundromat_idx").on(table.laundromatId),
+  customerIdx: index("wdf_subscriptions_customer_idx").on(table.customerId),
+  statusIdx: index("wdf_subscriptions_status_idx").on(table.status),
+  periodEndIdx: index("wdf_subscriptions_period_end_idx").on(table.currentPeriodEnd),
+}));
+
+export const insertWdfSubscriptionSchema = createInsertSchema(wdfSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertWdfSubscription = z.infer<typeof insertWdfSubscriptionSchema>;
+export type WdfSubscription = typeof wdfSubscriptions.$inferSelect;
+
+// WDF Subscription Usage - Track pound usage per period
+export const wdfSubscriptionUsage = pgTable("wdf_subscription_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subscriptionId: varchar("subscription_id").references(() => wdfSubscriptions.id).notNull(),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id),
+  
+  // Usage Details
+  poundsUsed: decimal("pounds_used", { precision: 10, scale: 2 }).notNull(),
+  isOverage: boolean("is_overage").default(false),
+  overageAmount: decimal("overage_amount", { precision: 10, scale: 2 }),
+  
+  // Period
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  subscriptionIdx: index("wdf_subscription_usage_subscription_idx").on(table.subscriptionId),
+  periodIdx: index("wdf_subscription_usage_period_idx").on(table.periodStart, table.periodEnd),
+}));
+
+export const insertWdfSubscriptionUsageSchema = createInsertSchema(wdfSubscriptionUsage).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertWdfSubscriptionUsage = z.infer<typeof insertWdfSubscriptionUsageSchema>;
+export type WdfSubscriptionUsage = typeof wdfSubscriptionUsage.$inferSelect;
+
 // ============================================================================
 // IOT & MACHINE MONITORING
 // ============================================================================
@@ -15767,6 +15920,142 @@ export const purchaseOrderItemSchema = z.object({
 });
 
 export type PurchaseOrderItem = z.infer<typeof purchaseOrderItemSchema>;
+
+// ============================================================================
+// ROUTE OPTIMIZATION - Pickup & Delivery (PUD) Operations
+// ============================================================================
+
+// Delivery Routes - Daily routes for drivers
+export const deliveryRoutes = pgTable("delivery_routes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  driverId: varchar("driver_id").references(() => users.id, { onDelete: "set null" }),
+  driverName: varchar("driver_name", { length: 200 }),
+  driverPhone: varchar("driver_phone", { length: 50 }),
+  driverPhotoUrl: text("driver_photo_url"),
+  vehicleDescription: varchar("vehicle_description", { length: 200 }), // "White Honda Civic"
+  locationSharingActive: boolean("location_sharing_active").default(false),
+  currentDriverLat: decimal("current_driver_lat", { precision: 10, scale: 7 }),
+  currentDriverLng: decimal("current_driver_lng", { precision: 10, scale: 7 }),
+  lastDriverLocationUpdate: timestamp("last_driver_location_update"),
+  
+  routeDate: timestamp("route_date").notNull(),
+  routeName: varchar("route_name", { length: 200 }),
+  
+  status: varchar("status", { length: 30 }).notNull().default("draft"), // "draft", "scheduled", "in_progress", "completed", "cancelled"
+  
+  optimizedPath: jsonb("optimized_path"), // Array of coordinates for polyline rendering
+  optimizedOrder: jsonb("optimized_order"), // Array of stop IDs in optimal order
+  
+  startAddress: text("start_address"),
+  startLat: decimal("start_lat", { precision: 10, scale: 7 }),
+  startLng: decimal("start_lng", { precision: 10, scale: 7 }),
+  
+  endAddress: text("end_address"),
+  endLat: decimal("end_lat", { precision: 10, scale: 7 }),
+  endLng: decimal("end_lng", { precision: 10, scale: 7 }),
+  
+  totalDistance: decimal("total_distance", { precision: 10, scale: 2 }), // in miles
+  totalDuration: integer("total_duration"), // in minutes
+  
+  startTime: timestamp("start_time"),
+  endTime: timestamp("end_time"),
+  actualStartTime: timestamp("actual_start_time"),
+  actualEndTime: timestamp("actual_end_time"),
+  
+  vehicleInfo: jsonb("vehicle_info"), // {plateNumber, model, capacity}
+  
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("delivery_routes_user_id_idx").on(table.userId),
+  driverIdIdx: index("delivery_routes_driver_id_idx").on(table.driverId),
+  routeDateIdx: index("delivery_routes_route_date_idx").on(table.routeDate),
+  statusIdx: index("delivery_routes_status_idx").on(table.status),
+}));
+
+export const insertDeliveryRouteSchema = createInsertSchema(deliveryRoutes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DeliveryRoute = typeof deliveryRoutes.$inferSelect;
+export type InsertDeliveryRoute = z.infer<typeof insertDeliveryRouteSchema>;
+
+// Delivery Stops - Individual stops on a route
+export const deliveryStops = pgTable("delivery_stops", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  routeId: varchar("route_id").notNull().references(() => deliveryRoutes.id, { onDelete: "cascade" }),
+  
+  customerId: varchar("customer_id"),
+  customerName: varchar("customer_name", { length: 200 }).notNull(),
+  customerPhone: varchar("customer_phone", { length: 50 }),
+  customerEmail: varchar("customer_email", { length: 200 }),
+  
+  address: text("address").notNull(),
+  addressLine2: varchar("address_line_2", { length: 200 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  
+  serviceType: varchar("service_type", { length: 30 }).notNull().default("both"), // "pickup", "delivery", "both"
+  
+  timeWindowStart: varchar("time_window_start", { length: 10 }), // "09:00"
+  timeWindowEnd: varchar("time_window_end", { length: 10 }), // "12:00"
+  
+  estimatedServiceTime: integer("estimated_service_time").default(10), // in minutes
+  estimatedArrival: timestamp("estimated_arrival"),
+  
+  sequence: integer("sequence").notNull().default(0),
+  
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // "pending", "en_route", "arrived", "completed", "failed", "skipped"
+  
+  completedAt: timestamp("completed_at"),
+  arrivedAt: timestamp("arrived_at"),
+  
+  signatureUrl: text("signature_url"),
+  photoProofUrls: jsonb("photo_proof_urls"), // Array of photo URLs
+  
+  specialInstructions: text("special_instructions"),
+  notes: text("notes"),
+  completionNotes: text("completion_notes"),
+  
+  itemCount: integer("item_count").default(0), // Number of items to pickup/deliver
+  itemWeight: decimal("item_weight", { precision: 8, scale: 2 }), // Weight in lbs
+  
+  // Live Tracking Fields
+  trackingToken: varchar("tracking_token", { length: 64 }).unique(), // Unique token for public tracking URL
+  driverLocation: jsonb("driver_location"), // {lat, lng, heading, speed, updatedAt}
+  locationSharingEnabled: boolean("location_sharing_enabled").default(true),
+  etaMinutes: integer("eta_minutes"), // Estimated time of arrival in minutes
+  lastLocationUpdate: timestamp("last_location_update"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  routeIdIdx: index("delivery_stops_route_id_idx").on(table.routeId),
+  customerIdIdx: index("delivery_stops_customer_id_idx").on(table.customerId),
+  sequenceIdx: index("delivery_stops_sequence_idx").on(table.routeId, table.sequence),
+  statusIdx: index("delivery_stops_status_idx").on(table.status),
+  trackingTokenIdx: uniqueIndex("delivery_stops_tracking_token_idx").on(table.trackingToken),
+}));
+
+export const insertDeliveryStopSchema = createInsertSchema(deliveryStops).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DeliveryStop = typeof deliveryStops.$inferSelect;
+export type InsertDeliveryStop = z.infer<typeof insertDeliveryStopSchema>;
 
 // ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features

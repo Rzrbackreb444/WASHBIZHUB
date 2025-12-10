@@ -19,6 +19,8 @@ import ownerAnalyticsRoutes from "./owner-analytics-routes";
 import { registerSitemapRoutes } from "./sitemap-routes";
 import { registerEngagementRoutes } from "./engagement-routes";
 import seoCommandCenterRoutes from "./seo-command-center";
+import routeOptimizationRoutes from "./routes/route-optimization";
+import driverTrackingRoutes from "./routes/driver-tracking";
 import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -461,6 +463,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/cleanbi/reports", cleanbiReportsRoutes);
   app.use("/api/expansion-planner", expansionPlannerRoutes);
   app.use("/api/bulk-analysis", bulkAnalysisRoutes);
+  app.use("/api/route-optimization", routeOptimizationRoutes);
+  app.use("/api/driver-tracking", driverTrackingRoutes);
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
