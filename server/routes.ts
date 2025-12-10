@@ -9893,6 +9893,157 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
+  // GET /api/members/following - Get users the current user is following
+  app.get("/api/members/following", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Get users the current user is following
+      const following = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          role: users.role,
+          companyName: users.companyName,
+          headline: memberProfiles.headline,
+          location: memberProfiles.location,
+          specialties: memberProfiles.specialties,
+          services: memberProfiles.services,
+          yearsInIndustry: memberProfiles.yearsInIndustry,
+          badges: memberProfiles.badges,
+          isOpenToNetwork: memberProfiles.isOpenToNetwork,
+        })
+        .from(userConnections)
+        .innerJoin(users, eq(users.id, userConnections.followingId))
+        .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+        .where(and(
+          eq(userConnections.followerId, userId),
+          eq(userConnections.status, "active")
+        ))
+        .limit(limit)
+        .offset(offset);
+
+      // Get total count
+      const countQuery = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followerId, userId),
+          eq(userConnections.status, "active")
+        ));
+
+      const total = countQuery[0]?.count || 0;
+
+      res.json({ members: following, total });
+    } catch (error: any) {
+      console.error("Error getting following:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/members/followers - Get users following the current user
+  app.get("/api/members/followers", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Get users who are following the current user
+      const followers = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          role: users.role,
+          companyName: users.companyName,
+          headline: memberProfiles.headline,
+          location: memberProfiles.location,
+          specialties: memberProfiles.specialties,
+          services: memberProfiles.services,
+          yearsInIndustry: memberProfiles.yearsInIndustry,
+          badges: memberProfiles.badges,
+          isOpenToNetwork: memberProfiles.isOpenToNetwork,
+        })
+        .from(userConnections)
+        .innerJoin(users, eq(users.id, userConnections.followerId))
+        .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+        .where(and(
+          eq(userConnections.followingId, userId),
+          eq(userConnections.status, "active")
+        ))
+        .limit(limit)
+        .offset(offset);
+
+      // Get total count
+      const countQuery = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(userConnections)
+        .where(and(
+          eq(userConnections.followingId, userId),
+          eq(userConnections.status, "active")
+        ));
+
+      const total = countQuery[0]?.count || 0;
+
+      res.json({ members: followers, total });
+    } catch (error: any) {
+      console.error("Error getting followers:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/members/profile/me - Get current user's member profile
+  app.get("/api/members/profile/me", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+
+      const [profile] = await db
+        .select()
+        .from(memberProfiles)
+        .where(eq(memberProfiles.userId, userId))
+        .limit(1);
+
+      if (!profile) {
+        // Return default profile structure if none exists
+        return res.json({
+          id: null,
+          userId: userId,
+          headline: null,
+          specialties: null,
+          services: null,
+          yearsInIndustry: null,
+          websiteUrl: null,
+          linkedinUrl: null,
+          facebookUrl: null,
+          location: null,
+          isOpenToNetwork: true,
+          isAvailableForConsulting: false,
+          showEmail: false,
+          showPhone: false,
+        });
+      }
+
+      res.json(profile);
+    } catch (error: any) {
+      console.error("Error getting own profile:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // GET /api/activity-feed - Get activity feed from followed users
   app.get("/api/activity-feed", async (req, res) => {
     if (!req.isAuthenticated()) {

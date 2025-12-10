@@ -165,6 +165,13 @@ const ForumCategory = lazy(() => import("@/pages/forum-category"));
 const ForumTopic = lazy(() => import("@/pages/forum-topic"));
 const ForumNewTopic = lazy(() => import("@/pages/forum-new-topic"));
 
+// Messages / Direct Messaging
+const Messages = lazy(() => import("@/pages/messages"));
+
+// Network / Community
+const Network = lazy(() => import("@/pages/network"));
+const Activity = lazy(() => import("@/pages/activity"));
+
 // SRA (Stroke Recovery App) Pages
 const SRAHome = lazy(() => import("@/pages/sra/home"));
 const SRAPricing = lazy(() => import("@/pages/sra/pricing"));
@@ -1364,6 +1371,30 @@ function Router() {
       <Route path="/forum/topic/:slug">
         <Suspense fallback={<LoadingFallback />}>
           <ForumTopic />
+        </Suspense>
+      </Route>
+
+      {/* Direct Messages */}
+      <Route path="/messages">
+        <Suspense fallback={<LoadingFallback />}>
+          <Messages />
+        </Suspense>
+      </Route>
+      <Route path="/messages/:conversationId">
+        <Suspense fallback={<LoadingFallback />}>
+          <Messages />
+        </Suspense>
+      </Route>
+
+      {/* Network / Community */}
+      <Route path="/network">
+        <Suspense fallback={<LoadingFallback />}>
+          <Network />
+        </Suspense>
+      </Route>
+      <Route path="/activity">
+        <Suspense fallback={<LoadingFallback />}>
+          <Activity />
         </Suspense>
       </Route>
 
