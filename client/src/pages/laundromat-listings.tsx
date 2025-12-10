@@ -226,10 +226,10 @@ export default function LaundromatListings() {
         ]}
       />
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 overflow-x-hidden">
         {/* Hero Header */}
         <div className="border-b border-white/10 bg-black/20">
-          <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
@@ -240,10 +240,10 @@ export default function LaundromatListings() {
                     {listings.length} Active Listings
                   </Badge>
                 </div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
                   Deal Flow Dashboard
                 </h1>
-                <p className="text-white/60 text-lg">
+                <p className="text-white/60 text-base sm:text-lg">
                   Verified laundromats for sale with CLEANBI™ intelligence scoring
                 </p>
               </div>
@@ -268,8 +268,8 @@ export default function LaundromatListings() {
 
         {/* Featured Listings Carousel - Select Premium Listings */}
         {carouselData.length > 0 && (
-          <div className="border-b border-white/10 bg-black/10 py-8">
-            <div className="max-w-7xl mx-auto px-6">
+          <div className="border-b border-white/10 bg-black/10 py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Crown className="w-6 h-6 text-[#C8A661]" />
@@ -287,7 +287,7 @@ export default function LaundromatListings() {
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           {/* All Listings Header */}
           <div className="flex items-center gap-3 mb-6">
             <Store className="w-5 h-5 text-white/60" />
@@ -302,17 +302,17 @@ export default function LaundromatListings() {
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
               <Input
-                placeholder="Search by city, state, or address..."
+                placeholder="Search city, state..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                className="pl-12 h-10 sm:h-12 bg-white/5 border-white/10 text-white placeholder:text-white/40 text-sm sm:text-base"
                 data-testid="input-listings-search"
               />
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <Select value={selectedState} onValueChange={setSelectedState}>
-                <SelectTrigger className="w-32 h-12 bg-white/5 border-white/10 text-white" data-testid="select-state">
+                <SelectTrigger className="w-24 sm:w-32 h-10 sm:h-12 bg-white/5 border-white/10 text-white text-sm sm:text-base" data-testid="select-state">
                   <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent>
@@ -324,7 +324,7 @@ export default function LaundromatListings() {
               </Select>
 
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-40 h-12 bg-white/5 border-white/10 text-white" data-testid="select-sort">
+                <SelectTrigger className="w-32 sm:w-40 h-10 sm:h-12 bg-white/5 border-white/10 text-white text-sm sm:text-base" data-testid="select-sort">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -440,7 +440,7 @@ export default function LaundromatListings() {
           </div>
 
           {/* Listings Grid */}
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {filteredListings.map((listing) => (
               <Card
                 key={listing.id}
