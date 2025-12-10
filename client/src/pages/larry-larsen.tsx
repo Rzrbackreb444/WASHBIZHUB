@@ -2,13 +2,16 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SEO } from "@/components/SEO";
 import { 
   Award, MessageCircle, Phone, Mail, MapPin,
   Star, Calendar, FileSearch, Handshake, PenTool, FileSignature,
-  Wrench, ShieldCheck, Scale, TrendingUp
+  Wrench, ShieldCheck, Scale, TrendingUp, Shield
 } from "lucide-react";
+import larryLarsenPhoto from "@assets/image_1765341641648.png";
+
+const CONSULT_EMAIL = "consult@washbizhub.com";
 
 const services = [
   {
@@ -37,9 +40,9 @@ const services = [
     icon: Wrench
   },
   {
-    title: "Insurance Education",
-    description: "Understand coverage needs and find the right policies",
-    icon: ShieldCheck
+    title: "Laundromat Insurance",
+    description: "Complete insurance solutions - property, liability, equipment, and business interruption coverage",
+    icon: Shield
   },
   {
     title: "Expert Witness",
@@ -89,6 +92,7 @@ export default function LarryLarsen() {
               {/* Avatar */}
               <div className="flex-shrink-0 text-center">
                 <Avatar className="w-44 h-44 md:w-52 md:h-52 mx-auto shadow-2xl shadow-amber-500/20 border-4 border-amber-500/30">
+                  <AvatarImage src={larryLarsenPhoto} alt="Larry 'Laundromat Larry' Larsen" className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 text-6xl md:text-7xl font-bold text-white">
                     LL
                   </AvatarFallback>
@@ -125,19 +129,23 @@ export default function LarryLarsen() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Link href="/consultation">
-                    <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold px-8" data-testid="button-book-consultation">
-                      <Calendar className="w-5 h-5 mr-2" />
-                      Book Free Consultation
+                  <Link href="/ai-consultation-council">
+                    <Button size="lg" className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-bold px-8" data-testid="button-ai-consultation">
+                      <MessageCircle className="w-5 h-5 mr-2" />
+                      AI Consultation Council
                     </Button>
                   </Link>
-                  <a href="mailto:larry@washbizhub.com">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto px-8" data-testid="button-email-larry">
+                  <a href={`mailto:${CONSULT_EMAIL}?subject=${encodeURIComponent("Laundromat Consulting Inquiry - Larry Larsen")}&body=${encodeURIComponent("Hi,\n\nI'd like to schedule a consultation with Larry Larsen regarding:\n\n[ ] Due Diligence\n[ ] Store Design\n[ ] Laundromat Insurance\n[ ] Equipment Evaluation\n[ ] Lease Analysis\n[ ] Acquisition Consulting\n[ ] Other: ___________\n\nPlease contact me at your earliest convenience.\n\nThank you!")}`}>
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto px-8" data-testid="button-email-consult">
                       <Mail className="w-5 h-5 mr-2" />
-                      Email Larry
+                      Request Consultation
                     </Button>
                   </a>
                 </div>
+                
+                <p className="text-sm text-muted-foreground mt-4">
+                  <span className="text-amber-500">Tip:</span> Try our AI Consultation Council for instant expert advice, or request a personal consultation with Larry for complex matters.
+                </p>
               </div>
             </div>
           </div>
@@ -149,17 +157,17 @@ export default function LarryLarsen() {
             <div className="flex flex-wrap justify-center gap-8 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4 text-amber-500" />
-                <span>Orange County, California</span>
+                <span>Orange County, California (Serving Nationwide)</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="w-4 h-4 text-amber-500" />
-                <a href="mailto:larry@washbizhub.com" className="hover:text-foreground transition-colors">
-                  larry@washbizhub.com
+                <a href={`mailto:${CONSULT_EMAIL}`} className="hover:text-foreground transition-colors">
+                  {CONSULT_EMAIL}
                 </a>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Phone className="w-4 h-4 text-amber-500" />
-                <span>By Appointment</span>
+                <Award className="w-4 h-4 text-amber-500" />
+                <span>DRE License #49460</span>
               </div>
             </div>
           </div>

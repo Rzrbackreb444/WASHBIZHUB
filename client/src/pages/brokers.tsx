@@ -19,25 +19,27 @@ import type { BrokerProfile } from "@shared/schema";
 const CONSULT_EMAIL = "consult@washbizhub.com";
 const BASE_URL = "https://washbizhub.com";
 
+import larryLarsenPhoto from "@assets/image_1765341641648.png";
+
 const featuredBrokers: (Partial<BrokerProfile> & { placeholder?: boolean })[] = [
   {
     id: "laundromat-larry",
     slug: "laundromat-larry",
-    companyName: "Laundromat123.com",
+    companyName: "WashBizHub Consulting",
     nickname: "Laundromat Larry",
-    phone: "714-390-9969",
-    email: "larry@laundromat123.com",
-    website: "https://laundromat123.com",
+    phone: undefined, // Contact via WashBizHub
+    email: CONSULT_EMAIL, // All inquiries go to consult@washbizhub.com
+    website: undefined, // Contact via WashBizHub
     licenseNumber: "DRE 49460",
-    bio: "Lawrence Larsen has owned and operated over fifty laundromats, designed and built more than 135 stores, and has over fifty years of experience in millions of dollars of equipment distribution throughout the country.",
-    specializations: ["Laundromat Sales", "Store Design", "Due Diligence", "Equipment Distribution", "Expert Witness"],
+    bio: "Lawrence Larsen has owned and operated over fifty laundromats, designed and built more than 135 stores, and has over fifty years of experience in millions of dollars of equipment distribution throughout the country. Expert in laundromat insurance, due diligence, and acquisitions.",
+    specializations: ["Laundromat Sales", "Store Design", "Due Diligence", "Equipment Distribution", "Laundromat Insurance", "Expert Witness", "Lease Analysis"],
     yearsExperience: 50,
-    regions: ["Southern California", "Orange County", "Los Angeles"],
+    regions: ["Southern California", "Orange County", "Los Angeles", "Nationwide"],
     totalListings: 12,
     activeListings: 3,
     soldListings: 47,
     verified: true,
-    profileImageUrl: null
+    profileImageUrl: larryLarsenPhoto
   },
 ];
 
