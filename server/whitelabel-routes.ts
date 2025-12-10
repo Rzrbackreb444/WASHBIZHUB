@@ -713,10 +713,45 @@ export function createWhiteLabelRoutes() {
           }
         }
         
-        // Default response if no match
+        // Use AI for complex questions that don't match patterns
         if (!responseText) {
-          responseText = `Thanks for your message! I'm here to help with questions about our services, hours, location, and pricing. What would you like to know?`;
-          quickReplies = ["Pricing", "Hours", "Location", "Schedule Pickup"];
+          try {
+            const OpenAI = (await import("openai")).default;
+            const openai = new OpenAI({
+              baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+              apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+            });
+            
+            const completion = await openai.chat.completions.create({
+              model: "gpt-4o-mini",
+              messages: [
+                { 
+                  role: "system", 
+                  content: `You are a friendly store assistant for ${businessName || 'a laundromat'}. Keep responses brief (2-3 sentences max).
+                  
+Store Information:
+- Phone: ${businessPhone || 'not provided'}
+- Email: ${businessEmail || 'not provided'}
+- Address: ${businessAddress || 'not provided'}
+- Hours: ${businessHours ? JSON.stringify(businessHours) : 'not provided'}
+- Services: ${services && services.length > 0 ? services.map((s: any) => s.title).join(', ') : 'wash-dry-fold, self-service'}
+${commonQuestions && commonQuestions.length > 0 ? `FAQs: ${commonQuestions.map((q: any) => `Q: ${q.question} A: ${q.answer}`).join('; ')}` : ''}
+
+Be helpful, warm, and direct. If you don't have specific information, guide them to contact the store. Never make up information.`
+                },
+                { role: "user", content: message }
+              ],
+              max_completion_tokens: 150,
+            });
+            
+            responseText = completion.choices[0]?.message?.content || 
+              `Thanks for your message! I'm here to help with questions about our services, hours, location, and pricing. What would you like to know?`;
+            quickReplies = ["Pricing", "Hours", "Location"];
+          } catch (aiError) {
+            console.error("AI fallback error:", aiError);
+            responseText = `Thanks for your message! I'm here to help with questions about our services, hours, location, and pricing. What would you like to know?`;
+            quickReplies = ["Pricing", "Hours", "Location", "Schedule Pickup"];
+          }
         }
       }
 
