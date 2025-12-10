@@ -6507,6 +6507,84 @@ export const insertTelemetryEventSchema = createInsertSchema(telemetryEvents).om
 export type InsertTelemetryEvent = z.infer<typeof insertTelemetryEventSchema>;
 export type TelemetryEvent = typeof telemetryEvents.$inferSelect;
 
+// Machine Telemetry - Real-time status tracking (current state snapshot)
+export const machineTelemetry = pgTable("machine_telemetry", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id),
+  
+  // Current Status
+  status: text("status").notNull().default("available"), // "available", "in_use", "out_of_order", "maintenance", "offline"
+  currentCycleNumber: integer("current_cycle_number").default(0),
+  totalCycleCount: integer("total_cycle_count").default(0),
+  
+  // Cycle Progress
+  cyclePhase: text("cycle_phase"), // "wash", "rinse", "spin", "dry", "cool", "complete"
+  cycleProgress: integer("cycle_progress").default(0), // 0-100 percent
+  cycleStartTime: timestamp("cycle_start_time"),
+  estimatedEndTime: timestamp("estimated_end_time"),
+  cycleType: text("cycle_type"), // "normal", "heavy", "delicate", "quick"
+  
+  // Sensor Readings
+  temperature: decimal("temperature", { precision: 6, scale: 2 }), // Celsius
+  vibration: decimal("vibration", { precision: 6, scale: 2 }), // G-force
+  waterLevel: decimal("water_level", { precision: 6, scale: 2 }), // Percentage
+  doorLocked: boolean("door_locked").default(false),
+  
+  // Error/Fault Status
+  errorCode: text("error_code"),
+  errorMessage: text("error_message"),
+  errorSeverity: text("error_severity"), // "warning", "error", "critical"
+  errorTimestamp: timestamp("error_timestamp"),
+  
+  // Revenue Tracking
+  revenueToday: decimal("revenue_today", { precision: 10, scale: 2 }).default("0.00"),
+  revenueThisWeek: decimal("revenue_this_week", { precision: 10, scale: 2 }).default("0.00"),
+  revenueThisMonth: decimal("revenue_this_month", { precision: 10, scale: 2 }).default("0.00"),
+  averageRevenuePerCycle: decimal("average_revenue_per_cycle", { precision: 6, scale: 2 }),
+  
+  // Usage Analytics
+  turnsPerDay: decimal("turns_per_day", { precision: 6, scale: 2 }).default("0.00"),
+  utilizationPercent: decimal("utilization_percent", { precision: 5, scale: 2 }).default("0.00"),
+  cyclesThisHour: integer("cycles_this_hour").default(0),
+  cyclesToday: integer("cycles_today").default(0),
+  
+  // Maintenance Tracking
+  cyclesSinceLastMaintenance: integer("cycles_since_last_maintenance").default(0),
+  recommendedMaintenanceDate: timestamp("recommended_maintenance_date"),
+  maintenanceDueInCycles: integer("maintenance_due_in_cycles"),
+  healthScore: integer("health_score").default(100), // 0-100
+  
+  // Dynamic Pricing
+  currentPrice: decimal("current_price", { precision: 6, scale: 2 }),
+  basePrice: decimal("base_price", { precision: 6, scale: 2 }),
+  priceModifier: decimal("price_modifier", { precision: 4, scale: 2 }).default("1.00"), // Multiplier
+  activePricingRule: varchar("active_pricing_rule"),
+  
+  // IoT Connection
+  lastHeartbeat: timestamp("last_heartbeat"),
+  connectionStatus: text("connection_status").default("online"), // "online", "offline", "intermittent"
+  firmwareVersion: text("firmware_version"),
+  
+  // Timestamps
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("machine_telemetry_machine_idx").on(table.machineId),
+  laundromatIdx: index("machine_telemetry_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("machine_telemetry_status_idx").on(table.status),
+  lastUpdatedIdx: index("machine_telemetry_last_updated_idx").on(table.lastUpdated),
+}));
+
+export const insertMachineTelemetrySchema = createInsertSchema(machineTelemetry).omit({
+  id: true,
+  lastUpdated: true,
+  createdAt: true,
+});
+
+export type InsertMachineTelemetry = z.infer<typeof insertMachineTelemetrySchema>;
+export type MachineTelemetry = typeof machineTelemetry.$inferSelect;
+
 // Sensor Thresholds - Alert configuration
 export const sensorThresholds = pgTable("sensor_thresholds", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -6544,6 +6622,54 @@ export const insertSensorThresholdSchema = createInsertSchema(sensorThresholds).
 
 export type InsertSensorThreshold = z.infer<typeof insertSensorThresholdSchema>;
 export type SensorThreshold = typeof sensorThresholds.$inferSelect;
+
+// Machine Alerts - Real-time alerts for machine issues
+export const machineAlerts = pgTable("machine_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  machineId: varchar("machine_id").references(() => machineAssets.id).notNull(),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id),
+  
+  // Alert Details
+  alertType: text("alert_type").notNull(), // "error", "maintenance_due", "low_supplies", "revenue_anomaly", "offline", "temperature_warning"
+  message: text("message").notNull(),
+  severity: text("severity").notNull().default("warning"), // "info", "warning", "error", "critical"
+  
+  // Error Details (if applicable)
+  errorCode: text("error_code"),
+  errorDescription: text("error_description"),
+  
+  // Resolution
+  isResolved: boolean("is_resolved").default(false).notNull(),
+  resolvedAt: timestamp("resolved_at"),
+  resolvedBy: varchar("resolved_by").references(() => users.id),
+  resolutionNotes: text("resolution_notes"),
+  
+  // Notification Status
+  notificationSent: boolean("notification_sent").default(false),
+  notifiedAt: timestamp("notified_at"),
+  
+  // Metadata
+  metadata: jsonb("metadata"), // Additional context data
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  machineIdx: index("machine_alerts_machine_idx").on(table.machineId),
+  laundromatIdx: index("machine_alerts_laundromat_idx").on(table.laundromatId),
+  alertTypeIdx: index("machine_alerts_type_idx").on(table.alertType),
+  severityIdx: index("machine_alerts_severity_idx").on(table.severity),
+  isResolvedIdx: index("machine_alerts_resolved_idx").on(table.isResolved),
+  createdAtIdx: index("machine_alerts_created_at_idx").on(table.createdAt),
+}));
+
+export const insertMachineAlertSchema = createInsertSchema(machineAlerts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMachineAlert = z.infer<typeof insertMachineAlertSchema>;
+export type MachineAlert = typeof machineAlerts.$inferSelect;
 
 // Diagnostic Codes - Equipment error codes library (2500+ codes across 60+ brands)
 export const diagnosticCodes = pgTable("diagnostic_codes", {
@@ -15393,6 +15519,9 @@ export const machineBookings = pgTable("machine_bookings", {
   bookingFee: decimal("booking_fee", { precision: 6, scale: 2 }).default("0"),
   depositPaid: decimal("deposit_paid", { precision: 6, scale: 2 }).default("0"),
   
+  // QR Token for check-in
+  qrToken: varchar("qr_token", { length: 64 }),
+  
   // Notes
   notes: text("notes"),
   
@@ -15403,6 +15532,7 @@ export const machineBookings = pgTable("machine_bookings", {
   machineIdIdx: index("machine_bookings_machine_id_idx").on(table.machineId),
   dateIdx: index("machine_bookings_date_idx").on(table.bookingDate),
   statusIdx: index("machine_bookings_status_idx").on(table.status),
+  qrTokenIdx: index("machine_bookings_qr_token_idx").on(table.qrToken),
 }));
 
 export const insertMachineBookingSchema = createInsertSchema(machineBookings).omit({
@@ -15462,6 +15592,42 @@ export const insertBookingSettingsSchema = createInsertSchema(bookingSettings).o
 
 export type BookingSettings = typeof bookingSettings.$inferSelect;
 export type InsertBookingSettings = z.infer<typeof insertBookingSettingsSchema>;
+
+// Machine time slots for blocking/availability management
+export const machineSlots = pgTable("machine_slots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  machineId: varchar("machine_id").notNull(),
+  
+  // Slot timing
+  date: timestamp("date").notNull(),
+  startTime: varchar("start_time", { length: 5 }).notNull(), // "14:00"
+  endTime: varchar("end_time", { length: 5 }).notNull(), // "15:00"
+  
+  // Blocking
+  isBlocked: boolean("is_blocked").default(false),
+  blockReason: varchar("block_reason", { length: 255 }), // "Maintenance", "Out of Order", etc.
+  
+  // Recurring blocks
+  isRecurring: boolean("is_recurring").default(false),
+  recurringDays: integer("recurring_days").array(), // [0, 1, 2, 3, 4, 5, 6] for days of week
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdIdx: index("machine_slots_user_id_idx").on(table.userId),
+  machineIdIdx: index("machine_slots_machine_id_idx").on(table.machineId),
+  dateIdx: index("machine_slots_date_idx").on(table.date),
+}));
+
+export const insertMachineSlotSchema = createInsertSchema(machineSlots).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type MachineSlot = typeof machineSlots.$inferSelect;
+export type InsertMachineSlot = z.infer<typeof insertMachineSlotSchema>;
 
 // ==================== CAMPAIGN DELIVERY LOG ====================
 
@@ -16056,6 +16222,278 @@ export const insertDeliveryStopSchema = createInsertSchema(deliveryStops).omit({
 
 export type DeliveryStop = typeof deliveryStops.$inferSelect;
 export type InsertDeliveryStop = z.infer<typeof insertDeliveryStopSchema>;
+
+// ============================================================================
+// MARKETING & LOYALTY ENGINE - Coupon & Promo System
+// ============================================================================
+
+// Coupons & Promo Codes
+export const coupons = pgTable("coupons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id, { onDelete: "cascade" }).notNull(),
+  
+  // Code Details
+  code: varchar("code", { length: 50 }).notNull(), // "SUMMER20", "FIRSTORDER"
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  
+  // Discount Type
+  discountType: varchar("discount_type", { length: 30 }).notNull(), // "percentage", "fixed_amount", "free_service", "buy_x_get_y", "points_multiplier"
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(), // 20 for 20% or $20
+  
+  // For buy-x-get-y promotions
+  buyQuantity: integer("buy_quantity"),
+  getQuantity: integer("get_quantity"),
+  applicableService: varchar("applicable_service", { length: 100 }), // Service type this applies to
+  
+  // Usage Limits
+  usageLimit: integer("usage_limit"), // Total uses allowed (null = unlimited)
+  usageLimitPerCustomer: integer("usage_limit_per_customer").default(1), // Per customer limit
+  usedCount: integer("used_count").default(0).notNull(),
+  
+  // Conditions
+  minimumOrderAmount: decimal("minimum_order_amount", { precision: 10, scale: 2 }),
+  minimumWeight: decimal("minimum_weight", { precision: 10, scale: 2 }),
+  
+  // Targeting
+  isFirstOrderOnly: boolean("is_first_order_only").default(false),
+  targetTiers: jsonb("target_tiers"), // ["Gold", "Platinum"] - only available to these tiers
+  targetCustomerIds: jsonb("target_customer_ids"), // Specific customer IDs
+  
+  // Validity
+  startsAt: timestamp("starts_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+  
+  // Status
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  // Auto-generation (for unique codes)
+  isAutoGenerated: boolean("is_auto_generated").default(false),
+  parentCouponId: varchar("parent_coupon_id"), // For auto-generated codes linked to a campaign
+  
+  // Campaign Link
+  campaignId: varchar("campaign_id"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: "set null" }),
+}, (table) => ({
+  codeIdx: uniqueIndex("coupons_code_laundromat_idx").on(table.code, table.laundromatId),
+  laundromatIdx: index("coupons_laundromat_idx").on(table.laundromatId),
+  campaignIdx: index("coupons_campaign_idx").on(table.campaignId),
+  activeIdx: index("coupons_active_idx").on(table.isActive),
+}));
+
+export const insertCouponSchema = createInsertSchema(coupons).omit({
+  id: true,
+  usedCount: true,
+  createdAt: true,
+});
+
+export type Coupon = typeof coupons.$inferSelect;
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
+
+// Coupon Redemptions - Track individual redemptions
+export const couponRedemptions = pgTable("coupon_redemptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  couponId: varchar("coupon_id").references(() => coupons.id, { onDelete: "cascade" }).notNull(),
+  customerId: varchar("customer_id").notNull(),
+  transactionId: varchar("transaction_id").references(() => posTransactions.id, { onDelete: "set null" }),
+  
+  discountApplied: decimal("discount_applied", { precision: 10, scale: 2 }).notNull(),
+  orderTotal: decimal("order_total", { precision: 10, scale: 2 }),
+  
+  redeemedAt: timestamp("redeemed_at").defaultNow().notNull(),
+}, (table) => ({
+  couponIdx: index("coupon_redemptions_coupon_idx").on(table.couponId),
+  customerIdx: index("coupon_redemptions_customer_idx").on(table.customerId),
+  redeemedAtIdx: index("coupon_redemptions_redeemed_idx").on(table.redeemedAt),
+}));
+
+export const insertCouponRedemptionSchema = createInsertSchema(couponRedemptions).omit({
+  id: true,
+  redeemedAt: true,
+});
+
+export type CouponRedemption = typeof couponRedemptions.$inferSelect;
+export type InsertCouponRedemption = z.infer<typeof insertCouponRedemptionSchema>;
+
+// Operator Marketing Campaigns - Multi-tenant campaigns for laundromats
+export const operatorCampaigns = pgTable("operator_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id, { onDelete: "cascade" }).notNull(),
+  
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  type: varchar("type", { length: 30 }).notNull(), // "email", "sms", "in_app", "push"
+  subject: varchar("subject", { length: 500 }),
+  content: text("content").notNull(),
+  contentVariantB: text("content_variant_b"),
+  abTestPercentage: integer("ab_test_percentage").default(50),
+  
+  audienceType: varchar("audience_type", { length: 50 }).notNull(),
+  audienceFilters: jsonb("audience_filters"),
+  estimatedReach: integer("estimated_reach").default(0),
+  
+  scheduleType: varchar("schedule_type", { length: 30 }).notNull().default("one_time"),
+  scheduledFor: timestamp("scheduled_for"),
+  recurringPattern: jsonb("recurring_pattern"),
+  
+  couponId: varchar("coupon_id").references(() => coupons.id, { onDelete: "set null" }),
+  status: varchar("status", { length: 30 }).notNull().default("draft"),
+  
+  totalSent: integer("total_sent").default(0).notNull(),
+  totalOpens: integer("total_opens").default(0).notNull(),
+  totalClicks: integer("total_clicks").default(0).notNull(),
+  totalConversions: integer("total_conversions").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("operator_campaigns_laundromat_idx").on(table.laundromatId),
+  statusIdx: index("operator_campaigns_status_idx").on(table.status),
+}));
+
+export const insertOperatorCampaignSchema = createInsertSchema(operatorCampaigns).omit({
+  id: true,
+  totalSent: true,
+  totalOpens: true,
+  totalClicks: true,
+  totalConversions: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type OperatorCampaign = typeof operatorCampaigns.$inferSelect;
+export type InsertOperatorCampaign = z.infer<typeof insertOperatorCampaignSchema>;
+
+// Campaign Recipients - Track individual sends
+export const campaignRecipients = pgTable("campaign_recipients", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: varchar("campaign_id").references(() => operatorCampaigns.id, { onDelete: "cascade" }).notNull(),
+  customerId: varchar("customer_id").notNull(),
+  
+  // Delivery
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  
+  // Variant Assignment
+  variant: varchar("variant", { length: 1 }).default("A"), // "A" or "B"
+  
+  // Personalized Coupon
+  personalCouponCode: varchar("personal_coupon_code", { length: 50 }),
+  
+  // Status
+  status: varchar("status", { length: 30 }).default("pending"), // "pending", "sent", "delivered", "bounced", "failed"
+  
+  // Engagement
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  convertedAt: timestamp("converted_at"),
+  conversionAmount: decimal("conversion_amount", { precision: 10, scale: 2 }),
+  
+  // Error Tracking
+  errorMessage: text("error_message"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  campaignIdx: index("campaign_recipients_campaign_idx").on(table.campaignId),
+  customerIdx: index("campaign_recipients_customer_idx").on(table.customerId),
+  statusIdx: index("campaign_recipients_status_idx").on(table.status),
+}));
+
+export const insertCampaignRecipientSchema = createInsertSchema(campaignRecipients).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type CampaignRecipient = typeof campaignRecipients.$inferSelect;
+export type InsertCampaignRecipient = z.infer<typeof insertCampaignRecipientSchema>;
+
+// Win-Back Automation Rules
+export const winBackRules = pgTable("win_back_rules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  laundromatId: varchar("laundromat_id").references(() => laundromats.id, { onDelete: "cascade" }).notNull(),
+  
+  name: varchar("name", { length: 200 }).notNull(),
+  
+  // Trigger Condition
+  daysSinceLastVisit: integer("days_since_last_visit").notNull(), // Trigger after X days of inactivity
+  
+  // Target Customers
+  minLifetimeSpend: decimal("min_lifetime_spend", { precision: 10, scale: 2 }), // Only target high-value customers
+  targetTiers: jsonb("target_tiers"), // ["Silver", "Gold", "Platinum"]
+  
+  // Action
+  actionType: varchar("action_type", { length: 30 }).notNull(), // "email", "sms", "coupon"
+  campaignTemplateId: varchar("campaign_template_id").references(() => operatorCampaigns.id, { onDelete: "set null" }),
+  couponTemplateId: varchar("coupon_template_id").references(() => coupons.id, { onDelete: "set null" }),
+  
+  // Escalation (send another if no response)
+  followUpDays: integer("follow_up_days"), // Send follow-up X days after initial
+  followUpCampaignId: varchar("follow_up_campaign_id").references(() => operatorCampaigns.id, { onDelete: "set null" }),
+  
+  // Status
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  // Stats
+  totalTriggered: integer("total_triggered").default(0).notNull(),
+  totalConverted: integer("total_converted").default(0).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  laundromatIdx: index("win_back_rules_laundromat_idx").on(table.laundromatId),
+  activeIdx: index("win_back_rules_active_idx").on(table.isActive),
+}));
+
+export const insertWinBackRuleSchema = createInsertSchema(winBackRules).omit({
+  id: true,
+  totalTriggered: true,
+  totalConverted: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type WinBackRule = typeof winBackRules.$inferSelect;
+export type InsertWinBackRule = z.infer<typeof insertWinBackRuleSchema>;
+
+// Win-Back Events - Track triggered win-back automation
+export const winBackEvents = pgTable("win_back_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ruleId: varchar("rule_id").references(() => winBackRules.id, { onDelete: "cascade" }).notNull(),
+  customerId: varchar("customer_id").notNull(),
+  
+  // Trigger
+  lastVisitDate: timestamp("last_visit_date").notNull(),
+  triggeredAt: timestamp("triggered_at").defaultNow().notNull(),
+  
+  // Action Taken
+  campaignSentId: varchar("campaign_sent_id").references(() => operatorCampaigns.id, { onDelete: "set null" }),
+  couponSentId: varchar("coupon_sent_id").references(() => coupons.id, { onDelete: "set null" }),
+  
+  // Outcome
+  status: varchar("status", { length: 30 }).default("pending"), // "pending", "sent", "opened", "converted", "expired"
+  returnVisitDate: timestamp("return_visit_date"),
+  returnTransactionId: varchar("return_transaction_id").references(() => posTransactions.id, { onDelete: "set null" }),
+  revenueRecovered: decimal("revenue_recovered", { precision: 10, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  ruleIdx: index("win_back_events_rule_idx").on(table.ruleId),
+  customerIdx: index("win_back_events_customer_idx").on(table.customerId),
+  statusIdx: index("win_back_events_status_idx").on(table.status),
+}));
+
+export const insertWinBackEventSchema = createInsertSchema(winBackEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type WinBackEvent = typeof winBackEvents.$inferSelect;
+export type InsertWinBackEvent = z.infer<typeof insertWinBackEventSchema>;
 
 // ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features

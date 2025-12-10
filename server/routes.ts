@@ -18,10 +18,12 @@ import bulkAnalysisRoutes from "./bulk-analysis-routes";
 import ownerAnalyticsRoutes from "./owner-analytics-routes";
 import { registerSitemapRoutes } from "./sitemap-routes";
 import { registerEngagementRoutes } from "./engagement-routes";
+import { registerMarketingLoyaltyRoutes } from "./marketing-loyalty-routes";
 import seoCommandCenterRoutes from "./seo-command-center";
 import routeOptimizationRoutes from "./routes/route-optimization";
 import driverTrackingRoutes from "./routes/driver-tracking";
 import profileRoutes, { activityRouter } from "./profile-routes";
+import bookingRoutes from "./booking-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -454,6 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== SEO & ENGAGEMENT ROUTES ====================
   registerSitemapRoutes(app);
   registerEngagementRoutes(app);
+  registerMarketingLoyaltyRoutes(app);
   
   // ==================== ADMIN DASHBOARD ====================
   app.use("/api/admin", adminRoutes);
@@ -484,6 +487,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== PROFILE & SOCIAL ====================
   app.use("/api/profile", profileRoutes);
+  
+  // Machine Booking System
+  app.use(bookingRoutes);
   app.use("/api/activity", activityRouter);
   
   // Get authenticated user data

@@ -28,6 +28,9 @@ import {
   laundromats,
   users,
   maintenancePlans,
+  loyaltyPrograms,
+  loyaltyBalances,
+  loyaltyLedger,
 } from "@shared/schema";
 import { z } from "zod";
 import Stripe from "stripe";
@@ -4473,12 +4476,91 @@ Format your response as JSON with these fields:
         }
       }
 
+      // Auto-award loyalty points if customer is linked
+      let loyaltyPointsAwarded = 0;
+      if (customerId && total > 0) {
+        try {
+          // Find the loyalty program for this laundromat owner
+          const [ownerLaundromat] = await db
+            .select({ userId: laundromats.userId })
+            .from(laundromats)
+            .where(eq(laundromats.id, laundromatId));
+          
+          if (ownerLaundromat?.userId) {
+            const [program] = await db
+              .select()
+              .from(loyaltyPrograms)
+              .where(and(
+                eq(loyaltyPrograms.userId, ownerLaundromat.userId),
+                eq(loyaltyPrograms.isActive, true)
+              ));
+            
+            if (program) {
+              const pointsPerDollar = parseFloat(program.pointsPerDollar?.toString() || "1");
+              const earnedPoints = Math.floor(parseFloat(total) * pointsPerDollar);
+              
+              if (earnedPoints > 0) {
+                // Get or create loyalty balance
+                let [balance] = await db
+                  .select()
+                  .from(loyaltyBalances)
+                  .where(and(
+                    eq(loyaltyBalances.programId, program.id),
+                    eq(loyaltyBalances.customerId, customerId)
+                  ));
+                
+                if (!balance) {
+                  [balance] = await db
+                    .insert(loyaltyBalances)
+                    .values({
+                      programId: program.id,
+                      customerId,
+                      currentPoints: 0,
+                      lifetimePoints: 0,
+                      lifetimeSpend: "0",
+                    })
+                    .returning();
+                }
+                
+                const newBalance = (balance?.currentPoints || 0) + earnedPoints;
+                
+                // Update balance
+                await db
+                  .update(loyaltyBalances)
+                  .set({
+                    currentPoints: newBalance,
+                    lifetimePoints: sql`${loyaltyBalances.lifetimePoints} + ${earnedPoints}`,
+                    lifetimeSpend: sql`${loyaltyBalances.lifetimeSpend} + ${total}`,
+                    lastActivityAt: new Date(),
+                  })
+                  .where(eq(loyaltyBalances.id, balance.id));
+                
+                // Create ledger entry
+                await db.insert(loyaltyLedger).values({
+                  balanceId: balance.id,
+                  transactionType: "earn",
+                  pointsChange: earnedPoints,
+                  orderId: transaction.id,
+                  description: `Earned ${earnedPoints} points from order #${transactionNumber}`,
+                  balanceAfter: newBalance,
+                });
+                
+                loyaltyPointsAwarded = earnedPoints;
+              }
+            }
+          }
+        } catch (loyaltyError) {
+          console.error("Error awarding loyalty points:", loyaltyError);
+        }
+      }
+
       res.json({
         ...transaction,
         transactionNumber,
         subtotal: parseFloat(transaction.subtotal || "0"),
         tax: parseFloat(transaction.tax || "0"),
         total: parseFloat(transaction.total || "0"),
+        loyaltyPointsAwarded,
       });
     } catch (error) {
       console.error("Error creating transaction:", error);
