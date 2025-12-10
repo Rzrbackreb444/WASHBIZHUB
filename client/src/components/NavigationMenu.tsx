@@ -32,7 +32,7 @@ import {
   BookOpen, GraduationCap, HelpCircle, Wallet,
   BarChart3, Zap, Landmark, Factory, CreditCard, 
   Briefcase, TrendingUp, PiggyBank, Receipt, Users,
-  LineChart, PieChart, Calendar
+  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 
@@ -40,42 +40,45 @@ const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
   { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "AI-powered repair assistant", featured: true },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
+  { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, desc: "Point-of-sale management" },
 ];
 
 const CALCULATORS_LINKS = [
   { href: "/calculators", label: "Calculator Suite", icon: Calculator, desc: "All professional calculators", featured: true },
-  { href: "/valuation-calculator", label: "Business Valuation", icon: DollarSign, desc: "4 valuation methods" },
-  { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, desc: "5-year projections" },
-  { href: "/loan-calculator", label: "Loan Calculator", icon: BarChart3, desc: "Amortization analysis" },
-  { href: "/utility-calculator", label: "Utility Costs", icon: Zap, desc: "UPG benchmarking" },
-  { href: "/labor-calculator", label: "Labor Costs", icon: Users, desc: "Staffing optimization" },
+  { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, desc: "4 valuation methods" },
+  { href: "/roi-calculator", label: "ROI", icon: TrendingUp, desc: "5-year projections" },
+  { href: "/loan-calculator", label: "Loan", icon: BarChart3, desc: "Amortization analysis" },
+  { href: "/utility-calculator", label: "Utility", icon: Zap, desc: "UPG benchmarking" },
+  { href: "/labor-calculator", label: "Labor", icon: Users, desc: "Staffing optimization" },
+  { href: "/tpd-calculator", label: "TPD", icon: LineChart, desc: "Turns per day analysis" },
 ];
 
 const MARKETPLACE_LINKS = [
   { href: "/equipment", label: "Equipment Hub", icon: Package, desc: "Dexter & Continental Girbau - Buy, Parts, Service", featured: true },
-  { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Sparkles, desc: "Sell your business, equipment, or services", featured: true },
+  { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Sparkles, desc: "Sell your business, equipment, or services" },
   { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings" },
+  { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Tag, desc: "Used & new equipment marketplace" },
   { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
 ];
 
 const RESOURCES_LINKS = [
   { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 72K+ owners", featured: true },
   { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice", featured: true },
-  { href: "/blog", label: "Industry Blog", icon: BookOpen, desc: "News & insights" },
-  { href: "/events", label: "Industry Events", icon: Calendar, desc: "Trade shows & conferences" },
-  { href: "/courses", label: "Education Hub", icon: GraduationCap, desc: "Courses & training" },
+  { href: "/blog", label: "Blog", icon: BookOpen, desc: "News & insights" },
+  { href: "/events", label: "Events", icon: Calendar, desc: "Trade shows & conferences" },
+  { href: "/courses", label: "Courses", icon: GraduationCap, desc: "Courses & training" },
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
+  { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, desc: "50+ years experience" },
+  { href: "/larry-larsen", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
 ];
 
 const FUNDING_LINKS = [
   { href: "/funding", label: "Funding Hub", icon: DollarSign, desc: "Compare all 7 lenders", featured: true },
   { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, desc: "No business history required" },
-  { href: "/funding?tab=acquisitions", label: "Acquisition & SBA", icon: Briefcase, desc: "10-25 year terms" },
+  { href: "/funding?tab=sba", label: "SBA Loans", icon: Briefcase, desc: "10-25 year terms" },
   { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Same-day approval" },
   { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Landmark, desc: "Up to 80% LTV" },
-  { href: "/funding?tab=fastcash", label: "Working Capital & MCA", icon: TrendingUp, desc: "Same-day funding" },
-  { href: "/funding?tab=arfinancing", label: "AR Financing", icon: Receipt, desc: "Invoice & receivables" },
-  { href: "/funding?tab=termloans", label: "Term Loans", icon: CreditCard, desc: "Fixed monthly payments" },
+  { href: "/funding?tab=fastcash", label: "Working Capital", icon: TrendingUp, desc: "Same-day funding" },
 ];
 
 interface NavLinkItem {

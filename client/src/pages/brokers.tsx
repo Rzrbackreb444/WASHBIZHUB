@@ -289,7 +289,9 @@ export default function BrokerDirectory() {
   });
 
   const allBrokers = useMemo(() => {
-    const combined = [...featuredBrokers, ...(apiBrokers || []), ...directoryBrokers];
+    // Safely handle API response - must be an array
+    const safeBrokers = Array.isArray(apiBrokers) ? apiBrokers : [];
+    const combined = [...featuredBrokers, ...safeBrokers, ...directoryBrokers];
     return combined.filter((broker, index, self) => 
       index === self.findIndex(b => b.id === broker.id)
     );
