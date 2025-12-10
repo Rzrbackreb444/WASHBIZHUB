@@ -142,7 +142,7 @@ const defaultFilters: SearchFilters = {
   lat: null,
   lng: null,
   locationSearch: "",
-  state: ""
+  state: "all"
 };
 
 function formatPrice(price: string | null | undefined): string {
@@ -652,7 +652,7 @@ function FilterSidebar({
             <SelectValue placeholder="All States" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All States</SelectItem>
+            <SelectItem value="all">All States</SelectItem>
             <SelectItem value="CA">California</SelectItem>
             <SelectItem value="TX">Texas</SelectItem>
             <SelectItem value="FL">Florida</SelectItem>
@@ -767,7 +767,7 @@ export default function BuyLaundromat() {
       params.append("lng", filters.lng.toString());
       params.append("radiusMiles", filters.radiusMiles.toString());
     }
-    if (filters.state) params.append("state", filters.state);
+    if (filters.state && filters.state !== "all") params.append("state", filters.state);
     return params.toString();
   }, [filters]);
 
@@ -816,7 +816,7 @@ export default function BuyLaundromat() {
     filters.isAttended !== null || filters.hasPickupDelivery ||
     filters.leaseYearsMin > 0 || filters.primaryCategory !== "" ||
     filters.dealType !== "" || filters.financingTags.length > 0 ||
-    filters.cleanbiGrade !== "" || filters.state !== "";
+    filters.cleanbiGrade !== "" || (filters.state !== "" && filters.state !== "all");
 
   const handleSaveSearch = () => {
     setSaveDialogOpen(true);
