@@ -22,7 +22,7 @@ import profileRoutes, { activityRouter } from "./profile-routes";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -203,6 +203,9 @@ import {
   notifications,
   notificationPreferences,
   insertNotificationPreferencesSchema,
+  insertDirectMessageSchema,
+  insertConversationSchema,
+  userProfiles,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -8968,6 +8971,628 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
         res.json(result[0]);
       }
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ==================== DIRECT MESSAGING SYSTEM ====================
+
+  // GET /api/conversations - Get user's conversations with last message preview
+  app.get("/api/conversations", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Get all conversations the user is part of
+      const userConversations = await db
+        .select({
+          conversationId: conversationParticipants.conversationId,
+          lastReadAt: conversationParticipants.lastReadAt,
+        })
+        .from(conversationParticipants)
+        .where(eq(conversationParticipants.userId, userId));
+
+      if (userConversations.length === 0) {
+        return res.json({ conversations: [], total: 0 });
+      }
+
+      const conversationIds = userConversations.map(c => c.conversationId);
+
+      // Get conversation details with last message
+      const conversationsData = await db
+        .select()
+        .from(conversations)
+        .where(inArray(conversations.id, conversationIds))
+        .orderBy(desc(conversations.lastMessageAt))
+        .limit(limit)
+        .offset(offset);
+
+      // Get last message and unread count for each conversation
+      const conversationsWithDetails = await Promise.all(
+        conversationsData.map(async (conv) => {
+          // Get last message
+          const [lastMessage] = await db
+            .select({
+              id: directMessages.id,
+              content: directMessages.content,
+              senderId: directMessages.senderId,
+              createdAt: directMessages.createdAt,
+              messageType: directMessages.messageType,
+            })
+            .from(directMessages)
+            .where(and(
+              eq(directMessages.conversationId, conv.id),
+              isNull(directMessages.deletedAt)
+            ))
+            .orderBy(desc(directMessages.createdAt))
+            .limit(1);
+
+          // Get sender info for last message
+          let senderInfo = null;
+          if (lastMessage) {
+            const [sender] = await db
+              .select({
+                id: users.id,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                profileImageUrl: users.profileImageUrl,
+              })
+              .from(users)
+              .where(eq(users.id, lastMessage.senderId))
+              .limit(1);
+            senderInfo = sender;
+          }
+
+          // Get unread count
+          const userConv = userConversations.find(uc => uc.conversationId === conv.id);
+          const lastReadAt = userConv?.lastReadAt;
+          
+          let unreadCount = 0;
+          if (lastReadAt) {
+            const [{ count }] = await db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(directMessages)
+              .where(and(
+                eq(directMessages.conversationId, conv.id),
+                sql`${directMessages.createdAt} > ${lastReadAt}`,
+                sql`${directMessages.senderId} != ${userId}`,
+                isNull(directMessages.deletedAt)
+              ));
+            unreadCount = count;
+          } else {
+            // If never read, count all messages not from user
+            const [{ count }] = await db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(directMessages)
+              .where(and(
+                eq(directMessages.conversationId, conv.id),
+                sql`${directMessages.senderId} != ${userId}`,
+                isNull(directMessages.deletedAt)
+              ));
+            unreadCount = count;
+          }
+
+          // Get other participants info
+          const participants = await db
+            .select({
+              id: users.id,
+              firstName: users.firstName,
+              lastName: users.lastName,
+              profileImageUrl: users.profileImageUrl,
+            })
+            .from(conversationParticipants)
+            .innerJoin(users, eq(users.id, conversationParticipants.userId))
+            .where(and(
+              eq(conversationParticipants.conversationId, conv.id),
+              sql`${conversationParticipants.userId} != ${userId}`
+            ));
+
+          return {
+            ...conv,
+            lastMessage: lastMessage ? {
+              ...lastMessage,
+              sender: senderInfo,
+            } : null,
+            unreadCount,
+            participants,
+          };
+        })
+      );
+
+      // Get total count
+      const [{ total }] = await db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(conversationParticipants)
+        .where(eq(conversationParticipants.userId, userId));
+
+      res.json({ conversations: conversationsWithDetails, total });
+    } catch (error: any) {
+      console.error("Error fetching conversations:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/conversations - Start new conversation (find or create)
+  app.post("/api/conversations", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const { participantIds, title, type = "direct" } = req.body;
+
+      if (!participantIds || !Array.isArray(participantIds) || participantIds.length === 0) {
+        return res.status(400).json({ error: "participantIds is required" });
+      }
+
+      // For direct messages, check if conversation already exists
+      if (type === "direct" && participantIds.length === 1) {
+        const targetUserId = participantIds[0];
+        
+        // Find existing direct conversation between these two users
+        const existingConversations = await db
+          .select({ conversationId: conversationParticipants.conversationId })
+          .from(conversationParticipants)
+          .where(eq(conversationParticipants.userId, userId));
+
+        for (const ec of existingConversations) {
+          const [conv] = await db
+            .select()
+            .from(conversations)
+            .where(and(
+              eq(conversations.id, ec.conversationId),
+              eq(conversations.type, "direct")
+            ))
+            .limit(1);
+
+          if (conv) {
+            const participants = await db
+              .select({ userId: conversationParticipants.userId })
+              .from(conversationParticipants)
+              .where(eq(conversationParticipants.conversationId, conv.id));
+
+            const participantUserIds = participants.map(p => p.userId);
+            if (participantUserIds.includes(targetUserId) && participantUserIds.length === 2) {
+              // Return existing conversation
+              return res.json(conv);
+            }
+          }
+        }
+      }
+
+      // Create new conversation
+      const [newConversation] = await db
+        .insert(conversations)
+        .values({
+          type,
+          title,
+          createdBy: userId,
+        })
+        .returning();
+
+      // Add all participants including the creator
+      const allParticipantIds = [...new Set([userId, ...participantIds])];
+      
+      for (const participantId of allParticipantIds) {
+        await db.insert(conversationParticipants).values({
+          conversationId: newConversation.id,
+          userId: participantId,
+          role: participantId === userId ? "admin" : "member",
+        });
+      }
+
+      res.json(newConversation);
+    } catch (error: any) {
+      console.error("Error creating conversation:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/conversations/:id/messages - Get messages in a conversation with pagination
+  app.get("/api/conversations/:id/messages", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const conversationId = req.params.id;
+      const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Check user is participant
+      const [participant] = await db
+        .select()
+        .from(conversationParticipants)
+        .where(and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, userId)
+        ))
+        .limit(1);
+
+      if (!participant) {
+        return res.status(403).json({ error: "Not a participant of this conversation" });
+      }
+
+      // Get messages with sender info
+      const messages = await db
+        .select({
+          id: directMessages.id,
+          conversationId: directMessages.conversationId,
+          senderId: directMessages.senderId,
+          content: directMessages.content,
+          messageType: directMessages.messageType,
+          attachments: directMessages.attachments,
+          replyToId: directMessages.replyToId,
+          isEdited: directMessages.isEdited,
+          createdAt: directMessages.createdAt,
+          senderFirstName: users.firstName,
+          senderLastName: users.lastName,
+          senderProfileImageUrl: users.profileImageUrl,
+        })
+        .from(directMessages)
+        .innerJoin(users, eq(users.id, directMessages.senderId))
+        .where(and(
+          eq(directMessages.conversationId, conversationId),
+          isNull(directMessages.deletedAt)
+        ))
+        .orderBy(desc(directMessages.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      // Transform to include sender object
+      const formattedMessages = messages.map(m => ({
+        id: m.id,
+        conversationId: m.conversationId,
+        senderId: m.senderId,
+        content: m.content,
+        messageType: m.messageType,
+        attachments: m.attachments,
+        replyToId: m.replyToId,
+        isEdited: m.isEdited,
+        createdAt: m.createdAt,
+        sender: {
+          id: m.senderId,
+          firstName: m.senderFirstName,
+          lastName: m.senderLastName,
+          profileImageUrl: m.senderProfileImageUrl,
+        },
+      }));
+
+      // Get total count
+      const [{ total }] = await db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(directMessages)
+        .where(and(
+          eq(directMessages.conversationId, conversationId),
+          isNull(directMessages.deletedAt)
+        ));
+
+      res.json({ messages: formattedMessages.reverse(), total });
+    } catch (error: any) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/conversations/:id/messages - Send a message
+  app.post("/api/conversations/:id/messages", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const conversationId = req.params.id;
+      const { content, messageType = "text", attachments, replyToId } = req.body;
+
+      if (!content || content.trim() === "") {
+        return res.status(400).json({ error: "Message content is required" });
+      }
+
+      // Check user is participant
+      const [participant] = await db
+        .select()
+        .from(conversationParticipants)
+        .where(and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, userId)
+        ))
+        .limit(1);
+
+      if (!participant) {
+        return res.status(403).json({ error: "Not a participant of this conversation" });
+      }
+
+      // Create the message
+      const [message] = await db
+        .insert(directMessages)
+        .values({
+          conversationId,
+          senderId: userId,
+          content: content.trim(),
+          messageType,
+          attachments,
+          replyToId,
+        })
+        .returning();
+
+      // Update conversation last_message_at
+      await db
+        .update(conversations)
+        .set({ lastMessageAt: new Date(), updatedAt: new Date() })
+        .where(eq(conversations.id, conversationId));
+
+      // Update sender's last_read_at
+      await db
+        .update(conversationParticipants)
+        .set({ lastReadAt: new Date() })
+        .where(and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, userId)
+        ));
+
+      // Get sender info
+      const [sender] = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+        })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      res.json({
+        ...message,
+        sender,
+      });
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // PUT /api/conversations/:id/read - Mark conversation as read
+  app.put("/api/conversations/:id/read", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const conversationId = req.params.id;
+
+      // Update last_read_at for the user
+      const result = await db
+        .update(conversationParticipants)
+        .set({ lastReadAt: new Date() })
+        .where(and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, userId)
+        ))
+        .returning();
+
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Conversation not found or not a participant" });
+      }
+
+      res.json({ success: true, lastReadAt: result[0].lastReadAt });
+    } catch (error: any) {
+      console.error("Error marking conversation as read:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // GET /api/members - Search members for messaging (name, role, location)
+  app.get("/api/members", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const userId = (req.user as any).id;
+      const search = (req.query.search as string) || "";
+      const role = req.query.role as string;
+      const location = req.query.location as string;
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Build base query for users
+      let query = db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          role: users.role,
+          companyName: users.companyName,
+          // Member profile fields
+          headline: memberProfiles.headline,
+          location: memberProfiles.location,
+          specialties: memberProfiles.specialties,
+          services: memberProfiles.services,
+          yearsInIndustry: memberProfiles.yearsInIndustry,
+          badges: memberProfiles.badges,
+          isOpenToNetwork: memberProfiles.isOpenToNetwork,
+        })
+        .from(users)
+        .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+        .where(sql`${users.id} != ${userId}`)
+        .limit(limit)
+        .offset(offset);
+
+      // Apply search filter
+      const conditions: any[] = [sql`${users.id} != ${userId}`];
+      
+      if (search) {
+        conditions.push(or(
+          ilike(users.firstName, `%${search}%`),
+          ilike(users.lastName, `%${search}%`),
+          ilike(users.companyName, `%${search}%`),
+          sql`${users.firstName} || ' ' || ${users.lastName} ILIKE ${`%${search}%`}`
+        ));
+      }
+
+      if (role) {
+        conditions.push(eq(users.role, role));
+      }
+
+      if (location) {
+        conditions.push(ilike(memberProfiles.location, `%${location}%`));
+      }
+
+      // Execute query with filters
+      const members = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          role: users.role,
+          companyName: users.companyName,
+          headline: memberProfiles.headline,
+          location: memberProfiles.location,
+          specialties: memberProfiles.specialties,
+          services: memberProfiles.services,
+          yearsInIndustry: memberProfiles.yearsInIndustry,
+          badges: memberProfiles.badges,
+          isOpenToNetwork: memberProfiles.isOpenToNetwork,
+        })
+        .from(users)
+        .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+        .where(and(...conditions))
+        .limit(limit)
+        .offset(offset);
+
+      // Get total count
+      const countQuery = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(users)
+        .leftJoin(memberProfiles, eq(memberProfiles.userId, users.id))
+        .where(and(...conditions));
+
+      const total = countQuery[0]?.count || 0;
+
+      res.json({ members, total });
+    } catch (error: any) {
+      console.error("Error searching members:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // POST /api/members/:userId/message - Start/get conversation with a user
+  app.post("/api/members/:userId/message", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    try {
+      const currentUserId = (req.user as any).id;
+      const targetUserId = req.params.userId;
+
+      if (currentUserId === targetUserId) {
+        return res.status(400).json({ error: "Cannot start conversation with yourself" });
+      }
+
+      // Check target user exists
+      const [targetUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.id, targetUserId))
+        .limit(1);
+
+      if (!targetUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Find existing direct conversation between these two users
+      const currentUserConversations = await db
+        .select({ conversationId: conversationParticipants.conversationId })
+        .from(conversationParticipants)
+        .where(eq(conversationParticipants.userId, currentUserId));
+
+      for (const ec of currentUserConversations) {
+        const [conv] = await db
+          .select()
+          .from(conversations)
+          .where(and(
+            eq(conversations.id, ec.conversationId),
+            eq(conversations.type, "direct")
+          ))
+          .limit(1);
+
+        if (conv) {
+          const participants = await db
+            .select({ userId: conversationParticipants.userId })
+            .from(conversationParticipants)
+            .where(eq(conversationParticipants.conversationId, conv.id));
+
+          const participantUserIds = participants.map(p => p.userId);
+          if (participantUserIds.includes(targetUserId) && participantUserIds.length === 2) {
+            // Return existing conversation with participant info
+            const [otherUser] = await db
+              .select({
+                id: users.id,
+                firstName: users.firstName,
+                lastName: users.lastName,
+                profileImageUrl: users.profileImageUrl,
+              })
+              .from(users)
+              .where(eq(users.id, targetUserId))
+              .limit(1);
+
+            return res.json({
+              ...conv,
+              participants: [otherUser],
+              isNew: false,
+            });
+          }
+        }
+      }
+
+      // Create new direct conversation
+      const [newConversation] = await db
+        .insert(conversations)
+        .values({
+          type: "direct",
+          createdBy: currentUserId,
+        })
+        .returning();
+
+      // Add both participants
+      await db.insert(conversationParticipants).values([
+        {
+          conversationId: newConversation.id,
+          userId: currentUserId,
+          role: "member",
+        },
+        {
+          conversationId: newConversation.id,
+          userId: targetUserId,
+          role: "member",
+        },
+      ]);
+
+      // Get target user info
+      const [otherUser] = await db
+        .select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+        })
+        .from(users)
+        .where(eq(users.id, targetUserId))
+        .limit(1);
+
+      res.json({
+        ...newConversation,
+        participants: [otherUser],
+        isNew: true,
+      });
+    } catch (error: any) {
+      console.error("Error starting conversation with user:", error);
       res.status(500).json({ error: error.message });
     }
   });
