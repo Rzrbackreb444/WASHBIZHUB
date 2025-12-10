@@ -1732,7 +1732,23 @@ function App() {
     <ErrorBoundary variant="page" showError={process.env.NODE_ENV === "development"}>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          {GOOGLE_CLIENT_ID ? (
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+              <TenantProvider>
+                <ThemeProvider>
+                  <LocationDesignProvider>
+                    <TooltipProvider>
+                      <AuthModalProvider>
+                        <AppContent />
+                        <Toaster />
+                        <ExitIntentModal />
+                      </AuthModalProvider>
+                    </TooltipProvider>
+                  </LocationDesignProvider>
+                </ThemeProvider>
+              </TenantProvider>
+            </GoogleOAuthProvider>
+          ) : (
             <TenantProvider>
               <ThemeProvider>
                 <LocationDesignProvider>
@@ -1746,7 +1762,7 @@ function App() {
                 </LocationDesignProvider>
               </ThemeProvider>
             </TenantProvider>
-          </GoogleOAuthProvider>
+          )}
         </QueryClientProvider>
       </HelmetProvider>
     </ErrorBoundary>
