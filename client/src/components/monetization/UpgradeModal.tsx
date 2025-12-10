@@ -22,31 +22,28 @@ interface UpgradeModalProps {
   description?: string;
 }
 
+// Default tier config for safety
+const DEFAULT_TIER_CONFIG = {
+  name: "All-Access",
+  tagline: "Everything you need",
+  price: 129,
+  iconBg: "bg-amber-100 dark:bg-amber-900/30",
+  iconColor: "text-amber-600 dark:text-amber-400",
+  popular: true
+};
+
 const TIER_ICONS = {
   free: Zap,
-  starter: Zap,
-  pro: Crown,
-  enterprise: Building2,
+  all_access: Crown,
 };
 
 const UPGRADE_BENEFITS = {
-  starter: [
+  all_access: [
     { icon: MapPin, text: "Unlimited CLEANBI location analyses" },
-    { icon: Calculator, text: "Full category breakdowns & AI insights" },
-    { icon: TrendingUp, text: "3D aerial views & competition heatmaps" },
-    { icon: Shield, text: "PDF export & priority email support" },
-  ],
-  pro: [
-    { icon: MapPin, text: "Everything in Starter, plus..." },
-    { icon: Calculator, text: "ROI & Valuation calculators" },
-    { icon: TrendingUp, text: "Monte Carlo risk simulations" },
-    { icon: Shield, text: "API access (500 calls/month)" },
-  ],
-  enterprise: [
-    { icon: MapPin, text: "Everything in Pro, plus..." },
-    { icon: Users, text: "Ownership & lien data lookup" },
-    { icon: TrendingUp, text: "Motivated seller detection" },
-    { icon: Shield, text: "White-label reports & unlimited API" },
+    { icon: Calculator, text: "80+ professional calculators & AI insights" },
+    { icon: TrendingUp, text: "Full Design Studio & website builder" },
+    { icon: Users, text: "Community access & forum posting" },
+    { icon: Shield, text: "PDF exports, courses & priority support" },
   ],
 };
 
@@ -54,19 +51,21 @@ export function UpgradeModal({
   open,
   onOpenChange,
   feature,
-  suggestedTier = "starter",
+  suggestedTier = "all_access",
   title,
   description
 }: UpgradeModalProps) {
   const { tier: currentTier } = useSubscription();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier);
+  // Always suggest all_access since that's our main paid tier
+  const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier === 'free' ? 'all_access' : (suggestedTier || 'all_access'));
   const [isLoading, setIsLoading] = useState(false);
   
-  const tierConfig = PLATFORM_TIERS[selectedTier];
-  const TierIcon = TIER_ICONS[selectedTier];
-  const benefits = UPGRADE_BENEFITS[selectedTier as keyof typeof UPGRADE_BENEFITS] || UPGRADE_BENEFITS.starter;
+  // Safely get tier config with fallback
+  const tierConfig = PLATFORM_TIERS[selectedTier] || PLATFORM_TIERS.all_access || DEFAULT_TIER_CONFIG;
+  const TierIcon = TIER_ICONS[selectedTier] || Crown;
+  const benefits = UPGRADE_BENEFITS.all_access;
 
   const handleUpgradeClick = async () => {
     setIsLoading(true);
@@ -126,10 +125,10 @@ export function UpgradeModal({
   };
 
   const currentTierPrice = PLATFORM_TIERS[currentTier as PlatformTier]?.price || 0;
-  const availableTiers: PlatformTier[] = (["starter", "pro", "enterprise"] as PlatformTier[]).filter(
+  const availableTiers: PlatformTier[] = (["all_access"] as PlatformTier[]).filter(
     t => {
-      const tierConfig = PLATFORM_TIERS[t];
-      return tierConfig && tierConfig.price > currentTierPrice;
+      const config = PLATFORM_TIERS[t];
+      return config && config.price > currentTierPrice;
     }
   );
 
