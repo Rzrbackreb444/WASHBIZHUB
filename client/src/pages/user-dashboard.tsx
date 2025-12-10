@@ -19,6 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import SEO from "@/components/SEO";
 
 const CHART_COLORS = {
@@ -103,25 +104,44 @@ export default function UserDashboard() {
   });
 
   // Fetch dashboard overview with all stats and data
-  const { data: dashboardData, isLoading } = useQuery({
+  const { data: dashboardData, isLoading: isLoadingOverview } = useQuery({
     queryKey: ["/api/user-dashboard/overview"],
     enabled: !!user,
   });
 
   // Fetch engagement metrics for charts
-  const { data: metrics } = useQuery({
+  const { data: metrics, isLoading: isLoadingMetrics } = useQuery({
     queryKey: ["/api/user-dashboard/metrics"],
     enabled: !!user,
   });
+  
+  // Combined loading states
+  const isLoading = isLoadingOverview || isLoadingMetrics;
 
   const userName = user?.firstName || user?.username || "User";
   const initials = userName.slice(0, 2).toUpperCase();
   
-  // Extract stats from dashboard data
-  const stats = dashboardData?.stats || { savedSearches: 0, favorites: 0, listingsViewed: 0, connections: 0 };
+  // Extract stats from dashboard data (only use when loaded)
+  const stats = isLoadingOverview 
+    ? { savedSearches: 0, favorites: 0, listingsViewed: 0, connections: 0 }
+    : dashboardData?.stats || { savedSearches: 0, favorites: 0, listingsViewed: 0, connections: 0 };
   const userSavedSearches = dashboardData?.savedSearches || [];
   const userFavorites = dashboardData?.favorites || [];
   const recentActivity = dashboardData?.recentActivity || [];
+  
+  // Extract metrics for charts - null when loading, API data when available, empty arrays if loaded but no data
+  const hasMetricsLoaded = !isLoadingMetrics && metrics !== undefined;
+  const chartMonthlyData = hasMetricsLoaded ? (metrics?.monthlyData || []) : null;
+  const chartEngagementData = hasMetricsLoaded ? (metrics?.engagementData || []) : null;
+  
+  // Transform activity data for the weekly chart
+  const chartActivityData = hasMetricsLoaded 
+    ? (metrics?.monthlyData?.map((m: any) => ({
+        name: m.name,
+        views: m.views || 0,
+        searches: m.activity || 0,
+      })) || [])
+    : null;
 
   return (
     <>
@@ -225,45 +245,59 @@ export default function UserDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={activityData}>
-                        <defs>
-                          <linearGradient id="colorGradient1" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="colorGradient2" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'white', 
-                            border: 'none', 
-                            borderRadius: '12px', 
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.1)' 
-                          }} 
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="views" 
-                          stroke="#3B82F6" 
-                          strokeWidth={2}
-                          fill="url(#colorGradient1)" 
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="searches" 
-                          stroke="#8B5CF6" 
-                          strokeWidth={2}
-                          fill="url(#colorGradient2)" 
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                    {isLoadingMetrics ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="space-y-4 w-full">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-32 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                        </div>
+                      </div>
+                    ) : chartActivityData && chartActivityData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartActivityData}>
+                          <defs>
+                            <linearGradient id="colorGradient1" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                            </linearGradient>
+                            <linearGradient id="colorGradient2" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'white', 
+                              border: 'none', 
+                              borderRadius: '12px', 
+                              boxShadow: '0 10px 40px rgba(0,0,0,0.1)' 
+                            }} 
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="views" 
+                            stroke="#3B82F6" 
+                            strokeWidth={2}
+                            fill="url(#colorGradient1)" 
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="searches" 
+                            stroke="#8B5CF6" 
+                            strokeWidth={2}
+                            fill="url(#colorGradient2)" 
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <p>No activity data yet. Start exploring to track your engagement!</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -284,26 +318,40 @@ export default function UserDashboard() {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthlyData} barSize={20}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                        <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'white', 
-                            border: 'none', 
-                            borderRadius: '12px', 
-                            boxShadow: '0 10px 40px rgba(0,0,0,0.1)' 
-                          }} 
-                        />
-                        <Bar 
-                          dataKey="value" 
-                          fill="#3B82F6" 
-                          radius={[6, 6, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {isLoadingMetrics ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="space-y-3 w-full">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-24 w-full" />
+                          <Skeleton className="h-4 w-2/3" />
+                        </div>
+                      </div>
+                    ) : chartMonthlyData && chartMonthlyData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartMonthlyData.map((m: any) => ({ month: m.name || m.month, value: m.activity || m.value || 0 }))} barSize={20}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'white', 
+                              border: 'none', 
+                              borderRadius: '12px', 
+                              boxShadow: '0 10px 40px rgba(0,0,0,0.1)' 
+                            }} 
+                          />
+                          <Bar 
+                            dataKey="value" 
+                            fill="#3B82F6" 
+                            radius={[6, 6, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <p>No engagement trend data yet. Your activity will appear here.</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -386,37 +434,51 @@ export default function UserDashboard() {
                   <CardTitle className="text-lg">Engagement Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-48 mb-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={engagementData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={70}
-                          paddingAngle={4}
-                          dataKey="value"
-                        >
-                          {engagementData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-2">
-                    {engagementData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }} />
-                          <span className="text-muted-foreground">{item.name}</span>
-                        </div>
-                        <span className="font-medium">{item.value}</span>
+                  {isLoadingMetrics ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-48 w-full rounded-full" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  ) : chartEngagementData && chartEngagementData.length > 0 ? (
+                    <>
+                      <div className="h-48 mb-4">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={chartEngagementData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={50}
+                              outerRadius={70}
+                              paddingAngle={4}
+                              dataKey="value"
+                            >
+                              {chartEngagementData.map((entry: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    ))}
-                  </div>
+                      <div className="space-y-2">
+                        {chartEngagementData.map((item: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }} />
+                              <span className="text-muted-foreground">{item.name}</span>
+                            </div>
+                            <span className="font-medium">{item.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Your engagement breakdown will appear here as you use the platform.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -431,7 +493,13 @@ export default function UserDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {userSavedSearches.length > 0 ? (
+                  {isLoadingOverview ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ) : userSavedSearches.length > 0 ? (
                     userSavedSearches.slice(0, 3).map((search: any) => (
                       <SavedSearchItem 
                         key={search.id}
@@ -460,7 +528,14 @@ export default function UserDashboard() {
                 <CardContent>
                   <ScrollArea className="h-64">
                     <div className="space-y-4">
-                      {recentActivity.length > 0 ? (
+                      {isLoadingOverview ? (
+                        <div className="space-y-4">
+                          <Skeleton className="h-10 w-full" />
+                          <Skeleton className="h-10 w-full" />
+                          <Skeleton className="h-10 w-full" />
+                          <Skeleton className="h-10 w-full" />
+                        </div>
+                      ) : recentActivity.length > 0 ? (
                         recentActivity.slice(0, 5).map((activity: any) => {
                           const iconMap: Record<string, any> = {
                             saved_search: Search,
@@ -482,14 +557,12 @@ export default function UserDashboard() {
                           );
                         })
                       ) : (
-                        <>
-                          <ActivityItem 
-                            icon={Eye}
-                            title="Get started"
-                            description="Browse listings to begin tracking activity"
-                            time="Now"
-                          />
-                        </>
+                        <ActivityItem 
+                          icon={Eye}
+                          title="Get started"
+                          description="Browse listings to begin tracking activity"
+                          time="Now"
+                        />
                       )}
                     </div>
                   </ScrollArea>

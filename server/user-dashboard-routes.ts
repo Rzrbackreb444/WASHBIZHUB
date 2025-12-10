@@ -94,6 +94,119 @@ router.get("/overview", isAuthenticated, async (req: Request, res: Response) => 
   }
 });
 
+// Get user dashboard metrics for charts
+router.get("/metrics", isAuthenticated, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Generate monthly activity data based on actual events
+    const now = new Date();
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Get activity counts by month for the last 6 months
+    const activityByMonth = await db
+      .select({
+        month: sql<number>`EXTRACT(MONTH FROM ${activityEvents.createdAt})`,
+        count: count(),
+      })
+      .from(activityEvents)
+      .where(
+        and(
+          eq(activityEvents.userId, userId),
+          sql`${activityEvents.createdAt} > NOW() - INTERVAL '6 months'`
+        )
+      )
+      .groupBy(sql`EXTRACT(MONTH FROM ${activityEvents.createdAt})`);
+
+    // Get listing views by month
+    const viewsByMonth = await db
+      .select({
+        month: sql<number>`EXTRACT(MONTH FROM ${buyerListingHistory.lastViewedAt})`,
+        count: count(),
+      })
+      .from(buyerListingHistory)
+      .where(
+        and(
+          eq(buyerListingHistory.userId, userId),
+          sql`${buyerListingHistory.lastViewedAt} > NOW() - INTERVAL '6 months'`
+        )
+      )
+      .groupBy(sql`EXTRACT(MONTH FROM ${buyerListingHistory.lastViewedAt})`);
+
+    // Build monthly data for the last 6 months
+    const monthlyData = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthNum = date.getMonth() + 1;
+      const activityCount = activityByMonth.find(a => Number(a.month) === monthNum)?.count || 0;
+      const viewCount = viewsByMonth.find(v => Number(v.month) === monthNum)?.count || 0;
+      
+      monthlyData.push({
+        name: months[date.getMonth()],
+        activity: Number(activityCount),
+        views: Number(viewCount),
+      });
+    }
+
+    // Get engagement breakdown by event type
+    const engagementByType = await db
+      .select({
+        eventType: activityEvents.eventType,
+        count: count(),
+      })
+      .from(activityEvents)
+      .where(eq(activityEvents.userId, userId))
+      .groupBy(activityEvents.eventType);
+
+    const engagementColors: Record<string, string> = {
+      saved_search: "#3B82F6",
+      favorite_listing: "#F43F5E",
+      follow: "#22C55E",
+      listing_view: "#8B5CF6",
+      cleanbi_analysis: "#06B6D4",
+      calculator_used: "#F59E0B",
+    };
+
+    const engagementData = engagementByType.map(e => ({
+      name: formatEventTypeLabel(e.eventType || "other"),
+      value: Number(e.count),
+      fill: engagementColors[e.eventType || "other"] || "#94A3B8",
+    }));
+
+    // If no engagement data, provide defaults
+    if (engagementData.length === 0) {
+      engagementData.push(
+        { name: "Listings Viewed", value: 0, fill: "#3B82F6" },
+        { name: "Favorites", value: 0, fill: "#F43F5E" },
+        { name: "Searches", value: 0, fill: "#8B5CF6" }
+      );
+    }
+
+    res.json({
+      monthlyData,
+      engagementData,
+    });
+  } catch (error: any) {
+    console.error("Dashboard metrics error:", error);
+    res.status(500).json({ error: "Failed to fetch metrics" });
+  }
+});
+
+function formatEventTypeLabel(eventType: string): string {
+  const labels: Record<string, string> = {
+    saved_search: "Searches Saved",
+    favorite_listing: "Favorites",
+    follow: "Connections",
+    listing_view: "Listings Viewed",
+    cleanbi_analysis: "CLEANBI Analyses",
+    calculator_used: "Calculators Used",
+  };
+  return labels[eventType] || eventType.replace(/_/g, " ");
+}
+
 // Get user's saved searches
 router.get("/saved-searches", isAuthenticated, async (req: Request, res: Response) => {
   try {
