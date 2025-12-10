@@ -330,6 +330,11 @@ const BuyerDashboard = lazy(() => import("@/pages/buyer-dashboard"));
 const BuyerMessaging = lazy(() => import("@/pages/buyer-messaging"));
 const ListingComparison = lazy(() => import("@/pages/listing-comparison"));
 
+// Route Optimization (PUD Operations)
+const RouteOptimization = lazy(() => import("@/pages/route-optimization"));
+const DriverMobile = lazy(() => import("@/pages/driver-mobile"));
+const CustomerTracking = lazy(() => import("@/pages/customer-tracking"));
+
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
@@ -693,6 +698,21 @@ function Router() {
       <Route path="/owner-command-center">
         <Suspense fallback={<LoadingFallback />}>
           <OwnerCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/route-optimization">
+        <Suspense fallback={<LoadingFallback />}>
+          <RouteOptimization />
+        </Suspense>
+      </Route>
+      <Route path="/driver">
+        <Suspense fallback={<LoadingFallback />}>
+          <DriverMobile />
+        </Suspense>
+      </Route>
+      <Route path="/track/:token">
+        <Suspense fallback={<LoadingFallback />}>
+          <CustomerTracking />
         </Suspense>
       </Route>
       <Route path="/owner-dashboard">
