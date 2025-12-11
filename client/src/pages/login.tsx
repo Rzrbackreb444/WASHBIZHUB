@@ -155,6 +155,13 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // Handle Cloudflare Access - redirect directly to SSO
+  useEffect(() => {
+    if (!isLoading && isCloudflareAccess && !isAuthenticated) {
+      login('/dashboard');
+    }
+  }, [isLoading, isCloudflareAccess, isAuthenticated, login]);
+
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       setLocation("/");
@@ -283,6 +290,29 @@ export default function Login() {
 
   if (isLoading) {
     return <LoginSkeleton />;
+  }
+
+  // Show Cloudflare Access redirect message
+  if (isCloudflareAccess && !isAuthenticated) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-4 auth-gradient-bg"
+        data-testid="cloudflare-redirect"
+      >
+        <Card className="w-full max-w-md shadow-lg">
+          <CardContent className="p-8 text-center">
+            <div className="h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-6">
+              <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Enterprise Sign In</h1>
+            <p className="text-muted-foreground mb-6">
+              Redirecting to secure enterprise login...
+            </p>
+            <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
