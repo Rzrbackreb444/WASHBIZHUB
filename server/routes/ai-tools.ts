@@ -1519,4 +1519,1629 @@ router.post("/analyze-competitors", async (req, res) => {
   }
 });
 
+// ============================================================================
+// DEMOGRAPHIC MICRO-CLUSTERER - AI-powered demographic analysis
+// ============================================================================
+
+export interface DemographicAnalysisResult {
+  success: boolean;
+  data: {
+    address: string;
+    radius: number;
+    analysisFocus: string;
+    populationOverview: {
+      totalEstimate: number;
+      density: "high" | "medium" | "low";
+      densityDescription: string;
+      growthTrend: "growing" | "stable" | "declining";
+      medianAge: number;
+    };
+    customerSegments: {
+      families: { percentage: number; count: number; description: string };
+      singles: { percentage: number; count: number; description: string };
+      elderly: { percentage: number; count: number; description: string };
+      students: { percentage: number; count: number; description: string };
+      professionals: { percentage: number; count: number; description: string };
+    };
+    incomeDistribution: {
+      lowIncome: { percentage: number; range: string };
+      moderateIncome: { percentage: number; range: string };
+      middleIncome: { percentage: number; range: string };
+      upperMiddleIncome: { percentage: number; range: string };
+      highIncome: { percentage: number; range: string };
+      medianHouseholdIncome: number;
+      incomeAssessment: string;
+    };
+    housingAnalysis: {
+      apartments: { percentage: number; description: string };
+      singleFamily: { percentage: number; description: string };
+      condos: { percentage: number; description: string };
+      multiFamily: { percentage: number; description: string };
+      renterPercentage: number;
+      ownerPercentage: number;
+      averageHouseholdSize: number;
+      housingAssessment: string;
+    };
+    lifestyleIndicators: {
+      carOwnership: { percentage: number; avgVehiclesPerHousehold: number; assessment: string };
+      transitUsage: { percentage: number; transitScore: number; assessment: string };
+      walkability: { score: number; assessment: string };
+      commutePatterns: string;
+      shoppingPreferences: string;
+    };
+    laundryBehavior: {
+      selfServiceLikelihood: number;
+      dropOffLikelihood: number;
+      pickupDeliveryLikelihood: number;
+      washerOwnership: number;
+      averageLoadsPerWeek: number;
+      peakDays: string[];
+      peakHours: string[];
+      pricesSensitivity: "high" | "medium" | "low";
+      conveniencePreference: "high" | "medium" | "low";
+      behaviorAssessment: string;
+    };
+    spendingPower: {
+      discretionaryIncomeLevel: "high" | "medium" | "low";
+      monthlyLaundryBudget: { low: number; average: number; high: number };
+      pricePointRecommendation: string;
+      spendingAssessment: string;
+    };
+    customerPersonas: Array<{
+      name: string;
+      age: string;
+      occupation: string;
+      householdType: string;
+      income: string;
+      laundryNeeds: string;
+      visitFrequency: string;
+      preferredServices: string[];
+      painPoints: string[];
+      marketingApproach: string;
+      estimatedPercentage: number;
+    }>;
+    marketOpportunity: {
+      score: number;
+      grade: "A" | "B" | "C" | "D";
+      primaryTarget: string;
+      secondaryTarget: string;
+      verdict: string;
+    };
+  };
+  confidence: number;
+  error?: string;
+}
+
+async function analyzeDemographics(
+  address: string,
+  radius: number,
+  analysisFocus: string
+): Promise<DemographicAnalysisResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const prompt = `You are an expert demographic analyst and market researcher specializing in laundromat location analysis. Analyze the demographics around this location for laundromat business potential.
+
+LOCATION TO ANALYZE:
+Address/ZIP: ${address}
+Analysis Radius: ${radius} miles
+Focus Area: ${analysisFocus}
+
+Provide comprehensive demographic micro-cluster analysis including:
+
+1. **Population Overview**: Total population estimate, density level, growth trend, median age
+
+2. **Customer Segments** (percentages must total 100%):
+   - Families (with children)
+   - Singles/Young Adults
+   - Elderly/Seniors (65+)
+   - Students
+   - Working Professionals
+
+3. **Income Distribution** (percentages must total 100%):
+   - Low Income (<$30K)
+   - Moderate Income ($30K-$50K)
+   - Middle Income ($50K-$75K)
+   - Upper-Middle Income ($75K-$100K)
+   - High Income (>$100K)
+   - Include median household income
+
+4. **Housing Analysis** (percentages must total 100%):
+   - Apartments/Rentals
+   - Single Family Homes
+   - Condos/Townhouses
+   - Multi-Family Units
+   - Renter vs Owner percentages
+   - Average household size
+
+5. **Lifestyle Indicators**:
+   - Car ownership rates
+   - Public transit usage
+   - Walkability assessment
+   - Commute patterns
+   - Shopping preferences
+
+6. **Laundry Behavior Predictions**:
+   - Self-service likelihood (0-100)
+   - Drop-off service likelihood (0-100)
+   - Pickup/delivery likelihood (0-100)
+   - Washer ownership percentage
+   - Average loads per week
+   - Peak days and hours
+   - Price sensitivity
+   - Convenience preference
+
+7. **Spending Power Assessment**:
+   - Discretionary income level
+   - Monthly laundry budget range
+   - Price point recommendations
+
+8. **Customer Personas** (Generate 3-5 detailed personas):
+   - Name (demographic archetype)
+   - Age range
+   - Occupation
+   - Household type
+   - Income bracket
+   - Laundry needs
+   - Visit frequency
+   - Preferred services
+   - Pain points
+   - Marketing approach
+   - Estimated % of customer base
+
+9. **Market Opportunity Score** (0-100):
+   - Primary target segment
+   - Secondary target segment
+   - Overall verdict
+
+Return ONLY valid JSON in this exact format:
+{
+  "address": "${address}",
+  "radius": ${radius},
+  "analysisFocus": "${analysisFocus}",
+  "populationOverview": {
+    "totalEstimate": 45000,
+    "density": "high" | "medium" | "low",
+    "densityDescription": "Description of population density",
+    "growthTrend": "growing" | "stable" | "declining",
+    "medianAge": 34
+  },
+  "customerSegments": {
+    "families": { "percentage": 25, "count": 11250, "description": "Families with young children" },
+    "singles": { "percentage": 30, "count": 13500, "description": "Young professionals and singles" },
+    "elderly": { "percentage": 15, "count": 6750, "description": "Retired seniors" },
+    "students": { "percentage": 10, "count": 4500, "description": "College students" },
+    "professionals": { "percentage": 20, "count": 9000, "description": "Working professionals" }
+  },
+  "incomeDistribution": {
+    "lowIncome": { "percentage": 15, "range": "<$30K" },
+    "moderateIncome": { "percentage": 25, "range": "$30K-$50K" },
+    "middleIncome": { "percentage": 30, "range": "$50K-$75K" },
+    "upperMiddleIncome": { "percentage": 20, "range": "$75K-$100K" },
+    "highIncome": { "percentage": 10, "range": ">$100K" },
+    "medianHouseholdIncome": 58000,
+    "incomeAssessment": "Assessment of income levels for laundromat"
+  },
+  "housingAnalysis": {
+    "apartments": { "percentage": 45, "description": "High-density apartment complexes" },
+    "singleFamily": { "percentage": 30, "description": "Traditional single-family homes" },
+    "condos": { "percentage": 15, "description": "Condos and townhouses" },
+    "multiFamily": { "percentage": 10, "description": "Duplexes and multi-family" },
+    "renterPercentage": 55,
+    "ownerPercentage": 45,
+    "averageHouseholdSize": 2.4,
+    "housingAssessment": "Assessment of housing market"
+  },
+  "lifestyleIndicators": {
+    "carOwnership": { "percentage": 75, "avgVehiclesPerHousehold": 1.5, "assessment": "Car-dependent area" },
+    "transitUsage": { "percentage": 20, "transitScore": 45, "assessment": "Limited transit options" },
+    "walkability": { "score": 55, "assessment": "Moderately walkable" },
+    "commutePatterns": "Most commute by car, 20-30 minute average",
+    "shoppingPreferences": "Mix of online and in-store shopping"
+  },
+  "laundryBehavior": {
+    "selfServiceLikelihood": 65,
+    "dropOffLikelihood": 45,
+    "pickupDeliveryLikelihood": 25,
+    "washerOwnership": 40,
+    "averageLoadsPerWeek": 3.5,
+    "peakDays": ["Saturday", "Sunday"],
+    "peakHours": ["9AM-12PM", "5PM-8PM"],
+    "pricesSensitivity": "medium",
+    "conveniencePreference": "high",
+    "behaviorAssessment": "Strong self-service demand with growing drop-off interest"
+  },
+  "spendingPower": {
+    "discretionaryIncomeLevel": "medium",
+    "monthlyLaundryBudget": { "low": 40, "average": 75, "high": 120 },
+    "pricePointRecommendation": "Mid-range pricing with premium options",
+    "spendingAssessment": "Moderate spending power with value consciousness"
+  },
+  "customerPersonas": [
+    {
+      "name": "Busy Professional Paula",
+      "age": "28-40",
+      "occupation": "Office professional",
+      "householdType": "Single or couple, no kids",
+      "income": "$60K-$90K",
+      "laundryNeeds": "Convenience-focused, time-constrained",
+      "visitFrequency": "Weekly",
+      "preferredServices": ["Drop-off", "Express wash"],
+      "painPoints": ["Limited time", "Needs evening/weekend hours"],
+      "marketingApproach": "Emphasize convenience and time savings",
+      "estimatedPercentage": 25
+    }
+  ],
+  "marketOpportunity": {
+    "score": 78,
+    "grade": "B",
+    "primaryTarget": "Young professionals in apartments",
+    "secondaryTarget": "Families with limited in-unit laundry",
+    "verdict": "Strong market with diverse customer base"
+  },
+  "confidence": 0.85
+}
+
+Be realistic and data-driven. Use your knowledge of the area to provide accurate demographic estimates.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      const score = parsed.marketOpportunity?.score || 60;
+      let grade: "A" | "B" | "C" | "D" = "C";
+      if (score >= 85) grade = "A";
+      else if (score >= 70) grade = "B";
+      else if (score >= 55) grade = "C";
+      else grade = "D";
+
+      return {
+        success: true,
+        data: {
+          address: parsed.address || address,
+          radius: parsed.radius || radius,
+          analysisFocus: parsed.analysisFocus || analysisFocus,
+          populationOverview: {
+            totalEstimate: parsed.populationOverview?.totalEstimate || 25000,
+            density: parsed.populationOverview?.density || "medium",
+            densityDescription: parsed.populationOverview?.densityDescription || "Moderate population density",
+            growthTrend: parsed.populationOverview?.growthTrend || "stable",
+            medianAge: parsed.populationOverview?.medianAge || 35,
+          },
+          customerSegments: {
+            families: parsed.customerSegments?.families || { percentage: 25, count: 6250, description: "Families with children" },
+            singles: parsed.customerSegments?.singles || { percentage: 30, count: 7500, description: "Singles and young adults" },
+            elderly: parsed.customerSegments?.elderly || { percentage: 15, count: 3750, description: "Seniors 65+" },
+            students: parsed.customerSegments?.students || { percentage: 10, count: 2500, description: "College students" },
+            professionals: parsed.customerSegments?.professionals || { percentage: 20, count: 5000, description: "Working professionals" },
+          },
+          incomeDistribution: {
+            lowIncome: parsed.incomeDistribution?.lowIncome || { percentage: 20, range: "<$30K" },
+            moderateIncome: parsed.incomeDistribution?.moderateIncome || { percentage: 25, range: "$30K-$50K" },
+            middleIncome: parsed.incomeDistribution?.middleIncome || { percentage: 30, range: "$50K-$75K" },
+            upperMiddleIncome: parsed.incomeDistribution?.upperMiddleIncome || { percentage: 15, range: "$75K-$100K" },
+            highIncome: parsed.incomeDistribution?.highIncome || { percentage: 10, range: ">$100K" },
+            medianHouseholdIncome: parsed.incomeDistribution?.medianHouseholdIncome || 55000,
+            incomeAssessment: parsed.incomeDistribution?.incomeAssessment || "Mixed income demographics",
+          },
+          housingAnalysis: {
+            apartments: parsed.housingAnalysis?.apartments || { percentage: 40, description: "Apartment complexes" },
+            singleFamily: parsed.housingAnalysis?.singleFamily || { percentage: 35, description: "Single family homes" },
+            condos: parsed.housingAnalysis?.condos || { percentage: 15, description: "Condos and townhouses" },
+            multiFamily: parsed.housingAnalysis?.multiFamily || { percentage: 10, description: "Multi-family units" },
+            renterPercentage: parsed.housingAnalysis?.renterPercentage || 50,
+            ownerPercentage: parsed.housingAnalysis?.ownerPercentage || 50,
+            averageHouseholdSize: parsed.housingAnalysis?.averageHouseholdSize || 2.5,
+            housingAssessment: parsed.housingAnalysis?.housingAssessment || "Mixed housing types",
+          },
+          lifestyleIndicators: {
+            carOwnership: parsed.lifestyleIndicators?.carOwnership || { percentage: 80, avgVehiclesPerHousehold: 1.5, assessment: "Car-dependent" },
+            transitUsage: parsed.lifestyleIndicators?.transitUsage || { percentage: 15, transitScore: 40, assessment: "Limited transit" },
+            walkability: parsed.lifestyleIndicators?.walkability || { score: 50, assessment: "Moderately walkable" },
+            commutePatterns: parsed.lifestyleIndicators?.commutePatterns || "Primarily car commuters",
+            shoppingPreferences: parsed.lifestyleIndicators?.shoppingPreferences || "Mix of online and in-store",
+          },
+          laundryBehavior: {
+            selfServiceLikelihood: parsed.laundryBehavior?.selfServiceLikelihood || 60,
+            dropOffLikelihood: parsed.laundryBehavior?.dropOffLikelihood || 40,
+            pickupDeliveryLikelihood: parsed.laundryBehavior?.pickupDeliveryLikelihood || 20,
+            washerOwnership: parsed.laundryBehavior?.washerOwnership || 45,
+            averageLoadsPerWeek: parsed.laundryBehavior?.averageLoadsPerWeek || 3,
+            peakDays: Array.isArray(parsed.laundryBehavior?.peakDays) ? parsed.laundryBehavior.peakDays : ["Saturday", "Sunday"],
+            peakHours: Array.isArray(parsed.laundryBehavior?.peakHours) ? parsed.laundryBehavior.peakHours : ["10AM-2PM", "5PM-8PM"],
+            pricesSensitivity: parsed.laundryBehavior?.pricesSensitivity || "medium",
+            conveniencePreference: parsed.laundryBehavior?.conveniencePreference || "medium",
+            behaviorAssessment: parsed.laundryBehavior?.behaviorAssessment || "Standard laundry usage patterns",
+          },
+          spendingPower: {
+            discretionaryIncomeLevel: parsed.spendingPower?.discretionaryIncomeLevel || "medium",
+            monthlyLaundryBudget: parsed.spendingPower?.monthlyLaundryBudget || { low: 35, average: 65, high: 100 },
+            pricePointRecommendation: parsed.spendingPower?.pricePointRecommendation || "Competitive mid-range pricing",
+            spendingAssessment: parsed.spendingPower?.spendingAssessment || "Moderate spending capacity",
+          },
+          customerPersonas: Array.isArray(parsed.customerPersonas) && parsed.customerPersonas.length > 0
+            ? parsed.customerPersonas
+            : [{
+                name: "Value-Conscious Victor",
+                age: "25-45",
+                occupation: "Service industry worker",
+                householdType: "Single or small family",
+                income: "$35K-$55K",
+                laundryNeeds: "Regular weekly washing",
+                visitFrequency: "Weekly",
+                preferredServices: ["Self-service", "Large capacity machines"],
+                painPoints: ["Price sensitivity", "Wait times"],
+                marketingApproach: "Value pricing and loyalty programs",
+                estimatedPercentage: 35,
+              }],
+          marketOpportunity: {
+            score,
+            grade,
+            primaryTarget: parsed.marketOpportunity?.primaryTarget || "Apartment renters",
+            secondaryTarget: parsed.marketOpportunity?.secondaryTarget || "Busy professionals",
+            verdict: parsed.marketOpportunity?.verdict || "Market shows potential for laundromat business",
+          },
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.7,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini demographic analysis response:", parseError);
+      return {
+        success: true,
+        data: {
+          address,
+          radius,
+          analysisFocus,
+          populationOverview: {
+            totalEstimate: 25000,
+            density: "medium",
+            densityDescription: "Moderate population density - analysis in progress",
+            growthTrend: "stable",
+            medianAge: 35,
+          },
+          customerSegments: {
+            families: { percentage: 25, count: 6250, description: "Families with children" },
+            singles: { percentage: 30, count: 7500, description: "Singles and young adults" },
+            elderly: { percentage: 15, count: 3750, description: "Seniors 65+" },
+            students: { percentage: 10, count: 2500, description: "Students" },
+            professionals: { percentage: 20, count: 5000, description: "Working professionals" },
+          },
+          incomeDistribution: {
+            lowIncome: { percentage: 20, range: "<$30K" },
+            moderateIncome: { percentage: 25, range: "$30K-$50K" },
+            middleIncome: { percentage: 30, range: "$50K-$75K" },
+            upperMiddleIncome: { percentage: 15, range: "$75K-$100K" },
+            highIncome: { percentage: 10, range: ">$100K" },
+            medianHouseholdIncome: 55000,
+            incomeAssessment: "Analysis pending - on-site verification recommended",
+          },
+          housingAnalysis: {
+            apartments: { percentage: 40, description: "Apartments" },
+            singleFamily: { percentage: 35, description: "Single family homes" },
+            condos: { percentage: 15, description: "Condos" },
+            multiFamily: { percentage: 10, description: "Multi-family" },
+            renterPercentage: 50,
+            ownerPercentage: 50,
+            averageHouseholdSize: 2.5,
+            housingAssessment: "Mixed housing - further analysis needed",
+          },
+          lifestyleIndicators: {
+            carOwnership: { percentage: 75, avgVehiclesPerHousehold: 1.5, assessment: "Car-dependent area" },
+            transitUsage: { percentage: 20, transitScore: 40, assessment: "Limited transit" },
+            walkability: { score: 50, assessment: "Moderately walkable" },
+            commutePatterns: "Analysis in progress",
+            shoppingPreferences: "Analysis in progress",
+          },
+          laundryBehavior: {
+            selfServiceLikelihood: 60,
+            dropOffLikelihood: 35,
+            pickupDeliveryLikelihood: 20,
+            washerOwnership: 45,
+            averageLoadsPerWeek: 3,
+            peakDays: ["Saturday", "Sunday"],
+            peakHours: ["10AM-2PM", "5PM-8PM"],
+            pricesSensitivity: "medium",
+            conveniencePreference: "medium",
+            behaviorAssessment: "Preliminary analysis - verify on site",
+          },
+          spendingPower: {
+            discretionaryIncomeLevel: "medium",
+            monthlyLaundryBudget: { low: 35, average: 65, high: 100 },
+            pricePointRecommendation: "Mid-range pricing recommended",
+            spendingAssessment: "Moderate spending power",
+          },
+          customerPersonas: [{
+            name: "General Customer",
+            age: "25-55",
+            occupation: "Various",
+            householdType: "Mixed",
+            income: "$40K-$70K",
+            laundryNeeds: "Regular laundry needs",
+            visitFrequency: "Weekly",
+            preferredServices: ["Self-service"],
+            painPoints: ["Convenience", "Pricing"],
+            marketingApproach: "Value and convenience messaging",
+            estimatedPercentage: 100,
+          }],
+          marketOpportunity: {
+            score: 60,
+            grade: "C",
+            primaryTarget: "General population",
+            secondaryTarget: "Apartment renters",
+            verdict: "Preliminary analysis - on-site verification recommended",
+          },
+        },
+        confidence: 0.4,
+        error: "Partial analysis completed - some data could not be parsed",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini demographic analysis error:", error);
+    throw error;
+  }
+}
+
+router.post("/analyze-demographics", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { address, radius = 3, analysisFocus = "comprehensive" } = req.body;
+
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide an address or ZIP code to analyze.",
+      });
+    }
+
+    const radiusNum = Math.min(Math.max(parseFloat(radius) || 3, 1), 10);
+    
+    const result = await analyzeDemographics(address, radiusNum, analysisFocus);
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Demographic analysis error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to analyze demographics. Please try again.",
+    });
+  }
+});
+
+// Alias endpoint for demographic clustering (same functionality, different route name)
+router.post("/cluster-demographics", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { address, radius = 3, analysisFocus = "comprehensive" } = req.body;
+
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide an address or ZIP code to analyze.",
+      });
+    }
+
+    const radiusNum = Math.min(Math.max(parseFloat(radius) || 3, 1), 10);
+    
+    const result = await analyzeDemographics(address, radiusNum, analysisFocus);
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Demographic clustering error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to cluster demographics. Please try again.",
+    });
+  }
+});
+
+// ============================================================================
+// UTILITY LOAD FORECASTER - AI-powered utility usage prediction
+// ============================================================================
+
+export interface UtilityHistoryEntry {
+  month: string;
+  electric: number;
+  gas: number;
+  water: number;
+}
+
+export interface UtilityLoadForecastResult {
+  success: boolean;
+  data: {
+    forecast: Array<{
+      month: string;
+      electric: { predicted: number; low: number; high: number };
+      gas: { predicted: number; low: number; high: number };
+      water: { predicted: number; low: number; high: number };
+      totalCost: { predicted: number; low: number; high: number };
+    }>;
+    peakDemand: {
+      electric: { month: string; value: number; reason: string };
+      gas: { month: string; value: number; reason: string };
+      water: { month: string; value: number; reason: string };
+    };
+    seasonalFactors: {
+      electric: Array<{ season: string; factor: number; explanation: string }>;
+      gas: Array<{ season: string; factor: number; explanation: string }>;
+      water: Array<{ season: string; factor: number; explanation: string }>;
+    };
+    anomalies: Array<{
+      type: "spike" | "drop" | "trend" | "pattern";
+      utility: "electric" | "gas" | "water";
+      description: string;
+      severity: "low" | "medium" | "high";
+      recommendation: string;
+    }>;
+    efficiencyOpportunities: Array<{
+      category: string;
+      opportunity: string;
+      estimatedSavings: number;
+      estimatedSavingsPercent: number;
+      implementation: string;
+      priority: "high" | "medium" | "low";
+      paybackMonths: number;
+    }>;
+    costOptimization: Array<{
+      strategy: string;
+      description: string;
+      potentialSavings: number;
+      difficulty: "easy" | "moderate" | "complex";
+    }>;
+    budgetSummary: {
+      monthlyAverage: { predicted: number; low: number; high: number };
+      annualTotal: { predicted: number; low: number; high: number };
+      quarterlyBreakdown: Array<{
+        quarter: string;
+        total: number;
+        percentOfAnnual: number;
+      }>;
+      yearOverYearChange: number;
+      budgetRecommendation: string;
+    };
+  };
+  confidence: number;
+  error?: string;
+}
+
+async function forecastUtilityLoad(
+  historicalData: UtilityHistoryEntry[],
+  machineCount: number,
+  operatingHours: number,
+  rates: { electric: number; gas: number; water: number }
+): Promise<UtilityLoadForecastResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const historyText = historicalData
+    .map(h => `${h.month}: Electric $${h.electric}, Gas $${h.gas}, Water $${h.water}`)
+    .join("\n");
+
+  const prompt = `You are an expert utility cost analyst for laundromats with 15+ years of experience in commercial utility management and energy efficiency.
+
+LAUNDROMAT UTILITY DATA:
+Historical Monthly Bills:
+${historyText}
+
+Operation Details:
+- Number of Machines: ${machineCount}
+- Operating Hours per Day: ${operatingHours}
+- Current Rates: Electric $${rates.electric}/kWh, Gas $${rates.gas}/therm, Water $${rates.water}/gallon
+
+Based on this data, provide a comprehensive 12-month utility forecast with the following:
+
+1. **12-Month Forecast**: Project costs for the next 12 months with confidence intervals (low/predicted/high)
+2. **Peak Demand Predictions**: Identify which months will have highest usage for each utility and why
+3. **Seasonal Adjustment Factors**: Calculate seasonal multipliers for each utility type
+4. **Anomaly Detection**: Identify any unusual patterns in the historical data
+5. **Energy Efficiency Opportunities**: Recommend specific improvements with ROI estimates
+6. **Cost Optimization Strategies**: Suggest ways to reduce costs
+7. **Budget Planning**: Provide quarterly and annual budget recommendations
+
+Consider:
+- Seasonal variations (summer AC, winter heating, holiday patterns)
+- Machine count impact on baseline consumption
+- Operating hours correlation
+- Industry benchmarks for laundromats
+- Rate increase trends (typically 3-5% annually)
+
+Return ONLY valid JSON in this exact format:
+{
+  "forecast": [
+    {
+      "month": "January 2025",
+      "electric": { "predicted": 850, "low": 780, "high": 920 },
+      "gas": { "predicted": 520, "low": 480, "high": 560 },
+      "water": { "predicted": 380, "low": 350, "high": 410 },
+      "totalCost": { "predicted": 1750, "low": 1610, "high": 1890 }
+    }
+  ],
+  "peakDemand": {
+    "electric": { "month": "July", "value": 1200, "reason": "Summer cooling loads" },
+    "gas": { "month": "January", "value": 680, "reason": "Winter heating" },
+    "water": { "month": "July", "value": 450, "reason": "Higher customer traffic" }
+  },
+  "seasonalFactors": {
+    "electric": [
+      { "season": "Winter", "factor": 0.9, "explanation": "Lower AC usage" },
+      { "season": "Spring", "factor": 1.0, "explanation": "Baseline usage" },
+      { "season": "Summer", "factor": 1.3, "explanation": "AC and dehumidification" },
+      { "season": "Fall", "factor": 1.0, "explanation": "Return to baseline" }
+    ],
+    "gas": [
+      { "season": "Winter", "factor": 1.4, "explanation": "Space heating needs" },
+      { "season": "Spring", "factor": 0.9, "explanation": "Mild weather" },
+      { "season": "Summer", "factor": 0.6, "explanation": "Dryers only" },
+      { "season": "Fall", "factor": 1.1, "explanation": "Early heating" }
+    ],
+    "water": [
+      { "season": "Winter", "factor": 0.95, "explanation": "Lower traffic" },
+      { "season": "Spring", "factor": 1.0, "explanation": "Normal usage" },
+      { "season": "Summer", "factor": 1.1, "explanation": "Higher customer volume" },
+      { "season": "Fall", "factor": 0.95, "explanation": "Back to school slowdown" }
+    ]
+  },
+  "anomalies": [
+    {
+      "type": "spike",
+      "utility": "electric",
+      "description": "Unusual spike detected in month X",
+      "severity": "medium",
+      "recommendation": "Check equipment efficiency"
+    }
+  ],
+  "efficiencyOpportunities": [
+    {
+      "category": "Equipment",
+      "opportunity": "Upgrade to Energy Star dryers",
+      "estimatedSavings": 150,
+      "estimatedSavingsPercent": 12,
+      "implementation": "Replace 2-3 oldest units annually",
+      "priority": "high",
+      "paybackMonths": 24
+    }
+  ],
+  "costOptimization": [
+    {
+      "strategy": "Off-peak operation",
+      "description": "Shift heavy use to off-peak hours",
+      "potentialSavings": 80,
+      "difficulty": "easy"
+    }
+  ],
+  "budgetSummary": {
+    "monthlyAverage": { "predicted": 1650, "low": 1500, "high": 1800 },
+    "annualTotal": { "predicted": 19800, "low": 18000, "high": 21600 },
+    "quarterlyBreakdown": [
+      { "quarter": "Q1", "total": 5200, "percentOfAnnual": 26 },
+      { "quarter": "Q2", "total": 4600, "percentOfAnnual": 23 },
+      { "quarter": "Q3", "total": 5400, "percentOfAnnual": 27 },
+      { "quarter": "Q4", "total": 4600, "percentOfAnnual": 24 }
+    ],
+    "yearOverYearChange": 4.5,
+    "budgetRecommendation": "Budget planning advice based on analysis"
+  },
+  "confidence": 0.85
+}
+
+Use realistic values based on the historical data provided. Project 12 months starting from the current month.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      return {
+        success: true,
+        data: {
+          forecast: Array.isArray(parsed.forecast) ? parsed.forecast : [],
+          peakDemand: parsed.peakDemand || {
+            electric: { month: "July", value: 0, reason: "Peak analysis pending" },
+            gas: { month: "January", value: 0, reason: "Peak analysis pending" },
+            water: { month: "July", value: 0, reason: "Peak analysis pending" },
+          },
+          seasonalFactors: parsed.seasonalFactors || {
+            electric: [],
+            gas: [],
+            water: [],
+          },
+          anomalies: Array.isArray(parsed.anomalies) ? parsed.anomalies : [],
+          efficiencyOpportunities: Array.isArray(parsed.efficiencyOpportunities) 
+            ? parsed.efficiencyOpportunities 
+            : [],
+          costOptimization: Array.isArray(parsed.costOptimization) 
+            ? parsed.costOptimization 
+            : [],
+          budgetSummary: parsed.budgetSummary || {
+            monthlyAverage: { predicted: 0, low: 0, high: 0 },
+            annualTotal: { predicted: 0, low: 0, high: 0 },
+            quarterlyBreakdown: [],
+            yearOverYearChange: 0,
+            budgetRecommendation: "Analysis pending",
+          },
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.7,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse utility forecast response:", parseError);
+      return {
+        success: true,
+        data: {
+          forecast: [],
+          peakDemand: {
+            electric: { month: "July", value: 0, reason: "Analysis incomplete" },
+            gas: { month: "January", value: 0, reason: "Analysis incomplete" },
+            water: { month: "July", value: 0, reason: "Analysis incomplete" },
+          },
+          seasonalFactors: { electric: [], gas: [], water: [] },
+          anomalies: [],
+          efficiencyOpportunities: [],
+          costOptimization: [],
+          budgetSummary: {
+            monthlyAverage: { predicted: 0, low: 0, high: 0 },
+            annualTotal: { predicted: 0, low: 0, high: 0 },
+            quarterlyBreakdown: [],
+            yearOverYearChange: 0,
+            budgetRecommendation: "Unable to generate forecast - please try again",
+          },
+        },
+        confidence: 0.3,
+        error: "Could not parse forecast data",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini utility forecast error:", error);
+    throw error;
+  }
+}
+
+router.post("/forecast-utility-load", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { 
+      historicalData, 
+      machineCount = 20, 
+      operatingHours = 14,
+      rates = { electric: 0.12, gas: 1.50, water: 0.005 }
+    } = req.body;
+
+    if (!historicalData || !Array.isArray(historicalData) || historicalData.length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide at least 3 months of historical utility data.",
+      });
+    }
+
+    const result = await forecastUtilityLoad(
+      historicalData,
+      Number(machineCount) || 20,
+      Number(operatingHours) || 14,
+      rates
+    );
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Utility forecast error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to generate utility forecast. Please try again.",
+    });
+  }
+});
+
+export interface FaultClassificationResult {
+  success: boolean;
+  data: {
+    equipmentType: string;
+    symptomDescription: string;
+    classification: {
+      faultType: "mechanical" | "electrical" | "water" | "drainage" | "control" | "heating" | "motor" | "belt" | "sensor" | "other";
+      specificProblem: string;
+      severity: "Critical" | "Major" | "Minor" | "Routine";
+      severityReason: string;
+    };
+    diagnosis: {
+      rootCause: string;
+      affectedComponents: string[];
+      secondaryIssues: string[];
+    };
+    repairSteps: Array<{
+      step: number;
+      action: string;
+      details: string;
+      safetyNote?: string;
+    }>;
+    partsNeeded: Array<{
+      partName: string;
+      partNumber?: string;
+      estimatedCost: string;
+      priority: "required" | "recommended" | "optional";
+    }>;
+    timeEstimate: {
+      minHours: number;
+      maxHours: number;
+      averageHours: number;
+      factors: string[];
+    };
+    recommendation: {
+      diyFeasibility: "DIY-Friendly" | "DIY-Possible" | "Professional-Recommended" | "Professional-Required";
+      reason: string;
+      skillLevel: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+      toolsRequired: string[];
+    };
+    safetyWarnings: string[];
+    additionalNotes: string[];
+  };
+  confidence: number;
+  error?: string;
+}
+
+async function classifyMaintenanceFault(
+  equipmentType: string,
+  symptomDescription: string,
+  imageBase64?: string,
+  mimeType?: string
+): Promise<FaultClassificationResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const prompt = `You are an expert commercial laundry equipment technician with 25+ years of experience diagnosing and repairing washers, dryers, washer-extractors, and related equipment from all major manufacturers (Speed Queen, Dexter, Continental/Girbau, Huebsch, Maytag, Whirlpool, Alliance, UniMac, etc.).
+
+EQUIPMENT TO DIAGNOSE:
+Equipment Type: ${equipmentType}
+Symptom Description: ${symptomDescription}
+${imageBase64 ? "A photo of the equipment/issue has been provided for visual analysis." : "No photo provided."}
+
+Provide a comprehensive diagnostic analysis:
+
+1. **Fault Classification**: 
+   - Type: mechanical, electrical, water, drainage, control, heating, motor, belt, sensor, or other
+   - Specific problem identification (e.g., "Worn drum bearing", "Clogged drain pump", "Faulty door latch switch")
+   - Severity: Critical (machine unsafe/unusable), Major (significantly impaired), Minor (partially functional), Routine (maintenance issue)
+
+2. **Root Cause Analysis**:
+   - Most likely root cause
+   - Affected components
+   - Potential secondary issues to check
+
+3. **Step-by-Step Repair Instructions**:
+   - Numbered steps with clear actions
+   - Include safety notes where applicable
+   - Be specific to commercial laundry equipment
+
+4. **Parts Needed**:
+   - List specific parts with generic part descriptions
+   - Include estimated costs (US dollars)
+   - Mark as required, recommended, or optional
+
+5. **Time Estimate**:
+   - Minimum, maximum, and average repair time in hours
+   - Factors that could affect timing
+
+6. **DIY vs Professional Recommendation**:
+   - DIY-Friendly (basic skills), DIY-Possible (intermediate), Professional-Recommended, or Professional-Required
+   - Required skill level
+   - Tools needed
+
+7. **Safety Warnings**: List any relevant safety concerns
+
+Return ONLY valid JSON in this exact format:
+{
+  "equipmentType": "${equipmentType}",
+  "symptomDescription": "${symptomDescription}",
+  "classification": {
+    "faultType": "mechanical" | "electrical" | "water" | "drainage" | "control" | "heating" | "motor" | "belt" | "sensor" | "other",
+    "specificProblem": "Specific problem description",
+    "severity": "Critical" | "Major" | "Minor" | "Routine",
+    "severityReason": "Why this severity level"
+  },
+  "diagnosis": {
+    "rootCause": "Most likely root cause explanation",
+    "affectedComponents": ["Component 1", "Component 2"],
+    "secondaryIssues": ["Potential secondary issue to check"]
+  },
+  "repairSteps": [
+    {
+      "step": 1,
+      "action": "Action title",
+      "details": "Detailed instructions",
+      "safetyNote": "Optional safety note"
+    }
+  ],
+  "partsNeeded": [
+    {
+      "partName": "Part name",
+      "partNumber": "Generic part number if known",
+      "estimatedCost": "$XX-$XX",
+      "priority": "required" | "recommended" | "optional"
+    }
+  ],
+  "timeEstimate": {
+    "minHours": 0.5,
+    "maxHours": 2,
+    "averageHours": 1,
+    "factors": ["Factor 1", "Factor 2"]
+  },
+  "recommendation": {
+    "diyFeasibility": "DIY-Friendly" | "DIY-Possible" | "Professional-Recommended" | "Professional-Required",
+    "reason": "Why this recommendation",
+    "skillLevel": "Beginner" | "Intermediate" | "Advanced" | "Expert",
+    "toolsRequired": ["Tool 1", "Tool 2"]
+  },
+  "safetyWarnings": ["Warning 1", "Warning 2"],
+  "additionalNotes": ["Additional helpful note"],
+  "confidence": 0.85
+}
+
+Be practical and accurate. Base your diagnosis on common commercial laundry equipment issues. Include manufacturer-specific tips when relevant.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const contentParts: any[] = [prompt];
+    
+    if (imageBase64 && mimeType) {
+      contentParts.push({
+        inlineData: {
+          mimeType: mimeType,
+          data: imageBase64,
+        },
+      });
+    }
+
+    const result = await model.generateContent(contentParts);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      return {
+        success: true,
+        data: {
+          equipmentType: parsed.equipmentType || equipmentType,
+          symptomDescription: parsed.symptomDescription || symptomDescription,
+          classification: {
+            faultType: parsed.classification?.faultType || "other",
+            specificProblem: parsed.classification?.specificProblem || "Unable to determine specific problem",
+            severity: parsed.classification?.severity || "Minor",
+            severityReason: parsed.classification?.severityReason || "Severity assessment pending",
+          },
+          diagnosis: {
+            rootCause: parsed.diagnosis?.rootCause || "Further inspection needed",
+            affectedComponents: Array.isArray(parsed.diagnosis?.affectedComponents) 
+              ? parsed.diagnosis.affectedComponents 
+              : [],
+            secondaryIssues: Array.isArray(parsed.diagnosis?.secondaryIssues) 
+              ? parsed.diagnosis.secondaryIssues 
+              : [],
+          },
+          repairSteps: Array.isArray(parsed.repairSteps) 
+            ? parsed.repairSteps.map((step: any, idx: number) => ({
+                step: step.step || idx + 1,
+                action: step.action || "Step action",
+                details: step.details || "",
+                safetyNote: step.safetyNote,
+              }))
+            : [],
+          partsNeeded: Array.isArray(parsed.partsNeeded) 
+            ? parsed.partsNeeded.map((part: any) => ({
+                partName: part.partName || "Unknown part",
+                partNumber: part.partNumber,
+                estimatedCost: part.estimatedCost || "Contact supplier",
+                priority: part.priority || "recommended",
+              }))
+            : [],
+          timeEstimate: {
+            minHours: typeof parsed.timeEstimate?.minHours === "number" ? parsed.timeEstimate.minHours : 0.5,
+            maxHours: typeof parsed.timeEstimate?.maxHours === "number" ? parsed.timeEstimate.maxHours : 4,
+            averageHours: typeof parsed.timeEstimate?.averageHours === "number" ? parsed.timeEstimate.averageHours : 2,
+            factors: Array.isArray(parsed.timeEstimate?.factors) ? parsed.timeEstimate.factors : [],
+          },
+          recommendation: {
+            diyFeasibility: parsed.recommendation?.diyFeasibility || "Professional-Recommended",
+            reason: parsed.recommendation?.reason || "Consult a professional for accurate diagnosis",
+            skillLevel: parsed.recommendation?.skillLevel || "Intermediate",
+            toolsRequired: Array.isArray(parsed.recommendation?.toolsRequired) 
+              ? parsed.recommendation.toolsRequired 
+              : [],
+          },
+          safetyWarnings: Array.isArray(parsed.safetyWarnings) ? parsed.safetyWarnings : [],
+          additionalNotes: Array.isArray(parsed.additionalNotes) ? parsed.additionalNotes : [],
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.7,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse fault classification response:", parseError);
+      return {
+        success: true,
+        data: {
+          equipmentType,
+          symptomDescription,
+          classification: {
+            faultType: "other",
+            specificProblem: "Unable to parse diagnosis - manual inspection recommended",
+            severity: "Minor",
+            severityReason: "Could not determine severity",
+          },
+          diagnosis: {
+            rootCause: "Analysis incomplete - please try again or consult a technician",
+            affectedComponents: [],
+            secondaryIssues: [],
+          },
+          repairSteps: [],
+          partsNeeded: [],
+          timeEstimate: {
+            minHours: 1,
+            maxHours: 4,
+            averageHours: 2,
+            factors: ["Requires on-site inspection"],
+          },
+          recommendation: {
+            diyFeasibility: "Professional-Recommended",
+            reason: "Unable to complete remote diagnosis",
+            skillLevel: "Intermediate",
+            toolsRequired: [],
+          },
+          safetyWarnings: ["Always disconnect power before inspecting electrical components"],
+          additionalNotes: ["Please try again with more details or clearer photo"],
+        },
+        confidence: 0.3,
+        error: "Could not parse diagnostic data from AI response",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini fault classification error:", error);
+    throw error;
+  }
+}
+
+router.post("/classify-fault", upload.single("image"), async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { equipmentType, symptomDescription } = req.body;
+
+    if (!equipmentType || !symptomDescription) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide equipment type and symptom description.",
+      });
+    }
+
+    let imageBase64: string | undefined;
+    let mimeType: string | undefined;
+
+    if (req.file) {
+      imageBase64 = req.file.buffer.toString("base64");
+      mimeType = req.file.mimetype;
+    }
+
+    const result = await classifyMaintenanceFault(
+      equipmentType,
+      symptomDescription,
+      imageBase64,
+      mimeType
+    );
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Fault classification error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to classify fault. Please try again.",
+    });
+  }
+});
+
+// ============================================================================
+// PRICING ELASTICITY MODELER - AI-powered price optimization analysis
+// ============================================================================
+
+export interface PricingElasticityResult {
+  success: boolean;
+  data: {
+    currentPricing: {
+      washPrice: number;
+      dryPrice: number;
+      wdfPricePerLb: number;
+    };
+    elasticityAnalysis: {
+      washElasticity: {
+        coefficient: number;
+        classification: "inelastic" | "unit-elastic" | "elastic";
+        interpretation: string;
+      };
+      dryElasticity: {
+        coefficient: number;
+        classification: "inelastic" | "unit-elastic" | "elastic";
+        interpretation: string;
+      };
+      wdfElasticity: {
+        coefficient: number;
+        classification: "inelastic" | "unit-elastic" | "elastic";
+        interpretation: string;
+      };
+      overallSensitivity: "low" | "moderate" | "high";
+      marketConditions: string;
+    };
+    revenueImpact: Array<{
+      priceChange: number;
+      washRevenue: number;
+      dryRevenue: number;
+      wdfRevenue: number;
+      totalRevenue: number;
+      changePercent: number;
+    }>;
+    optimalPricing: {
+      maxRevenue: {
+        washPrice: number;
+        dryPrice: number;
+        wdfPricePerLb: number;
+        estimatedRevenue: number;
+        revenueIncrease: number;
+      };
+      maxProfit: {
+        washPrice: number;
+        dryPrice: number;
+        wdfPricePerLb: number;
+        estimatedProfit: number;
+        profitIncrease: number;
+        assumptions: string;
+      };
+    };
+    competitorAnalysis: {
+      yourPosition: "below-market" | "at-market" | "above-market";
+      pricingGap: {
+        wash: number;
+        dry: number;
+        wdf: number;
+      };
+      marketAverage: {
+        wash: number;
+        dry: number;
+        wdf: number;
+      };
+      recommendation: string;
+    };
+    customerSensitivity: {
+      priceConscious: number;
+      qualityFocused: number;
+      convenienceDriven: number;
+      loyalCustomers: number;
+      segments: Array<{
+        segment: string;
+        sensitivity: "low" | "medium" | "high";
+        recommendation: string;
+      }>;
+    };
+    recommendations: Array<{
+      action: string;
+      priority: "high" | "medium" | "low";
+      expectedImpact: string;
+      implementation: string;
+    }>;
+  };
+  confidence: number;
+  error?: string;
+}
+
+async function analyzePricingElasticity(
+  washPrice: number,
+  dryPrice: number,
+  wdfPricePerLb: number,
+  monthlyWashCycles: number,
+  monthlyDryCycles: number,
+  monthlyWdfLbs: number,
+  competitorWashPrice?: number,
+  competitorDryPrice?: number,
+  competitorWdfPrice?: number,
+  areaType?: string,
+  customerDemographics?: string
+): Promise<PricingElasticityResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const currentMonthlyRevenue = 
+    (washPrice * monthlyWashCycles) + 
+    (dryPrice * monthlyDryCycles) + 
+    (wdfPricePerLb * monthlyWdfLbs);
+
+  const prompt = `You are an expert pricing economist specializing in laundromat and laundry service businesses. Analyze the following pricing data and provide a comprehensive price elasticity analysis.
+
+CURRENT PRICING:
+- Wash Cycle Price: $${washPrice.toFixed(2)}
+- Dry Cycle Price: $${dryPrice.toFixed(2)}  
+- WDF (Wash-Dry-Fold) per lb: $${wdfPricePerLb.toFixed(2)}
+
+CURRENT VOLUME (Monthly):
+- Wash Cycles: ${monthlyWashCycles}
+- Dry Cycles: ${monthlyDryCycles}
+- WDF Pounds: ${monthlyWdfLbs}
+
+CURRENT MONTHLY REVENUE: $${currentMonthlyRevenue.toFixed(2)}
+
+${competitorWashPrice ? `COMPETITOR PRICING:
+- Competitor Wash: $${competitorWashPrice.toFixed(2)}
+- Competitor Dry: $${competitorDryPrice?.toFixed(2) || 'Unknown'}
+- Competitor WDF/lb: $${competitorWdfPrice?.toFixed(2) || 'Unknown'}` : ''}
+
+${areaType ? `AREA TYPE: ${areaType}` : ''}
+${customerDemographics ? `CUSTOMER DEMOGRAPHICS: ${customerDemographics}` : ''}
+
+Provide a comprehensive price elasticity analysis including:
+
+1. **Elasticity Coefficients**: For each service (wash, dry, WDF), estimate the price elasticity coefficient. Use standard economic interpretation:
+   - |E| < 1: Inelastic (quantity changes less than price)
+   - |E| = 1: Unit elastic
+   - |E| > 1: Elastic (quantity changes more than price)
+
+2. **Revenue Impact Table**: Show estimated revenue at price changes from -20% to +20% (in 5% increments)
+
+3. **Optimal Pricing**: 
+   - Price points that maximize REVENUE
+   - Price points that maximize PROFIT (assume 70% gross margin on WDF, 80% on self-service)
+
+4. **Competitor Positioning**: How does current pricing compare to market averages and competitors?
+
+5. **Customer Sensitivity Analysis**: Break down customer segments by price sensitivity
+
+6. **Recommendations**: Actionable pricing recommendations with expected impact
+
+Return ONLY valid JSON in this exact format:
+{
+  "currentPricing": {
+    "washPrice": ${washPrice},
+    "dryPrice": ${dryPrice},
+    "wdfPricePerLb": ${wdfPricePerLb}
+  },
+  "elasticityAnalysis": {
+    "washElasticity": {
+      "coefficient": -0.6,
+      "classification": "inelastic",
+      "interpretation": "Description of what this means for pricing"
+    },
+    "dryElasticity": {
+      "coefficient": -0.5,
+      "classification": "inelastic",
+      "interpretation": "Description"
+    },
+    "wdfElasticity": {
+      "coefficient": -1.2,
+      "classification": "elastic",
+      "interpretation": "Description"
+    },
+    "overallSensitivity": "moderate",
+    "marketConditions": "Analysis of current market conditions"
+  },
+  "revenueImpact": [
+    {"priceChange": -20, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": -15, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": -10, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": -5, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": 0, "washRevenue": ${(washPrice * monthlyWashCycles).toFixed(0)}, "dryRevenue": ${(dryPrice * monthlyDryCycles).toFixed(0)}, "wdfRevenue": ${(wdfPricePerLb * monthlyWdfLbs).toFixed(0)}, "totalRevenue": ${currentMonthlyRevenue.toFixed(0)}, "changePercent": 0},
+    {"priceChange": 5, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": 10, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": 15, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0},
+    {"priceChange": 20, "washRevenue": 0, "dryRevenue": 0, "wdfRevenue": 0, "totalRevenue": 0, "changePercent": 0}
+  ],
+  "optimalPricing": {
+    "maxRevenue": {
+      "washPrice": 0,
+      "dryPrice": 0,
+      "wdfPricePerLb": 0,
+      "estimatedRevenue": 0,
+      "revenueIncrease": 0
+    },
+    "maxProfit": {
+      "washPrice": 0,
+      "dryPrice": 0,
+      "wdfPricePerLb": 0,
+      "estimatedProfit": 0,
+      "profitIncrease": 0,
+      "assumptions": "Based on 80% margin for self-service, 70% for WDF"
+    }
+  },
+  "competitorAnalysis": {
+    "yourPosition": "at-market",
+    "pricingGap": {
+      "wash": 0,
+      "dry": 0,
+      "wdf": 0
+    },
+    "marketAverage": {
+      "wash": 3.50,
+      "dry": 2.50,
+      "wdf": 1.75
+    },
+    "recommendation": "Specific recommendation about competitive positioning"
+  },
+  "customerSensitivity": {
+    "priceConscious": 35,
+    "qualityFocused": 25,
+    "convenienceDriven": 25,
+    "loyalCustomers": 15,
+    "segments": [
+      {
+        "segment": "Budget Seekers",
+        "sensitivity": "high",
+        "recommendation": "Action for this segment"
+      },
+      {
+        "segment": "Premium Customers",
+        "sensitivity": "low",
+        "recommendation": "Action for this segment"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "action": "Specific pricing action",
+      "priority": "high",
+      "expectedImpact": "Expected outcome",
+      "implementation": "How to implement"
+    }
+  ],
+  "confidence": 0.8
+}
+
+Be realistic with elasticity coefficients - laundry services are typically inelastic as they are necessity services. 
+Use industry knowledge to estimate realistic values.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      return {
+        success: true,
+        data: {
+          currentPricing: {
+            washPrice: parsed.currentPricing?.washPrice || washPrice,
+            dryPrice: parsed.currentPricing?.dryPrice || dryPrice,
+            wdfPricePerLb: parsed.currentPricing?.wdfPricePerLb || wdfPricePerLb,
+          },
+          elasticityAnalysis: {
+            washElasticity: {
+              coefficient: parsed.elasticityAnalysis?.washElasticity?.coefficient || -0.6,
+              classification: parsed.elasticityAnalysis?.washElasticity?.classification || "inelastic",
+              interpretation: parsed.elasticityAnalysis?.washElasticity?.interpretation || "Self-service wash is typically inelastic",
+            },
+            dryElasticity: {
+              coefficient: parsed.elasticityAnalysis?.dryElasticity?.coefficient || -0.5,
+              classification: parsed.elasticityAnalysis?.dryElasticity?.classification || "inelastic",
+              interpretation: parsed.elasticityAnalysis?.dryElasticity?.interpretation || "Dryer service shows low price sensitivity",
+            },
+            wdfElasticity: {
+              coefficient: parsed.elasticityAnalysis?.wdfElasticity?.coefficient || -1.1,
+              classification: parsed.elasticityAnalysis?.wdfElasticity?.classification || "elastic",
+              interpretation: parsed.elasticityAnalysis?.wdfElasticity?.interpretation || "WDF service is more price sensitive",
+            },
+            overallSensitivity: parsed.elasticityAnalysis?.overallSensitivity || "moderate",
+            marketConditions: parsed.elasticityAnalysis?.marketConditions || "Standard market conditions",
+          },
+          revenueImpact: Array.isArray(parsed.revenueImpact) ? parsed.revenueImpact : [],
+          optimalPricing: {
+            maxRevenue: {
+              washPrice: parsed.optimalPricing?.maxRevenue?.washPrice || washPrice * 1.05,
+              dryPrice: parsed.optimalPricing?.maxRevenue?.dryPrice || dryPrice * 1.05,
+              wdfPricePerLb: parsed.optimalPricing?.maxRevenue?.wdfPricePerLb || wdfPricePerLb,
+              estimatedRevenue: parsed.optimalPricing?.maxRevenue?.estimatedRevenue || currentMonthlyRevenue * 1.08,
+              revenueIncrease: parsed.optimalPricing?.maxRevenue?.revenueIncrease || 8,
+            },
+            maxProfit: {
+              washPrice: parsed.optimalPricing?.maxProfit?.washPrice || washPrice * 1.1,
+              dryPrice: parsed.optimalPricing?.maxProfit?.dryPrice || dryPrice * 1.1,
+              wdfPricePerLb: parsed.optimalPricing?.maxProfit?.wdfPricePerLb || wdfPricePerLb * 1.05,
+              estimatedProfit: parsed.optimalPricing?.maxProfit?.estimatedProfit || currentMonthlyRevenue * 0.85,
+              profitIncrease: parsed.optimalPricing?.maxProfit?.profitIncrease || 12,
+              assumptions: parsed.optimalPricing?.maxProfit?.assumptions || "Based on 80% margin for self-service, 70% for WDF",
+            },
+          },
+          competitorAnalysis: {
+            yourPosition: parsed.competitorAnalysis?.yourPosition || "at-market",
+            pricingGap: {
+              wash: parsed.competitorAnalysis?.pricingGap?.wash || 0,
+              dry: parsed.competitorAnalysis?.pricingGap?.dry || 0,
+              wdf: parsed.competitorAnalysis?.pricingGap?.wdf || 0,
+            },
+            marketAverage: {
+              wash: parsed.competitorAnalysis?.marketAverage?.wash || 3.50,
+              dry: parsed.competitorAnalysis?.marketAverage?.dry || 2.50,
+              wdf: parsed.competitorAnalysis?.marketAverage?.wdf || 1.75,
+            },
+            recommendation: parsed.competitorAnalysis?.recommendation || "Monitor competitor pricing and adjust accordingly",
+          },
+          customerSensitivity: {
+            priceConscious: parsed.customerSensitivity?.priceConscious || 35,
+            qualityFocused: parsed.customerSensitivity?.qualityFocused || 25,
+            convenienceDriven: parsed.customerSensitivity?.convenienceDriven || 25,
+            loyalCustomers: parsed.customerSensitivity?.loyalCustomers || 15,
+            segments: Array.isArray(parsed.customerSensitivity?.segments) 
+              ? parsed.customerSensitivity.segments 
+              : [],
+          },
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.75,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse pricing elasticity response:", parseError);
+      return {
+        success: true,
+        data: {
+          currentPricing: { washPrice, dryPrice, wdfPricePerLb },
+          elasticityAnalysis: {
+            washElasticity: { coefficient: -0.6, classification: "inelastic", interpretation: "Self-service wash is typically inelastic due to necessity" },
+            dryElasticity: { coefficient: -0.5, classification: "inelastic", interpretation: "Dryer service shows low price sensitivity" },
+            wdfElasticity: { coefficient: -1.1, classification: "elastic", interpretation: "WDF competes with home washing and is more price sensitive" },
+            overallSensitivity: "moderate",
+            marketConditions: "Unable to fully analyze - using industry averages",
+          },
+          revenueImpact: [],
+          optimalPricing: {
+            maxRevenue: {
+              washPrice: washPrice * 1.05,
+              dryPrice: dryPrice * 1.05,
+              wdfPricePerLb: wdfPricePerLb,
+              estimatedRevenue: currentMonthlyRevenue * 1.08,
+              revenueIncrease: 8,
+            },
+            maxProfit: {
+              washPrice: washPrice * 1.1,
+              dryPrice: dryPrice * 1.1,
+              wdfPricePerLb: wdfPricePerLb * 1.05,
+              estimatedProfit: currentMonthlyRevenue * 0.85,
+              profitIncrease: 12,
+              assumptions: "Based on industry standard margins",
+            },
+          },
+          competitorAnalysis: {
+            yourPosition: "at-market",
+            pricingGap: { wash: 0, dry: 0, wdf: 0 },
+            marketAverage: { wash: 3.50, dry: 2.50, wdf: 1.75 },
+            recommendation: "Further analysis needed - please try again",
+          },
+          customerSensitivity: {
+            priceConscious: 35,
+            qualityFocused: 25,
+            convenienceDriven: 25,
+            loyalCustomers: 15,
+            segments: [],
+          },
+          recommendations: [
+            {
+              action: "Rerun analysis with complete data",
+              priority: "high" as const,
+              expectedImpact: "More accurate elasticity estimates",
+              implementation: "Provide competitor pricing and demographic data",
+            },
+          ],
+        },
+        confidence: 0.4,
+        error: "Partial analysis completed - some data could not be parsed",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini pricing elasticity error:", error);
+    throw error;
+  }
+}
+
+router.post("/model-pricing-elasticity", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const {
+      washPrice,
+      dryPrice,
+      wdfPricePerLb,
+      monthlyWashCycles,
+      monthlyDryCycles,
+      monthlyWdfLbs,
+      competitorWashPrice,
+      competitorDryPrice,
+      competitorWdfPrice,
+      areaType,
+      customerDemographics,
+    } = req.body;
+
+    if (!washPrice || !dryPrice || !wdfPricePerLb) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide current prices for wash, dry, and WDF services.",
+      });
+    }
+
+    if (!monthlyWashCycles || !monthlyDryCycles || !monthlyWdfLbs) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide current monthly volume for all services.",
+      });
+    }
+
+    const result = await analyzePricingElasticity(
+      parseFloat(washPrice),
+      parseFloat(dryPrice),
+      parseFloat(wdfPricePerLb),
+      parseInt(monthlyWashCycles),
+      parseInt(monthlyDryCycles),
+      parseInt(monthlyWdfLbs),
+      competitorWashPrice ? parseFloat(competitorWashPrice) : undefined,
+      competitorDryPrice ? parseFloat(competitorDryPrice) : undefined,
+      competitorWdfPrice ? parseFloat(competitorWdfPrice) : undefined,
+      areaType,
+      customerDemographics
+    );
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Pricing elasticity analysis error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to analyze pricing elasticity. Please try again.",
+    });
+  }
+});
+
 export default router;

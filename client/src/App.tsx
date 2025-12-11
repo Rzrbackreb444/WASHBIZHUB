@@ -144,11 +144,15 @@ const AIBlogging = lazy(() => import("@/pages/ai-blogging"));
 const SEOOptimizer = lazy(() => import("@/pages/seo-optimizer"));
 const AIContentStudio = lazy(() => import("@/pages/ai-content-studio"));
 const ServiceGuyAI = lazy(() => import("@/pages/service-guy-ai"));
+const FaultClassifier = lazy(() => import("@/pages/fault-classifier"));
 const SeoCommandCenter = lazy(() => import("@/pages/seo-command-center"));
 const UtilityBillScanner = lazy(() => import("@/pages/utility-bill-scanner"));
 const SmartLocationScout = lazy(() => import("@/pages/smart-location-scout"));
 const CompetitorIntelligence = lazy(() => import("@/pages/competitor-intelligence"));
 const EquipmentAppraiser = lazy(() => import("@/pages/equipment-appraiser"));
+const DemographicClusterer = lazy(() => import("@/pages/demographic-clusterer"));
+const UtilityLoadForecaster = lazy(() => import("@/pages/utility-load-forecaster"));
+const PricingElasticity = lazy(() => import("@/pages/pricing-elasticity"));
 
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
@@ -810,6 +814,21 @@ function Router() {
           <CompetitorIntelligence />
         </Suspense>
       </Route>
+      <Route path="/demographic-clusterer">
+        <Suspense fallback={<LoadingFallback />}>
+          <DemographicClusterer />
+        </Suspense>
+      </Route>
+      <Route path="/utility-load-forecaster">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityLoadForecaster />
+        </Suspense>
+      </Route>
+      <Route path="/pricing-elasticity">
+        <Suspense fallback={<LoadingFallback />}>
+          <PricingElasticity />
+        </Suspense>
+      </Route>
       <Route path="/cac-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <CACCalculator />
@@ -1161,6 +1180,11 @@ function Router() {
       <Route path="/service-guy-ai">
         <Suspense fallback={<LoadingFallback />}>
           <ServiceGuyAI />
+        </Suspense>
+      </Route>
+      <Route path="/fault-classifier">
+        <Suspense fallback={<LoadingFallback />}>
+          <FaultClassifier />
         </Suspense>
       </Route>
 
