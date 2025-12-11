@@ -5,8 +5,10 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import { cloudflareAccess } from "./services/cloudflare-access";
+import { unifiedAuth } from "./services/unified-auth";
 import { db } from "./db";
-import { adminActivityLog } from "@shared/schema";
+import { adminActivityLog, users } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -15,12 +17,37 @@ const router = Router();
  * Check Cloudflare Access configuration status
  */
 router.get("/status", (req: Request, res: Response) => {
+  const status = cloudflareAccess.getConfigurationStatus();
+  
   res.json({
-    configured: cloudflareAccess.isConfigured(),
+    configured: status.configured,
     audienceConfigured: cloudflareAccess.hasAudienceConfigured(),
     provider: "cloudflare-access",
-    teamDomain: process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ? "✓ Set" : "✗ Missing",
-    audience: process.env.CLOUDFLARE_ACCESS_AUDIENCE ? "✓ Set" : "⚠ Optional (will auto-detect)",
+    teamDomain: process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ? "✓ Set" : "✗ Missing (REQUIRED)",
+    audience: process.env.CLOUDFLARE_ACCESS_AUDIENCE ? "✓ Set" : "✗ Missing (REQUIRED for Zero Trust)",
+    issues: status.issues.length > 0 ? status.issues : undefined,
+    security: status.configured ? "✓ Zero Trust validation enabled" : "⚠ Configuration incomplete",
+  });
+});
+
+/**
+ * GET /api/auth/providers
+ * Get available authentication providers for frontend
+ */
+router.get("/providers", (req: Request, res: Response) => {
+  res.json({
+    primary: unifiedAuth.isCloudflareAccessPrimary() ? 'cloudflare-access' : 'google',
+    providers: unifiedAuth.getConfiguredProviders(),
+    cloudflareAccess: {
+      enabled: cloudflareAccess.isConfigured(),
+      loginUrl: cloudflareAccess.isConfigured() ? '/api/auth/cloudflare/login' : null,
+      label: 'Sign in with Enterprise SSO',
+    },
+    google: {
+      enabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      loginUrl: '/api/auth/google/login',
+      label: 'Sign in with Google',
+    },
   });
 });
 

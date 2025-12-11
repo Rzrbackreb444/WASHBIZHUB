@@ -56,12 +56,19 @@ export class CloudflareAccessService {
   }
 
   isConfigured(): boolean {
-    // Only require team domain - audience is optional for initial setup
-    return !!this.teamDomain;
+    // Both team domain AND audience are required for secure Zero Trust validation
+    return !!(this.teamDomain && this.audienceTag);
   }
   
   hasAudienceConfigured(): boolean {
     return !!this.audienceTag;
+  }
+  
+  getConfigurationStatus(): { configured: boolean; issues: string[] } {
+    const issues: string[] = [];
+    if (!this.teamDomain) issues.push('CLOUDFLARE_ACCESS_TEAM_DOMAIN is not set');
+    if (!this.audienceTag) issues.push('CLOUDFLARE_ACCESS_AUDIENCE is not set (required for Zero Trust)');
+    return { configured: issues.length === 0, issues };
   }
 
   getLoginUrl(redirectPath: string = '/'): string {
@@ -157,16 +164,11 @@ export class CloudflareAccessService {
         return null;
       }
 
-      // Validate audience (if configured)
-      if (this.audienceTag) {
-        if (!payload.aud || !payload.aud.includes(this.audienceTag)) {
-          console.error('Invalid audience. Token aud:', payload.aud, 'Expected:', this.audienceTag);
-          return null;
-        }
-      } else {
-        // Log the audience so user can configure it
-        console.log('📋 Cloudflare Access Token received. Your AUDIENCE tag is:', payload.aud);
-        console.log('   Add this to CLOUDFLARE_ACCESS_AUDIENCE secret for stricter validation');
+      // Validate audience (MANDATORY for Zero Trust security)
+      if (!payload.aud || !payload.aud.includes(this.audienceTag)) {
+        console.error('❌ Invalid audience. Token aud:', payload.aud, 'Expected:', this.audienceTag);
+        console.error('   This is a security violation - token may be from a different Access application');
+        return null;
       }
 
       // Validate issuer
