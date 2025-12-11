@@ -282,6 +282,8 @@ export default function OperatorDashboard() {
   const openTickets = kpiData?.tickets?.total ?? 0;
   const urgentTickets = kpiData?.tickets?.urgent ?? 0;
   const pendingDeliveries = 5; // TODO: Connect to real delivery tracking API
+  const loyaltyMembers = 0; // TODO: Connect to real loyalty API
+  const lowStockItems = 0; // TODO: Connect to real inventory API
 
   // Build machine status data from real API
   const machineStatusData = [
