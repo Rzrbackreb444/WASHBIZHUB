@@ -103,17 +103,31 @@ router.get("/kpis", isAuthenticated, async (req: Request, res: Response) => {
       .from(machineAssets)
       .where(inArray(machineAssets.laundromatId, laundromatIds));
 
-    // Active service tickets
-    const [ticketStats] = await db.select({
-      total: count(),
-      urgent: sql<number>`COUNT(CASE WHEN ${repairTickets.priority} = 'urgent' THEN 1 END)`,
-      pending: sql<number>`COUNT(CASE WHEN ${repairTickets.status} = 'pending' THEN 1 END)`,
-    })
-      .from(repairTickets)
-      .where(and(
-        inArray(repairTickets.machineId, laundromatIds),
-        sql`${repairTickets.status} != 'completed'`
-      ));
+    // Get machine IDs belonging to operator's laundromats
+    const userMachines = await db.select({ id: machineAssets.id })
+      .from(machineAssets)
+      .where(inArray(machineAssets.laundromatId, laundromatIds));
+    const machineIds = userMachines.map(m => m.id);
+
+    // Active service tickets (filter by machine IDs, not laundromat IDs)
+    let ticketStats = { total: 0, urgent: 0, pending: 0 };
+    if (machineIds.length > 0) {
+      const [stats] = await db.select({
+        total: count(),
+        urgent: sql<number>`COUNT(CASE WHEN ${repairTickets.priority} = 'urgent' THEN 1 END)`,
+        pending: sql<number>`COUNT(CASE WHEN ${repairTickets.status} = 'pending' THEN 1 END)`,
+      })
+        .from(repairTickets)
+        .where(and(
+          inArray(repairTickets.machineId, machineIds),
+          sql`${repairTickets.status} != 'completed'`
+        ));
+      ticketStats = {
+        total: Number(stats?.total) || 0,
+        urgent: Number(stats?.urgent) || 0,
+        pending: Number(stats?.pending) || 0,
+      };
+    }
 
     res.json({
       revenue: {
@@ -128,11 +142,7 @@ router.get("/kpis", isAuthenticated, async (req: Request, res: Response) => {
         maintenance: Number(machineStats?.maintenance) || 0,
         offline: Number(machineStats?.offline) || 0,
       },
-      tickets: {
-        total: Number(ticketStats?.total) || 0,
-        urgent: Number(ticketStats?.urgent) || 0,
-        pending: Number(ticketStats?.pending) || 0,
-      },
+      tickets: ticketStats,
     });
   } catch (error: any) {
     console.error("Operator KPIs error:", error);
@@ -291,7 +301,7 @@ router.get("/machines", isAuthenticated, async (req: Request, res: Response) => 
   }
 });
 
-// Get service/repair tickets
+// Get service/repair tickets for operator's machines only
 router.get("/tickets", isAuthenticated, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -299,13 +309,31 @@ router.get("/tickets", isAuthenticated, async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    // Get tickets assigned to this user or for their laundromats
+    // Get laundromat IDs for this operator
     const laundromatIds = await getUserLaundromatIds(userId);
     
+    if (laundromatIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Get machine IDs belonging to operator's laundromats
+    const userMachines = await db.select({ id: machineAssets.id })
+      .from(machineAssets)
+      .where(inArray(machineAssets.laundromatId, laundromatIds));
+    const machineIds = userMachines.map(m => m.id);
+
+    if (machineIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Only return tickets for operator's machines
     const tickets = await db
       .select()
       .from(repairTickets)
-      .where(sql`${repairTickets.status} != 'completed'`)
+      .where(and(
+        inArray(repairTickets.machineId, machineIds),
+        sql`${repairTickets.status} != 'completed'`
+      ))
       .orderBy(desc(repairTickets.createdAt))
       .limit(20);
 

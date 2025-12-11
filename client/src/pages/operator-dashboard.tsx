@@ -281,6 +281,7 @@ export default function OperatorDashboard() {
   const activeMachines = (kpiData?.machines?.running ?? 0) + (kpiData?.machines?.available ?? 0);
   const openTickets = kpiData?.tickets?.total ?? 0;
   const urgentTickets = kpiData?.tickets?.urgent ?? 0;
+  const pendingDeliveries = 5; // TODO: Connect to real delivery tracking API
 
   // Build machine status data from real API
   const machineStatusData = [

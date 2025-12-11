@@ -132,17 +132,16 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {productsLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href}>
-                      <span 
-                        className={`text-sm cursor-pointer transition-colors ${
-                          link.featured 
-                            ? "text-[#C8A661] hover:text-[#d4a030]" 
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        data-testid={link.testId}
-                      >
-                        {link.label}
-                      </span>
+                    <Link 
+                      href={link.href}
+                      className={`text-sm cursor-pointer transition-colors block ${
+                        link.featured 
+                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      data-testid={link.testId}
+                    >
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -155,17 +154,16 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {calculatorLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href}>
-                      <span 
-                        className={`text-sm cursor-pointer transition-colors ${
-                          link.featured 
-                            ? "text-[#C8A661] hover:text-[#d4a030]" 
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        data-testid={link.testId}
-                      >
-                        {link.label}
-                      </span>
+                    <Link 
+                      href={link.href}
+                      className={`text-sm cursor-pointer transition-colors block ${
+                        link.featured 
+                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      data-testid={link.testId}
+                    >
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -178,17 +176,16 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {marketplaceLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href}>
-                      <span 
-                        className={`text-sm cursor-pointer transition-colors ${
-                          link.featured 
-                            ? "text-[#C8A661] hover:text-[#d4a030]" 
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        data-testid={link.testId}
-                      >
-                        {link.label}
-                      </span>
+                    <Link 
+                      href={link.href}
+                      className={`text-sm cursor-pointer transition-colors block ${
+                        link.featured 
+                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      data-testid={link.testId}
+                    >
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -201,17 +198,16 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {resourcesLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href}>
-                      <span 
-                        className={`text-sm cursor-pointer transition-colors ${
-                          link.featured 
-                            ? "text-[#C8A661] hover:text-[#d4a030]" 
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        data-testid={link.testId}
-                      >
-                        {link.label}
-                      </span>
+                    <Link 
+                      href={link.href}
+                      className={`text-sm cursor-pointer transition-colors block ${
+                        link.featured 
+                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      data-testid={link.testId}
+                    >
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -224,17 +220,16 @@ export function Footer() {
               <ul className="space-y-2.5">
                 {companyLinks.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href}>
-                      <span 
-                        className={`text-sm cursor-pointer transition-colors ${
-                          link.featured 
-                            ? "text-[#C8A661] hover:text-[#d4a030]" 
-                            : "text-white/60 hover:text-white"
-                        }`}
-                        data-testid={link.testId}
-                      >
-                        {link.label}
-                      </span>
+                    <Link 
+                      href={link.href}
+                      className={`text-sm cursor-pointer transition-colors block ${
+                        link.featured 
+                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      data-testid={link.testId}
+                    >
+                      {link.label}
                     </Link>
                   </li>
                 ))}
