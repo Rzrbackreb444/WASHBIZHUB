@@ -154,6 +154,7 @@ const DemographicClusterer = lazy(() => import("@/pages/demographic-clusterer"))
 const UtilityLoadForecaster = lazy(() => import("@/pages/utility-load-forecaster"));
 const PricingElasticity = lazy(() => import("@/pages/pricing-elasticity"));
 const DeliveryRouteOptimizer = lazy(() => import("@/pages/delivery-route-optimizer"));
+const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"));
 
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
@@ -211,6 +212,9 @@ const Messages = lazy(() => import("@/pages/messages"));
 // Network / Community
 const Network = lazy(() => import("@/pages/network"));
 const Activity = lazy(() => import("@/pages/activity"));
+
+// User Profile Features
+const SavedAnalyses = lazy(() => import("@/pages/saved-analyses"));
 
 // SRA (Stroke Recovery App) Pages
 const SRAHome = lazy(() => import("@/pages/sra/home"));
@@ -833,6 +837,11 @@ function Router() {
       <Route path="/delivery-route-optimizer">
         <Suspense fallback={<LoadingFallback />}>
           <DeliveryRouteOptimizer />
+        </Suspense>
+      </Route>
+      <Route path="/marketing-attribution">
+        <Suspense fallback={<LoadingFallback />}>
+          <MarketingAttribution />
         </Suspense>
       </Route>
       <Route path="/cac-calculator">
@@ -1679,6 +1688,13 @@ function Router() {
       <Route path="/profile/:username">
         <Suspense fallback={<LoadingFallback />}>
           <ProfilePage />
+        </Suspense>
+      </Route>
+
+      {/* Saved Analyses */}
+      <Route path="/saved-analyses">
+        <Suspense fallback={<LoadingFallback />}>
+          <SavedAnalyses />
         </Suspense>
       </Route>
 
