@@ -161,6 +161,7 @@ const LTVCalculator = lazy(() => import("@/pages/ltv-calculator"));
 const CACCalculator = lazy(() => import("@/pages/cac-calculator"));
 const LTVCACDashboard = lazy(() => import("@/pages/ltv-cac-dashboard"));
 const WDFEfficiencyCalculator = lazy(() => import("@/pages/wdf-efficiency-calculator"));
+const WDFPricingOptimizer = lazy(() => import("@/pages/wdf-pricing-optimizer"));
 const WhatIfAnalysis = lazy(() => import("@/pages/what-if-analysis"));
 const EquipmentMixOptimizer = lazy(() => import("@/pages/equipment-mix-optimizer"));
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
@@ -171,6 +172,9 @@ const StaffingLevelCalculator = lazy(() => import("@/pages/staffing-level-calcul
 const DowntimeCostCalculator = lazy(() => import("@/pages/downtime-cost-calculator"));
 const BreakEvenCalculator = lazy(() => import("@/pages/break-even-calculator"));
 const FinancingScenarioMixer = lazy(() => import("@/pages/financing-scenario-mixer"));
+const RouteProfitOptimizer = lazy(() => import("@/pages/route-profit-optimizer"));
+const MarketGapFinder = lazy(() => import("@/pages/market-gap-finder"));
+const DueDiligenceVerifier = lazy(() => import("@/pages/due-diligence-verifier"));
 
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
@@ -773,6 +777,11 @@ function Router() {
           <WDFEfficiencyCalculator />
         </Suspense>
       </Route>
+      <Route path="/wdf-pricing-optimizer">
+        <Suspense fallback={<LoadingFallback />}>
+          <WDFPricingOptimizer />
+        </Suspense>
+      </Route>
       <Route path="/what-if-analysis">
         <Suspense fallback={<LoadingFallback />}>
           <WhatIfAnalysis />
@@ -801,6 +810,21 @@ function Router() {
       <Route path="/financing-scenario-mixer">
         <Suspense fallback={<LoadingFallback />}>
           <FinancingScenarioMixer />
+        </Suspense>
+      </Route>
+      <Route path="/route-profit-optimizer">
+        <Suspense fallback={<LoadingFallback />}>
+          <RouteProfitOptimizer />
+        </Suspense>
+      </Route>
+      <Route path="/market-gap-finder">
+        <Suspense fallback={<LoadingFallback />}>
+          <MarketGapFinder />
+        </Suspense>
+      </Route>
+      <Route path="/due-diligence-verifier">
+        <Suspense fallback={<LoadingFallback />}>
+          <DueDiligenceVerifier />
         </Suspense>
       </Route>
 
