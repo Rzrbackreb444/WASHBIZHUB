@@ -71,11 +71,16 @@ export class CloudflareAccessService {
     return { configured: issues.length === 0, issues };
   }
 
-  getLoginUrl(redirectPath: string = '/'): string {
+  getLoginUrl(redirectPath: string = '/', appUrl?: string): string {
     if (!this.isConfigured()) {
       throw new Error('Cloudflare Access is not configured');
     }
-    return `https://${this.teamDomain}/cdn-cgi/access/login?redirect_url=${encodeURIComponent(redirectPath)}`;
+    // Use full app URL for redirect so Cloudflare returns to the correct domain
+    const baseUrl = appUrl || process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+      : (process.env.APP_URL || '');
+    const fullRedirectUrl = baseUrl ? `${baseUrl}${redirectPath}` : redirectPath;
+    return `https://${this.teamDomain}/cdn-cgi/access/login?redirect_url=${encodeURIComponent(fullRedirectUrl)}`;
   }
 
   getLogoutUrl(): string {

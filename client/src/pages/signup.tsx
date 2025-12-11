@@ -25,7 +25,7 @@ import { queryClient } from "@/lib/queryClient";
 import { 
   UserPlus, Mail, Lock, Eye, EyeOff, AlertCircle, User, 
   CheckCircle2, Sparkles, Loader2, ArrowRight, Shield, Users,
-  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench
+  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench, Building2
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 
@@ -128,12 +128,10 @@ export default function Signup() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
 
-  // Handle Cloudflare Access - redirect directly to SSO
-  useEffect(() => {
-    if (!isLoading && isCloudflareAccess && !isAuthenticated) {
-      login('/dashboard');
-    }
-  }, [isLoading, isCloudflareAccess, isAuthenticated, login]);
+  // Manual Cloudflare SSO login handler
+  const handleCloudflareLogin = useCallback(() => {
+    login('/dashboard');
+  }, [login]);
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -252,26 +250,6 @@ export default function Signup() {
     return (
       <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4" data-testid="loading-signup">
         <Loader2 className="h-12 w-12 text-[#C8A661] animate-spin" />
-      </div>
-    );
-  }
-
-  // Show Cloudflare Access login message while redirecting
-  if (isCloudflareAccess && !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4" data-testid="cloudflare-redirect">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <div className="h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-6">
-              <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h1 className="text-2xl font-bold mb-2">Enterprise Sign In</h1>
-            <p className="text-muted-foreground mb-6">
-              Redirecting to secure enterprise login...
-            </p>
-            <Loader2 className="h-8 w-8 text-[#C8A661] animate-spin mx-auto" />
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -402,12 +380,28 @@ export default function Signup() {
             <CardContent className="p-6 md:p-8">
               <Button
                 onClick={handleGoogleSignup}
-                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-6"
+                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-4"
                 data-testid="button-google-signup"
               >
                 <SiGoogle className="h-5 w-5 mr-2" />
                 Continue with Google
               </Button>
+
+              {/* Enterprise SSO via Cloudflare Access */}
+              {isCloudflareAccess && (
+                <Button
+                  variant="outline"
+                  className="w-full h-12 text-base font-medium gap-2 border-primary/30 hover:border-primary hover:bg-primary/5 mb-4"
+                  onClick={handleCloudflareLogin}
+                  data-testid="button-signup-enterprise-sso"
+                >
+                  <Building2 className="w-5 h-5 text-primary" />
+                  <span>Enterprise SSO</span>
+                  <span className="ml-auto text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
+                    Zero Trust
+                  </span>
+                </Button>
+              )}
 
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Button
