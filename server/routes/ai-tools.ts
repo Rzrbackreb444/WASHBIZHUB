@@ -3144,4 +3144,771 @@ router.post("/model-pricing-elasticity", async (req, res) => {
   }
 });
 
+// ============================================================================
+// DELIVERY ROUTE OPTIMIZER - AI-powered route optimization for laundromat delivery services
+// ============================================================================
+
+export interface DeliveryStop {
+  id: string;
+  address: string;
+  customerName: string;
+  orderSize: "small" | "medium" | "large" | "extra-large";
+  timeWindowStart?: string;
+  timeWindowEnd?: string;
+  priority: "normal" | "high" | "vip";
+  notes?: string;
+}
+
+export interface VehicleConstraints {
+  capacity: number;
+  fuelEconomyMpg: number;
+  fuelPricePerGallon: number;
+}
+
+export interface OptimizedStop {
+  sequence: number;
+  stopId: string;
+  address: string;
+  customerName: string;
+  orderSize: string;
+  priority: string;
+  estimatedArrival: string;
+  estimatedDeparture: string;
+  travelTimeFromPrevious: number;
+  distanceFromPrevious: number;
+  timeWindowCompliant: boolean;
+  timeWindowNotes: string;
+  driverInstructions: string;
+}
+
+export interface DeliveryRouteOptimizationResult {
+  success: boolean;
+  data: {
+    startLocation: string;
+    optimizedStops: OptimizedStop[];
+    routeStatistics: {
+      totalDistance: number;
+      totalDuration: number;
+      totalFuelCost: number;
+      averageTimePerStop: number;
+      numberOfStops: number;
+      estimatedStartTime: string;
+      estimatedEndTime: string;
+    };
+    timeWindowCompliance: {
+      compliantStops: number;
+      nonCompliantStops: number;
+      complianceRate: number;
+      issues: Array<{
+        stopId: string;
+        customerName: string;
+        issue: string;
+        suggestion: string;
+      }>;
+    };
+    efficiencyScore: {
+      overall: number;
+      routeEfficiency: number;
+      timeWindowScore: number;
+      capacityUtilization: number;
+      grade: "A" | "B" | "C" | "D";
+      summary: string;
+    };
+    trafficConsiderations: {
+      peakHourWarnings: string[];
+      avoidAreas: string[];
+      bestDepartureWindow: string;
+    };
+    alternativeRoutes: Array<{
+      name: string;
+      description: string;
+      timeDifference: number;
+      distanceDifference: number;
+      tradeoffs: string;
+    }>;
+    googleMapsUrl: string;
+    driverBriefing: string;
+  };
+  confidence: number;
+  error?: string;
+}
+
+function getRouteGrade(score: number): "A" | "B" | "C" | "D" {
+  if (score >= 90) return "A";
+  if (score >= 75) return "B";
+  if (score >= 60) return "C";
+  return "D";
+}
+
+function generateGoogleMapsUrl(startLocation: string, stops: Array<{ address: string }>): string {
+  const waypoints = stops.map(s => encodeURIComponent(s.address)).join("|");
+  const origin = encodeURIComponent(startLocation);
+  const destination = stops.length > 0 ? encodeURIComponent(stops[stops.length - 1].address) : origin;
+  return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
+}
+
+async function optimizeDeliveryRoute(
+  startLocation: string,
+  stops: DeliveryStop[],
+  vehicleConstraints: VehicleConstraints,
+  departureTime?: string
+): Promise<DeliveryRouteOptimizationResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const stopsJson = JSON.stringify(stops, null, 2);
+  const currentTime = departureTime || new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+  const prompt = `You are an expert logistics and route optimization specialist for laundromat pickup and delivery services. Analyze and optimize this delivery route.
+
+ROUTE DETAILS:
+- Start Location (Laundromat): ${startLocation}
+- Departure Time: ${currentTime}
+- Vehicle Capacity: ${vehicleConstraints.capacity} lbs
+- Fuel Economy: ${vehicleConstraints.fuelEconomyMpg} MPG
+- Fuel Price: $${vehicleConstraints.fuelPricePerGallon}/gallon
+
+DELIVERY STOPS TO OPTIMIZE:
+${stopsJson}
+
+OPTIMIZATION OBJECTIVES (in priority order):
+1. Minimize total travel time and distance
+2. Respect time windows where specified
+3. Prioritize VIP and high-priority customers
+4. Maximize vehicle capacity utilization
+5. Consider typical traffic patterns
+
+Provide a comprehensive route optimization with:
+1. Optimal stop sequence (reorder stops for efficiency)
+2. Estimated arrival and departure times for each stop (allow 5-10 min per stop based on order size)
+3. Travel time and distance between consecutive stops
+4. Time window compliance check for each stop
+5. Driver instructions for each stop
+6. Overall route statistics
+7. Efficiency scoring
+8. Traffic considerations and warnings
+9. Alternative route suggestions
+10. A summary briefing for the driver
+
+Return ONLY valid JSON in this exact format:
+{
+  "startLocation": "${startLocation}",
+  "optimizedStops": [
+    {
+      "sequence": 1,
+      "stopId": "stop-id",
+      "address": "Full address",
+      "customerName": "Customer Name",
+      "orderSize": "small|medium|large|extra-large",
+      "priority": "normal|high|vip",
+      "estimatedArrival": "10:30 AM",
+      "estimatedDeparture": "10:38 AM",
+      "travelTimeFromPrevious": 8,
+      "distanceFromPrevious": 2.5,
+      "timeWindowCompliant": true,
+      "timeWindowNotes": "Within requested window" or "Arrives 15 min early",
+      "driverInstructions": "Ring doorbell, leave at front porch if no answer"
+    }
+  ],
+  "routeStatistics": {
+    "totalDistance": 25.5,
+    "totalDuration": 120,
+    "totalFuelCost": 8.50,
+    "averageTimePerStop": 8,
+    "numberOfStops": ${stops.length},
+    "estimatedStartTime": "${currentTime}",
+    "estimatedEndTime": "12:30 PM"
+  },
+  "timeWindowCompliance": {
+    "compliantStops": 8,
+    "nonCompliantStops": 2,
+    "complianceRate": 80,
+    "issues": [
+      {
+        "stopId": "stop-id",
+        "customerName": "Name",
+        "issue": "Arrival at 11:30 AM exceeds window end of 11:00 AM",
+        "suggestion": "Consider prioritizing this stop or contacting customer"
+      }
+    ]
+  },
+  "efficiencyScore": {
+    "overall": 85,
+    "routeEfficiency": 88,
+    "timeWindowScore": 80,
+    "capacityUtilization": 75,
+    "grade": "B",
+    "summary": "Good route with minor time window concerns. 2 stops may need customer notification."
+  },
+  "trafficConsiderations": {
+    "peakHourWarnings": ["Heavy traffic expected on Main St between 5-6 PM"],
+    "avoidAreas": ["Construction on Oak Ave - use Maple St instead"],
+    "bestDepartureWindow": "Depart before 4:00 PM to avoid rush hour"
+  },
+  "alternativeRoutes": [
+    {
+      "name": "Highway Priority Route",
+      "description": "Uses I-95 for longer segments",
+      "timeDifference": -10,
+      "distanceDifference": 3,
+      "tradeoffs": "Faster but slightly more miles, better for peak hours"
+    }
+  ],
+  "driverBriefing": "Comprehensive route summary and key notes for the driver",
+  "confidence": 0.85
+}
+
+Order sizes for time allocation: small=5min, medium=7min, large=10min, extra-large=12min at each stop.
+Be realistic with time and distance estimates based on typical urban/suburban driving conditions.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      const overallScore = parsed.efficiencyScore?.overall || 70;
+      const grade = getRouteGrade(overallScore);
+      const googleMapsUrl = generateGoogleMapsUrl(
+        startLocation,
+        parsed.optimizedStops || stops.map(s => ({ address: s.address }))
+      );
+
+      return {
+        success: true,
+        data: {
+          startLocation: parsed.startLocation || startLocation,
+          optimizedStops: Array.isArray(parsed.optimizedStops) ? parsed.optimizedStops : [],
+          routeStatistics: {
+            totalDistance: parsed.routeStatistics?.totalDistance || 0,
+            totalDuration: parsed.routeStatistics?.totalDuration || 0,
+            totalFuelCost: parsed.routeStatistics?.totalFuelCost || 0,
+            averageTimePerStop: parsed.routeStatistics?.averageTimePerStop || 8,
+            numberOfStops: parsed.routeStatistics?.numberOfStops || stops.length,
+            estimatedStartTime: parsed.routeStatistics?.estimatedStartTime || currentTime,
+            estimatedEndTime: parsed.routeStatistics?.estimatedEndTime || "TBD",
+          },
+          timeWindowCompliance: {
+            compliantStops: parsed.timeWindowCompliance?.compliantStops || stops.length,
+            nonCompliantStops: parsed.timeWindowCompliance?.nonCompliantStops || 0,
+            complianceRate: parsed.timeWindowCompliance?.complianceRate || 100,
+            issues: Array.isArray(parsed.timeWindowCompliance?.issues) 
+              ? parsed.timeWindowCompliance.issues 
+              : [],
+          },
+          efficiencyScore: {
+            overall: overallScore,
+            routeEfficiency: parsed.efficiencyScore?.routeEfficiency || 75,
+            timeWindowScore: parsed.efficiencyScore?.timeWindowScore || 80,
+            capacityUtilization: parsed.efficiencyScore?.capacityUtilization || 70,
+            grade,
+            summary: parsed.efficiencyScore?.summary || "Route optimized for efficiency.",
+          },
+          trafficConsiderations: {
+            peakHourWarnings: Array.isArray(parsed.trafficConsiderations?.peakHourWarnings) 
+              ? parsed.trafficConsiderations.peakHourWarnings 
+              : [],
+            avoidAreas: Array.isArray(parsed.trafficConsiderations?.avoidAreas) 
+              ? parsed.trafficConsiderations.avoidAreas 
+              : [],
+            bestDepartureWindow: parsed.trafficConsiderations?.bestDepartureWindow || "Flexible",
+          },
+          alternativeRoutes: Array.isArray(parsed.alternativeRoutes) 
+            ? parsed.alternativeRoutes 
+            : [],
+          googleMapsUrl,
+          driverBriefing: parsed.driverBriefing || "Follow optimized route sequence for best efficiency.",
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.75,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini route optimization response:", parseError);
+      const googleMapsUrl = generateGoogleMapsUrl(startLocation, stops.map(s => ({ address: s.address })));
+      
+      return {
+        success: true,
+        data: {
+          startLocation,
+          optimizedStops: stops.map((stop, index) => ({
+            sequence: index + 1,
+            stopId: stop.id,
+            address: stop.address,
+            customerName: stop.customerName,
+            orderSize: stop.orderSize,
+            priority: stop.priority,
+            estimatedArrival: "TBD",
+            estimatedDeparture: "TBD",
+            travelTimeFromPrevious: 0,
+            distanceFromPrevious: 0,
+            timeWindowCompliant: true,
+            timeWindowNotes: "Verification needed",
+            driverInstructions: stop.notes || "Standard delivery",
+          })),
+          routeStatistics: {
+            totalDistance: 0,
+            totalDuration: 0,
+            totalFuelCost: 0,
+            averageTimePerStop: 8,
+            numberOfStops: stops.length,
+            estimatedStartTime: currentTime,
+            estimatedEndTime: "TBD",
+          },
+          timeWindowCompliance: {
+            compliantStops: stops.length,
+            nonCompliantStops: 0,
+            complianceRate: 100,
+            issues: [],
+          },
+          efficiencyScore: {
+            overall: 60,
+            routeEfficiency: 60,
+            timeWindowScore: 70,
+            capacityUtilization: 50,
+            grade: "C",
+            summary: "Route created but could not be fully optimized. Manual review recommended.",
+          },
+          trafficConsiderations: {
+            peakHourWarnings: [],
+            avoidAreas: [],
+            bestDepartureWindow: "Standard business hours recommended",
+          },
+          alternativeRoutes: [],
+          googleMapsUrl,
+          driverBriefing: "Stops listed in order provided. Consider optimizing manually or retrying.",
+        },
+        confidence: 0.4,
+        error: "Partial optimization - some data could not be parsed",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini route optimization error:", error);
+    throw error;
+  }
+}
+
+router.post("/optimize-delivery-route", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { startLocation, stops, vehicleConstraints, departureTime } = req.body;
+
+    if (!startLocation) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide a start location (laundromat address).",
+      });
+    }
+
+    if (!stops || !Array.isArray(stops) || stops.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide at least one delivery stop.",
+      });
+    }
+
+    if (stops.length > 25) {
+      return res.status(400).json({
+        success: false,
+        error: "Maximum 25 stops per route. Please split into multiple routes.",
+      });
+    }
+
+    const constraints: VehicleConstraints = {
+      capacity: vehicleConstraints?.capacity || 200,
+      fuelEconomyMpg: vehicleConstraints?.fuelEconomyMpg || 25,
+      fuelPricePerGallon: vehicleConstraints?.fuelPricePerGallon || 3.50,
+    };
+
+    const validatedStops: DeliveryStop[] = stops.map((stop: any, index: number) => ({
+      id: stop.id || `stop-${index + 1}`,
+      address: stop.address || "",
+      customerName: stop.customerName || `Customer ${index + 1}`,
+      orderSize: stop.orderSize || "medium",
+      timeWindowStart: stop.timeWindowStart,
+      timeWindowEnd: stop.timeWindowEnd,
+      priority: stop.priority || "normal",
+      notes: stop.notes,
+    }));
+
+    const result = await optimizeDeliveryRoute(
+      startLocation,
+      validatedStops,
+      constraints,
+      departureTime
+    );
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Delivery route optimization error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to optimize delivery route. Please try again.",
+    });
+  }
+});
+
+// ============================================================================
+// MARKETING CAMPAIGN ATTRIBUTION ENGINE - AI-powered marketing ROI analysis
+// ============================================================================
+
+export interface CampaignData {
+  id: string;
+  name: string;
+  channel: "social" | "email" | "flyers" | "referral" | "google_ads" | "direct_mail" | "local_seo" | "partnerships" | "other";
+  spend: number;
+  startDate: string;
+  endDate: string;
+  revenue: number;
+  newCustomers: number;
+}
+
+export interface AttributionResult {
+  success: boolean;
+  data: {
+    summary: {
+      totalSpend: number;
+      totalRevenue: number;
+      totalNewCustomers: number;
+      overallROI: number;
+      overallCPA: number;
+      bestPerformingChannel: string;
+      worstPerformingChannel: string;
+    };
+    attributionModels: {
+      firstTouch: Array<{
+        campaignId: string;
+        campaignName: string;
+        attributedRevenue: number;
+        attributedCustomers: number;
+        attributionPercent: number;
+      }>;
+      lastTouch: Array<{
+        campaignId: string;
+        campaignName: string;
+        attributedRevenue: number;
+        attributedCustomers: number;
+        attributionPercent: number;
+      }>;
+      linear: Array<{
+        campaignId: string;
+        campaignName: string;
+        attributedRevenue: number;
+        attributedCustomers: number;
+        attributionPercent: number;
+      }>;
+      timeDecay: Array<{
+        campaignId: string;
+        campaignName: string;
+        attributedRevenue: number;
+        attributedCustomers: number;
+        attributionPercent: number;
+      }>;
+    };
+    channelPerformance: Array<{
+      channel: string;
+      totalSpend: number;
+      totalRevenue: number;
+      roi: number;
+      cpa: number;
+      newCustomers: number;
+      efficiency: "excellent" | "good" | "average" | "poor";
+    }>;
+    campaignPerformance: Array<{
+      id: string;
+      name: string;
+      channel: string;
+      spend: number;
+      revenue: number;
+      roi: number;
+      cpa: number;
+      newCustomers: number;
+      ltv: number;
+      status: "scale" | "maintain" | "optimize" | "cut";
+      recommendation: string;
+    }>;
+    budgetRecommendations: {
+      currentAllocation: Array<{ channel: string; percent: number; amount: number }>;
+      recommendedAllocation: Array<{ channel: string; percent: number; amount: number; change: string }>;
+      projectedImpact: {
+        revenueIncrease: number;
+        roiImprovement: number;
+        cpaReduction: number;
+      };
+    };
+    cutScaleRecommendations: {
+      scale: Array<{ campaign: string; reason: string; suggestedIncrease: string }>;
+      maintain: Array<{ campaign: string; reason: string }>;
+      optimize: Array<{ campaign: string; reason: string; suggestion: string }>;
+      cut: Array<{ campaign: string; reason: string; potentialSavings: number }>;
+    };
+    insights: Array<{
+      type: "success" | "warning" | "opportunity" | "insight";
+      title: string;
+      description: string;
+      actionable: string;
+    }>;
+  };
+  confidence: number;
+  error?: string;
+}
+
+async function analyzeMarketingAttribution(
+  campaigns: CampaignData[],
+  attributionModel: string
+): Promise<AttributionResult> {
+  if (!genAI) {
+    throw new Error("Gemini AI is not configured");
+  }
+
+  const totalSpend = campaigns.reduce((sum, c) => sum + c.spend, 0);
+  const totalRevenue = campaigns.reduce((sum, c) => sum + c.revenue, 0);
+  const totalCustomers = campaigns.reduce((sum, c) => sum + c.newCustomers, 0);
+
+  const prompt = `You are an expert marketing analytics consultant specializing in laundromat and local service business marketing. Analyze these marketing campaigns and provide comprehensive attribution analysis.
+
+CAMPAIGN DATA:
+${JSON.stringify(campaigns, null, 2)}
+
+ANALYSIS PARAMETERS:
+- Primary Attribution Model: ${attributionModel}
+- Total Marketing Spend: $${totalSpend.toLocaleString()}
+- Total Revenue During Period: $${totalRevenue.toLocaleString()}
+- Total New Customers Acquired: ${totalCustomers}
+
+INDUSTRY CONTEXT (Laundromat Marketing Benchmarks):
+- Average CPA for laundromats: $15-35 per new customer
+- Good marketing ROI: 300-500%
+- Excellent marketing ROI: 500%+
+- Average customer LTV: $1,152 (24 months × $12/visit × 4 visits/month)
+
+Provide a comprehensive analysis including:
+
+1. **Attribution Models**: Calculate revenue/customer attribution using:
+   - First-touch: Credit to first campaign touchpoint
+   - Last-touch: Credit to final campaign before conversion
+   - Linear: Equal credit across all campaigns
+   - Time-decay: More credit to recent campaigns
+
+2. **Channel Performance**: Aggregate performance by channel type with ROI, CPA, efficiency rating
+
+3. **Campaign Performance**: Individual campaign analysis with clear status recommendations
+
+4. **Budget Recommendations**: Current vs optimal allocation with projected impact
+
+5. **Cut/Scale Recommendations**: Clear action items for each campaign
+
+6. **AI Insights**: 4-6 actionable insights about the marketing strategy
+
+Return ONLY valid JSON in this exact format:
+{
+  "summary": {
+    "totalSpend": ${totalSpend},
+    "totalRevenue": ${totalRevenue},
+    "totalNewCustomers": ${totalCustomers},
+    "overallROI": 0,
+    "overallCPA": 0,
+    "bestPerformingChannel": "channel_name",
+    "worstPerformingChannel": "channel_name"
+  },
+  "attributionModels": {
+    "firstTouch": [
+      {"campaignId": "id", "campaignName": "name", "attributedRevenue": 0, "attributedCustomers": 0, "attributionPercent": 0}
+    ],
+    "lastTouch": [...],
+    "linear": [...],
+    "timeDecay": [...]
+  },
+  "channelPerformance": [
+    {"channel": "social", "totalSpend": 0, "totalRevenue": 0, "roi": 0, "cpa": 0, "newCustomers": 0, "efficiency": "good"}
+  ],
+  "campaignPerformance": [
+    {"id": "id", "name": "name", "channel": "social", "spend": 0, "revenue": 0, "roi": 0, "cpa": 0, "newCustomers": 0, "ltv": 1152, "status": "scale", "recommendation": "text"}
+  ],
+  "budgetRecommendations": {
+    "currentAllocation": [{"channel": "social", "percent": 25, "amount": 1000}],
+    "recommendedAllocation": [{"channel": "social", "percent": 35, "amount": 1400, "change": "+10%"}],
+    "projectedImpact": {"revenueIncrease": 0, "roiImprovement": 0, "cpaReduction": 0}
+  },
+  "cutScaleRecommendations": {
+    "scale": [{"campaign": "name", "reason": "High ROI", "suggestedIncrease": "25%"}],
+    "maintain": [{"campaign": "name", "reason": "Steady performance"}],
+    "optimize": [{"campaign": "name", "reason": "Below target", "suggestion": "Improve targeting"}],
+    "cut": [{"campaign": "name", "reason": "Negative ROI", "potentialSavings": 500}]
+  },
+  "insights": [
+    {"type": "success", "title": "Title", "description": "Description", "actionable": "Action to take"}
+  ],
+  "confidence": 0.85
+}
+
+Be data-driven and provide specific, actionable recommendations based on the actual campaign data.`;
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text() || "";
+
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || 
+                        text.match(/```\n([\s\S]*?)\n```/) || 
+                        [null, text];
+      const jsonText = jsonMatch[1] || text;
+      const parsed = JSON.parse(jsonText.trim());
+
+      return {
+        success: true,
+        data: {
+          summary: {
+            totalSpend: parsed.summary?.totalSpend || totalSpend,
+            totalRevenue: parsed.summary?.totalRevenue || totalRevenue,
+            totalNewCustomers: parsed.summary?.totalNewCustomers || totalCustomers,
+            overallROI: parsed.summary?.overallROI || ((totalRevenue - totalSpend) / totalSpend * 100),
+            overallCPA: parsed.summary?.overallCPA || (totalCustomers > 0 ? totalSpend / totalCustomers : 0),
+            bestPerformingChannel: parsed.summary?.bestPerformingChannel || "Unknown",
+            worstPerformingChannel: parsed.summary?.worstPerformingChannel || "Unknown",
+          },
+          attributionModels: {
+            firstTouch: Array.isArray(parsed.attributionModels?.firstTouch) ? parsed.attributionModels.firstTouch : [],
+            lastTouch: Array.isArray(parsed.attributionModels?.lastTouch) ? parsed.attributionModels.lastTouch : [],
+            linear: Array.isArray(parsed.attributionModels?.linear) ? parsed.attributionModels.linear : [],
+            timeDecay: Array.isArray(parsed.attributionModels?.timeDecay) ? parsed.attributionModels.timeDecay : [],
+          },
+          channelPerformance: Array.isArray(parsed.channelPerformance) ? parsed.channelPerformance : [],
+          campaignPerformance: Array.isArray(parsed.campaignPerformance) ? parsed.campaignPerformance : [],
+          budgetRecommendations: {
+            currentAllocation: Array.isArray(parsed.budgetRecommendations?.currentAllocation) ? parsed.budgetRecommendations.currentAllocation : [],
+            recommendedAllocation: Array.isArray(parsed.budgetRecommendations?.recommendedAllocation) ? parsed.budgetRecommendations.recommendedAllocation : [],
+            projectedImpact: {
+              revenueIncrease: parsed.budgetRecommendations?.projectedImpact?.revenueIncrease || 0,
+              roiImprovement: parsed.budgetRecommendations?.projectedImpact?.roiImprovement || 0,
+              cpaReduction: parsed.budgetRecommendations?.projectedImpact?.cpaReduction || 0,
+            },
+          },
+          cutScaleRecommendations: {
+            scale: Array.isArray(parsed.cutScaleRecommendations?.scale) ? parsed.cutScaleRecommendations.scale : [],
+            maintain: Array.isArray(parsed.cutScaleRecommendations?.maintain) ? parsed.cutScaleRecommendations.maintain : [],
+            optimize: Array.isArray(parsed.cutScaleRecommendations?.optimize) ? parsed.cutScaleRecommendations.optimize : [],
+            cut: Array.isArray(parsed.cutScaleRecommendations?.cut) ? parsed.cutScaleRecommendations.cut : [],
+          },
+          insights: Array.isArray(parsed.insights) ? parsed.insights : [],
+        },
+        confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0.75,
+      };
+    } catch (parseError) {
+      console.error("Failed to parse Gemini attribution response:", parseError);
+      const overallROI = totalSpend > 0 ? ((totalRevenue - totalSpend) / totalSpend * 100) : 0;
+      const overallCPA = totalCustomers > 0 ? totalSpend / totalCustomers : 0;
+      
+      return {
+        success: true,
+        data: {
+          summary: {
+            totalSpend,
+            totalRevenue,
+            totalNewCustomers: totalCustomers,
+            overallROI,
+            overallCPA,
+            bestPerformingChannel: "Analysis incomplete",
+            worstPerformingChannel: "Analysis incomplete",
+          },
+          attributionModels: { firstTouch: [], lastTouch: [], linear: [], timeDecay: [] },
+          channelPerformance: [],
+          campaignPerformance: campaigns.map(c => ({
+            id: c.id,
+            name: c.name,
+            channel: c.channel,
+            spend: c.spend,
+            revenue: c.revenue,
+            roi: c.spend > 0 ? ((c.revenue - c.spend) / c.spend * 100) : 0,
+            cpa: c.newCustomers > 0 ? c.spend / c.newCustomers : 0,
+            newCustomers: c.newCustomers,
+            ltv: 1152,
+            status: "maintain" as const,
+            recommendation: "Review campaign performance manually",
+          })),
+          budgetRecommendations: {
+            currentAllocation: [],
+            recommendedAllocation: [],
+            projectedImpact: { revenueIncrease: 0, roiImprovement: 0, cpaReduction: 0 },
+          },
+          cutScaleRecommendations: { scale: [], maintain: [], optimize: [], cut: [] },
+          insights: [{
+            type: "warning" as const,
+            title: "Partial Analysis",
+            description: "AI analysis could not be fully completed. Basic metrics calculated from provided data.",
+            actionable: "Try again or review campaign data for accuracy.",
+          }],
+        },
+        confidence: 0.4,
+        error: "Partial analysis completed - some AI insights unavailable",
+      };
+    }
+  } catch (error) {
+    console.error("Gemini attribution analysis error:", error);
+    throw error;
+  }
+}
+
+router.post("/attribute-campaigns", async (req, res) => {
+  try {
+    if (!genAI) {
+      return res.status(503).json({
+        success: false,
+        error: "AI service is not configured. Please contact support.",
+      });
+    }
+
+    const { campaigns, attributionModel = "linear" } = req.body;
+
+    if (!campaigns || !Array.isArray(campaigns) || campaigns.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide at least one campaign to analyze.",
+      });
+    }
+
+    if (campaigns.length > 20) {
+      return res.status(400).json({
+        success: false,
+        error: "Maximum 20 campaigns per analysis. Please consolidate or split your analysis.",
+      });
+    }
+
+    const validatedCampaigns: CampaignData[] = campaigns.map((c: any, index: number) => ({
+      id: c.id || `campaign-${index + 1}`,
+      name: c.name || `Campaign ${index + 1}`,
+      channel: c.channel || "other",
+      spend: typeof c.spend === "number" ? c.spend : 0,
+      startDate: c.startDate || new Date().toISOString().split("T")[0],
+      endDate: c.endDate || new Date().toISOString().split("T")[0],
+      revenue: typeof c.revenue === "number" ? c.revenue : 0,
+      newCustomers: typeof c.newCustomers === "number" ? c.newCustomers : 0,
+    }));
+
+    const result = await analyzeMarketingAttribution(validatedCampaigns, attributionModel);
+
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Marketing attribution error:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || "Failed to analyze marketing attribution. Please try again.",
+    });
+  }
+});
+
 export default router;
