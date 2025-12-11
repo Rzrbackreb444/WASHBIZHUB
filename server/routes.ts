@@ -27,6 +27,7 @@ import bookingRoutes from "./booking-routes";
 import singleAnalysisRoutes from "./single-analysis-routes";
 import userDashboardRoutes from "./user-dashboard-routes";
 import operatorDashboardRoutes from "./operator-dashboard-routes";
+import aiToolsRoutes from "./routes/ai-tools";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -472,6 +473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/bulk-analysis", bulkAnalysisRoutes);
   app.use("/api/route-optimization", routeOptimizationRoutes);
   app.use("/api/driver-tracking", driverTrackingRoutes);
+  app.use("/api/ai", aiToolsRoutes);
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);

@@ -145,6 +145,10 @@ const SEOOptimizer = lazy(() => import("@/pages/seo-optimizer"));
 const AIContentStudio = lazy(() => import("@/pages/ai-content-studio"));
 const ServiceGuyAI = lazy(() => import("@/pages/service-guy-ai"));
 const SeoCommandCenter = lazy(() => import("@/pages/seo-command-center"));
+const UtilityBillScanner = lazy(() => import("@/pages/utility-bill-scanner"));
+const SmartLocationScout = lazy(() => import("@/pages/smart-location-scout"));
+const CompetitorIntelligence = lazy(() => import("@/pages/competitor-intelligence"));
+const EquipmentAppraiser = lazy(() => import("@/pages/equipment-appraiser"));
 
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
@@ -784,6 +788,26 @@ function Router() {
       <Route path="/utility-rate-forecaster">
         <Suspense fallback={<LoadingFallback />}>
           <UtilityRateForecaster />
+        </Suspense>
+      </Route>
+      <Route path="/utility-bill-scanner">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityBillScanner />
+        </Suspense>
+      </Route>
+      <Route path="/equipment-appraiser">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentAppraiser />
+        </Suspense>
+      </Route>
+      <Route path="/smart-location-scout">
+        <Suspense fallback={<LoadingFallback />}>
+          <SmartLocationScout />
+        </Suspense>
+      </Route>
+      <Route path="/competitor-intelligence">
+        <Suspense fallback={<LoadingFallback />}>
+          <CompetitorIntelligence />
         </Suspense>
       </Route>
       <Route path="/cac-calculator">
