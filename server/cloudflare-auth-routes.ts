@@ -5,6 +5,7 @@
 
 import { Router, Request, Response, NextFunction } from "express";
 import { cloudflareAccess } from "./services/cloudflare-access";
+import { cloudflareApi } from "./services/cloudflare-api";
 import { unifiedAuth } from "./services/unified-auth";
 import { db } from "./db";
 import { adminActivityLog, users } from "@shared/schema";
@@ -286,6 +287,152 @@ router.get("/user", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get user error:", error);
     res.status(500).json({ error: "Failed to get user" });
+  }
+});
+
+/**
+ * POST /api/auth/cloudflare/setup
+ * Automatically configure Cloudflare Access application
+ * Requires CLOUDFLARE_GLOBAL_API_KEY to be set
+ */
+router.post("/setup", async (req: Request, res: Response) => {
+  try {
+    if (!cloudflareApi.isConfigured()) {
+      return res.status(503).json({
+        error: "Cloudflare API not configured",
+        message: "Please set CLOUDFLARE_GLOBAL_API_KEY and CLOUDFLARE_EMAIL secrets",
+      });
+    }
+
+    // Get the app domain from request or environment
+    const appDomain = req.body.domain || 
+      process.env.REPLIT_DEV_DOMAIN || 
+      process.env.REPLIT_DOMAINS?.split(',')[0] ||
+      'washbizhub.com';
+
+    console.log(`🔐 Setting up Cloudflare Access for domain: ${appDomain}`);
+
+    const result = await cloudflareApi.setupWashBizHubAccess(appDomain);
+
+    res.json({
+      success: true,
+      message: "Cloudflare Access configured successfully",
+      app: {
+        id: result.app.id,
+        name: result.app.name,
+        domain: result.app.domain,
+        audienceTag: result.audienceTag,
+      },
+      teamDomain: result.teamDomain,
+      identityProviders: result.identityProviders.map(idp => ({
+        id: idp.id,
+        name: idp.name,
+        type: idp.type,
+      })),
+      nextSteps: [
+        `Set CLOUDFLARE_ACCESS_AUDIENCE to: ${result.audienceTag}`,
+        `Set CLOUDFLARE_ACCESS_TEAM_DOMAIN to: ${result.teamDomain}`,
+        "Restart the application to apply changes",
+      ],
+    });
+  } catch (error: any) {
+    console.error("Cloudflare setup error:", error);
+    res.status(500).json({
+      error: "Setup failed",
+      message: error.message,
+      hint: "Check your CLOUDFLARE_GLOBAL_API_KEY and CLOUDFLARE_EMAIL are correct",
+    });
+  }
+});
+
+/**
+ * GET /api/auth/cloudflare/accounts
+ * List Cloudflare accounts (for debugging/setup)
+ */
+router.get("/accounts", async (req: Request, res: Response) => {
+  try {
+    if (!cloudflareApi.isConfigured()) {
+      return res.status(503).json({
+        error: "Cloudflare API not configured",
+        configured: false,
+      });
+    }
+
+    const accounts = await cloudflareApi.getAccounts();
+    res.json({
+      success: true,
+      accounts: accounts.map(a => ({ id: a.id, name: a.name })),
+    });
+  } catch (error: any) {
+    console.error("Failed to get accounts:", error);
+    res.status(500).json({
+      error: "Failed to get accounts",
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/auth/cloudflare/apps
+ * List existing Cloudflare Access applications
+ */
+router.get("/apps", async (req: Request, res: Response) => {
+  try {
+    if (!cloudflareApi.isConfigured()) {
+      return res.status(503).json({
+        error: "Cloudflare API not configured",
+        configured: false,
+      });
+    }
+
+    const apps = await cloudflareApi.listAccessApps();
+    res.json({
+      success: true,
+      apps: apps.map(app => ({
+        id: app.id,
+        name: app.name,
+        domain: app.domain,
+        aud: app.aud,
+        sessionDuration: app.session_duration,
+      })),
+    });
+  } catch (error: any) {
+    console.error("Failed to list apps:", error);
+    res.status(500).json({
+      error: "Failed to list apps",
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/auth/cloudflare/identity-providers
+ * List configured identity providers
+ */
+router.get("/identity-providers", async (req: Request, res: Response) => {
+  try {
+    if (!cloudflareApi.isConfigured()) {
+      return res.status(503).json({
+        error: "Cloudflare API not configured",
+        configured: false,
+      });
+    }
+
+    const idps = await cloudflareApi.listIdentityProviders();
+    res.json({
+      success: true,
+      identityProviders: idps.map(idp => ({
+        id: idp.id,
+        name: idp.name,
+        type: idp.type,
+      })),
+    });
+  } catch (error: any) {
+    console.error("Failed to list identity providers:", error);
+    res.status(500).json({
+      error: "Failed to list identity providers",
+      message: error.message,
+    });
   }
 });
 
