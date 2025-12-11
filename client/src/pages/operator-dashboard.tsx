@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
+import { OperatorLayout } from "@/components/OperatorLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -344,13 +345,13 @@ export default function OperatorDashboard() {
   };
 
   return (
-    <>
+    <OperatorLayout locationName="My Laundromat" title="Command Center">
       <Helmet>
         <title>Command Center | WashBizHub Operator OS</title>
         <meta name="description" content="Your complete laundromat operating system - POS, CLEANBI, Website, Service, Courses, Calculators, and more in one unified command center." />
       </Helmet>
 
-      <div className="min-h-screen bg-muted/30">
+      <div className="h-full bg-muted/30 overflow-auto">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
           {/* Command Center Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1116,6 +1117,6 @@ export default function OperatorDashboard() {
           </Tabs>
         </div>
       </div>
-    </>
+    </OperatorLayout>
   );
 }
