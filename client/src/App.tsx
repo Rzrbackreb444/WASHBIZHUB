@@ -167,6 +167,10 @@ const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
 const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
 const CalculatorMarketplace = lazy(() => import("@/pages/calculator-marketplace"));
+const StaffingLevelCalculator = lazy(() => import("@/pages/staffing-level-calculator"));
+const DowntimeCostCalculator = lazy(() => import("@/pages/downtime-cost-calculator"));
+const BreakEvenCalculator = lazy(() => import("@/pages/break-even-calculator"));
+const FinancingScenarioMixer = lazy(() => import("@/pages/financing-scenario-mixer"));
 
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
@@ -777,6 +781,26 @@ function Router() {
       <Route path="/equipment-mix-optimizer">
         <Suspense fallback={<LoadingFallback />}>
           <EquipmentMixOptimizer />
+        </Suspense>
+      </Route>
+      <Route path="/staffing-level-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <StaffingLevelCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/downtime-cost-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <DowntimeCostCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/break-even-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <BreakEvenCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/financing-scenario-mixer">
+        <Suspense fallback={<LoadingFallback />}>
+          <FinancingScenarioMixer />
         </Suspense>
       </Route>
 
