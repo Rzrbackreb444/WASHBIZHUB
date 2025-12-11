@@ -158,6 +158,7 @@ const LoanCalculator = lazy(() => import("@/pages/loan-calculator"));
 const UtilityCalculator = lazy(() => import("@/pages/utility-calculator"));
 const LaborCalculator = lazy(() => import("@/pages/labor-calculator"));
 const LTVCalculator = lazy(() => import("@/pages/ltv-calculator"));
+const UtilityRateForecaster = lazy(() => import("@/pages/utility-rate-forecaster"));
 const CACCalculator = lazy(() => import("@/pages/cac-calculator"));
 const LTVCACDashboard = lazy(() => import("@/pages/ltv-cac-dashboard"));
 const WDFEfficiencyCalculator = lazy(() => import("@/pages/wdf-efficiency-calculator"));
@@ -175,6 +176,9 @@ const FinancingScenarioMixer = lazy(() => import("@/pages/financing-scenario-mix
 const RouteProfitOptimizer = lazy(() => import("@/pages/route-profit-optimizer"));
 const MarketGapFinder = lazy(() => import("@/pages/market-gap-finder"));
 const DueDiligenceVerifier = lazy(() => import("@/pages/due-diligence-verifier"));
+const CustomerChurnPredictor = lazy(() => import("@/pages/customer-churn-predictor"));
+const RevenueDiversificationPlanner = lazy(() => import("@/pages/revenue-diversification-planner"));
+const ExpansionFeasibilityScorecard = lazy(() => import("@/pages/expansion-feasibility-scorecard"));
 
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
@@ -760,6 +764,26 @@ function Router() {
       <Route path="/ltv-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <LTVCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/customer-churn-predictor">
+        <Suspense fallback={<LoadingFallback />}>
+          <CustomerChurnPredictor />
+        </Suspense>
+      </Route>
+      <Route path="/revenue-diversification-planner">
+        <Suspense fallback={<LoadingFallback />}>
+          <RevenueDiversificationPlanner />
+        </Suspense>
+      </Route>
+      <Route path="/expansion-feasibility-scorecard">
+        <Suspense fallback={<LoadingFallback />}>
+          <ExpansionFeasibilityScorecard />
+        </Suspense>
+      </Route>
+      <Route path="/utility-rate-forecaster">
+        <Suspense fallback={<LoadingFallback />}>
+          <UtilityRateForecaster />
         </Suspense>
       </Route>
       <Route path="/cac-calculator">
