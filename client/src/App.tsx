@@ -113,6 +113,7 @@ const POSCommandCenter = lazy(() => import("@/pages/pos-command-center"));
 const PosSuite = lazy(() => import("@/pages/pos-suite"));
 const PosLanding = lazy(() => import("@/pages/landing/pos-landing"));
 const MarketingLoyalty = lazy(() => import("@/pages/marketing-loyalty"));
+const QRGenerator = lazy(() => import("@/pages/qr-generator"));
 
 // IoT Dashboard (machine monitoring & dynamic pricing)
 const IoTDashboard = lazy(() => import("@/pages/iot-dashboard"));
@@ -615,6 +616,16 @@ function Router() {
       <Route path="/marketing-loyalty">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <MarketingLoyalty />
+        </Suspense>
+      </Route>
+      <Route path="/qr-generator">
+        <Suspense fallback={<LoadingFallback />}>
+          <QRGenerator />
+        </Suspense>
+      </Route>
+      <Route path="/tools/qr-generator">
+        <Suspense fallback={<LoadingFallback />}>
+          <QRGenerator />
         </Suspense>
       </Route>
 
