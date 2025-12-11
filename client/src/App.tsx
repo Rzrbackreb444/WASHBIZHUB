@@ -153,6 +153,7 @@ const EquipmentAppraiser = lazy(() => import("@/pages/equipment-appraiser"));
 const DemographicClusterer = lazy(() => import("@/pages/demographic-clusterer"));
 const UtilityLoadForecaster = lazy(() => import("@/pages/utility-load-forecaster"));
 const PricingElasticity = lazy(() => import("@/pages/pricing-elasticity"));
+const DeliveryRouteOptimizer = lazy(() => import("@/pages/delivery-route-optimizer"));
 
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
@@ -827,6 +828,11 @@ function Router() {
       <Route path="/pricing-elasticity">
         <Suspense fallback={<LoadingFallback />}>
           <PricingElasticity />
+        </Suspense>
+      </Route>
+      <Route path="/delivery-route-optimizer">
+        <Suspense fallback={<LoadingFallback />}>
+          <DeliveryRouteOptimizer />
         </Suspense>
       </Route>
       <Route path="/cac-calculator">
