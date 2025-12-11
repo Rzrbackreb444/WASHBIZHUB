@@ -16617,5 +16617,33 @@ export type WinBackEvent = typeof winBackEvents.$inferSelect;
 export type InsertWinBackEvent = z.infer<typeof insertWinBackEventSchema>;
 
 // ============================================================================
+// SAVED ANALYSES SYSTEM - User's saved calculator/AI results
+// ============================================================================
+
+export const savedAnalyses = pgTable("saved_analyses", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  analysisType: varchar("analysis_type", { length: 100 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  data: jsonb("data").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("saved_analyses_user_idx").on(table.userId),
+  typeIdx: index("saved_analyses_type_idx").on(table.analysisType),
+  createdAtIdx: index("saved_analyses_created_at_idx").on(table.createdAt),
+}));
+
+export const insertSavedAnalysisSchema = createInsertSchema(savedAnalyses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type SavedAnalysis = typeof savedAnalyses.$inferSelect;
+export type InsertSavedAnalysis = z.infer<typeof insertSavedAnalysisSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

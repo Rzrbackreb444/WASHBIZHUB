@@ -28,6 +28,8 @@ import singleAnalysisRoutes from "./single-analysis-routes";
 import userDashboardRoutes from "./user-dashboard-routes";
 import operatorDashboardRoutes from "./operator-dashboard-routes";
 import aiToolsRoutes from "./routes/ai-tools";
+import savedAnalysesRoutes from "./routes/saved-analyses";
+import googleExportRoutes from "./routes/google-export";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -474,6 +476,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/route-optimization", routeOptimizationRoutes);
   app.use("/api/driver-tracking", driverTrackingRoutes);
   app.use("/api/ai", aiToolsRoutes);
+  app.use("/api/analyses", savedAnalysesRoutes);
+  app.use("/api/google", googleExportRoutes);
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);

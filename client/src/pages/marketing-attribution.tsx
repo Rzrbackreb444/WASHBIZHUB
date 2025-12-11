@@ -17,7 +17,7 @@ import {
   Target, Plus, Trash2, TrendingUp, TrendingDown, DollarSign,
   Users, Calendar, Loader2, Sparkles, BarChart3, PieChart,
   ArrowUpRight, ArrowDownRight, Lightbulb, AlertTriangle, 
-  CheckCircle, Scissors, Scale, Megaphone
+  CheckCircle, Scale
 } from "lucide-react";
 
 interface Campaign {
@@ -25,86 +25,85 @@ interface Campaign {
   name: string;
   channel: string;
   spend: number;
-  startDate: string;
-  endDate: string;
-  revenue: number;
-  newCustomers: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
 }
 
 interface AttributionResult {
   success: boolean;
   data: {
-    summary: {
-      totalSpend: number;
-      totalRevenue: number;
-      totalNewCustomers: number;
-      overallROI: number;
-      overallCPA: number;
-      bestPerformingChannel: string;
-      worstPerformingChannel: string;
-    };
+    dateRange: { start: string; end: string };
+    goals: { targetCPA: number; targetROAS: number };
+    totalSpend: number;
+    totalConversions: number;
+    overallROI: number;
+    overallCPA: number;
     attributionModels: {
-      firstTouch: Array<{ campaignId: string; campaignName: string; attributedRevenue: number; attributedCustomers: number; attributionPercent: number }>;
-      lastTouch: Array<{ campaignId: string; campaignName: string; attributedRevenue: number; attributedCustomers: number; attributionPercent: number }>;
-      linear: Array<{ campaignId: string; campaignName: string; attributedRevenue: number; attributedCustomers: number; attributionPercent: number }>;
-      timeDecay: Array<{ campaignId: string; campaignName: string; attributedRevenue: number; attributedCustomers: number; attributionPercent: number }>;
+      firstTouch: Array<{ channel: string; attributedConversions: number; attributedRevenue: number; percentageShare: number }>;
+      lastTouch: Array<{ channel: string; attributedConversions: number; attributedRevenue: number; percentageShare: number }>;
+      linear: Array<{ channel: string; attributedConversions: number; attributedRevenue: number; percentageShare: number }>;
+      timeDecay: Array<{ channel: string; attributedConversions: number; attributedRevenue: number; percentageShare: number }>;
     };
     channelPerformance: Array<{
       channel: string;
-      totalSpend: number;
-      totalRevenue: number;
-      roi: number;
+      spend: number;
+      impressions: number;
+      clicks: number;
+      conversions: number;
+      ctr: number;
+      conversionRate: number;
+      cpc: number;
       cpa: number;
-      newCustomers: number;
-      efficiency: string;
+      roi: number;
+      roas: number;
+      effectivenessScore: number;
+      rank: number;
     }>;
-    campaignPerformance: Array<{
-      id: string;
-      name: string;
+    campaignROI: Array<{
+      campaign: string;
       channel: string;
       spend: number;
       revenue: number;
       roi: number;
-      cpa: number;
-      newCustomers: number;
-      ltv: number;
-      status: string;
-      recommendation: string;
+      roas: number;
+      status: "exceeds-goal" | "meets-goal" | "below-goal" | "underperforming";
     }>;
-    budgetRecommendations: {
-      currentAllocation: Array<{ channel: string; percent: number; amount: number }>;
-      recommendedAllocation: Array<{ channel: string; percent: number; amount: number; change: string }>;
-      projectedImpact: { revenueIncrease: number; roiImprovement: number; cpaReduction: number };
+    budgetReallocation: {
+      currentAllocation: Array<{ channel: string; amount: number; percentage: number }>;
+      recommendedAllocation: Array<{ channel: string; amount: number; percentage: number; change: number }>;
+      rationale: string;
+      expectedImpact: { additionalConversions: number; improvedROI: number; reducedCPA: number };
     };
-    cutScaleRecommendations: {
-      scale: Array<{ campaign: string; reason: string; suggestedIncrease: string }>;
-      maintain: Array<{ campaign: string; reason: string }>;
-      optimize: Array<{ campaign: string; reason: string; suggestion: string }>;
-      cut: Array<{ campaign: string; reason: string; potentialSavings: number }>;
-    };
-    insights: Array<{ type: string; title: string; description: string; actionable: string }>;
+    predictedImpact: Array<{
+      scenario: string;
+      budgetChange: number;
+      predictedConversions: number;
+      predictedROI: number;
+      predictedCPA: number;
+      confidence: number;
+    }>;
+    recommendations: Array<{ priority: "high" | "medium" | "low"; category: string; action: string; expectedImpact: string }>;
+    insights: string[];
   };
   confidence: number;
   error?: string;
 }
 
 const CHANNEL_OPTIONS = [
-  { value: "social", label: "Social Media" },
-  { value: "email", label: "Email Marketing" },
-  { value: "flyers", label: "Flyers / Print" },
-  { value: "referral", label: "Referral Program" },
-  { value: "google_ads", label: "Google Ads" },
-  { value: "direct_mail", label: "Direct Mail" },
-  { value: "local_seo", label: "Local SEO" },
-  { value: "partnerships", label: "Partnerships" },
-  { value: "other", label: "Other" },
-];
-
-const ATTRIBUTION_MODELS = [
-  { value: "first-touch", label: "First Touch", description: "Credit first campaign interaction" },
-  { value: "last-touch", label: "Last Touch", description: "Credit final campaign before conversion" },
-  { value: "linear", label: "Linear", description: "Equal credit across all campaigns" },
-  { value: "time-decay", label: "Time Decay", description: "More credit to recent campaigns" },
+  "Google Ads",
+  "Facebook Ads",
+  "Instagram Ads",
+  "LinkedIn Ads",
+  "Email Marketing",
+  "Direct Mail",
+  "Local SEO",
+  "Content Marketing",
+  "Referral Program",
+  "Display Ads",
+  "YouTube Ads",
+  "TikTok Ads",
+  "Other"
 ];
 
 function formatCurrency(value: number): string {
@@ -117,180 +116,53 @@ function formatPercent(value: number): string {
 
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { color: string; icon: typeof TrendingUp }> = {
-    scale: { color: "bg-green-100 text-green-700", icon: TrendingUp },
-    maintain: { color: "bg-blue-100 text-blue-700", icon: Scale },
-    optimize: { color: "bg-yellow-100 text-yellow-700", icon: Lightbulb },
-    cut: { color: "bg-red-100 text-red-700", icon: Scissors },
+    "exceeds-goal": { color: "bg-green-100 text-green-700", icon: TrendingUp },
+    "meets-goal": { color: "bg-blue-100 text-blue-700", icon: CheckCircle },
+    "below-goal": { color: "bg-yellow-100 text-yellow-700", icon: AlertTriangle },
+    "underperforming": { color: "bg-red-100 text-red-700", icon: TrendingDown },
   };
-  const { color, icon: Icon } = config[status] || config.maintain;
+  const { color, icon: Icon } = config[status] || config["below-goal"];
   
   return (
-    <Badge className={`${color} capitalize`} data-testid={`badge-status-${status}`}>
-      <Icon className="w-3 h-3 mr-1" />
-      {status}
+    <Badge className={`${color} capitalize gap-1`} data-testid={`badge-status-${status}`}>
+      <Icon className="w-3 h-3" />
+      {status.replace("-", " ")}
     </Badge>
   );
 }
 
-function EfficiencyBadge({ efficiency }: { efficiency: string }) {
-  const colors: Record<string, string> = {
-    excellent: "bg-green-100 text-green-700",
-    good: "bg-blue-100 text-blue-700",
-    average: "bg-yellow-100 text-yellow-700",
-    poor: "bg-red-100 text-red-700",
-  };
-  
-  return (
-    <Badge className={`${colors[efficiency] || colors.average} capitalize`} data-testid={`badge-efficiency-${efficiency}`}>
-      {efficiency}
-    </Badge>
-  );
-}
-
-function InsightCard({ insight }: { insight: { type: string; title: string; description: string; actionable: string } }) {
-  const config: Record<string, { color: string; icon: typeof CheckCircle }> = {
-    success: { color: "border-green-500 bg-green-50", icon: CheckCircle },
-    warning: { color: "border-yellow-500 bg-yellow-50", icon: AlertTriangle },
-    opportunity: { color: "border-blue-500 bg-blue-50", icon: Lightbulb },
-    insight: { color: "border-purple-500 bg-purple-50", icon: Sparkles },
-  };
-  const { color, icon: Icon } = config[insight.type] || config.insight;
-  
-  return (
-    <div className={`border-l-4 ${color} p-4 rounded-r-lg`} data-testid={`card-insight-${insight.type}`}>
-      <div className="flex items-start gap-3">
-        <Icon className="w-5 h-5 shrink-0 mt-0.5" />
-        <div>
-          <h4 className="font-semibold text-foreground">{insight.title}</h4>
-          <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
-          <p className="text-sm font-medium text-foreground mt-2">{insight.actionable}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ROIChart({ data }: { data: Array<{ channel: string; roi: number; spend: number }> }) {
-  const chartData = data.map(d => ({
-    channel: d.channel.charAt(0).toUpperCase() + d.channel.slice(1).replace("_", " "),
-    ROI: d.roi,
-  }));
-
-  return (
-    <div className="h-[300px]" data-testid="chart-roi-by-channel">
-      <ResponsiveBar
-        data={chartData}
-        keys={["ROI"]}
-        indexBy="channel"
-        margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
-        padding={0.3}
-        valueScale={{ type: "linear" }}
-        colors={({ data }) => (data.ROI as number) >= 0 ? "#22C55E" : "#EF4444"}
-        borderRadius={4}
-        axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: -45,
-          legend: "Channel",
-          legendPosition: "middle",
-          legendOffset: 50,
-        }}
-        axisLeft={{
-          tickSize: 5,
-          tickPadding: 5,
-          legend: "ROI %",
-          legendPosition: "middle",
-          legendOffset: -50,
-          format: (v) => `${v}%`,
-        }}
-        labelSkipWidth={12}
-        labelSkipHeight={12}
-        labelTextColor="#ffffff"
-        label={(d) => `${(d.value as number).toFixed(0)}%`}
-        theme={{
-          text: { fill: "#6B7280" },
-          axis: { ticks: { text: { fill: "#6B7280" } } },
-          grid: { line: { stroke: "#E5E7EB" } },
-        }}
-      />
-    </div>
-  );
-}
-
-function CPAChart({ data }: { data: Array<{ channel: string; cpa: number }> }) {
-  const chartData = data.map(d => ({
-    channel: d.channel.charAt(0).toUpperCase() + d.channel.slice(1).replace("_", " "),
-    CPA: d.cpa,
-  }));
-
-  return (
-    <div className="h-[300px]" data-testid="chart-cpa-comparison">
-      <ResponsiveBar
-        data={chartData}
-        keys={["CPA"]}
-        indexBy="channel"
-        margin={{ top: 20, right: 20, bottom: 60, left: 60 }}
-        padding={0.3}
-        valueScale={{ type: "linear" }}
-        colors="#C8A661"
-        borderRadius={4}
-        axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: -45,
-          legend: "Channel",
-          legendPosition: "middle",
-          legendOffset: 50,
-        }}
-        axisLeft={{
-          tickSize: 5,
-          tickPadding: 5,
-          legend: "Cost Per Acquisition ($)",
-          legendPosition: "middle",
-          legendOffset: -50,
-          format: (v) => `$${v}`,
-        }}
-        labelSkipWidth={12}
-        labelSkipHeight={12}
-        labelTextColor="#0A1628"
-        label={(d) => `$${(d.value as number).toFixed(0)}`}
-        theme={{
-          text: { fill: "#6B7280" },
-          axis: { ticks: { text: { fill: "#6B7280" } } },
-          grid: { line: { stroke: "#E5E7EB" } },
-        }}
-      />
-    </div>
-  );
+function generateId() {
+  return Math.random().toString(36).substring(2, 9);
 }
 
 export default function MarketingAttribution() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([
     {
-      id: "1",
-      name: "Summer Social Campaign",
-      channel: "social",
-      spend: 500,
-      startDate: "2024-06-01",
-      endDate: "2024-08-31",
-      revenue: 2500,
-      newCustomers: 25,
+      id: generateId(),
+      name: "",
+      channel: "Google Ads",
+      spend: 0,
+      impressions: 0,
+      clicks: 0,
+      conversions: 0,
     },
   ]);
-  const [attributionModel, setAttributionModel] = useState("linear");
+  const [dateRange, setDateRange] = useState({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    end: new Date().toISOString().split("T")[0]
+  });
+  const [goals, setGoals] = useState({ targetCPA: 50, targetROAS: 3 });
   const [progress, setProgress] = useState(0);
 
   const addCampaign = () => {
-    const newId = (campaigns.length + 1).toString();
     setCampaigns([...campaigns, {
-      id: newId,
+      id: generateId(),
       name: "",
-      channel: "social",
+      channel: "Google Ads",
       spend: 0,
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date().toISOString().split("T")[0],
-      revenue: 0,
-      newCustomers: 0,
+      impressions: 0,
+      clicks: 0,
+      conversions: 0,
     }]);
   };
 
@@ -305,14 +177,14 @@ export default function MarketingAttribution() {
   };
 
   const analyzeMutation = useMutation({
-    mutationFn: async (data: { campaigns: Campaign[]; attributionModel: string }) => {
+    mutationFn: async (data: { campaigns: Campaign[]; dateRange: { start: string; end: string }; goals: { targetCPA: number; targetROAS: number } }) => {
       setProgress(10);
       const interval = setInterval(() => {
         setProgress(prev => Math.min(prev + 10, 85));
       }, 500);
       
       try {
-        const response = await apiRequest("POST", "/api/ai/attribute-campaigns", data);
+        const response = await apiRequest("POST", "/api/ai/attribute-marketing", data);
         clearInterval(interval);
         setProgress(100);
         return response.json() as Promise<AttributionResult>;
@@ -330,13 +202,14 @@ export default function MarketingAttribution() {
   const handleAnalyze = () => {
     const validCampaigns = campaigns.filter(c => c.name.trim() && c.spend > 0);
     if (validCampaigns.length === 0) return;
-    analyzeMutation.mutate({ campaigns: validCampaigns, attributionModel });
+    analyzeMutation.mutate({ campaigns: validCampaigns, dateRange, goals });
   };
 
   const result = analyzeMutation.data;
   const totalSpend = campaigns.reduce((sum, c) => sum + c.spend, 0);
-  const totalRevenue = campaigns.reduce((sum, c) => sum + c.revenue, 0);
-  const totalCustomers = campaigns.reduce((sum, c) => sum + c.newCustomers, 0);
+  const totalConversions = campaigns.reduce((sum, c) => sum + c.conversions, 0);
+  const totalClicks = campaigns.reduce((sum, c) => sum + c.clicks, 0);
+  const validCampaignCount = campaigns.filter(c => c.name.trim() && c.spend > 0).length;
 
   return (
     <>
@@ -399,11 +272,11 @@ export default function MarketingAttribution() {
             <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/30">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="w-8 h-8 text-green-400" />
+                  <Users className="w-8 h-8 text-green-400" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Revenue</p>
-                    <p className="text-2xl font-bold text-foreground" data-testid="text-total-revenue">
-                      {formatCurrency(totalRevenue)}
+                    <p className="text-sm text-muted-foreground">Total Conversions</p>
+                    <p className="text-2xl font-bold text-foreground" data-testid="text-total-conversions">
+                      {totalConversions}
                     </p>
                   </div>
                 </div>
@@ -413,11 +286,11 @@ export default function MarketingAttribution() {
             <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/30">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Users className="w-8 h-8 text-purple-400" />
+                  <TrendingUp className="w-8 h-8 text-purple-400" />
                   <div>
-                    <p className="text-sm text-muted-foreground">New Customers</p>
-                    <p className="text-2xl font-bold text-foreground" data-testid="text-total-customers">
-                      {totalCustomers}
+                    <p className="text-sm text-muted-foreground">Total Clicks</p>
+                    <p className="text-2xl font-bold text-foreground" data-testid="text-total-clicks">
+                      {totalClicks}
                     </p>
                   </div>
                 </div>
@@ -427,11 +300,11 @@ export default function MarketingAttribution() {
             <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/30">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <BarChart3 className="w-8 h-8 text-amber-400" />
+                  <Target className="w-8 h-8 text-amber-400" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Simple ROI</p>
-                    <p className="text-2xl font-bold text-foreground" data-testid="text-simple-roi">
-                      {totalSpend > 0 ? formatPercent(((totalRevenue - totalSpend) / totalSpend) * 100) : "N/A"}
+                    <p className="text-sm text-muted-foreground">Est. CPA</p>
+                    <p className="text-2xl font-bold text-foreground" data-testid="text-simple-cpa">
+                      {totalConversions > 0 ? formatCurrency(totalSpend / totalConversions) : "N/A"}
                     </p>
                   </div>
                 </div>
@@ -466,7 +339,7 @@ export default function MarketingAttribution() {
                       )}
                     </div>
                     
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Campaign Name</Label>
                         <Input
@@ -486,61 +359,53 @@ export default function MarketingAttribution() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {CHANNEL_OPTIONS.map(opt => (
-                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            {CHANNEL_OPTIONS.map(ch => (
+                              <SelectItem key={ch} value={ch}>{ch}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="space-y-2">
                         <Label>Spend ($)</Label>
                         <Input
                           type="number"
                           min={0}
-                          value={campaign.spend}
+                          value={campaign.spend || ""}
                           onChange={(e) => updateCampaign(campaign.id, "spend", parseFloat(e.target.value) || 0)}
                           data-testid={`input-spend-${index}`}
                         />
                       </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-4">
                       <div className="space-y-2">
-                        <Label>Start Date</Label>
-                        <Input
-                          type="date"
-                          value={campaign.startDate}
-                          onChange={(e) => updateCampaign(campaign.id, "startDate", e.target.value)}
-                          data-testid={`input-start-date-${index}`}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>End Date</Label>
-                        <Input
-                          type="date"
-                          value={campaign.endDate}
-                          onChange={(e) => updateCampaign(campaign.id, "endDate", e.target.value)}
-                          data-testid={`input-end-date-${index}`}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Revenue ($)</Label>
+                        <Label>Impressions</Label>
                         <Input
                           type="number"
                           min={0}
-                          value={campaign.revenue}
-                          onChange={(e) => updateCampaign(campaign.id, "revenue", parseFloat(e.target.value) || 0)}
-                          data-testid={`input-revenue-${index}`}
+                          value={campaign.impressions || ""}
+                          onChange={(e) => updateCampaign(campaign.id, "impressions", parseInt(e.target.value) || 0)}
+                          data-testid={`input-impressions-${index}`}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>New Customers</Label>
+                        <Label>Clicks</Label>
                         <Input
                           type="number"
                           min={0}
-                          value={campaign.newCustomers}
-                          onChange={(e) => updateCampaign(campaign.id, "newCustomers", parseInt(e.target.value) || 0)}
-                          data-testid={`input-customers-${index}`}
+                          value={campaign.clicks || ""}
+                          onChange={(e) => updateCampaign(campaign.id, "clicks", parseInt(e.target.value) || 0)}
+                          data-testid={`input-clicks-${index}`}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Conversions</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          value={campaign.conversions || ""}
+                          onChange={(e) => updateCampaign(campaign.id, "conversions", parseInt(e.target.value) || 0)}
+                          data-testid={`input-conversions-${index}`}
                         />
                       </div>
                     </div>
@@ -560,24 +425,62 @@ export default function MarketingAttribution() {
 
               <Separator />
 
-              <div className="space-y-3">
-                <Label>Attribution Model</Label>
-                <div className="grid md:grid-cols-4 gap-3">
-                  {ATTRIBUTION_MODELS.map(model => (
-                    <button
-                      key={model.value}
-                      onClick={() => setAttributionModel(model.value)}
-                      className={`p-3 rounded-lg border text-left transition-all ${
-                        attributionModel === model.value
-                          ? "border-[#C8A661] bg-[#C8A661]/10"
-                          : "border-border hover:border-muted-foreground"
-                      }`}
-                      data-testid={`button-model-${model.value}`}
-                    >
-                      <div className="font-medium text-foreground">{model.label}</div>
-                      <div className="text-xs text-muted-foreground">{model.description}</div>
-                    </button>
-                  ))}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-[#C8A661]" />
+                    <Label className="text-base font-semibold">Date Range</Label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Start Date</Label>
+                      <Input
+                        type="date"
+                        value={dateRange.start}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                        data-testid="input-date-start"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Date</Label>
+                      <Input
+                        type="date"
+                        value={dateRange.end}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                        data-testid="input-date-end"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-[#C8A661]" />
+                    <Label className="text-base font-semibold">Goals</Label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Target CPA ($)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={goals.targetCPA}
+                        onChange={(e) => setGoals(prev => ({ ...prev, targetCPA: parseFloat(e.target.value) || 0 }))}
+                        data-testid="input-target-cpa"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Target ROAS (x)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={0.1}
+                        value={goals.targetROAS}
+                        onChange={(e) => setGoals(prev => ({ ...prev, targetROAS: parseFloat(e.target.value) || 0 }))}
+                        data-testid="input-target-roas"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -637,27 +540,46 @@ export default function MarketingAttribution() {
                   <div className="grid md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
                       <div className="text-3xl font-bold text-[#C8A661]" data-testid="text-overall-roi">
-                        {formatPercent(result.data.summary.overallROI)}
+                        {formatPercent(result.data.overallROI)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">Overall ROI</div>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
                       <div className="text-3xl font-bold text-foreground" data-testid="text-overall-cpa">
-                        {formatCurrency(result.data.summary.overallCPA)}
+                        {formatCurrency(result.data.overallCPA)}
                       </div>
                       <div className="text-sm text-muted-foreground mt-1">Avg CPA</div>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
-                      <div className="text-lg font-bold text-green-600" data-testid="text-best-channel">
-                        {result.data.summary.bestPerformingChannel}
+                      <div className="text-3xl font-bold text-foreground" data-testid="text-result-spend">
+                        {formatCurrency(result.data.totalSpend)}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">Best Channel</div>
+                      <div className="text-sm text-muted-foreground mt-1">Total Spend</div>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
-                      <div className="text-lg font-bold text-red-600" data-testid="text-worst-channel">
-                        {result.data.summary.worstPerformingChannel}
+                      <div className="text-3xl font-bold text-foreground" data-testid="text-result-conversions">
+                        {result.data.totalConversions}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">Needs Attention</div>
+                      <div className="text-sm text-muted-foreground mt-1">Conversions</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Attribution by Model</h4>
+                    <div className="grid md:grid-cols-4 gap-4">
+                      {(["firstTouch", "lastTouch", "linear", "timeDecay"] as const).map(model => (
+                        <div key={model} className="border rounded-lg p-3" data-testid={`card-attribution-${model}`}>
+                          <h5 className="font-medium text-sm mb-2 capitalize">{model.replace(/([A-Z])/g, ' $1').trim()}</h5>
+                          <div className="space-y-1">
+                            {result.data.attributionModels[model].slice(0, 3).map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between text-sm">
+                                <span className="truncate mr-2">{item.channel}</span>
+                                <Badge variant="outline" className="text-xs">{item.percentageShare.toFixed(0)}%</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </CardContent>
@@ -669,12 +591,33 @@ export default function MarketingAttribution() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-[#C8A661]" />
-                      ROI by Channel
+                      Channel Performance
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     {result.data.channelPerformance.length > 0 ? (
-                      <ROIChart data={result.data.channelPerformance} />
+                      <div className="h-[300px]" data-testid="chart-channel-performance">
+                        <ResponsiveBar
+                          data={result.data.channelPerformance.map(d => ({
+                            channel: d.channel.length > 10 ? d.channel.substring(0, 8) + "..." : d.channel,
+                            ROI: d.roi,
+                            Score: d.effectivenessScore
+                          }))}
+                          keys={["ROI", "Score"]}
+                          indexBy="channel"
+                          margin={{ top: 20, right: 80, bottom: 50, left: 60 }}
+                          padding={0.3}
+                          groupMode="grouped"
+                          colors={["#C8A661", "#0A1628"]}
+                          borderRadius={4}
+                          axisBottom={{ tickSize: 5, tickPadding: 5, tickRotation: -30 }}
+                          axisLeft={{ tickSize: 5, tickPadding: 5, legend: "Value", legendPosition: "middle", legendOffset: -45 }}
+                          labelSkipWidth={12}
+                          labelSkipHeight={12}
+                          legends={[{ dataFrom: "keys", anchor: "bottom-right", direction: "column", translateX: 80, itemWidth: 60, itemHeight: 20 }]}
+                          theme={{ text: { fill: "#6B7280" }, grid: { line: { stroke: "#E5E7EB" } } }}
+                        />
+                      </div>
                     ) : (
                       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                         No channel data available
@@ -687,18 +630,29 @@ export default function MarketingAttribution() {
                   <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-[#C8A661]" />
-                      Cost Per Acquisition by Channel
+                      <Target className="h-5 w-5 text-[#C8A661]" />
+                      CPA by Channel
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {result.data.channelPerformance.length > 0 ? (
-                      <CPAChart data={result.data.channelPerformance} />
-                    ) : (
-                      <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                        No CPA data available
-                      </div>
-                    )}
+                    <div className="space-y-3" data-testid="list-cpa-breakdown">
+                      {result.data.channelPerformance.map((ch, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{ch.channel}</span>
+                            <Badge variant="outline" className="text-xs">Rank #{ch.rank}</Badge>
+                          </div>
+                          <div className="text-right">
+                            <p className={`font-semibold ${ch.cpa <= goals.targetCPA ? "text-green-600" : "text-red-600"}`}>
+                              {formatCurrency(ch.cpa)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {ch.cpa <= goals.targetCPA ? "Below" : "Above"} target
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -707,13 +661,13 @@ export default function MarketingAttribution() {
                 <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Megaphone className="h-5 w-5 text-[#C8A661]" />
-                    Campaign Performance
+                    <DollarSign className="h-5 w-5 text-[#C8A661]" />
+                    Campaign ROI Comparison
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
-                    <Table data-testid="table-campaign-performance">
+                    <Table data-testid="table-campaign-roi">
                       <TableHeader>
                         <TableRow>
                           <TableHead>Campaign</TableHead>
@@ -721,23 +675,21 @@ export default function MarketingAttribution() {
                           <TableHead className="text-right">Spend</TableHead>
                           <TableHead className="text-right">Revenue</TableHead>
                           <TableHead className="text-right">ROI</TableHead>
-                          <TableHead className="text-right">CPA</TableHead>
-                          <TableHead className="text-right">Customers</TableHead>
+                          <TableHead className="text-right">ROAS</TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {result.data.campaignPerformance.map((campaign, idx) => (
-                          <TableRow key={campaign.id} data-testid={`row-campaign-${idx}`}>
-                            <TableCell className="font-medium">{campaign.name}</TableCell>
-                            <TableCell className="capitalize">{campaign.channel.replace("_", " ")}</TableCell>
+                        {result.data.campaignROI.map((campaign, idx) => (
+                          <TableRow key={idx} data-testid={`row-campaign-roi-${idx}`}>
+                            <TableCell className="font-medium">{campaign.campaign}</TableCell>
+                            <TableCell>{campaign.channel}</TableCell>
                             <TableCell className="text-right">{formatCurrency(campaign.spend)}</TableCell>
                             <TableCell className="text-right text-green-600">{formatCurrency(campaign.revenue)}</TableCell>
                             <TableCell className={`text-right ${campaign.roi >= 0 ? "text-green-600" : "text-red-600"}`}>
                               {formatPercent(campaign.roi)}
                             </TableCell>
-                            <TableCell className="text-right">{formatCurrency(campaign.cpa)}</TableCell>
-                            <TableCell className="text-right">{campaign.newCustomers}</TableCell>
+                            <TableCell className="text-right">{campaign.roas.toFixed(2)}x</TableCell>
                             <TableCell>
                               <StatusBadge status={campaign.status} />
                             </TableCell>
@@ -755,45 +707,51 @@ export default function MarketingAttribution() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Scale className="h-5 w-5 text-[#C8A661]" />
-                      Budget Allocation Recommendations
+                      Budget Reallocation Recommendations
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <h4 className="font-semibold text-sm text-muted-foreground">Projected Impact</h4>
+                      <h4 className="font-semibold text-sm text-muted-foreground">Expected Impact</h4>
                       <div className="grid grid-cols-3 gap-4">
-                        <div className="bg-green-50 rounded-lg p-3 text-center">
-                          <div className="text-lg font-bold text-green-600" data-testid="text-revenue-increase">
-                            +{formatCurrency(result.data.budgetRecommendations.projectedImpact.revenueIncrease)}
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-center">
+                          <div className="text-lg font-bold text-green-600" data-testid="text-additional-conversions">
+                            +{result.data.budgetReallocation.expectedImpact.additionalConversions}
                           </div>
-                          <div className="text-xs text-muted-foreground">Revenue Increase</div>
+                          <div className="text-xs text-muted-foreground">Conversions</div>
                         </div>
-                        <div className="bg-blue-50 rounded-lg p-3 text-center">
-                          <div className="text-lg font-bold text-blue-600" data-testid="text-roi-improvement">
-                            +{result.data.budgetRecommendations.projectedImpact.roiImprovement.toFixed(1)}%
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+                          <div className="text-lg font-bold text-blue-600" data-testid="text-improved-roi">
+                            +{result.data.budgetReallocation.expectedImpact.improvedROI.toFixed(1)}%
                           </div>
-                          <div className="text-xs text-muted-foreground">ROI Improvement</div>
+                          <div className="text-xs text-muted-foreground">ROI</div>
                         </div>
-                        <div className="bg-purple-50 rounded-lg p-3 text-center">
-                          <div className="text-lg font-bold text-purple-600" data-testid="text-cpa-reduction">
-                            -{result.data.budgetRecommendations.projectedImpact.cpaReduction.toFixed(1)}%
+                        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 text-center">
+                          <div className="text-lg font-bold text-purple-600" data-testid="text-reduced-cpa">
+                            -{formatCurrency(result.data.budgetReallocation.expectedImpact.reducedCPA)}
                           </div>
-                          <div className="text-xs text-muted-foreground">CPA Reduction</div>
+                          <div className="text-xs text-muted-foreground">CPA</div>
                         </div>
                       </div>
                     </div>
                     
-                    {result.data.budgetRecommendations.recommendedAllocation.length > 0 && (
+                    <p className="text-sm text-muted-foreground" data-testid="text-rationale">
+                      {result.data.budgetReallocation.rationale}
+                    </p>
+
+                    {result.data.budgetReallocation.recommendedAllocation.length > 0 && (
                       <div className="space-y-2">
                         <h4 className="font-semibold text-sm text-muted-foreground">Recommended Allocation</h4>
-                        {result.data.budgetRecommendations.recommendedAllocation.map((alloc, idx) => (
+                        {result.data.budgetReallocation.recommendedAllocation.map((alloc, idx) => (
                           <div key={idx} className="flex items-center justify-between py-2 border-b" data-testid={`row-allocation-${idx}`}>
-                            <span className="capitalize">{alloc.channel.replace("_", " ")}</span>
+                            <span>{alloc.channel}</span>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{alloc.percent}%</span>
-                              <Badge className={alloc.change.startsWith("+") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
-                                {alloc.change}
-                              </Badge>
+                              <span className="font-medium">{formatCurrency(alloc.amount)} ({alloc.percentage}%)</span>
+                              {alloc.change !== 0 && (
+                                <Badge className={alloc.change > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+                                  {alloc.change > 0 ? "+" : ""}{alloc.change}%
+                                </Badge>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -806,80 +764,103 @@ export default function MarketingAttribution() {
                   <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Scissors className="h-5 w-5 text-[#C8A661]" />
-                      Cut / Scale Recommendations
+                      <TrendingUp className="h-5 w-5 text-[#C8A661]" />
+                      Predicted Impact Scenarios
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {result.data.cutScaleRecommendations.scale.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-sm text-green-600 flex items-center gap-1">
-                          <TrendingUp className="w-4 h-4" />
-                          Scale Up
-                        </h4>
-                        {result.data.cutScaleRecommendations.scale.map((item, idx) => (
-                          <div key={idx} className="bg-green-50 rounded-lg p-3" data-testid={`card-scale-${idx}`}>
-                            <div className="font-medium text-foreground">{item.campaign}</div>
-                            <div className="text-sm text-muted-foreground">{item.reason}</div>
-                            <div className="text-sm font-medium text-green-600 mt-1">Increase: {item.suggestedIncrease}</div>
+                  <CardContent className="space-y-3">
+                    {result.data.predictedImpact.map((scenario, idx) => (
+                      <div key={idx} className="border rounded-lg p-3" data-testid={`card-scenario-${idx}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">{scenario.scenario}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {(scenario.confidence * 100).toFixed(0)}% confidence
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                          <div className="bg-muted/50 rounded p-2">
+                            <p className="text-muted-foreground text-xs">Conversions</p>
+                            <p className="font-semibold">{scenario.predictedConversions}</p>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {result.data.cutScaleRecommendations.optimize.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-sm text-yellow-600 flex items-center gap-1">
-                          <Lightbulb className="w-4 h-4" />
-                          Optimize
-                        </h4>
-                        {result.data.cutScaleRecommendations.optimize.map((item, idx) => (
-                          <div key={idx} className="bg-yellow-50 rounded-lg p-3" data-testid={`card-optimize-${idx}`}>
-                            <div className="font-medium text-foreground">{item.campaign}</div>
-                            <div className="text-sm text-muted-foreground">{item.reason}</div>
-                            <div className="text-sm font-medium text-yellow-600 mt-1">{item.suggestion}</div>
+                          <div className="bg-muted/50 rounded p-2">
+                            <p className="text-muted-foreground text-xs">ROI</p>
+                            <p className="font-semibold">{scenario.predictedROI.toFixed(1)}%</p>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {result.data.cutScaleRecommendations.cut.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-sm text-red-600 flex items-center gap-1">
-                          <TrendingDown className="w-4 h-4" />
-                          Consider Cutting
-                        </h4>
-                        {result.data.cutScaleRecommendations.cut.map((item, idx) => (
-                          <div key={idx} className="bg-red-50 rounded-lg p-3" data-testid={`card-cut-${idx}`}>
-                            <div className="font-medium text-foreground">{item.campaign}</div>
-                            <div className="text-sm text-muted-foreground">{item.reason}</div>
-                            <div className="text-sm font-medium text-red-600 mt-1">Potential Savings: {formatCurrency(item.potentialSavings)}</div>
+                          <div className="bg-muted/50 rounded p-2">
+                            <p className="text-muted-foreground text-xs">CPA</p>
+                            <p className="font-semibold">{formatCurrency(scenario.predictedCPA)}</p>
                           </div>
-                        ))}
+                        </div>
                       </div>
+                    ))}
+                    {result.data.predictedImpact.length === 0 && (
+                      <p className="text-muted-foreground text-center py-4">No predictions available</p>
                     )}
                   </CardContent>
                 </Card>
               </div>
 
-              {result.data.insights.length > 0 && (
+              <div className="grid lg:grid-cols-2 gap-6">
                 <Card className="bg-card border shadow-sm overflow-hidden">
                   <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Lightbulb className="h-5 w-5 text-[#C8A661]" />
-                      AI Insights
+                      Recommendations
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid md:grid-cols-2 gap-4" data-testid="container-insights">
-                      {result.data.insights.map((insight, idx) => (
-                        <InsightCard key={idx} insight={insight} />
+                    <div className="space-y-3" data-testid="list-recommendations">
+                      {result.data.recommendations.map((rec, idx) => (
+                        <div key={idx} className="border rounded-lg p-3" data-testid={`card-recommendation-${idx}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <Badge variant="outline" className="text-xs">{rec.category}</Badge>
+                            <Badge className={
+                              rec.priority === "high" ? "bg-red-100 text-red-700" :
+                              rec.priority === "medium" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-green-100 text-green-700"
+                            }>
+                              {rec.priority}
+                            </Badge>
+                          </div>
+                          <p className="font-medium mb-1">{rec.action}</p>
+                          <p className="text-sm text-muted-foreground">{rec.expectedImpact}</p>
+                        </div>
                       ))}
+                      {result.data.recommendations.length === 0 && (
+                        <p className="text-muted-foreground text-center py-4">No recommendations available</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              )}
+
+                <Card className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-[#C8A661]" />
+                      Key Insights
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3" data-testid="list-insights">
+                      {result.data.insights.map((insight, idx) => (
+                        <div key={idx} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                          <CheckCircle className="h-5 w-5 text-[#C8A661] shrink-0 mt-0.5" />
+                          <p className="text-sm">{insight}</p>
+                        </div>
+                      ))}
+                      {result.data.insights.length === 0 && (
+                        <p className="text-muted-foreground text-center py-4">No insights available</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="text-center text-sm text-muted-foreground">
+                Analysis confidence: {(result.confidence * 100).toFixed(0)}%
+              </div>
             </div>
           )}
         </div>
