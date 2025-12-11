@@ -1,13 +1,27 @@
 /**
- * CLEANBI Master Formulas Implementation
+ * CLEANBI 2.0 Master Formulas Implementation
  * 
- * Implements the canonical CLEANBI scoring system:
- * - Market Score (25%) - Demographics, competition, neighborhood
- * - Financial Score (25%) - Rent ratio, margins, revenue per machine
- * - Lease Score (20%) - Term, escalation, exclusive use
- * - Equipment Score (15%) - Age, brand, mix
- * - Utilities Score (10%) - Gas/water efficiency
- * - Growth Score (5%) - Permits, trends, competition building
+ * Implements the canonical 17-FACTOR CLEANBI scoring algorithm:
+ * 
+ * THE 17 FACTORS & WEIGHTS (Total: 100%)
+ * ═══════════════════════════════════════
+ * 1. Rent % of Revenue     (10%) - Inverse normalize (lower = better, 10-18% optimal)
+ * 2. EBITDA Margin         (10%) - Linear normalize (20-35% optimal)
+ * 3. Turns Per Day         (10%) - Linear normalize (4-6 TPD optimal)
+ * 4. Market Saturation      (8%) - Inverse of competitor density
+ * 5. DSCR                   (8%) - Debt Service Coverage Ratio (1.25-2.0 optimal)
+ * 6. Renter Percentage      (6%) - Linear normalize (40-70% optimal)
+ * 7. Population Density     (6%) - Linear normalize (2000-5000/sq mi optimal)
+ * 8. Traffic Score          (6%) - Direct 0-100 (higher = better)
+ * 9. Equipment Mix          (6%) - Direct 0-100 (higher = better)
+ * 10. Median Income         (5%) - Bell curve to $55K target ($40K-$70K optimal)
+ * 11. Utilities % Revenue   (5%) - Inverse normalize (8-12% optimal)
+ * 12. Parking Score         (4%) - Direct 0-100 (higher = better)
+ * 13. Cashless Enabled      (4%) - Boolean (100 if yes, 40 if no)
+ * 14. WDF Space (sq ft)     (4%) - Linear normalize (200-500 sqft optimal)
+ * 15. Household Size        (3%) - Linear normalize (2.5-3.5 optimal)
+ * 16. Delivery Ready        (3%) - Boolean (100 if yes, 50 if no)
+ * 17. Curbside Ready        (2%) - Boolean (100 if yes, 50 if no)
  * 
  * Uses shared CLEANBI grading: A (85+), B (70-84), C (55-69), Needs Work (<55)
  */
@@ -20,6 +34,9 @@ export interface FinancialInputs {
   netProfit?: number;
   monthlyRent?: number;
   machineCount?: number;
+  ebitda?: number;
+  annualDebtService?: number;
+  turnsPerDay?: number;
 }
 
 export interface LeaseInputs {
@@ -35,6 +52,7 @@ export interface EquipmentInputs {
   hasHighSpinExtractors?: boolean;
   hasSingleLoadTops?: boolean;
   hasSmartPayment?: boolean;
+  hasCashlessPayment?: boolean;
 }
 
 export interface UtilitiesInputs {
@@ -42,12 +60,24 @@ export interface UtilitiesInputs {
   monthlyWaterBill?: number;
   turnsPerDay?: number;
   machineCount?: number;
+  monthlyElectricBill?: number;
+}
+
+export interface OperationalInputs {
+  trafficScore?: number;
+  parkingScore?: number;
+  wdfSpaceSqFt?: number;
+  hasWDF?: boolean;
+  hasDeliveryService?: boolean;
+  hasCurbsidePickup?: boolean;
+  householdSize?: number;
 }
 
 export interface CLEANBIMasterScore {
   cleanbiScore: number;
   grade: 'A' | 'B' | 'C' | 'Needs Work';
   
+  // 6 category subscores for visualization
   subscores: {
     marketScore: number;
     financialScore: number;
@@ -57,6 +87,41 @@ export interface CLEANBIMasterScore {
     growthScore: number;
   };
   
+  // Full 17-factor breakdown with weights
+  factors: {
+    // Financial Factors (30% total)
+    rentToRevenueRatio: { score: number; weight: 0.10; value: number };
+    ebitdaMargin: { score: number; weight: 0.10; value: number };
+    turnsPerDay: { score: number; weight: 0.10; value: number };
+    
+    // Market Factors (20% total)
+    marketSaturation: { score: number; weight: 0.08; value: number };
+    renterPercentage: { score: number; weight: 0.06; value: number };
+    populationDensity: { score: number; weight: 0.06; value: number };
+    
+    // Operational Factors (22% total)
+    dscr: { score: number; weight: 0.08; value: number };
+    trafficScore: { score: number; weight: 0.06; value: number };
+    equipmentMix: { score: number; weight: 0.06; value: number };
+    cashlessEnabled: { score: number; weight: 0.04; value: number }; // 1=yes, 0=no
+    
+    // Demographics (8% total)
+    medianIncome: { score: number; weight: 0.05; value: number };
+    householdSize: { score: number; weight: 0.03; value: number };
+    
+    // Utilities (5% total)
+    utilitiesRevenue: { score: number; weight: 0.05; value: number };
+    
+    // Facility (8% total)
+    parkingScore: { score: number; weight: 0.04; value: number };
+    wdfSpace: { score: number; weight: 0.04; value: number };
+    
+    // Services (5% total)
+    deliveryReady: { score: number; weight: 0.03; value: number }; // 1=yes, 0=no
+    curbsideReady: { score: number; weight: 0.02; value: number }; // 1=yes, 0=no
+  };
+  
+  // Legacy breakdown for backward compatibility
   breakdown: {
     renterScore: number;
     incomeScore: number;
@@ -76,6 +141,17 @@ export interface CLEANBIMasterScore {
     permitScore: number;
     constructionScore: number;
     trendScore: number;
+    // New 17-factor scores
+    dscrScore: number;
+    trafficScore: number;
+    parkingScore: number;
+    cashlessScore: number;
+    wdfSpaceScore: number;
+    householdScore: number;
+    deliveryScore: number;
+    curbsideScore: number;
+    utilitiesRevenueScore: number;
+    tpdScore: number;
   };
   
   confidence: number;
@@ -88,6 +164,8 @@ export interface CLEANBIMasterScore {
     rentToRevenueRatio: number | null;
     demographicPowerScore: number;
     laundryDemandIndex: number;
+    dscr: number | null;
+    utilitiesRevenuePct: number | null;
   };
 }
 
@@ -139,6 +217,123 @@ function calculateCompetitionScore(competitionCount: number): number {
 
 function calculateCleanlinessScore(score: number): number {
   return clamp(score * 10);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NEW 17-FACTOR CLEANBI 2.0 SCORING FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * TURNS PER DAY (TPD) Score
+ * Industry optimal: 4-6 TPD
+ * Higher TPD = higher utilization = better performance
+ */
+function calculateTPDScore(tpd: number): number {
+  if (tpd >= 6) return 100;  // Excellent - max utilization
+  if (tpd >= 5) return 90;   // Great performance
+  if (tpd >= 4) return 80;   // Good - industry target
+  if (tpd >= 3) return 65;   // Below average
+  if (tpd >= 2) return 50;   // Underperforming
+  return 35;                  // Poor utilization
+}
+
+/**
+ * DSCR (Debt Service Coverage Ratio) Score
+ * Industry optimal: 1.25-2.0
+ * DSCR = EBITDA / Annual Debt Service
+ */
+function calculateDSCRScore(dscr: number): number {
+  if (dscr >= 2.0) return 100;   // Excellent debt coverage
+  if (dscr >= 1.5) return 90;    // Strong coverage
+  if (dscr >= 1.25) return 80;   // Minimum SBA requirement
+  if (dscr >= 1.1) return 65;    // Marginal
+  if (dscr >= 1.0) return 50;    // Break-even on debt
+  return 30;                      // Cannot cover debt
+}
+
+/**
+ * Traffic Score
+ * Direct 0-100 based on foot/vehicle traffic data
+ * Higher traffic = more potential customers
+ */
+function calculateTrafficScoreValue(trafficScore: number): number {
+  return clamp(trafficScore);
+}
+
+/**
+ * Parking Score
+ * Direct 0-100 based on parking availability
+ * Industry research: parking affects 30% of customer decisions
+ */
+function calculateParkingScoreValue(parkingScore: number): number {
+  return clamp(parkingScore);
+}
+
+/**
+ * Cashless Enabled Score
+ * Boolean: 100 if yes, 40 if no
+ * Modern laundromats need card/app payment
+ */
+function calculateCashlessScore(hasCashless: boolean): number {
+  return hasCashless ? 100 : 40;
+}
+
+/**
+ * WDF Space Score
+ * Linear normalize (200-500 sqft optimal)
+ * WDF generates 40-60% margins
+ */
+function calculateWDFSpaceScore(sqft: number): number {
+  if (sqft === 0) return 30;       // No WDF space
+  if (sqft >= 500) return 100;     // Full-service WDF
+  if (sqft >= 400) return 90;      // Excellent space
+  if (sqft >= 300) return 80;      // Good capacity
+  if (sqft >= 200) return 70;      // Minimum viable
+  if (sqft >= 100) return 55;      // Limited
+  return 40;                        // Very limited
+}
+
+/**
+ * Household Size Score
+ * Linear normalize (2.5-3.5 optimal)
+ * Larger households = more laundry
+ */
+function calculateHouseholdScore(avgSize: number): number {
+  if (avgSize >= 2.5 && avgSize <= 3.5) return 100;
+  if (avgSize >= 3.0 && avgSize <= 4.0) return 90;
+  if (avgSize >= 2.0 && avgSize <= 3.0) return 75;
+  return 60;
+}
+
+/**
+ * Delivery Ready Score
+ * Boolean: 100 if yes, 50 if no
+ * Delivery = higher LTV customers
+ */
+function calculateDeliveryScore(hasDelivery: boolean): number {
+  return hasDelivery ? 100 : 50;
+}
+
+/**
+ * Curbside Ready Score
+ * Boolean: 100 if yes, 50 if no
+ * Convenience feature
+ */
+function calculateCurbsideScore(hasCurbside: boolean): number {
+  return hasCurbside ? 100 : 50;
+}
+
+/**
+ * Utilities % of Revenue Score
+ * Inverse normalize (8-12% optimal, lower = better)
+ */
+function calculateUtilitiesRevenueScore(utilPct: number): number {
+  if (utilPct <= 8) return 100;   // Excellent efficiency
+  if (utilPct <= 10) return 90;   // Great
+  if (utilPct <= 12) return 80;   // Industry standard
+  if (utilPct <= 15) return 65;   // Above average cost
+  if (utilPct <= 18) return 50;   // High utilities
+  return 35;                       // Needs efficiency improvements
 }
 
 function calculateMarketScore(
@@ -403,7 +598,8 @@ export function calculateCLEANBIMasterScore(
   financialInputs: FinancialInputs = {},
   leaseInputs: LeaseInputs = {},
   equipmentInputs: EquipmentInputs = {},
-  utilitiesInputs: UtilitiesInputs = {}
+  utilitiesInputs: UtilitiesInputs = {},
+  operationalInputs: OperationalInputs = {}
 ): CLEANBIMasterScore {
   
   const renterScore = calculateRenterScore(enrichedData.demographics.renterPercentage);
@@ -499,6 +695,70 @@ export function calculateCLEANBIMasterScore(
     populationGrowth, newApartments, noNewLaundromats, incomeVsRentTrend
   );
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // NEW 17-FACTOR CLEANBI 2.0 CALCULATIONS
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  // Extract values for 17-factor scoring
+  const ebitda = financialInputs.ebitda ?? (netProfit * 1.2); // Approximate EBITDA
+  const annualDebtService = financialInputs.annualDebtService ?? 0;
+  const turnsPerDayValue = financialInputs.turnsPerDay ?? turnsPerDay;
+  
+  // Calculate DSCR (Debt Service Coverage Ratio)
+  const dscr = annualDebtService > 0 ? ebitda / annualDebtService : 2.0;
+  
+  // Calculate utilities % of revenue
+  const monthlyUtilities = (utilitiesInputs.monthlyGasBill ?? 800) + 
+    (utilitiesInputs.monthlyWaterBill ?? 600) + 
+    (utilitiesInputs.monthlyElectricBill ?? 400);
+  const utilitiesPct = (monthlyUtilities * 12 / grossRevenue) * 100;
+  
+  // Get operational inputs with defaults
+  const trafficValue = operationalInputs.trafficScore ?? 60;
+  const parkingValue = operationalInputs.parkingScore ?? 70;
+  const wdfSpaceValue = operationalInputs.wdfSpaceSqFt ?? 200;
+  const hasDelivery = operationalInputs.hasDeliveryService ?? false;
+  const hasCurbside = operationalInputs.hasCurbsidePickup ?? false;
+  const householdSizeValue = operationalInputs.householdSize ?? enrichedData.demographics.householdSize ?? 2.5;
+  const hasCashless = equipmentInputs.hasCashlessPayment ?? equipmentInputs.hasSmartPayment ?? true;
+  
+  // Calculate new 17-factor individual scores
+  const tpdScore = calculateTPDScore(turnsPerDayValue);
+  const dscrScore = calculateDSCRScore(dscr);
+  const trafficScoreValue = calculateTrafficScoreValue(trafficValue);
+  const parkingScoreValue = calculateParkingScoreValue(parkingValue);
+  const cashlessScore = calculateCashlessScore(hasCashless);
+  const wdfSpaceScore = calculateWDFSpaceScore(wdfSpaceValue);
+  const householdScore = calculateHouseholdScore(householdSizeValue);
+  const deliveryScore = calculateDeliveryScore(hasDelivery);
+  const curbsideScore = calculateCurbsideScore(hasCurbside);
+  const utilitiesRevenueScore = calculateUtilitiesRevenueScore(utilitiesPct);
+  const ebitdaMarginPct = (ebitda / grossRevenue) * 100;
+  const ebitdaScore = calculateMarginScore(ebitdaMarginPct);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CALCULATE FULL 17-FACTOR WEIGHTED CLEANBI 2.0 SCORE
+  // ═══════════════════════════════════════════════════════════════════════════
+  const cleanbi2Score = 
+    (0.10 * rentRatioScore) +           // Factor 1: Rent % of Revenue
+    (0.10 * ebitdaScore) +              // Factor 2: EBITDA Margin
+    (0.10 * tpdScore) +                 // Factor 3: Turns Per Day
+    (0.08 * competitionScore) +         // Factor 4: Market Saturation
+    (0.08 * dscrScore) +                // Factor 5: DSCR
+    (0.06 * renterScore) +              // Factor 6: Renter Percentage
+    (0.06 * densityScore) +             // Factor 7: Population Density
+    (0.06 * trafficScoreValue) +        // Factor 8: Traffic Score
+    (0.06 * mixScore) +                 // Factor 9: Equipment Mix
+    (0.05 * incomeScore) +              // Factor 10: Median Income
+    (0.05 * utilitiesRevenueScore) +    // Factor 11: Utilities % Revenue
+    (0.04 * parkingScoreValue) +        // Factor 12: Parking Score
+    (0.04 * cashlessScore) +            // Factor 13: Cashless Enabled
+    (0.04 * wdfSpaceScore) +            // Factor 14: WDF Space
+    (0.03 * householdScore) +           // Factor 15: Household Size
+    (0.03 * deliveryScore) +            // Factor 16: Delivery Ready
+    (0.02 * curbsideScore);             // Factor 17: Curbside Ready
+
+  // Legacy 6-category score for backward compatibility
   const rawScore = 
     (0.25 * marketScore) +
     (0.25 * financialScore) +
@@ -509,7 +769,9 @@ export function calculateCLEANBIMasterScore(
 
   const confidence = enrichedData.dataQuality.overallConfidence / 100;
   const fallbackPenalty = (1 - confidence) * 15;
-  const finalScore = Math.round(clamp(rawScore - fallbackPenalty));
+  
+  // Use CLEANBI 2.0 17-factor score as primary, with confidence adjustment
+  const finalScore = Math.round(clamp(cleanbi2Score - fallbackPenalty));
 
   const subscores = {
     marketScore: Math.round(marketScore),
@@ -518,6 +780,27 @@ export function calculateCLEANBIMasterScore(
     equipmentScore: Math.round(equipmentScore),
     utilitiesScore: Math.round(utilitiesScore),
     growthScore: Math.round(growthScore)
+  };
+
+  // Full 17-factor breakdown with weights
+  const factors = {
+    rentToRevenueRatio: { score: Math.round(rentRatioScore), weight: 0.10 as const, value: rentRatio * 100 },
+    ebitdaMargin: { score: Math.round(ebitdaScore), weight: 0.10 as const, value: ebitdaMarginPct },
+    turnsPerDay: { score: Math.round(tpdScore), weight: 0.10 as const, value: turnsPerDayValue },
+    marketSaturation: { score: Math.round(competitionScore), weight: 0.08 as const, value: enrichedData.competition.count },
+    dscr: { score: Math.round(dscrScore), weight: 0.08 as const, value: dscr },
+    renterPercentage: { score: Math.round(renterScore), weight: 0.06 as const, value: enrichedData.demographics.renterPercentage },
+    populationDensity: { score: Math.round(densityScore), weight: 0.06 as const, value: enrichedData.demographics.populationDensity },
+    trafficScore: { score: Math.round(trafficScoreValue), weight: 0.06 as const, value: trafficValue },
+    equipmentMix: { score: Math.round(mixScore), weight: 0.06 as const, value: mixScore },
+    medianIncome: { score: Math.round(incomeScore), weight: 0.05 as const, value: enrichedData.demographics.medianHouseholdIncome },
+    utilitiesRevenue: { score: Math.round(utilitiesRevenueScore), weight: 0.05 as const, value: utilitiesPct },
+    parkingScore: { score: Math.round(parkingScoreValue), weight: 0.04 as const, value: parkingValue },
+    cashlessEnabled: { score: Math.round(cashlessScore), weight: 0.04 as const, value: hasCashless ? 1 : 0 },
+    wdfSpace: { score: Math.round(wdfSpaceScore), weight: 0.04 as const, value: wdfSpaceValue },
+    householdSize: { score: Math.round(householdScore), weight: 0.03 as const, value: householdSizeValue },
+    deliveryReady: { score: Math.round(deliveryScore), weight: 0.03 as const, value: hasDelivery ? 1 : 0 },
+    curbsideReady: { score: Math.round(curbsideScore), weight: 0.02 as const, value: hasCurbside ? 1 : 0 },
   };
 
   const breakdown = {
@@ -538,7 +821,18 @@ export function calculateCLEANBIMasterScore(
     waterEfficiencyScore: Math.round(waterEfficiencyScore),
     permitScore: Math.round(permitScore),
     constructionScore: Math.round(constructionScore),
-    trendScore: Math.round(trendScore)
+    trendScore: Math.round(trendScore),
+    // New 17-factor scores
+    dscrScore: Math.round(dscrScore),
+    trafficScore: Math.round(trafficScoreValue),
+    parkingScore: Math.round(parkingScoreValue),
+    cashlessScore: Math.round(cashlessScore),
+    wdfSpaceScore: Math.round(wdfSpaceScore),
+    householdScore: Math.round(householdScore),
+    deliveryScore: Math.round(deliveryScore),
+    curbsideScore: Math.round(curbsideScore),
+    utilitiesRevenueScore: Math.round(utilitiesRevenueScore),
+    tpdScore: Math.round(tpdScore),
   };
 
   const vendedPrice = 3.50;
@@ -551,6 +845,7 @@ export function calculateCLEANBIMasterScore(
     cleanbiScore: finalScore,
     grade: getGrade(finalScore),
     subscores,
+    factors,
     breakdown,
     confidence: Math.round(confidence * 100),
     fallbackPenalty: Math.round(fallbackPenalty),
@@ -560,7 +855,9 @@ export function calculateCLEANBIMasterScore(
       breakEvenTPD: Math.round(breakEvenTPD * 100) / 100,
       rentToRevenueRatio: Math.round(rentRatio * 1000) / 10,
       demographicPowerScore: enrichedData.marketScores.demographicPowerScore,
-      laundryDemandIndex: enrichedData.demographics.laundryDemandIndex
+      laundryDemandIndex: enrichedData.demographics.laundryDemandIndex,
+      dscr: Math.round(dscr * 100) / 100,
+      utilitiesRevenuePct: Math.round(utilitiesPct * 10) / 10,
     }
   };
 }
