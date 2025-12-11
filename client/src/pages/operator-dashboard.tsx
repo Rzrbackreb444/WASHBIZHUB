@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { DonutChart, SectionHeader } from "@/components/dashboard/DashboardComponents";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   DollarSign,
   Activity,
@@ -40,6 +44,19 @@ import {
   WifiOff,
   ChevronRight,
   BarChart3,
+  Globe,
+  Target,
+  Scale,
+  Building2,
+  Eye,
+  Edit,
+  ExternalLink,
+  Receipt,
+  Timer,
+  Sparkles,
+  MessageSquare,
+  Star,
+  Award,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -124,6 +141,45 @@ const quickActions = [
   { id: "pricing", label: "Adjust Pricing", icon: Settings, href: "/iot-dashboard", color: "bg-green-600" },
 ];
 
+// Mock CLEANBI data for command center
+const mockCleanbiData = {
+  overallScore: 82,
+  grade: "B",
+  factors: [
+    { name: "Location", score: 88, weight: 25 },
+    { name: "Demographics", score: 76, weight: 20 },
+    { name: "Competition", score: 85, weight: 20 },
+    { name: "Traffic", score: 79, weight: 15 },
+    { name: "Visibility", score: 84, weight: 10 },
+    { name: "Infrastructure", score: 78, weight: 10 },
+  ],
+};
+
+// Mock pending orders for POS widget
+const mockPendingOrders = [
+  { id: "WDF-001", customer: "John D.", type: "Wash & Fold", weight: "12.5 lbs", status: "processing", eta: "2:30 PM" },
+  { id: "WDF-002", customer: "Sarah M.", type: "Pickup", weight: "8.2 lbs", status: "ready", eta: "Ready" },
+  { id: "WDF-003", customer: "Mike R.", type: "Express", weight: "5.0 lbs", status: "weighing", eta: "1:45 PM" },
+  { id: "DC-001", customer: "Lisa K.", type: "Dry Clean", weight: "3 items", status: "processing", eta: "Tomorrow" },
+];
+
+// Mock website stats
+const mockWebsiteStats = {
+  visitors: 1247,
+  pageViews: 3892,
+  conversionRate: 4.2,
+  topPage: "Services",
+  lastPublished: "2 hours ago",
+  status: "published",
+};
+
+// Service Guy AI mock tickets
+const mockServiceTickets = [
+  { id: "SRV-001", machine: "Washer #7", issue: "High vibration", priority: "high", status: "open" },
+  { id: "SRV-002", machine: "Dryer #3", issue: "Not heating", priority: "medium", status: "in_progress" },
+  { id: "SRV-003", machine: "Changer #1", issue: "Coin jam", priority: "low", status: "scheduled" },
+];
+
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 }
@@ -148,8 +204,49 @@ function getScheduleStyle(type: string) {
   }
 }
 
+// Helper functions for status colors
+function getOrderStatusColor(status: string) {
+  switch (status) {
+    case "ready": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+    case "processing": return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+    case "weighing": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+    default: return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+  }
+}
+
+function getPriorityColor(priority: string) {
+  switch (priority) {
+    case "high": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+    case "medium": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+    case "low": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+    default: return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+  }
+}
+
+function getTicketStatusColor(status: string) {
+  switch (status) {
+    case "open": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+    case "in_progress": return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+    case "scheduled": return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
+    default: return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+  }
+}
+
+function getGradeColor(grade: string) {
+  switch (grade) {
+    case "A": return "text-green-500";
+    case "B": return "text-lime-500";
+    case "C": return "text-amber-500";
+    default: return "text-[#C8A661]";
+  }
+}
+
 export default function OperatorDashboard() {
   const [revenuePeriod, setRevenuePeriod] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [activeTab, setActiveTab] = useState("overview");
+  const [quickPosWeight, setQuickPosWeight] = useState("");
+  const [quickPosService, setQuickPosService] = useState("wash_fold");
+  const { toast } = useToast();
 
   const { data: kpiData } = useQuery({
     queryKey: ["/api/operator-dashboard/kpis"],
@@ -169,22 +266,42 @@ export default function OperatorDashboard() {
   const previousTotal = revenueData.reduce((sum, d) => sum + d.previous, 0);
   const revenueTrend = ((currentTotal - previousTotal) / previousTotal) * 100;
 
+  // Quick POS calculation
+  const pricePerPound = 1.75;
+  const quickPosTotal = quickPosWeight ? parseFloat(quickPosWeight) * pricePerPound : 0;
+
+  const handleQuickTransaction = () => {
+    if (!quickPosWeight || parseFloat(quickPosWeight) <= 0) {
+      toast({ title: "Enter weight", description: "Please enter the laundry weight", variant: "destructive" });
+      return;
+    }
+    toast({ 
+      title: "Transaction Created!", 
+      description: `${quickPosWeight} lbs @ $${pricePerPound}/lb = ${formatCurrency(quickPosTotal)}` 
+    });
+    setQuickPosWeight("");
+  };
+
   return (
     <>
       <Helmet>
-        <title>Operator Dashboard | WashBizHub Command Center</title>
-        <meta name="description" content="Unified operator dashboard for managing all WashBizHub modules - POS, IoT, Routes, Service, Marketing, and Inventory." />
+        <title>Command Center | WashBizHub Operator OS</title>
+        <meta name="description" content="Your complete laundromat operating system - POS, CLEANBI, Website, Service, Courses, Calculators, and more in one unified command center." />
       </Helmet>
 
       <div className="min-h-screen bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+          {/* Command Center Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground" data-testid="text-dashboard-title">
-                Operator Dashboard
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3" data-testid="text-dashboard-title">
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#0A1628] to-[#1a2d4a] flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-[#C8A661]" />
+                </div>
+                Command Center
               </h1>
               <p className="text-muted-foreground mt-1">
-                Your unified command center for all operations
+                Everything you need to run your laundromat - one screen, total control
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -198,6 +315,46 @@ export default function OperatorDashboard() {
               </Button>
             </div>
           </div>
+
+          {/* Main Tabbed Interface */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 bg-muted/50">
+              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-overview">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger value="pos" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-pos">
+                <ShoppingCart className="h-4 w-4" />
+                <span className="hidden sm:inline">POS</span>
+              </TabsTrigger>
+              <TabsTrigger value="machines" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-machines">
+                <Activity className="h-4 w-4" />
+                <span className="hidden sm:inline">Machines</span>
+              </TabsTrigger>
+              <TabsTrigger value="service" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-service">
+                <Wrench className="h-4 w-4" />
+                <span className="hidden sm:inline">Service</span>
+              </TabsTrigger>
+              <TabsTrigger value="website" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-website">
+                <Globe className="h-4 w-4" />
+                <span className="hidden sm:inline">Website</span>
+              </TabsTrigger>
+              <TabsTrigger value="cleanbi" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-cleanbi">
+                <Target className="h-4 w-4" />
+                <span className="hidden sm:inline">CLEANBI</span>
+              </TabsTrigger>
+              <TabsTrigger value="tools" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-tools">
+                <Scale className="h-4 w-4" />
+                <span className="hidden sm:inline">Tools</span>
+              </TabsTrigger>
+              <TabsTrigger value="learn" className="gap-1.5 text-xs sm:text-sm" data-testid="tab-learn">
+                <Award className="h-4 w-4" />
+                <span className="hidden sm:inline">Academy</span>
+              </TabsTrigger>
+            </TabsList>
+
+            {/* OVERVIEW TAB */}
+            <TabsContent value="overview" className="space-y-4">
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="container-kpi-row">
             <KPICard
@@ -467,68 +624,435 @@ export default function OperatorDashboard() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" data-testid="container-module-links">
-            <Link href="/pos-suite">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <ShoppingCart className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">POS Suite</span>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/iot-dashboard">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <Activity className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">IoT Dashboard</span>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/route-optimization">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <Truck className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">Routes</span>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/service-guy-ai">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <Wrench className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">Service Guy</span>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/marketing-loyalty">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <Users className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">Marketing</span>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/parts-inventory">
-              <Card className="bg-card border shadow-sm hover-elevate cursor-pointer h-full">
-                <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-2">
-                    <Package className="h-5 w-5 text-[#C8A661]" />
-                  </div>
-                  <span className="text-sm font-medium">Inventory</span>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+            </TabsContent>
+
+            {/* POS TAB */}
+            <TabsContent value="pos" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Quick Transaction */}
+                <Card className="lg:col-span-1">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Receipt className="h-5 w-5 text-[#C8A661]" />
+                      Quick Transaction
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <Select value={quickPosService} onValueChange={setQuickPosService}>
+                      <SelectTrigger data-testid="select-pos-service">
+                        <SelectValue placeholder="Select service" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="wash_fold">Wash & Fold ($1.75/lb)</SelectItem>
+                        <SelectItem value="dry_clean">Dry Cleaning</SelectItem>
+                        <SelectItem value="express">Express ($2.25/lb)</SelectItem>
+                        <SelectItem value="pickup">Pickup & Delivery</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div>
+                      <label className="text-sm text-muted-foreground">Weight (lbs)</label>
+                      <Input
+                        type="number"
+                        placeholder="Enter weight"
+                        value={quickPosWeight}
+                        onChange={(e) => setQuickPosWeight(e.target.value)}
+                        data-testid="input-pos-weight"
+                      />
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-4 text-center">
+                      <div className="text-3xl font-bold text-[#C8A661]">{formatCurrency(quickPosTotal)}</div>
+                      <div className="text-sm text-muted-foreground">Estimated Total</div>
+                    </div>
+                    <Button className="w-full" onClick={handleQuickTransaction} data-testid="button-create-transaction">
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Create Transaction
+                    </Button>
+                    <Link href="/pos-suite">
+                      <Button variant="outline" className="w-full" data-testid="button-full-pos">
+                        Open Full POS Suite
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Order Queue */}
+                <Card className="lg:col-span-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Timer className="h-5 w-5 text-[#C8A661]" />
+                        Order Queue
+                      </span>
+                      <Badge variant="outline">{mockPendingOrders.length} Active</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {mockPendingOrders.map((order) => (
+                        <div key={order.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="font-mono text-sm font-medium">{order.id}</div>
+                            <div>
+                              <div className="font-medium text-sm">{order.customer}</div>
+                              <div className="text-xs text-muted-foreground">{order.type} - {order.weight}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={getOrderStatusColor(order.status)}>{order.status}</Badge>
+                            <span className="text-sm text-muted-foreground">{order.eta}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* MACHINES TAB */}
+            <TabsContent value="machines" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-[#C8A661]" />
+                      Machine Status Overview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DonutChart data={machineStatusData} size={160} centerValue={totalMachines} centerLabel="Total" />
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      {machineStatusData.map((item) => (
+                        <div key={item.label} className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+                          <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-sm">{item.label}: {item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href="/iot-dashboard" className="w-full">
+                      <Button variant="outline" className="w-full">
+                        Full IoT Dashboard
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Machine Alerts</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {mockServiceTickets.map((ticket) => (
+                        <div key={ticket.id} className="flex items-center justify-between p-3 border rounded-lg">
+                          <div>
+                            <div className="font-medium">{ticket.machine}</div>
+                            <div className="text-sm text-muted-foreground">{ticket.issue}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
+                            <Button size="sm" variant="outline" onClick={() => setActiveTab("service")}>Fix</Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* SERVICE GUY AI TAB */}
+            <TabsContent value="service" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Wrench className="h-5 w-5 text-orange-500" />
+                      Service Tickets
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {mockServiceTickets.map((ticket) => (
+                        <div key={ticket.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                              <Wrench className="h-6 w-6 text-orange-600" />
+                            </div>
+                            <div>
+                              <div className="font-medium">{ticket.machine}</div>
+                              <div className="text-sm text-muted-foreground">{ticket.issue}</div>
+                              <div className="text-xs text-muted-foreground mt-1">Ticket: {ticket.id}</div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
+                            <Badge className={getTicketStatusColor(ticket.status)}>{ticket.status.replace("_", " ")}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href="/service-guy-ai" className="w-full">
+                      <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Open Service Guy AI
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quick Diagnosis</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Describe the machine issue and our AI will help diagnose and provide repair guidance.
+                    </p>
+                    <Input placeholder="e.g., Washer not spinning" data-testid="input-service-issue" />
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select machine" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="washer-7">Washer #7</SelectItem>
+                        <SelectItem value="dryer-3">Dryer #3</SelectItem>
+                        <SelectItem value="changer-1">Changer #1</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button className="w-full" variant="outline">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Get AI Diagnosis
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* WEBSITE TAB */}
+            <TabsContent value="website" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Globe className="h-5 w-5 text-blue-500" />
+                        Your Website
+                      </span>
+                      <Badge className="bg-green-100 text-green-700">{mockWebsiteStats.status}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="text-center p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">{mockWebsiteStats.visitors}</div>
+                        <div className="text-sm text-muted-foreground">Visitors Today</div>
+                      </div>
+                      <div className="text-center p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">{mockWebsiteStats.pageViews}</div>
+                        <div className="text-sm text-muted-foreground">Page Views</div>
+                      </div>
+                      <div className="text-center p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">{mockWebsiteStats.conversionRate}%</div>
+                        <div className="text-sm text-muted-foreground">Conversion</div>
+                      </div>
+                      <div className="text-center p-4 bg-muted/30 rounded-lg">
+                        <div className="text-2xl font-bold">{mockWebsiteStats.topPage}</div>
+                        <div className="text-sm text-muted-foreground">Top Page</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="gap-2">
+                    <Link href="/website-builder">
+                      <Button>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Website
+                      </Button>
+                    </Link>
+                    <Button variant="outline">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Website Templates</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Switch to a new look with our professional templates.</p>
+                    <Link href="/website-builder">
+                      <Button variant="outline" className="w-full">
+                        Browse Templates
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                    <Link href="/marketing-loyalty">
+                      <Button variant="outline" className="w-full">
+                        <Send className="h-4 w-4 mr-2" />
+                        Send Promotion
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* CLEANBI TAB */}
+            <TabsContent value="cleanbi" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-1">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-[#C8A661]" />
+                      CLEANBI Score
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <div className={`text-6xl font-bold ${getGradeColor(mockCleanbiData.grade)}`}>
+                      {mockCleanbiData.grade}
+                    </div>
+                    <div className="text-3xl font-semibold mt-2">{mockCleanbiData.overallScore}/100</div>
+                    <p className="text-sm text-muted-foreground mt-2">Your location's investment potential</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href="/cleanbi-explorer" className="w-full">
+                      <Button className="w-full bg-gradient-to-r from-[#0A1628] to-[#1a2d4a]">
+                        Full CLEANBI Analysis
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle>Score Breakdown</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {mockCleanbiData.factors.map((factor) => (
+                        <div key={factor.name}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>{factor.name} ({factor.weight}%)</span>
+                            <span className="font-medium">{factor.score}/100</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#C8A661] to-[#D4B87A]"
+                              style={{ width: `${factor.score}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* TOOLS TAB */}
+            <TabsContent value="tools" className="space-y-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[
+                  { name: "Valuation Calculator", icon: DollarSign, href: "/calculators/valuation", color: "bg-green-600" },
+                  { name: "ROI Calculator", icon: TrendingUp, href: "/calculators/roi", color: "bg-blue-600" },
+                  { name: "Loan Calculator", icon: CreditCard, href: "/calculators/loan", color: "bg-purple-600" },
+                  { name: "Expense Tracker", icon: Receipt, href: "/calculators/expense", color: "bg-amber-600" },
+                  { name: "Break-Even Analysis", icon: Scale, href: "/calculators/breakeven", color: "bg-pink-600" },
+                  { name: "Cap Rate Calculator", icon: BarChart3, href: "/calculators/caprate", color: "bg-cyan-600" },
+                  { name: "QR Code Generator", icon: Target, href: "/advanced-qr-generator", color: "bg-indigo-600" },
+                  { name: "Design Studio", icon: Building2, href: "/design-studio", color: "bg-orange-600" },
+                ].map((tool) => (
+                  <Link key={tool.name} href={tool.href}>
+                    <Card className="hover-elevate cursor-pointer h-full">
+                      <CardContent className="p-6 flex flex-col items-center text-center">
+                        <div className={`h-12 w-12 rounded-xl ${tool.color} flex items-center justify-center mb-3`}>
+                          <tool.icon className="h-6 w-6 text-white" />
+                        </div>
+                        <span className="text-sm font-medium">{tool.name}</span>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </TabsContent>
+
+            {/* ACADEMY TAB */}
+            <TabsContent value="learn" className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Award className="h-5 w-5 text-[#C8A661]" />
+                      WashBizHub Academy
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { title: "Laundromat Buying 101", progress: 75, lessons: 12 },
+                        { title: "Operations Mastery", progress: 30, lessons: 8 },
+                        { title: "Marketing & Growth", progress: 0, lessons: 10 },
+                        { title: "Financial Management", progress: 50, lessons: 6 },
+                      ].map((course) => (
+                        <div key={course.title} className="p-4 border rounded-lg">
+                          <div className="font-medium mb-2">{course.title}</div>
+                          <div className="text-xs text-muted-foreground mb-2">{course.lessons} lessons</div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-[#C8A661]" style={{ width: `${course.progress}%` }} />
+                          </div>
+                          <div className="text-xs text-right mt-1 text-muted-foreground">{course.progress}% complete</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Link href="/academy">
+                      <Button>
+                        Continue Learning
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-amber-500" />
+                      Community
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-center p-4 bg-muted/30 rounded-lg">
+                      <div className="text-3xl font-bold">72K+</div>
+                      <div className="text-sm text-muted-foreground">Community Members</div>
+                    </div>
+                    <Link href="/community">
+                      <Button variant="outline" className="w-full">
+                        <Users className="h-4 w-4 mr-2" />
+                        Join Discussions
+                      </Button>
+                    </Link>
+                    <Link href="/marketplace">
+                      <Button variant="outline" className="w-full">
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Browse Marketplace
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </>
