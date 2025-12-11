@@ -56,7 +56,12 @@ export class CloudflareAccessService {
   }
 
   isConfigured(): boolean {
-    return !!(this.teamDomain && this.audienceTag);
+    // Only require team domain - audience is optional for initial setup
+    return !!this.teamDomain;
+  }
+  
+  hasAudienceConfigured(): boolean {
+    return !!this.audienceTag;
   }
 
   getLoginUrl(redirectPath: string = '/'): string {
@@ -152,10 +157,16 @@ export class CloudflareAccessService {
         return null;
       }
 
-      // Validate audience
-      if (!payload.aud || !payload.aud.includes(this.audienceTag)) {
-        console.error('Invalid audience');
-        return null;
+      // Validate audience (if configured)
+      if (this.audienceTag) {
+        if (!payload.aud || !payload.aud.includes(this.audienceTag)) {
+          console.error('Invalid audience. Token aud:', payload.aud, 'Expected:', this.audienceTag);
+          return null;
+        }
+      } else {
+        // Log the audience so user can configure it
+        console.log('📋 Cloudflare Access Token received. Your AUDIENCE tag is:', payload.aud);
+        console.log('   Add this to CLOUDFLARE_ACCESS_AUDIENCE secret for stricter validation');
       }
 
       // Validate issuer
