@@ -14,8 +14,9 @@ export default function QRGeneratorPage() {
       <div className="container mx-auto py-8 px-4">
         <Breadcrumb 
           items={[
-            { label: "Tools", href: "/tools" },
-            { label: "QR Code Generator" }
+            { name: "Home", url: "/" },
+            { name: "Tools", url: "/tools" },
+            { name: "QR Code Generator", url: "/qr-generator" }
           ]} 
         />
         
