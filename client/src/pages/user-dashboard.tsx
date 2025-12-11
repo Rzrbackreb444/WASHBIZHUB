@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import SEO from "@/components/SEO";
+import { SEO } from "@/components/SEO";
 
 const CHART_COLORS = {
   primary: "#3B82F6",
