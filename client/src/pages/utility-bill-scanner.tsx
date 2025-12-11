@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -329,7 +330,25 @@ export default function UtilityBillScanner() {
 
             <div className="space-y-6">
               {result ? (
-                <>
+                <PremiumResults
+                  featureName="utility-bill-scanner"
+                  analysisType="utility-bill-scanner"
+                  title="Utility Bill Analysis"
+                  data={result}
+                  summary={{
+                    headline: `${result.data.provider || "Provider"} - ${result.data.usage.type} Bill`,
+                    metrics: [
+                      { label: "Total Due", value: `$${result.data.totalAmountDue?.toFixed(2) || "0.00"}` },
+                      { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                      { label: "Utility Type", value: result.data.usage.type || "Unknown" },
+                    ]
+                  }}
+                  benefits={[
+                    "Unlimited AI analyses",
+                    "Export to Google Sheets & Docs",
+                    "Save all results to profile"
+                  ]}
+                >
                   <Card className="bg-card border shadow-sm overflow-hidden">
                     <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
@@ -505,7 +524,7 @@ export default function UtilityBillScanner() {
                       <AlertDescription>{result.error}</AlertDescription>
                     </Alert>
                   )}
-                </>
+                </PremiumResults>
               ) : (
                 <Card className="bg-card border shadow-sm">
                   <CardContent className="py-16 text-center">

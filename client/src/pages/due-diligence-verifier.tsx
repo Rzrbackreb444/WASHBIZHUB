@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -230,6 +231,58 @@ export default function DueDiligenceVerifier() {
             </div>
           </div>
 
+          <PremiumResults
+            featureName="due-diligence-verifier"
+            analysisType="due-diligence-verifier"
+            title="Due Diligence Verification Results"
+            data={{
+              checklist: {
+                checkedItems: checkedItems,
+                allItems: checklistItems.map(item => ({
+                  id: item.id,
+                  label: item.label,
+                  category: item.category,
+                  isCritical: item.isCritical,
+                  completed: checkedItems[item.id] || false,
+                })),
+              },
+              results: {
+                completionScore: results.completionScore,
+                weightedScore: results.weightedScore,
+                criticalScore: results.criticalScore,
+                riskRating: results.riskRating,
+                isReady: results.isReady,
+                completedCount: results.completedCount,
+                totalItems: results.totalItems,
+              },
+              categoryProgress: results.categoryProgress,
+              missingCritical: results.missingCritical.map(item => item.label),
+              nextSteps: results.nextSteps,
+              metrics: {
+                completionScore: `${results.completionScore}%`,
+                weightedScore: `${results.weightedScore}%`,
+                criticalScore: `${results.criticalScore}%`,
+                riskRating: results.riskRating,
+                readiness: results.isReady ? "Ready" : "Not Ready",
+              },
+              timestamp: new Date().toISOString(),
+              analysisType: "due-diligence-verifier",
+            }}
+            summary={{
+              headline: "Acquisition readiness analysis",
+              metrics: [
+                { label: "Completion Score", value: `${results.completionScore}%` },
+                { label: "Risk Rating", value: results.riskRating },
+              ]
+            }}
+            benefits={[
+              "Save unlimited analyses",
+              "Export to Google Sheets & Docs",
+              "Priority support"
+            ]}
+            cardWrapper={false}
+            showTitle={false}
+          >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Card className="bg-card border shadow-sm">
               <CardContent className="pt-6">
@@ -590,6 +643,7 @@ export default function DueDiligenceVerifier() {
               </CardContent>
             </Card>
           </div>
+          </PremiumResults>
 
           <CalculatorDisclaimer />
         </div>

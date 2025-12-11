@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -686,13 +687,32 @@ export default function PricingElasticity() {
           )}
 
           {result?.success && result.data && (
-            <div className="space-y-6" data-testid="container-results">
-              <Card className="bg-card border shadow-sm overflow-hidden">
-                <div className="h-1 bg-[#C8A661]" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Scale className="h-5 w-5 text-[#C8A661]" />
-                    Elasticity Summary
+            <PremiumResults
+              featureName="pricing-elasticity"
+              analysisType="pricing-elasticity"
+              title="Pricing Elasticity Analysis"
+              data={result.data}
+              summary={{
+                headline: `${result.data.elasticityScore?.rating || "Analysis"} Elasticity`,
+                metrics: [
+                  { label: "Elasticity Score", value: result.data.elasticityScore?.score?.toString() || "N/A" },
+                  { label: "Optimal Price Point", value: result.data.optimalPricing?.recommendedBase || "N/A" },
+                  { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                ]
+              }}
+              benefits={[
+                "Unlimited AI analyses",
+                "Export to Google Sheets & Docs",
+                "Save all results to profile"
+              ]}
+            >
+              <div className="space-y-6" data-testid="container-results">
+                <Card className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Scale className="h-5 w-5 text-[#C8A661]" />
+                      Elasticity Summary
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1058,7 +1078,8 @@ export default function PricingElasticity() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+              </div>
+            </PremiumResults>
           )}
         </div>
       </div>

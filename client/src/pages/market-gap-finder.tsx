@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -333,6 +334,26 @@ export default function MarketGapFinder() {
 
           <PremiumCalculatorEngine config={marketGapFinderConfig} />
 
+          <PremiumResults
+            featureName="market-gap-finder"
+            analysisType="market-gap-finder"
+            title="Market Gap Analysis Results"
+            data={{}}
+            summary={{
+              headline: "Market opportunity analysis complete",
+              metrics: [
+                { label: "Target Pop/Store", value: "5,000-8,000" },
+                { label: "Ideal Renter %", value: "40%+" },
+              ]
+            }}
+            benefits={[
+              "Save unlimited analyses",
+              "Export to Google Sheets & Docs",
+              "Priority support"
+            ]}
+            cardWrapper={false}
+            showTitle={false}
+          >
           <div className="mt-8">
             <Card data-testid="card-radar-chart">
               <CardHeader>
@@ -565,6 +586,7 @@ export default function MarketGapFinder() {
               </CardContent>
             </Card>
           </div>
+          </PremiumResults>
 
           <CalculatorDisclaimer />
         </div>

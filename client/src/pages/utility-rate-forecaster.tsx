@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -538,6 +539,26 @@ export default function UtilityRateForecaster() {
               </CardContent>
             </Card>
 
+            <PremiumResults
+              featureName="utility-rate-forecaster"
+              analysisType="utility-rate-forecaster"
+              title="Utility Rate Forecast Results"
+              data={{}}
+              summary={{
+                headline: "Utility cost projections",
+                metrics: [
+                  { label: "Current Annual", value: formatCurrency(calculations.currentAnnualTotal) },
+                  { label: "Total Savings", value: formatCurrency(calculations.totalSavings) },
+                ]
+              }}
+              benefits={[
+                "Save unlimited analyses",
+                "Export to Google Sheets & Docs",
+                "Priority support"
+              ]}
+              cardWrapper={false}
+              showTitle={false}
+            >
             <Card className="lg:col-span-2 bg-card border shadow-sm overflow-hidden">
               <div className="h-1 bg-[#C8A661]" />
               <CardHeader>
@@ -912,6 +933,7 @@ export default function UtilityRateForecaster() {
               </div>
             </CardContent>
           </Card>
+          </PremiumResults>
 
           <CalculatorDisclaimer />
         </div>

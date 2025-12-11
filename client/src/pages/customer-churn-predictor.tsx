@@ -1,6 +1,7 @@
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -437,6 +438,52 @@ export default function CustomerChurnPredictor() {
               <PremiumCalculatorEngine config={churnPredictorConfig} />
             </div>
 
+            <PremiumResults
+              featureName="customer-churn-predictor"
+              analysisType="customer-churn-predictor"
+              title="Customer Churn Analysis Results"
+              data={{
+                inputValues: {
+                  avgVisitFrequency: 7,
+                  loyaltyTier: "none",
+                  complaintsCount: 0,
+                  monthsSinceLastVisit: 1,
+                  avgSpendPerVisit: 15,
+                  totalLifetimeVisits: 50,
+                  competitorDistance: 2,
+                },
+                results: {
+                  churnProbability: 35,
+                  riskLevel: "Medium",
+                  expectedRemainingVisits: 26,
+                  ltvAtRisk: 252,
+                  winbackPriority: 44,
+                  retentionROI: 800,
+                },
+                metrics: {
+                  churnProbability: "35%",
+                  riskLevel: "Medium",
+                  ltvAtRisk: "$252",
+                  retentionROI: "800%",
+                },
+                timestamp: new Date().toISOString(),
+                analysisType: "customer-churn-predictor",
+              }}
+              summary={{
+                headline: "Churn risk assessment",
+                metrics: [
+                  { label: "Risk Level", value: "Medium" },
+                  { label: "Churn Probability", value: "35%" },
+                ]
+              }}
+              benefits={[
+                "Save unlimited analyses",
+                "Export to Google Sheets & Docs",
+                "Priority support"
+              ]}
+              cardWrapper={false}
+              showTitle={false}
+            >
             <div className="space-y-6">
               <ChurnRiskGauge probability={35} />
               <RetentionActionsPanel riskLevel="Medium" churnProbability={35} />
@@ -507,6 +554,7 @@ export default function CustomerChurnPredictor() {
                 </CardContent>
               </Card>
             </div>
+            </PremiumResults>
           </div>
 
           <div className="mt-12">
