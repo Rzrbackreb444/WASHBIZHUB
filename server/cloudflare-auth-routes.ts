@@ -17,7 +17,56 @@ const router = Router();
 router.get("/status", (req: Request, res: Response) => {
   res.json({
     configured: cloudflareAccess.isConfigured(),
+    audienceConfigured: cloudflareAccess.hasAudienceConfigured(),
     provider: "cloudflare-access",
+    teamDomain: process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ? "✓ Set" : "✗ Missing",
+    audience: process.env.CLOUDFLARE_ACCESS_AUDIENCE ? "✓ Set" : "⚠ Optional (will auto-detect)",
+  });
+});
+
+/**
+ * GET /api/auth/cloudflare/debug
+ * Debug endpoint to see incoming Cloudflare headers and tokens
+ */
+router.get("/debug", async (req: Request, res: Response) => {
+  const cfHeaders = {
+    'cf-access-jwt-assertion': req.headers['cf-access-jwt-assertion'] ? '✓ Present' : '✗ Missing',
+    'cf-access-authenticated-user-email': req.headers['cf-access-authenticated-user-email'] || 'Not set',
+    'cf-ray': req.headers['cf-ray'] || 'Not set (not behind Cloudflare)',
+    'cf-connecting-ip': req.headers['cf-connecting-ip'] || 'Not set',
+  };
+  
+  const cfAuthCookie = req.cookies?.['CF_Authorization'] ? '✓ Present' : '✗ Missing';
+  
+  // Try to decode token (without full validation) to show audience
+  let tokenInfo: any = { status: 'No token found' };
+  const token = req.headers['cf-access-jwt-assertion'] as string || req.cookies?.['CF_Authorization'];
+  
+  if (token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
+        tokenInfo = {
+          status: 'Token found and decoded',
+          email: payload.email,
+          aud: payload.aud,  // THIS IS YOUR AUDIENCE TAG
+          iss: payload.iss,
+          exp: new Date(payload.exp * 1000).toISOString(),
+          sub: payload.sub,
+        };
+      }
+    } catch (e) {
+      tokenInfo = { status: 'Token found but failed to decode', error: String(e) };
+    }
+  }
+  
+  res.json({
+    message: 'Cloudflare Access Debug Info',
+    headers: cfHeaders,
+    cookie: { 'CF_Authorization': cfAuthCookie },
+    token: tokenInfo,
+    hint: tokenInfo.aud ? `Your CLOUDFLARE_ACCESS_AUDIENCE should be: ${Array.isArray(tokenInfo.aud) ? tokenInfo.aud[0] : tokenInfo.aud}` : 'Login via Cloudflare to see your audience tag',
   });
 });
 
