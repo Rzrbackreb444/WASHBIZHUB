@@ -74,29 +74,29 @@ import {
   Legend,
 } from "recharts";
 
-const mockRevenueData = {
+// Revenue data types
+interface KPIData {
+  revenue: { today: number; month: number; transactions: number };
+  machines: { total: number; running: number; available: number; maintenance: number; offline: number };
+  tickets: { total: number; urgent: number; pending: number };
+}
+
+interface RevenueChartDay {
+  name: string;
+  revenue: number;
+  date: string;
+}
+
+// Default revenue data (fallback when no real data)
+const defaultRevenueData = {
   daily: [
-    { name: "Mon", current: 1240, previous: 980 },
-    { name: "Tue", current: 1380, previous: 1120 },
-    { name: "Wed", current: 1520, previous: 1340 },
-    { name: "Thu", current: 1290, previous: 1180 },
-    { name: "Fri", current: 1650, previous: 1420 },
-    { name: "Sat", current: 2100, previous: 1890 },
-    { name: "Sun", current: 1980, previous: 1720 },
-  ],
-  weekly: [
-    { name: "Week 1", current: 9200, previous: 8400 },
-    { name: "Week 2", current: 10500, previous: 9100 },
-    { name: "Week 3", current: 8800, previous: 9500 },
-    { name: "Week 4", current: 11200, previous: 10200 },
-  ],
-  monthly: [
-    { name: "Jul", current: 38500, previous: 35200 },
-    { name: "Aug", current: 42100, previous: 38900 },
-    { name: "Sep", current: 39800, previous: 41200 },
-    { name: "Oct", current: 45600, previous: 42800 },
-    { name: "Nov", current: 48200, previous: 44100 },
-    { name: "Dec", current: 52400, previous: 47300 },
+    { name: "Mon", current: 0, previous: 0 },
+    { name: "Tue", current: 0, previous: 0 },
+    { name: "Wed", current: 0, previous: 0 },
+    { name: "Thu", current: 0, previous: 0 },
+    { name: "Fri", current: 0, previous: 0 },
+    { name: "Sat", current: 0, previous: 0 },
+    { name: "Sun", current: 0, previous: 0 },
   ],
 };
 
@@ -105,13 +105,6 @@ const revenueByServiceData = [
   { name: "Wash & Fold", value: 30, color: "#C8A661" },
   { name: "Pickup & Delivery", value: 15, color: "#3B82F6" },
   { name: "Dry Cleaning", value: 10, color: "#10B981" },
-];
-
-const machineStatusData = [
-  { label: "Running", value: 12, color: "#10B981" },
-  { label: "Available", value: 8, color: "#3B82F6" },
-  { label: "Error", value: 2, color: "#EF4444" },
-  { label: "Offline", value: 3, color: "#6B7280" },
 ];
 
 const mockActivityFeed = [
@@ -248,38 +241,106 @@ export default function OperatorDashboard() {
   const [quickPosService, setQuickPosService] = useState("wash_fold");
   const { toast } = useToast();
 
-  const { data: kpiData } = useQuery({
-    queryKey: ["/api/operator-dashboard/kpis"],
+  // Real API queries for operator dashboard
+  const { data: kpiData, isLoading: kpiLoading } = useQuery<KPIData>({
+    queryKey: ["/api/operator/kpis"],
     staleTime: 30000,
   });
 
-  const todayRevenue = kpiData?.todayRevenue ?? 2847.50;
-  const activeMachines = kpiData?.activeMachines ?? 20;
-  const totalMachines = kpiData?.totalMachines ?? 25;
-  const pendingDeliveries = kpiData?.pendingDeliveries ?? 8;
-  const openTickets = kpiData?.openTickets ?? 3;
-  const loyaltyMembers = kpiData?.loyaltyMembers ?? 1247;
-  const lowStockItems = kpiData?.lowStockItems ?? 5;
+  const { data: revenueChartData } = useQuery<RevenueChartDay[]>({
+    queryKey: ["/api/operator/revenue-chart"],
+    staleTime: 60000,
+  });
 
-  const revenueData = mockRevenueData[revenuePeriod];
+  const { data: transactions } = useQuery({
+    queryKey: ["/api/operator/transactions"],
+    staleTime: 30000,
+  });
+
+  const { data: machines } = useQuery({
+    queryKey: ["/api/operator/machines"],
+    staleTime: 30000,
+  });
+
+  const { data: tickets } = useQuery({
+    queryKey: ["/api/operator/tickets"],
+    staleTime: 30000,
+  });
+
+  const { data: coursesData } = useQuery({
+    queryKey: ["/api/operator/courses"],
+    staleTime: 60000,
+  });
+
+  // Derive KPIs from real data with fallbacks
+  const todayRevenue = kpiData?.revenue?.today ?? 0;
+  const monthRevenue = kpiData?.revenue?.month ?? 0;
+  const transactionCount = kpiData?.revenue?.transactions ?? 0;
+  const totalMachines = kpiData?.machines?.total ?? 0;
+  const activeMachines = (kpiData?.machines?.running ?? 0) + (kpiData?.machines?.available ?? 0);
+  const openTickets = kpiData?.tickets?.total ?? 0;
+  const urgentTickets = kpiData?.tickets?.urgent ?? 0;
+
+  // Build machine status data from real API
+  const machineStatusData = [
+    { label: "Running", value: kpiData?.machines?.running ?? 0, color: "#10B981" },
+    { label: "Available", value: kpiData?.machines?.available ?? 0, color: "#3B82F6" },
+    { label: "Maintenance", value: kpiData?.machines?.maintenance ?? 0, color: "#F59E0B" },
+    { label: "Offline", value: kpiData?.machines?.offline ?? 0, color: "#6B7280" },
+  ];
+
+  // Build revenue chart from real data
+  const revenueData = revenueChartData?.map(d => ({
+    name: d.name,
+    current: d.revenue,
+    previous: 0,
+  })) || defaultRevenueData.daily;
+
   const currentTotal = revenueData.reduce((sum, d) => sum + d.current, 0);
   const previousTotal = revenueData.reduce((sum, d) => sum + d.previous, 0);
-  const revenueTrend = ((currentTotal - previousTotal) / previousTotal) * 100;
+  const revenueTrend = previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0;
 
   // Quick POS calculation
-  const pricePerPound = 1.75;
+  const pricePerPound = quickPosService === "express" ? 2.25 : 1.75;
   const quickPosTotal = quickPosWeight ? parseFloat(quickPosWeight) * pricePerPound : 0;
+
+  // Mutation to create real POS transaction
+  const createTransactionMutation = useMutation({
+    mutationFn: async (transactionData: { serviceType: string; weight: number; total: number }) => {
+      return apiRequest("/api/operator/transactions", {
+        method: "POST",
+        body: JSON.stringify(transactionData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/operator/transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/operator/kpis"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/operator/revenue-chart"] });
+      toast({ 
+        title: "Transaction Created!", 
+        description: `${quickPosWeight} lbs @ $${pricePerPound}/lb = ${formatCurrency(quickPosTotal)}` 
+      });
+      setQuickPosWeight("");
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Transaction Failed", 
+        description: error.message || "Could not create transaction", 
+        variant: "destructive" 
+      });
+    },
+  });
 
   const handleQuickTransaction = () => {
     if (!quickPosWeight || parseFloat(quickPosWeight) <= 0) {
       toast({ title: "Enter weight", description: "Please enter the laundry weight", variant: "destructive" });
       return;
     }
-    toast({ 
-      title: "Transaction Created!", 
-      description: `${quickPosWeight} lbs @ $${pricePerPound}/lb = ${formatCurrency(quickPosTotal)}` 
+    createTransactionMutation.mutate({
+      serviceType: quickPosService,
+      weight: parseFloat(quickPosWeight),
+      total: quickPosTotal,
     });
-    setQuickPosWeight("");
   };
 
   return (
