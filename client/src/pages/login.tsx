@@ -12,7 +12,7 @@ import { SEO } from "@/components/SEO";
 import { motion } from "framer-motion";
 import { 
   Lock, LogIn, Mail, Eye, EyeOff, AlertCircle, Sparkles, 
-  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound
+  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound, Building2
 } from "lucide-react";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -141,7 +141,7 @@ const loginStructuredData = {
 };
 
 export default function Login() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, login, isCloudflareAccess } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -564,25 +564,43 @@ export default function Login() {
                   </div>
                 </div>
 
-                {isGoogleLoading ? (
-                  <div className="w-full h-11 flex items-center justify-center border rounded-lg">
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    <span>Signing in with Google...</span>
-                  </div>
-                ) : (
-                  <div className="w-full flex justify-center" data-testid="button-login-google">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      useOneTap
-                      theme="outline"
-                      size="large"
-                      width="100%"
-                      text="continue_with"
-                      shape="rectangular"
-                    />
-                  </div>
-                )}
+                <div className="space-y-3">
+                  {/* Enterprise SSO via Cloudflare Access */}
+                  {isCloudflareAccess && (
+                    <Button
+                      variant="outline"
+                      className="w-full h-11 text-base font-medium gap-2 border-primary/30 hover:border-primary hover:bg-primary/5"
+                      onClick={() => login('/dashboard')}
+                      data-testid="button-login-enterprise-sso"
+                    >
+                      <Building2 className="w-5 h-5 text-primary" />
+                      <span>Enterprise SSO</span>
+                      <span className="ml-auto text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
+                        Zero Trust
+                      </span>
+                    </Button>
+                  )}
+
+                  {isGoogleLoading ? (
+                    <div className="w-full h-11 flex items-center justify-center border rounded-lg">
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      <span>Signing in with Google...</span>
+                    </div>
+                  ) : (
+                    <div className="w-full flex justify-center" data-testid="button-login-google">
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        useOneTap
+                        theme="outline"
+                        size="large"
+                        width="100%"
+                        text="continue_with"
+                        shape="rectangular"
+                      />
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>

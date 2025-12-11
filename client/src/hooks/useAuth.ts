@@ -1,33 +1,77 @@
-// Replit Auth React hook for WashBizHub
-// Reference: javascript_log_in_with_replit blueprint
+/**
+ * Unified Authentication Hook for WashBizHub
+ * Supports Cloudflare Access (Enterprise SSO) + Google OAuth
+ */
 
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
 import { getQueryFn, queryClient } from "@/lib/queryClient";
 
+interface AuthProviders {
+  primary: 'cloudflare-access' | 'google';
+  providers: string[];
+  cloudflareAccess: {
+    enabled: boolean;
+    loginUrl: string | null;
+    label: string;
+  };
+  google: {
+    enabled: boolean;
+    loginUrl: string;
+    label: string;
+  };
+}
+
 export function useAuth() {
-  const { data: user, isLoading, isFetching, status, fetchStatus } = useQuery<User | null>({
+  // Get current user
+  const { data: user, isLoading, isFetching, status } = useQuery<User | null>({
     queryKey: ["/api/auth/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    retry: 1, // Retry once to handle initial 401 during session handshake
+    retry: 1,
     retryDelay: 500,
-    staleTime: 30000, // Keep data fresh for 30 seconds
+    staleTime: 30000,
+  });
+
+  // Get available auth providers
+  const { data: providers } = useQuery<AuthProviders>({
+    queryKey: ["/api/auth/cloudflare/providers"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    staleTime: 300000, // Cache for 5 minutes
+    retry: false,
   });
 
   const logout = () => {
     queryClient.setQueryData(["/api/auth/user"], null);
-    window.location.href = "/api/logout";
+    // Use appropriate logout URL based on provider
+    if (providers?.cloudflareAccess?.enabled) {
+      window.location.href = "/api/auth/cloudflare/logout";
+    } else {
+      window.location.href = "/api/logout";
+    }
   };
 
-  // authResolved = true when we've made a successful query (not just loading finished)
-  // This distinguishes "still establishing session" from "confirmed unauthenticated"
+  const login = (redirectPath: string = '/dashboard') => {
+    const redirect = encodeURIComponent(redirectPath);
+    if (providers?.cloudflareAccess?.enabled) {
+      window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
+    } else if (providers?.google?.enabled) {
+      window.location.href = `/api/auth/google/login?redirect=${redirect}`;
+    } else {
+      window.location.href = `/login`;
+    }
+  };
+
   const authResolved = status === 'success' && !isFetching;
 
   return {
     user,
     isLoading: isLoading || isFetching,
     isAuthenticated: !!user,
-    authResolved, // True only when we have a definitive answer
+    authResolved,
     logout,
+    login,
+    providers,
+    isCloudflareAccess: providers?.cloudflareAccess?.enabled ?? false,
+    primaryProvider: providers?.primary ?? 'google',
   };
 }
