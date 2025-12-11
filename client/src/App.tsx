@@ -157,6 +157,10 @@ const CLEANBICalculator = lazy(() => import("@/pages/cleanbi-calculator"));
 const LoanCalculator = lazy(() => import("@/pages/loan-calculator"));
 const UtilityCalculator = lazy(() => import("@/pages/utility-calculator"));
 const LaborCalculator = lazy(() => import("@/pages/labor-calculator"));
+const LTVCalculator = lazy(() => import("@/pages/ltv-calculator"));
+const CACCalculator = lazy(() => import("@/pages/cac-calculator"));
+const LTVCACDashboard = lazy(() => import("@/pages/ltv-cac-dashboard"));
+const WDFEfficiencyCalculator = lazy(() => import("@/pages/wdf-efficiency-calculator"));
 const EquipmentMixOptimizer = lazy(() => import("@/pages/equipment-mix-optimizer"));
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
@@ -742,6 +746,26 @@ function Router() {
       <Route path="/labor-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <LaborCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/ltv-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <LTVCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/cac-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <CACCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/ltv-cac-dashboard">
+        <Suspense fallback={<LoadingFallback />}>
+          <LTVCACDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/wdf-efficiency-calculator">
+        <Suspense fallback={<LoadingFallback />}>
+          <WDFEfficiencyCalculator />
         </Suspense>
       </Route>
       <Route path="/equipment-mix-optimizer">
