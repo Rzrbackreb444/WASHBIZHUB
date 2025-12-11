@@ -161,6 +161,7 @@ const LTVCalculator = lazy(() => import("@/pages/ltv-calculator"));
 const CACCalculator = lazy(() => import("@/pages/cac-calculator"));
 const LTVCACDashboard = lazy(() => import("@/pages/ltv-cac-dashboard"));
 const WDFEfficiencyCalculator = lazy(() => import("@/pages/wdf-efficiency-calculator"));
+const WhatIfAnalysis = lazy(() => import("@/pages/what-if-analysis"));
 const EquipmentMixOptimizer = lazy(() => import("@/pages/equipment-mix-optimizer"));
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
@@ -766,6 +767,11 @@ function Router() {
       <Route path="/wdf-efficiency-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <WDFEfficiencyCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/what-if-analysis">
+        <Suspense fallback={<LoadingFallback />}>
+          <WhatIfAnalysis />
         </Suspense>
       </Route>
       <Route path="/equipment-mix-optimizer">
