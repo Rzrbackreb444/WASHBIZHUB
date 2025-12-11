@@ -16645,5 +16645,33 @@ export type SavedAnalysis = typeof savedAnalyses.$inferSelect;
 export type InsertSavedAnalysis = z.infer<typeof insertSavedAnalysisSchema>;
 
 // ============================================================================
+// AUDIT LOGS - Enterprise compliance and security tracking
+// ============================================================================
+
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  ipAddress: varchar("ip_address"),
+  endpoint: varchar("endpoint").notNull(),
+  method: varchar("method").notNull(),
+  statusCode: integer("status_code"),
+  duration: integer("duration_ms"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("audit_logs_user_idx").on(table.userId),
+  createdAtIdx: index("audit_logs_created_at_idx").on(table.createdAt),
+  statusCodeIdx: index("audit_logs_status_code_idx").on(table.statusCode),
+}));
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

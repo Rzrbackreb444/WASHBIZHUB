@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -336,9 +337,28 @@ export default function SmartLocationScout() {
           </Card>
 
           {result?.success && result.data && (
-            <div className="space-y-6" data-testid="container-results">
-              <Card className="bg-card border shadow-sm overflow-hidden">
-                <div className="h-1 bg-[#C8A661]" />
+            <PremiumResults
+              featureName="smart-location-scout"
+              analysisType="smart-location-scout"
+              title="Location Analysis Results"
+              data={result.data}
+              summary={{
+                headline: `${result.data.opportunity.grade} Grade Location`,
+                metrics: [
+                  { label: "Score", value: `${result.data.opportunity.score}/100` },
+                  { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                  { label: "Foot Traffic", value: result.data.traffic.level },
+                ]
+              }}
+              benefits={[
+                "Unlimited AI analyses",
+                "Export to Google Sheets & Docs",
+                "Save all results to profile"
+              ]}
+            >
+              <div className="space-y-6" data-testid="container-results">
+                <Card className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="h-5 w-5 text-[#C8A661]" />
@@ -613,7 +633,8 @@ export default function SmartLocationScout() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+              </div>
+            </PremiumResults>
           )}
 
           {!result && !scoutMutation.isPending && (

@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -475,7 +476,50 @@ export default function FaultClassifier() {
                   </CardContent>
                 </Card>
               ) : (
-                <>
+                <PremiumResults
+                  featureName="fault-classifier"
+                  analysisType="fault-classifier"
+                  title="Fault Classification Results"
+                  data={{
+                    inputValues: {
+                      equipmentType: equipmentType,
+                      symptomDescription: symptomDescription,
+                      hasImage: !!file,
+                    },
+                    classification: result.data.classification,
+                    diagnosis: result.data.diagnosis,
+                    repairSteps: result.data.repairSteps,
+                    partsNeeded: result.data.partsNeeded,
+                    timeEstimate: result.data.timeEstimate,
+                    recommendation: result.data.recommendation,
+                    safetyWarnings: result.data.safetyWarnings,
+                    additionalNotes: result.data.additionalNotes,
+                    confidence: result.confidence,
+                    metrics: {
+                      severity: result.data.classification.severity,
+                      faultType: result.data.classification.faultType,
+                      specificProblem: result.data.classification.specificProblem,
+                      diyFeasibility: result.data.recommendation.diyFeasibility,
+                      estimatedTime: `${result.data.timeEstimate.minHours}-${result.data.timeEstimate.maxHours} hours`,
+                      confidence: `${Math.round(result.confidence * 100)}%`,
+                    },
+                    timestamp: new Date().toISOString(),
+                    analysisType: "fault-classifier",
+                  }}
+                  summary={{
+                    headline: `${result.data.classification.severity} Severity - ${result.data.classification.faultType}`,
+                    metrics: [
+                      { label: "Severity", value: result.data.classification.severity },
+                      { label: "Fault Type", value: result.data.classification.faultType },
+                      { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                    ]
+                  }}
+                  benefits={[
+                    "Unlimited AI analyses",
+                    "Export to Google Sheets & Docs",
+                    "Save all results to profile"
+                  ]}
+                >
                   <Card className="bg-card border shadow-sm overflow-hidden">
                     <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
@@ -717,7 +761,7 @@ export default function FaultClassifier() {
                       </Button>
                     </Link>
                   </div>
-                </>
+                </PremiumResults>
               )}
             </div>
           </div>

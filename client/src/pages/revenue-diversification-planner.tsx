@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -400,6 +401,26 @@ export default function RevenueDiversificationPlanner() {
                 </CardContent>
               </Card>
 
+              <PremiumResults
+                featureName="revenue-diversification-planner"
+                analysisType="revenue-diversification-planner"
+                title="Revenue Diversification Results"
+                data={{}}
+                summary={{
+                  headline: "Revenue optimization analysis",
+                  metrics: [
+                    { label: "Total Revenue", value: formatCurrency(calculations.totalProjectedRevenue) },
+                    { label: "Diversification Score", value: `${calculations.diversificationScore.toFixed(0)}` },
+                  ]
+                }}
+                benefits={[
+                  "Save unlimited analyses",
+                  "Export to Google Sheets & Docs",
+                  "Priority support"
+                ]}
+                cardWrapper={false}
+                showTitle={false}
+              >
               <div className="grid md:grid-cols-2 gap-6">
                 <Card className="bg-card border shadow-sm overflow-hidden">
                   <div className="h-1 bg-[#C8A661]" />
@@ -629,6 +650,7 @@ export default function RevenueDiversificationPlanner() {
                 </CardContent>
               </Card>
             </div>
+            </PremiumResults>
           </div>
 
           <div className="mt-8">

@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -489,9 +490,53 @@ export default function EquipmentAppraiser() {
               )}
 
               {result && data && (
-                <div className="space-y-4">
-                  <Card className="bg-card border shadow-sm overflow-hidden">
-                    <div className="h-1 bg-[#C8A661]" />
+                <PremiumResults
+                  featureName="equipment-appraiser"
+                  analysisType="equipment-appraiser"
+                  title="Equipment Appraisal Results"
+                  data={{
+                    equipment: data.equipment,
+                    condition: data.condition,
+                    valuation: data.valuation,
+                    age: data.age,
+                    lifespan: data.lifespan,
+                    maintenance: data.maintenance,
+                    recommendations: data.recommendations,
+                    confidence: result.confidence,
+                    metrics: {
+                      equipmentType: getEquipmentTypeLabel(data.equipment.type),
+                      brand: data.equipment.brand || "Unknown",
+                      model: data.equipment.model || "Unknown",
+                      conditionRating: data.condition.rating,
+                      conditionScore: `${data.condition.score}/100`,
+                      estimatedValueLow: formatCurrency(data.valuation.estimatedMarketValue?.low),
+                      estimatedValueMid: formatCurrency(data.valuation.estimatedMarketValue?.mid),
+                      estimatedValueHigh: formatCurrency(data.valuation.estimatedMarketValue?.high),
+                      estimatedAge: `${data.age.estimatedYears} years`,
+                      remainingLifespan: `${data.lifespan.remainingYears} years`,
+                      keepOrReplace: data.recommendations.keepOrReplace,
+                      confidence: `${Math.round(result.confidence * 100)}%`,
+                    },
+                    timestamp: new Date().toISOString(),
+                    analysisType: "equipment-appraiser",
+                  }}
+                  summary={{
+                    headline: `${data.equipment.brand || "Unknown"} ${data.equipment.model || "Equipment"}`,
+                    metrics: [
+                      { label: "Condition", value: data.condition.rating },
+                      { label: "Est. Value", value: formatCurrency(data.valuation.estimatedMarketValue?.mid) },
+                      { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                    ]
+                  }}
+                  benefits={[
+                    "Unlimited AI analyses",
+                    "Export to Google Sheets & Docs",
+                    "Save all results to profile"
+                  ]}
+                >
+                  <div className="space-y-4">
+                    <Card className="bg-card border shadow-sm overflow-hidden">
+                      <div className="h-1 bg-[#C8A661]" />
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2">
@@ -904,7 +949,8 @@ export default function EquipmentAppraiser() {
                       Analysis confidence: {Math.round(result.confidence * 100)}%
                     </p>
                   </div>
-                </div>
+                  </div>
+                </PremiumResults>
               )}
             </div>
           </div>

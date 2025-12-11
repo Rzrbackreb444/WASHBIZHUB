@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -529,11 +530,30 @@ export default function DeliveryRouteOptimizer() {
           </div>
 
           {result?.success && result.data && (
-            <div className="mt-8 space-y-6">
-              <Separator />
-              
-              <div className="flex items-center gap-3 flex-wrap">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+            <PremiumResults
+              featureName="delivery-route-optimizer"
+              analysisType="delivery-route-optimizer"
+              title="Route Optimization Results"
+              data={result.data}
+              summary={{
+                headline: `${result.data.efficiency.grade} Grade Route`,
+                metrics: [
+                  { label: "Total Distance", value: `${result.data.summary.totalDistance.toFixed(1)} mi` },
+                  { label: "Total Time", value: `${Math.floor(result.data.summary.totalTime / 60)}h ${result.data.summary.totalTime % 60}m` },
+                  { label: "Fuel Cost", value: `$${result.data.summary.fuelCost.toFixed(2)}` },
+                ]
+              }}
+              benefits={[
+                "Unlimited AI analyses",
+                "Export to Google Sheets & Docs",
+                "Save all results to profile"
+              ]}
+            >
+              <div className="mt-8 space-y-6">
+                <Separator />
+                
+                <div className="flex items-center gap-3 flex-wrap">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
                 <h2 className="text-2xl font-bold text-foreground">Optimized Route Results</h2>
                 {getGradeBadge(result.data.efficiency.grade)}
               </div>
@@ -870,7 +890,8 @@ export default function DeliveryRouteOptimizer() {
                   </CardContent>
                 </Card>
               )}
-            </div>
+              </div>
+            </PremiumResults>
           )}
         </div>
       </div>

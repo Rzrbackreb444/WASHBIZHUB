@@ -73,6 +73,8 @@ async function logActivity(type: string, description: string, email?: string, me
   }
 }
 import { securityHeaders, sanitizeInput, corsMiddleware, authRateLimiter } from "./security-middleware";
+import { globalRateLimiter, aiRateLimiter, exportRateLimiter } from "./middleware/rate-limit";
+import { auditLogMiddleware } from "./middleware/audit-log";
 
 const app = express();
 
@@ -1210,7 +1212,20 @@ app.use(securityHeaders);
 app.use(corsMiddleware);
 app.use(sanitizeInput);
 
-// Rate limit authentication endpoints
+// Audit logging middleware - logs all API requests for compliance
+app.use('/api', auditLogMiddleware());
+
+// Enterprise rate limiting - different limits per endpoint category
+app.use('/api', globalRateLimiter());
+app.use('/api/ai', aiRateLimiter());
+app.use('/api/gemini', aiRateLimiter());
+app.use('/api/chat', aiRateLimiter());
+app.use('/api/generate', aiRateLimiter());
+app.use('/api/export', exportRateLimiter());
+app.use('/api/pdf', exportRateLimiter());
+app.use('/api/download', exportRateLimiter());
+
+// Rate limit authentication endpoints (brute force protection)
 app.use('/api/auth', authRateLimiter);
 app.use('/api/login', authRateLimiter);
 app.use('/api/register', authRateLimiter);

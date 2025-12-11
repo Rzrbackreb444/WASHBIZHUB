@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { 
   Calculator, Download, Save, Share2, TrendingUp, DollarSign, 
   Lock, Mail, FileSpreadsheet, Sparkles, Info, CheckCircle2,
@@ -169,6 +170,36 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
     if (value >= 1000) return `$${(value / 1000).toFixed(0)}K`;
     return `$${value.toFixed(0)}`;
   };
+
+  const premiumSummary = useMemo(() => {
+    if (!showResults || Object.keys(results).length === 0) return undefined;
+    
+    const highlightedOutputs = config.outputs.filter(o => o.highlight);
+    const regularOutputs = config.outputs.filter(o => !o.highlight);
+    const keyOutputs = highlightedOutputs.length > 0 ? highlightedOutputs : regularOutputs.slice(0, 4);
+    const firstKey = keyOutputs[0];
+    const headlineValue = firstKey ? formatValue(results[firstKey.name], firstKey.format, firstKey.decimals) : '';
+    
+    return {
+      headline: firstKey ? `${firstKey.label}: ${headlineValue}` : config.name,
+      metrics: keyOutputs.slice(0, 4).map(output => ({
+        label: output.label,
+        value: formatValue(results[output.name], output.format, output.decimals),
+      })),
+    };
+  }, [showResults, results, config.outputs, config.name]);
+
+  const calculatedData = useMemo(() => {
+    if (!showResults) return {};
+    return {
+      ...inputs,
+      ...results,
+      calculatorName: config.name,
+      calculatorId: config.id,
+      category: config.category,
+      timestamp: new Date().toISOString(),
+    };
+  }, [showResults, inputs, results, config]);
 
   const exportToPDF = async () => {
     if (!user) {
@@ -640,6 +671,18 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
           </div>
 
           <div className="lg:col-span-3 space-y-6">
+            <PremiumResults
+              featureName={config.id}
+              analysisType={config.id}
+              title={config.name}
+              data={calculatedData}
+              summary={premiumSummary}
+              benefits={[
+                "Save unlimited analyses to your profile",
+                "Export to Google Sheets & Docs",
+                "Priority support & advanced features"
+              ]}
+            >
             <Card className="bg-card border shadow-sm overflow-hidden">
               <div className="h-1 bg-[#C8A661]" />
               <CardHeader className="border-b">
@@ -819,6 +862,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
                 </CardContent>
               </Card>
             )}
+            </PremiumResults>
           </div>
         </div>
 

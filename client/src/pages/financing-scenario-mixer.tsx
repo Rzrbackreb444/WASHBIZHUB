@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,46 @@ export default function FinancingScenarioMixer() {
       }
     ];
   }, [scenarios]);
+
+  const calculatedData = useMemo(() => {
+    if (!showResults || scenarios.length === 0) return {};
+    return {
+      loanAmount,
+      downPaymentPercent,
+      downPayment: loanAmount * (downPaymentPercent / 100),
+      principal: loanAmount - (loanAmount * (downPaymentPercent / 100)),
+      loanTermYears,
+      monthlyRevenue,
+      operatingExpenses,
+      conservativeRate,
+      moderateRate,
+      aggressiveRate,
+      scenarios: scenarios.map(s => ({
+        name: s.name,
+        interestRate: s.interestRate,
+        monthlyPayment: s.monthlyPayment,
+        totalInterest: s.totalInterest,
+        totalCost: s.totalCost,
+        dscr: s.dscr,
+        cashFlowAfterDebt: s.cashFlowAfterDebt,
+        annualDebtService: s.annualDebtService
+      })),
+      timestamp: new Date().toISOString()
+    };
+  }, [showResults, scenarios, loanAmount, downPaymentPercent, loanTermYears, monthlyRevenue, operatingExpenses, conservativeRate, moderateRate, aggressiveRate]);
+
+  const premiumSummary = useMemo(() => {
+    if (!showResults || scenarios.length === 0) return undefined;
+    const conservativeScenario = scenarios[0];
+    return {
+      headline: `Best DSCR: ${conservativeScenario.dscr.toFixed(2)}x (Conservative)`,
+      metrics: [
+        { label: "Conservative Payment", value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(conservativeScenario.monthlyPayment) },
+        { label: "Moderate Payment", value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(scenarios[1].monthlyPayment) },
+        { label: "Best Cash Flow", value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(conservativeScenario.cashFlowAfterDebt) + "/mo" },
+      ]
+    };
+  }, [showResults, scenarios]);
 
   const formatCurrency = (value: number): string => {
     if (Math.abs(value) >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
@@ -403,7 +444,18 @@ export default function FinancingScenarioMixer() {
 
             <div className="lg:col-span-2 space-y-6">
               {showResults && scenarios.length > 0 ? (
-                <>
+                <PremiumResults
+                  featureName="financing-scenario-mixer"
+                  analysisType="financing-scenario-mixer"
+                  title="Financing Scenario Mixer"
+                  data={calculatedData}
+                  summary={premiumSummary}
+                  benefits={[
+                    "Save unlimited financing comparisons",
+                    "Export to Google Sheets & Docs",
+                    "Priority support & advanced features"
+                  ]}
+                >
                   <div className="grid md:grid-cols-3 gap-4">
                     {scenarios.map((scenario, index) => {
                       const dscrStatus = getDSCRStatus(scenario.dscr);
@@ -616,7 +668,7 @@ export default function FinancingScenarioMixer() {
                       </div>
                     </CardContent>
                   </Card>
-                </>
+                </PremiumResults>
               ) : (
                 <Card className="bg-card border shadow-sm">
                   <CardContent className="py-20 text-center">

@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -428,7 +429,25 @@ export default function UtilityLoadForecaster() {
 
             <div className="lg:col-span-2 space-y-6">
               {forecastResult?.success && forecastResult.data.forecast.length > 0 ? (
-                <>
+                <PremiumResults
+                  featureName="utility-load-forecaster"
+                  analysisType="utility-load-forecaster"
+                  title="Utility Load Forecast Results"
+                  data={forecastResult.data}
+                  summary={{
+                    headline: `${forecastResult.data.budgetSummary?.annualTotal ? `$${forecastResult.data.budgetSummary.annualTotal.toLocaleString()}` : "N/A"} Annual Forecast`,
+                    metrics: [
+                      { label: "Annual Total", value: forecastResult.data.budgetSummary?.annualTotal ? `$${forecastResult.data.budgetSummary.annualTotal.toLocaleString()}` : "N/A" },
+                      { label: "Months Forecast", value: `${forecastResult.data.forecast?.length || 0}` },
+                      { label: "Confidence", value: `${Math.round(forecastResult.confidence * 100)}%` },
+                    ]
+                  }}
+                  benefits={[
+                    "Unlimited AI analyses",
+                    "Export to Google Sheets & Docs",
+                    "Save all results to profile"
+                  ]}
+                >
                   <Card className="bg-card border shadow-sm overflow-hidden">
                     <div className="h-1 bg-[#C8A661]" />
                     <CardHeader>
@@ -831,7 +850,7 @@ export default function UtilityLoadForecaster() {
                       </div>
                     </TabsContent>
                   </Tabs>
-                </>
+                </PremiumResults>
               ) : (
                 <Card className="bg-card border shadow-sm">
                   <CardContent className="py-16 text-center">

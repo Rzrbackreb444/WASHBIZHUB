@@ -1,6 +1,7 @@
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { PremiumCalculatorEngine, PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { CalculatorDisclaimer } from "@/components/LegalDisclaimer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -390,6 +391,26 @@ export default function WDFPricingOptimizer() {
             data-testid="wdf-pricing-calculator-engine"
           />
 
+          <PremiumResults
+            featureName="wdf-pricing-optimizer"
+            analysisType="wdf-pricing-optimizer"
+            title="WDF Pricing Analysis Results"
+            data={{}}
+            summary={{
+              headline: "Optimized pricing strategy",
+              metrics: [
+                { label: "Target Margin", value: "30-40%" },
+                { label: "Market Range", value: "$1.25-$3.00/lb" },
+              ]
+            }}
+            benefits={[
+              "Save unlimited analyses",
+              "Export to Google Sheets & Docs",
+              "Priority support"
+            ]}
+            cardWrapper={false}
+            showTitle={false}
+          >
           <div className="grid md:grid-cols-2 gap-6 mt-8">
             <Card className="bg-card border shadow-sm overflow-hidden" data-testid="tier-strategy-card">
               <div className="h-1 bg-[#C8A661]" />
@@ -519,6 +540,7 @@ export default function WDFPricingOptimizer() {
               </CardContent>
             </Card>
           </div>
+          </PremiumResults>
 
           <div className="mt-8">
             <CalculatorDisclaimer />

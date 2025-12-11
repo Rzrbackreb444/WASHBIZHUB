@@ -53,8 +53,14 @@ export function usePremiumGating(): PremiumGatingResult {
   }, [tier]);
 
   const canAccessFeature = useCallback((featureName: string): boolean => {
+    // Premium users (all_access) have access to ALL features
+    // This ensures new calculators/AI tools work without needing explicit whitelisting
+    if (isAllAccess || isPro) {
+      return true;
+    }
+    // Free users go through normal feature gating
     return canAccess(featureName);
-  }, [canAccess]);
+  }, [canAccess, isAllAccess, isPro]);
 
   const showUpgradeModal = useCallback(() => {
     setIsUpgradeModalOpen(true);

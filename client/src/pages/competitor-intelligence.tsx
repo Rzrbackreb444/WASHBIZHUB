@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -413,10 +414,29 @@ export default function CompetitorIntelligence() {
           )}
 
           {result?.success && result.data && (
-            <div className="space-y-6" data-testid="container-results">
-              <div className="grid lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2 bg-card border shadow-sm overflow-hidden">
-                  <div className="h-1 bg-[#C8A661]" />
+            <PremiumResults
+              featureName="competitor-intelligence"
+              analysisType="competitor-intelligence"
+              title="Competitor Analysis Results"
+              data={result.data}
+              summary={{
+                headline: `${result.data.marketOverview.estimatedCompetitors} Competitors Identified`,
+                metrics: [
+                  { label: "Market Saturation", value: result.data.marketOverview.marketSaturation },
+                  { label: "Growth Potential", value: result.data.marketOverview.growthPotential },
+                  { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                ]
+              }}
+              benefits={[
+                "Unlimited AI analyses",
+                "Export to Google Sheets & Docs",
+                "Save all results to profile"
+              ]}
+            >
+              <div className="space-y-6" data-testid="container-results">
+                <div className="grid lg:grid-cols-3 gap-6">
+                  <Card className="lg:col-span-2 bg-card border shadow-sm overflow-hidden">
+                    <div className="h-1 bg-[#C8A661]" />
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-[#C8A661]" />
@@ -864,7 +884,8 @@ export default function CompetitorIntelligence() {
               <div className="text-center text-sm text-muted-foreground" data-testid="text-confidence">
                 Analysis Confidence: {Math.round(result.confidence * 100)}%
               </div>
-            </div>
+              </div>
+            </PremiumResults>
           )}
         </div>
       </div>

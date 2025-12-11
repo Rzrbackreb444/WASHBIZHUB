@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { PremiumResults } from "@/components/withPremiumEnhancements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -377,9 +378,28 @@ export default function DemographicClusterer() {
           </Card>
 
           {result?.success && result.data && (
-            <div className="space-y-6" data-testid="container-results">
-              <Card className="bg-card border shadow-sm overflow-hidden">
-                <div className="h-1 bg-[#C8A661]" />
+            <PremiumResults
+              featureName="demographic-clusterer"
+              analysisType="demographic-clusterer"
+              title="Demographic Analysis Results"
+              data={result.data}
+              summary={{
+                headline: `${result.data.populationOverview.totalEstimate.toLocaleString()} Est. Population`,
+                metrics: [
+                  { label: "Median Age", value: result.data.populationOverview.medianAge?.toString() || "N/A" },
+                  { label: "Density", value: result.data.populationOverview.density },
+                  { label: "Confidence", value: `${Math.round(result.confidence * 100)}%` },
+                ]
+              }}
+              benefits={[
+                "Unlimited AI analyses",
+                "Export to Google Sheets & Docs",
+                "Save all results to profile"
+              ]}
+            >
+              <div className="space-y-6" data-testid="container-results">
+                <Card className="bg-card border shadow-sm overflow-hidden">
+                  <div className="h-1 bg-[#C8A661]" />
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-[#C8A661]" />
@@ -931,7 +951,8 @@ export default function DemographicClusterer() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+              </div>
+            </PremiumResults>
           )}
         </div>
       </div>
