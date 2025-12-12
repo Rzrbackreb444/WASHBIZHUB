@@ -490,7 +490,7 @@ export default function RevenueDiversificationPlanner() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </PremiumResults>
 
             <div className="space-y-6">
               <Card className="bg-card border shadow-sm overflow-hidden sticky top-4">
@@ -650,7 +650,7 @@ export default function RevenueDiversificationPlanner() {
                 </CardContent>
               </Card>
             </div>
-            </PremiumResults>
+            </div>
           </div>
 
           <div className="mt-8">
