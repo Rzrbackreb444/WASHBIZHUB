@@ -4,7 +4,7 @@ import {
   Award, Sparkles, Target, BarChart3, Users, Clock
 } from "lucide-react";
 
-export type PlatformTier = 'free' | 'all_access';
+export type PlatformTier = 'free' | 'pro' | 'business' | 'enterprise';
 export type ListingTier = 'free' | 'basic' | 'showcase' | 'diamond';
 
 export interface TierFeature {
@@ -84,8 +84,8 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
   free: {
     id: 'free',
     name: 'Free',
-    tagline: 'Try it out',
-    description: 'Get 3 free CLEANBI analyses plus essential tools to explore',
+    tagline: 'Get started',
+    description: 'Explore the platform with essential tools and 3 free CLEANBI analyses',
     price: 0,
     priceAnnual: 0,
     icon: Gift,
@@ -104,7 +104,6 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       { text: 'Full Calculator Suite', included: false },
       { text: 'Book & Courses access', included: false },
       { text: 'Forum posting & community', included: false },
-      { text: 'Design Studio', included: false },
     ],
     limits: {
       cleanbiAnalyses: 3,
@@ -115,47 +114,111 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     cta: 'Start Free',
     ctaVariant: 'outline',
   },
-  all_access: {
-    id: 'all_access',
-    name: 'All-Access',
-    tagline: 'Everything you need',
-    description: 'Complete access to every tool, feature, and resource on WashBizHub',
-    price: 129,
-    priceAnnual: 1290,
-    icon: Crown,
-    iconBg: 'bg-gradient-to-br from-[#C8A661] to-[#8B7355]',
-    iconColor: 'text-white',
-    popular: true,
+  pro: {
+    id: 'pro',
+    name: 'Pro',
+    tagline: 'For serious buyers',
+    description: 'Unlimited CLEANBI analyses, full calculator suite, and community access',
+    price: 49,
+    priceAnnual: 490,
+    icon: Zap,
+    iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    popular: false,
     features: [
       { text: 'Unlimited CLEANBI analyses', included: true, highlight: true },
       { text: 'Full Calculator Suite (50+ tools)', included: true, highlight: true },
+      { text: 'Forum posting & community', included: true },
+      { text: 'Save unlimited reports', included: true },
+      { text: 'Export to PDF', included: true },
+      { text: 'Browse marketplace listings', included: true },
+      { text: 'View funding hub directory', included: true },
+      { text: 'Blog & help center access', included: true },
+      { text: 'Book & Courses access', included: false },
+      { text: 'Service Guy AI', included: false },
+      { text: 'Design Studio', included: false },
+      { text: 'AI Business Plan Generator', included: false },
+    ],
+    limits: {
+      cleanbiAnalyses: 'unlimited',
+      apiCalls: 100,
+      savedReports: 'unlimited',
+      teamMembers: 1,
+    },
+    cta: 'Go Pro',
+    ctaVariant: 'default',
+  },
+  business: {
+    id: 'business',
+    name: 'Business',
+    tagline: 'For operators & investors',
+    description: 'Everything in Pro plus courses, AI tools, POS system, and operator features',
+    price: 149,
+    priceAnnual: 1490,
+    icon: Star,
+    iconBg: 'bg-[#C8A661]/20',
+    iconColor: 'text-[#C8A661]',
+    popular: true,
+    features: [
+      { text: 'Everything in Pro', included: true },
       { text: 'Complete Book & All Courses', included: true, highlight: true },
+      { text: 'Service Guy AI diagnostics', included: true, highlight: true },
       { text: 'Design Studio (2D/3D floor plans)', included: true, highlight: true },
-      { text: 'Service Guy AI diagnostics', included: true },
-      { text: 'Forum posting & community access', included: true },
-      { text: 'Marketplace listing & lead access', included: true },
+      { text: 'POS Command Center', included: true },
       { text: 'AI Business Plan Generator', included: true },
       { text: 'AI Consultation Council', included: true },
       { text: 'Due Diligence Toolkit', included: true },
       { text: 'Monte Carlo simulations', included: true },
       { text: 'Bulk location analysis', included: true },
-      { text: 'Drive-time catchment maps', included: true },
       { text: 'Website builder', included: true },
-      { text: 'API access (unlimited)', included: true },
-      { text: 'White-label reports', included: true },
-      { text: 'Team collaboration (up to 5)', included: true },
-      { text: 'Priority email & phone support', included: true },
+      { text: 'Priority email support', included: true },
+    ],
+    limits: {
+      cleanbiAnalyses: 'unlimited',
+      apiCalls: 500,
+      savedReports: 'unlimited',
+      teamMembers: 3,
+    },
+    cta: 'Get Business',
+    ctaVariant: 'default',
+    badge: 'MOST POPULAR',
+    badgeColor: 'bg-[#C8A661] text-white',
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise',
+    tagline: 'For multi-unit & brokers',
+    description: 'Full platform access with API, white-label, team collaboration, and priority support',
+    price: 299,
+    priceAnnual: 2990,
+    icon: Crown,
+    iconBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
+    iconColor: 'text-white',
+    popular: false,
+    features: [
+      { text: 'Everything in Business', included: true },
+      { text: 'Unlimited API access', included: true, highlight: true },
+      { text: 'White-label reports', included: true, highlight: true },
+      { text: 'Team collaboration (up to 10)', included: true, highlight: true },
+      { text: 'Drive-time catchment maps', included: true },
+      { text: 'Custom integrations', included: true },
+      { text: 'Dedicated account manager', included: true },
+      { text: 'Priority phone support', included: true },
+      { text: 'Custom training sessions', included: true },
+      { text: 'Early access to new features', included: true },
+      { text: 'Volume discounts on listings', included: true },
+      { text: 'Multi-location management', included: true },
     ],
     limits: {
       cleanbiAnalyses: 'unlimited',
       apiCalls: 'unlimited',
       savedReports: 'unlimited',
-      teamMembers: 5,
+      teamMembers: 10,
     },
-    cta: 'Get All-Access',
+    cta: 'Contact Sales',
     ctaVariant: 'default',
-    badge: 'BEST VALUE',
-    badgeColor: 'bg-[#C8A661] text-white',
+    badge: 'ENTERPRISE',
+    badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',
   },
 };
 
@@ -365,13 +428,15 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
   },
 };
 
-export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'all_access'];
+export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'pro', 'business', 'enterprise'];
 export const LISTING_TIER_ORDER: ListingTier[] = ['free', 'basic', 'showcase', 'diamond'];
 
 export function getPlatformTier(tierId: string): PlatformTierConfig | undefined {
-  if (tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise') {
-    return PLATFORM_TIERS['all_access'];
-  }
+  // Handle legacy tier names
+  if (tierId === 'starter') return PLATFORM_TIERS['pro'];
+  if (tierId === 'all_access') return PLATFORM_TIERS['enterprise'];
+  if (tierId === 'accelerate' || tierId === 'scale') return PLATFORM_TIERS['business'];
+  if (tierId === 'summit') return PLATFORM_TIERS['enterprise'];
   return PLATFORM_TIERS[tierId as PlatformTier];
 }
 

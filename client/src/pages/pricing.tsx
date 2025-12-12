@@ -47,7 +47,9 @@ export default function Pricing() {
 
   const tiers = PLATFORM_TIER_ORDER.map(id => PLATFORM_TIERS[id]);
   const freeTier = PLATFORM_TIERS.free;
-  const allAccessTier = PLATFORM_TIERS.all_access;
+  const proTier = PLATFORM_TIERS.pro;
+  const businessTier = PLATFORM_TIERS.business;
+  const enterpriseTier = PLATFORM_TIERS.enterprise;
 
   const getDisplayPrice = (tier: PlatformTierConfig) => {
     if (tier.price === 0) return 0;
@@ -57,8 +59,8 @@ export default function Pricing() {
     return tier.price;
   };
 
-  const annualSavings = allAccessTier.price * 12 - allAccessTier.priceAnnual;
-  const monthsFree = Math.round(annualSavings / allAccessTier.price);
+  const annualSavings = businessTier.price * 12 - businessTier.priceAnnual;
+  const monthsFree = Math.round(annualSavings / businessTier.price);
 
   const testimonials = [
     {
@@ -96,66 +98,69 @@ export default function Pricing() {
       category: "CLEANBI Analysis",
       icon: Map,
       features: [
-        { name: "Location Score & Grade", free: true, allAccess: true },
-        { name: "Number of Analyses", free: "3 total", allAccess: "Unlimited" },
-        { name: "Competitor Count", free: true, allAccess: true },
-        { name: "Street View Access", free: true, allAccess: true },
-        { name: "Bulk Analysis", free: false, allAccess: true },
-        { name: "Drive-Time Catchment Maps", free: false, allAccess: true },
-        { name: "Monte Carlo Simulations", free: false, allAccess: true },
+        { name: "Location Score & Grade", free: true, pro: true, business: true, enterprise: true },
+        { name: "Number of Analyses", free: "3 total", pro: "Unlimited", business: "Unlimited", enterprise: "Unlimited" },
+        { name: "Competitor Count", free: true, pro: true, business: true, enterprise: true },
+        { name: "Street View Access", free: true, pro: true, business: true, enterprise: true },
+        { name: "Bulk Analysis", free: false, pro: false, business: true, enterprise: true },
+        { name: "Drive-Time Catchment Maps", free: false, pro: false, business: false, enterprise: true },
+        { name: "Monte Carlo Simulations", free: false, pro: false, business: true, enterprise: true },
+        { name: "API Access", free: false, pro: false, business: false, enterprise: "Unlimited" },
       ]
     },
     { 
       category: "Tools & Calculators",
       icon: Calculator,
       features: [
-        { name: "Basic Calculator Preview", free: true, allAccess: true },
-        { name: "Full Calculator Suite (50+ tools)", free: false, allAccess: true },
-        { name: "ROI & Valuation Calculators", free: false, allAccess: true },
-        { name: "Due Diligence Toolkit", free: false, allAccess: true },
-        { name: "AI Business Plan Generator", free: false, allAccess: true },
-        { name: "Website Builder", free: false, allAccess: true },
+        { name: "Basic Calculator Preview", free: true, pro: true, business: true, enterprise: true },
+        { name: "Full Calculator Suite (50+ tools)", free: false, pro: true, business: true, enterprise: true },
+        { name: "ROI & Valuation Calculators", free: false, pro: true, business: true, enterprise: true },
+        { name: "Due Diligence Toolkit", free: false, pro: false, business: true, enterprise: true },
+        { name: "AI Business Plan Generator", free: false, pro: false, business: true, enterprise: true },
+        { name: "Website Builder", free: false, pro: false, business: true, enterprise: true },
+        { name: "White-Label Reports", free: false, pro: false, business: false, enterprise: true },
       ]
     },
     { 
       category: "Learning & Resources",
       icon: BookOpen,
       features: [
-        { name: "Blog & Help Center", free: true, allAccess: true },
-        { name: "Complete Book Access", free: false, allAccess: true },
-        { name: "All Courses & Training", free: false, allAccess: true },
-        { name: "Premium Templates", free: false, allAccess: true },
+        { name: "Blog & Help Center", free: true, pro: true, business: true, enterprise: true },
+        { name: "Complete Book Access", free: false, pro: false, business: true, enterprise: true },
+        { name: "All Courses & Training", free: false, pro: false, business: true, enterprise: true },
+        { name: "Premium Templates", free: false, pro: false, business: true, enterprise: true },
       ]
     },
     { 
       category: "Community & Marketplace",
       icon: Users,
       features: [
-        { name: "Browse Marketplace Listings", free: true, allAccess: true },
-        { name: "Read Forum Discussions", free: true, allAccess: true },
-        { name: "View Funding Directory", free: true, allAccess: true },
-        { name: "Forum Posting & Replies", free: false, allAccess: true },
-        { name: "Create Marketplace Listings", free: false, allAccess: true },
-        { name: "Lead Access & Messaging", free: false, allAccess: true },
+        { name: "Browse Marketplace Listings", free: true, pro: true, business: true, enterprise: true },
+        { name: "Read Forum Discussions", free: true, pro: true, business: true, enterprise: true },
+        { name: "View Funding Directory", free: true, pro: true, business: true, enterprise: true },
+        { name: "Forum Posting & Replies", free: false, pro: true, business: true, enterprise: true },
+        { name: "Create Marketplace Listings", free: false, pro: true, business: true, enterprise: true },
+        { name: "Lead Access & Messaging", free: false, pro: true, business: true, enterprise: true },
       ]
     },
     { 
       category: "Design & Operations",
       icon: LayoutGrid,
       features: [
-        { name: "Design Studio (2D/3D)", free: false, allAccess: true },
-        { name: "Service Guy AI Diagnostics", free: false, allAccess: true },
-        { name: "White-Label Reports", free: false, allAccess: true },
-        { name: "API Access (Unlimited)", free: false, allAccess: true },
-        { name: "Team Collaboration (5 seats)", free: false, allAccess: true },
+        { name: "Design Studio (2D/3D)", free: false, pro: false, business: true, enterprise: true },
+        { name: "Service Guy AI Diagnostics", free: false, pro: false, business: true, enterprise: true },
+        { name: "POS Command Center", free: false, pro: false, business: true, enterprise: true },
+        { name: "Multi-Location Management", free: false, pro: false, business: false, enterprise: true },
+        { name: "Team Collaboration", free: false, pro: false, business: "3 seats", enterprise: "10 seats" },
       ]
     },
     { 
       category: "Support",
       icon: MessageSquare,
       features: [
-        { name: "Email Support", free: "Community", allAccess: "Priority" },
-        { name: "Phone Support", free: false, allAccess: true },
+        { name: "Email Support", free: "Community", pro: "Standard", business: "Priority", enterprise: "Dedicated" },
+        { name: "Phone Support", free: false, pro: false, business: true, enterprise: true },
+        { name: "Dedicated Account Manager", free: false, pro: false, business: false, enterprise: true },
       ]
     },
   ];
@@ -163,15 +168,15 @@ export default function Pricing() {
   const pricingFaqs = [
     {
       question: "What is CLEANBI?",
-      answer: "CLEANBI is our proprietary AI-powered location intelligence system that scores any address for laundromat investment potential. It analyzes 6 key factors: Competition, Location, Equipment, Accessibility, Neighborhood, and Business metrics to give you a comprehensive grade."
+      answer: "CLEANBI is our proprietary AI-powered location intelligence system that scores any address for laundromat investment potential. It analyzes 17 key factors including Competition, Location, Equipment, Accessibility, Neighborhood, and Business metrics to give you a comprehensive grade."
     },
     {
-      question: "What's included in All-Access?",
-      answer: "Everything! Unlimited CLEANBI analyses, all 50+ calculators, complete book & courses, Design Studio with 2D/3D floor plans, Service Guy AI diagnostics, forum access, marketplace features, AI tools, bulk analysis, API access, and priority support. One membership, zero limitations."
+      question: "Which plan is right for me?",
+      answer: "Free: Perfect for exploring with 3 CLEANBI analyses. Pro ($49/mo): Best for serious buyers who need unlimited analyses and calculators. Business ($149/mo): Ideal for operators who want courses, AI tools, POS, and Service Guy AI. Enterprise ($299/mo): For multi-unit owners and brokers needing API access, white-label reports, and team collaboration."
     },
     {
       question: "How much do I save with annual billing?",
-      answer: "Annual billing gives you 2 months free! Instead of paying $129/month ($1,548/year), you pay just $1,290/year - saving you $258 annually."
+      answer: "Annual billing saves you 2 months! Pro: $490/yr instead of $588. Business: $1,490/yr instead of $1,788. Enterprise: $2,990/yr instead of $3,588."
     },
     {
       question: "Do I need a credit card to start?",
@@ -208,8 +213,8 @@ export default function Pricing() {
     "@context": "https://schema.org",
     "@type": "OfferCatalog",
     "name": "WashBizHub Pricing Plans",
-    "description": "AI-powered laundromat business intelligence platform. Choose Free or All-Access membership.",
-    "numberOfItems": 2,
+    "description": "AI-powered laundromat business intelligence platform. Choose Free, Pro, Business, or Enterprise membership.",
+    "numberOfItems": 4,
     "itemListElement": [
       {
         "@type": "Offer",
@@ -456,8 +461,8 @@ export default function Pricing() {
           className="relative py-16 sm:py-20 bg-muted/30"
           aria-labelledby="pricing-plans-title"
         >
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
               
               {/* Free Tier */}
               <Card 
@@ -465,143 +470,179 @@ export default function Pricing() {
                 data-testid="card-plan-free"
               >
                 <div className="h-1 bg-muted" />
-                <CardHeader className="text-center pb-4 pt-8">
-                  <div className="mx-auto mb-4 p-3 rounded-lg bg-muted w-fit">
-                    <Gift className="h-7 w-7 text-muted-foreground" />
+                <CardHeader className="text-center pb-4 pt-6">
+                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-muted w-fit">
+                    <Gift className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-foreground">
-                    Free
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    Try it out - no credit card required
-                  </CardDescription>
+                  <CardTitle className="text-xl font-bold text-foreground">Free</CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">Get started</CardDescription>
                   
-                  <div className="my-6">
-                    <span className="text-5xl font-bold text-foreground">$0</span>
+                  <div className="my-4">
+                    <span className="text-4xl font-bold text-foreground">$0</span>
                   </div>
                   
                   <Link href="/signup">
                     <Button 
                       variant="outline"
-                      className="w-full border-[#0A1628] text-[#0A1628] hover:bg-[#0A1628] hover:text-white"
+                      className="w-full"
                       data-testid="button-cta-free"
                     >
                       Start Free
-                      <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </Link>
                 </CardHeader>
                 
-                <CardContent className="pt-4 pb-8">
-                  <p className="text-sm text-muted-foreground mb-4 text-center">What's included:</p>
-                  <ul className="space-y-3">
-                    {[
-                      "3 CLEANBI location analyses",
-                      "Browse marketplace listings",
-                      "Read forum discussions",
-                      "View funding directory",
-                      "Blog & help center access",
-                      "Basic calculator previews",
-                    ].map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <Check className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{feature}</span>
+                <CardContent className="pt-2 pb-6">
+                  <ul className="space-y-2 text-sm">
+                    {["3 CLEANBI analyses", "Browse marketplace", "Read forum", "View funding hub", "Blog access"].map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                        <span className="text-foreground">{f}</span>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
 
-              {/* All-Access Tier */}
+              {/* Pro Tier */}
               <Card 
-                className="relative bg-card border-2 border-[#C8A661] shadow-lg"
-                data-testid="card-plan-all-access"
+                className="relative bg-card border shadow-sm"
+                data-testid="card-plan-pro"
               >
-                <div className="h-2 bg-[#C8A661]" />
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                  <Badge className="bg-[#C8A661] text-[#0A1628] shadow-lg px-4 py-1 font-semibold">
-                    <Star className="h-3 w-3 mr-1.5" />
-                    BEST VALUE
-                  </Badge>
-                </div>
-                
-                <CardHeader className="text-center pb-4 pt-8">
-                  <div className="mx-auto mb-4 p-3 rounded-lg bg-gradient-to-br from-[#C8A661] to-[#8B7355] w-fit">
-                    <Crown className="h-7 w-7 text-white" />
+                <div className="h-1 bg-blue-500" />
+                <CardHeader className="text-center pb-4 pt-6">
+                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 w-fit">
+                    <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-foreground">
-                    All-Access
-                  </CardTitle>
-                  <CardDescription className="text-muted-foreground">
-                    Complete access to everything
-                  </CardDescription>
+                  <CardTitle className="text-xl font-bold text-foreground">Pro</CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">For serious buyers</CardDescription>
                   
-                  {/* 7-Day Trial Banner */}
-                  <div className="mt-4 mb-2 px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
-                    <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium">
-                      <Clock className="h-4 w-4" />
-                      <span>7-Day Free Trial</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center mt-1">
-                      Full access to all features. Cancel anytime.
-                    </p>
-                  </div>
-                  
-                  <div className="my-6">
+                  <div className="my-4">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-5xl font-bold text-[#C8A661]">
-                        ${getDisplayPrice(allAccessTier)}
-                      </span>
-                      <span className="text-muted-foreground">/mo</span>
+                      <span className="text-4xl font-bold text-blue-600">${getDisplayPrice(proTier)}</span>
+                      <span className="text-muted-foreground text-sm">/mo</span>
                     </div>
                     {isAnnual && (
-                      <div className="mt-2 space-y-1">
-                        <span className="text-sm text-muted-foreground line-through">
-                          ${allAccessTier.price}/mo
-                        </span>
-                        <p className="text-xs text-muted-foreground">
-                          Billed ${allAccessTier.priceAnnual.toLocaleString()}/year
-                        </p>
-                        <Badge variant="secondary" className="bg-[#C8A661]/10 text-[#C8A661]">
-                          Save ${annualSavings} per year
-                        </Badge>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Billed ${proTier.priceAnnual}/year</p>
                     )}
                   </div>
                   
-                  <Link href="/subscribe?plan=all_access">
+                  <Link href="/subscribe?plan=pro">
                     <Button 
-                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold"
-                      data-testid="button-cta-all-access"
+                      variant="outline"
+                      className="w-full border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
+                      data-testid="button-cta-pro"
                     >
-                      Get All-Access
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      Go Pro
                     </Button>
                   </Link>
                 </CardHeader>
                 
-                <CardContent className="pt-4 pb-8">
-                  <p className="text-sm text-muted-foreground mb-4 text-center">Everything in Free, plus:</p>
-                  <ul className="space-y-3">
-                    {[
-                      { text: "Unlimited CLEANBI analyses", highlight: true },
-                      { text: "Full Calculator Suite (50+ tools)", highlight: true },
-                      { text: "Complete Book & All Courses", highlight: true },
-                      { text: "Design Studio (2D/3D floor plans)", highlight: true },
-                      { text: "Service Guy AI diagnostics", highlight: false },
-                      { text: "Forum posting & community", highlight: false },
-                      { text: "Marketplace listing & leads", highlight: false },
-                      { text: "AI Business Plan Generator", highlight: false },
-                      { text: "Due Diligence Toolkit", highlight: false },
-                      { text: "Monte Carlo simulations", highlight: false },
-                      { text: "API access (unlimited)", highlight: false },
-                      { text: "Priority email & phone support", highlight: false },
-                    ].map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <Check className={`h-5 w-5 shrink-0 mt-0.5 ${feature.highlight ? 'text-[#C8A661]' : 'text-green-600'}`} />
-                        <span className={`text-sm ${feature.highlight ? 'font-medium text-foreground' : 'text-foreground'}`}>
-                          {feature.text}
-                        </span>
+                <CardContent className="pt-2 pb-6">
+                  <p className="text-xs text-muted-foreground mb-2">Everything in Free, plus:</p>
+                  <ul className="space-y-2 text-sm">
+                    {["Unlimited CLEANBI", "Full Calculator Suite", "Forum posting", "Save reports", "Export to PDF"].map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                        <span className="text-foreground">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Business Tier - Most Popular */}
+              <Card 
+                className="relative bg-card border-2 border-[#C8A661] shadow-lg"
+                data-testid="card-plan-business"
+              >
+                <div className="h-2 bg-[#C8A661]" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                  <Badge className="bg-[#C8A661] text-[#0A1628] shadow-lg px-3 py-0.5 text-xs font-semibold">
+                    MOST POPULAR
+                  </Badge>
+                </div>
+                
+                <CardHeader className="text-center pb-4 pt-6">
+                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-[#C8A661]/20 w-fit">
+                    <Star className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-foreground">Business</CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">For operators</CardDescription>
+                  
+                  <div className="my-4">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-bold text-[#C8A661]">${getDisplayPrice(businessTier)}</span>
+                      <span className="text-muted-foreground text-sm">/mo</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-xs text-muted-foreground mt-1">Billed ${businessTier.priceAnnual.toLocaleString()}/year</p>
+                    )}
+                  </div>
+                  
+                  <Link href="/subscribe?plan=business">
+                    <Button 
+                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold"
+                      data-testid="button-cta-business"
+                    >
+                      Get Business
+                    </Button>
+                  </Link>
+                </CardHeader>
+                
+                <CardContent className="pt-2 pb-6">
+                  <p className="text-xs text-muted-foreground mb-2">Everything in Pro, plus:</p>
+                  <ul className="space-y-2 text-sm">
+                    {["Book & All Courses", "Service Guy AI", "Design Studio", "POS System", "AI Business Plan", "Priority support"].map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-[#C8A661] shrink-0 mt-0.5" />
+                        <span className="text-foreground font-medium">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Enterprise Tier */}
+              <Card 
+                className="relative bg-card border shadow-sm"
+                data-testid="card-plan-enterprise"
+              >
+                <div className="h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+                <CardHeader className="text-center pb-4 pt-6">
+                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 w-fit">
+                    <Crown className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-foreground">Enterprise</CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">Multi-unit & brokers</CardDescription>
+                  
+                  <div className="my-4">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-bold text-purple-600">${getDisplayPrice(enterpriseTier)}</span>
+                      <span className="text-muted-foreground text-sm">/mo</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-xs text-muted-foreground mt-1">Billed ${enterpriseTier.priceAnnual.toLocaleString()}/year</p>
+                    )}
+                  </div>
+                  
+                  <Link href="/subscribe?plan=enterprise">
+                    <Button 
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      data-testid="button-cta-enterprise"
+                    >
+                      Contact Sales
+                    </Button>
+                  </Link>
+                </CardHeader>
+                
+                <CardContent className="pt-2 pb-6">
+                  <p className="text-xs text-muted-foreground mb-2">Everything in Business, plus:</p>
+                  <ul className="space-y-2 text-sm">
+                    {["Unlimited API", "White-label reports", "Team (10 seats)", "Custom integrations", "Dedicated manager", "Phone support"].map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
+                        <span className="text-foreground">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -748,10 +789,12 @@ export default function Pricing() {
               <div className="h-1 bg-[#C8A661]" />
               
               {/* Table Header */}
-              <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 border-b">
+              <div className="grid grid-cols-5 gap-2 p-4 bg-muted/50 border-b text-xs sm:text-sm">
                 <div className="font-medium text-foreground">Feature</div>
                 <div className="text-center font-medium text-foreground">Free</div>
-                <div className="text-center font-medium text-[#C8A661]">All-Access</div>
+                <div className="text-center font-medium text-blue-600">Pro</div>
+                <div className="text-center font-medium text-[#C8A661]">Business</div>
+                <div className="text-center font-medium text-purple-600">Enterprise</div>
               </div>
               
               {/* Table Body */}
@@ -759,64 +802,71 @@ export default function Pricing() {
                 {comparisonFeatures.map((category, catIdx) => (
                   <div key={catIdx}>
                     {/* Category Header */}
-                    <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30">
-                      <div className="flex items-center gap-2 font-semibold text-foreground">
+                    <div className="grid grid-cols-5 gap-2 p-4 bg-muted/30">
+                      <div className="flex items-center gap-2 font-semibold text-foreground col-span-5 sm:col-span-1">
                         <category.icon className="h-4 w-4 text-[#C8A661]" />
                         {category.category}
                       </div>
-                      <div></div>
-                      <div></div>
                     </div>
                     
                     {/* Category Features */}
-                    {category.features.map((feature, featIdx) => (
-                      <div 
-                        key={featIdx} 
-                        className="grid grid-cols-3 gap-4 p-4 items-center hover:bg-muted/20 transition-colors"
-                      >
-                        <div className="text-sm text-foreground">{feature.name}</div>
-                        <div className="flex justify-center">
-                          {typeof feature.free === 'boolean' ? (
-                            feature.free ? (
-                              <Check className="h-5 w-5 text-green-600" />
-                            ) : (
-                              <X className="h-5 w-5 text-muted-foreground/40" />
-                            )
+                    {category.features.map((feature, featIdx) => {
+                      const renderCell = (value: boolean | string) => {
+                        if (typeof value === 'boolean') {
+                          return value ? (
+                            <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
                           ) : (
-                            <span className="text-sm text-muted-foreground">{feature.free}</span>
-                          )}
+                            <X className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground/40" />
+                          );
+                        }
+                        return <span className="text-xs sm:text-sm text-muted-foreground">{value}</span>;
+                      };
+                      
+                      return (
+                        <div 
+                          key={featIdx} 
+                          className="grid grid-cols-5 gap-2 p-3 sm:p-4 items-center hover:bg-muted/20 transition-colors"
+                        >
+                          <div className="text-xs sm:text-sm text-foreground">{feature.name}</div>
+                          <div className="flex justify-center">{renderCell(feature.free)}</div>
+                          <div className="flex justify-center">{renderCell(feature.pro)}</div>
+                          <div className="flex justify-center">{renderCell(feature.business)}</div>
+                          <div className="flex justify-center">{renderCell(feature.enterprise)}</div>
                         </div>
-                        <div className="flex justify-center">
-                          {typeof feature.allAccess === 'boolean' ? (
-                            feature.allAccess ? (
-                              <Check className="h-5 w-5 text-[#C8A661]" />
-                            ) : (
-                              <X className="h-5 w-5 text-muted-foreground/40" />
-                            )
-                          ) : (
-                            <span className="text-sm font-medium text-[#C8A661]">{feature.allAccess}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
               </div>
               
               {/* Table Footer CTAs */}
-              <div className="grid grid-cols-3 gap-4 p-6 bg-muted/50 border-t">
+              <div className="grid grid-cols-5 gap-2 p-4 sm:p-6 bg-muted/50 border-t">
                 <div></div>
                 <div className="flex justify-center">
                   <Link href="/signup">
-                    <Button variant="outline" size="sm" data-testid="button-compare-free">
-                      Start Free
+                    <Button variant="outline" size="sm" className="text-xs px-2" data-testid="button-compare-free">
+                      Free
                     </Button>
                   </Link>
                 </div>
                 <div className="flex justify-center">
-                  <Link href="/subscribe?plan=all_access">
-                    <Button size="sm" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-compare-all-access">
-                      Get All-Access
+                  <Link href="/subscribe?plan=pro">
+                    <Button size="sm" variant="outline" className="text-xs px-2 border-blue-500 text-blue-600" data-testid="button-compare-pro">
+                      Pro
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex justify-center">
+                  <Link href="/subscribe?plan=business">
+                    <Button size="sm" className="text-xs px-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-compare-business">
+                      Business
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex justify-center">
+                  <Link href="/subscribe?plan=enterprise">
+                    <Button size="sm" className="text-xs px-2 bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-compare-enterprise">
+                      Enterprise
                     </Button>
                   </Link>
                 </div>
@@ -948,13 +998,13 @@ export default function Pricing() {
                   Start Free
                 </Button>
               </Link>
-              <Link href="/subscribe?plan=all_access">
+              <Link href="/subscribe?plan=business">
                 <Button 
                   size="lg"
                   className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold min-w-[180px]"
-                  data-testid="button-cta-final-all-access"
+                  data-testid="button-cta-final-business"
                 >
-                  Get All-Access
+                  Get Business Plan
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>

@@ -24,14 +24,17 @@ export interface PremiumGatingResult {
 
 const TIER_DISPLAY_NAMES: Record<SubscriptionTier, string> = {
   free: "Free",
-  all_access: "All-Access",
+  pro: "Pro",
+  business: "Business",
+  enterprise: "Enterprise",
 };
 
 export function usePremiumGating(): PremiumGatingResult {
   const { 
     tier, 
     isPro, 
-    isAllAccess, 
+    isBusiness,
+    isEnterprise,
     isLoading, 
     canAccess,
     isTrial,
@@ -45,22 +48,22 @@ export function usePremiumGating(): PremiumGatingResult {
   const [upgradeModalFeature, setUpgradeModalFeature] = useState<string | null>(null);
 
   const isPremium = useMemo(() => {
-    return isPro || isAllAccess;
-  }, [isPro, isAllAccess]);
+    return isPro || isBusiness || isEnterprise;
+  }, [isPro, isBusiness, isEnterprise]);
+  
+  // isAllAccess now means Enterprise (backwards compatibility)
+  const isAllAccess = isEnterprise;
 
   const tierDisplayName = useMemo(() => {
     return TIER_DISPLAY_NAMES[tier] || "Free";
   }, [tier]);
 
   const canAccessFeature = useCallback((featureName: string): boolean => {
-    // Premium users (all_access) have access to ALL features
-    // This ensures new calculators/AI tools work without needing explicit whitelisting
-    if (isAllAccess || isPro) {
-      return true;
-    }
-    // Free users go through normal feature gating
+    // All tiers defer to canAccess which properly checks tier hierarchy
+    // Enterprise gets everything, Business gets business+ features, Pro gets pro+ features
+    // This ensures enterprise-only features (API, white-label) remain locked for lower tiers
     return canAccess(featureName);
-  }, [canAccess, isAllAccess, isPro]);
+  }, [canAccess]);
 
   const showUpgradeModal = useCallback(() => {
     setIsUpgradeModalOpen(true);
