@@ -5,15 +5,26 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, MapPin, Palette, Wrench, ArrowRight, ArrowLeft, X,
-  Calculator, ShoppingBag, CreditCard, ChevronRight
+  Calculator, ShoppingBag, CreditCard, ChevronRight, Store,
+  TrendingUp, DollarSign, Users, Briefcase, Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ONBOARDING_STORAGE_KEY = 'hasSeenOnboarding';
+const PERSONA_STORAGE_KEY = 'userPersona';
 
 interface OnboardingFlowProps {
   forceOpen?: boolean;
   onComplete?: () => void;
+}
+
+interface Persona {
+  id: string;
+  icon: typeof Store;
+  title: string;
+  description: string;
+  color: string;
+  dashboardPath: string;
 }
 
 interface Tool {
@@ -28,6 +39,49 @@ interface QuickAction {
   title: string;
   path: string;
 }
+
+const PERSONAS: Persona[] = [
+  {
+    id: 'buyer',
+    icon: ShoppingBag,
+    title: 'Buy a Laundromat',
+    description: 'Find and analyze properties to purchase',
+    color: 'bg-blue-500',
+    dashboardPath: '/buyer-dashboard',
+  },
+  {
+    id: 'seller',
+    icon: DollarSign,
+    title: 'Sell My Laundromat',
+    description: 'List and market your business for sale',
+    color: 'bg-green-500',
+    dashboardPath: '/seller-dashboard',
+  },
+  {
+    id: 'operator',
+    icon: Store,
+    title: 'Operate & Grow',
+    description: 'Manage operations and increase profits',
+    color: 'bg-purple-500',
+    dashboardPath: '/operator-dashboard',
+  },
+  {
+    id: 'investor',
+    icon: TrendingUp,
+    title: 'Invest & Analyze',
+    description: 'Evaluate deals and portfolio opportunities',
+    color: 'bg-amber-500',
+    dashboardPath: '/investor-dashboard',
+  },
+  {
+    id: 'service',
+    icon: Wrench,
+    title: 'Service & Repair',
+    description: 'Equipment diagnostics and maintenance',
+    color: 'bg-orange-500',
+    dashboardPath: '/service-guy-ai',
+  },
+];
 
 const TOOLS: Tool[] = [
   {
@@ -94,8 +148,9 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   useEffect(() => {
     if (forceOpen) {
@@ -130,6 +185,26 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
   const handleComplete = () => {
     try {
       localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+      if (selectedPersona) {
+        localStorage.setItem(PERSONA_STORAGE_KEY, selectedPersona);
+      }
+    } catch (error) {
+      console.warn('Failed to save onboarding status:', error);
+    }
+    setIsOpen(false);
+    onComplete?.();
+    
+    if (selectedPersona) {
+      const persona = PERSONAS.find(p => p.id === selectedPersona);
+      if (persona) {
+        setLocation(persona.dashboardPath);
+      }
+    }
+  };
+
+  const handleSkip = () => {
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
     } catch (error) {
       console.warn('Failed to save onboarding status:', error);
     }
@@ -137,13 +212,13 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
     onComplete?.();
   };
 
-  const handleSkip = () => {
-    handleComplete();
-  };
-
   const handleQuickAction = (path: string) => {
     handleComplete();
     setLocation(path);
+  };
+
+  const handlePersonaSelect = (personaId: string) => {
+    setSelectedPersona(personaId);
   };
 
   const goToStep = (step: number) => {
@@ -193,7 +268,7 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
                         Welcome to WashBizHub!
                       </h2>
                       <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                        Your all-in-one platform for buying, selling, and operating successful laundromats.
+                        The #1 platform for the laundromat industry. Buy, sell, operate, and grow your laundromat business.
                       </p>
                     </div>
                   </motion.div>
@@ -204,15 +279,15 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
                     className="grid grid-cols-3 gap-3"
                   >
                     <div className="bg-muted/50 dark:bg-white/5 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold text-[#C8A661]" data-testid="text-stat-professionals">72K+</p>
-                      <p className="text-[10px] text-muted-foreground">Professionals</p>
+                      <p className="text-xl font-bold text-[#C8A661]" data-testid="text-stat-professionals">73K+</p>
+                      <p className="text-[10px] text-muted-foreground">Community</p>
                     </div>
                     <div className="bg-muted/50 dark:bg-white/5 rounded-lg p-3 text-center">
                       <p className="text-xl font-bold text-[#C8A661]" data-testid="text-stat-analyzed">$50M+</p>
                       <p className="text-[10px] text-muted-foreground">Analyzed</p>
                     </div>
                     <div className="bg-muted/50 dark:bg-white/5 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold text-[#C8A661]" data-testid="text-stat-tools">15+</p>
+                      <p className="text-xl font-bold text-[#C8A661]" data-testid="text-stat-tools">50+</p>
                       <p className="text-[10px] text-muted-foreground">Pro Tools</p>
                     </div>
                   </motion.div>
@@ -220,6 +295,63 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
               )}
 
               {currentStep === 1 && (
+                <div className="space-y-5" data-testid="step-persona-select">
+                  <div className="text-center">
+                    <h2 
+                      className="text-2xl font-bold text-[#1e3a5f] dark:text-white"
+                      data-testid="text-persona-title"
+                    >
+                      What brings you here?
+                    </h2>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Select your primary goal to personalize your experience
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    {PERSONAS.map((persona, index) => {
+                      const Icon = persona.icon;
+                      const isSelected = selectedPersona === persona.id;
+                      return (
+                        <motion.button
+                          key={persona.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          onClick={() => handlePersonaSelect(persona.id)}
+                          className={cn(
+                            "w-full flex items-center gap-3 p-3 rounded-lg transition-all",
+                            isSelected 
+                              ? "bg-[#C8A661]/20 border-2 border-[#C8A661]" 
+                              : "bg-muted/30 dark:bg-white/5 hover:bg-muted/50 dark:hover:bg-white/10 border-2 border-transparent"
+                          )}
+                          data-testid={`persona-${persona.id}`}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                            persona.color
+                          )}>
+                            <Icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <h3 className="font-semibold text-sm text-foreground">{persona.title}</h3>
+                            <p className="text-xs text-muted-foreground">{persona.description}</p>
+                          </div>
+                          {isSelected && (
+                            <div className="w-5 h-5 rounded-full bg-[#C8A661] flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 2 && (
                 <div className="space-y-5" data-testid="step-explore-tools">
                   <div className="text-center">
                     <h2 
@@ -264,7 +396,7 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
                 </div>
               )}
 
-              {currentStep === 2 && (
+              {currentStep === 3 && (
                 <div className="space-y-5" data-testid="step-get-started">
                   <div className="text-center">
                     <h2 
@@ -303,14 +435,21 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
                     })}
                   </div>
 
-                  <motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-center text-xs text-muted-foreground pt-2"
-                  >
-                    Or finish setup to explore on your own
-                  </motion.p>
+                  {selectedPersona && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-center pt-2"
+                    >
+                      <p className="text-xs text-muted-foreground">
+                        Or go to your personalized{' '}
+                        <span className="text-[#C8A661] font-medium">
+                          {PERSONAS.find(p => p.id === selectedPersona)?.title} Dashboard
+                        </span>
+                      </p>
+                    </motion.div>
+                  )}
                 </div>
               )}
             </motion.div>
@@ -367,6 +506,7 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
                     onClick={handleNext}
                     className="bg-[#1e3a5f] hover:bg-[#1e3a5f]/90 text-white"
                     data-testid="button-next"
+                    disabled={currentStep === 1 && !selectedPersona}
                   >
                     Next
                     <ArrowRight className="w-4 h-4 ml-1" />
@@ -388,6 +528,22 @@ export function OnboardingFlow({ forceOpen = false, onComplete }: OnboardingFlow
       </DialogContent>
     </Dialog>
   );
+}
+
+export function getUserPersona(): string | null {
+  try {
+    return localStorage.getItem(PERSONA_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setUserPersona(persona: string): void {
+  try {
+    localStorage.setItem(PERSONA_STORAGE_KEY, persona);
+  } catch (error) {
+    console.warn('Failed to save persona:', error);
+  }
 }
 
 export default OnboardingFlow;

@@ -24,7 +24,8 @@ import {
   type LucideIcon
 } from "lucide-react";
 
-export type SubscriptionTier = 'free' | 'starter' | 'pro' | 'enterprise';
+// Use the same tier types as useSubscription.ts for consistency
+export type SubscriptionTier = 'free' | 'pro' | 'business' | 'enterprise';
 
 export interface NavItem {
   href: string;
@@ -68,14 +69,14 @@ export const solutionsSection: NavSection = {
       label: "Website Builder",
       description: "Build your laundromat site",
       icon: Building2,
-      tier: "starter",
+      tier: "pro",
     },
     {
       href: "/service-guy-ai",
       label: "Service Guy AI",
       description: "Equipment diagnostics",
       icon: Bot,
-      tier: "starter",
+      tier: "pro",
       featured: true,
     },
     {
@@ -248,14 +249,14 @@ export const megaMenuSections: NavSection[] = [
 
 export const tierLabels: Record<SubscriptionTier, string> = {
   free: 'Free',
-  starter: 'Starter',
   pro: 'Pro',
+  business: 'Business',
   enterprise: 'Enterprise',
 };
 
 export const tierColors: Record<SubscriptionTier, string> = {
   free: 'bg-muted text-muted-foreground',
-  starter: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  pro: 'bg-[#C8A661]/20 text-[#C8A661]',
+  pro: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  business: 'bg-[#C8A661]/20 text-[#C8A661]',
   enterprise: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
 };
