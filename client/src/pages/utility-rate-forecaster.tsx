@@ -660,7 +660,7 @@ export default function UtilityRateForecaster() {
                 </Card>
               </CardContent>
             </Card>
-          </div>
+          </PremiumResults>
 
           <Tabs defaultValue="trends" className="mb-8">
             <TabsList className="grid w-full grid-cols-3">
@@ -933,7 +933,7 @@ export default function UtilityRateForecaster() {
               </div>
             </CardContent>
           </Card>
-          </PremiumResults>
+          </div>
 
           <CalculatorDisclaimer />
         </div>
