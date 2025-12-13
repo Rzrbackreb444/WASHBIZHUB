@@ -370,7 +370,7 @@ export default function VendorSpotlight() {
           <div className="mt-16 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-lg p-8 text-center">
             <Zap className="w-12 h-12 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Are You a Vendor?</h2>
-            <p className="mb-6">Join our network of 1,000+ suppliers serving 72,000+ laundromat owners</p>
+            <p className="mb-6">Join our network of 1,000+ suppliers serving 73,000+ laundromat owners</p>
             <Link href="/vendor-form">
               <Button className="bg-white text-blue-900 hover:bg-blue-50" data-testid="button-become-vendor">
                 List Your Products

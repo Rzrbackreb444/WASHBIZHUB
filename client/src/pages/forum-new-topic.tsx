@@ -257,7 +257,7 @@ export default function ForumNewTopicPage() {
               Start a New Discussion
             </h1>
             <p className="text-muted-foreground">
-              Share your question, insight, or start a discussion with our community of 72,000+ laundromat owners
+              Share your question, insight, or start a discussion with our community of 73,000+ laundromat owners
             </p>
           </div>
 

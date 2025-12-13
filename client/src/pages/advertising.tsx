@@ -81,7 +81,7 @@ const AD_PACKAGES = [
 const ADVERTISING_FAQS = [
   {
     question: "How to advertise my laundromat?",
-    answer: "Advertise your laundromat effectively through multiple channels: 1) Digital advertising on platforms like WashBizHub that target laundromat owners directly, 2) Google Ads targeting local 'laundromat near me' searches, 3) Social media ads on Facebook and Instagram, 4) Local SEO optimization for Google Business Profile, 5) Community partnerships and flyer distribution. WashBizHub offers specialized B2B advertising packages starting at $299/month to reach 72,000+ industry professionals."
+    answer: "Advertise your laundromat effectively through multiple channels: 1) Digital advertising on platforms like WashBizHub that target laundromat owners directly, 2) Google Ads targeting local 'laundromat near me' searches, 3) Social media ads on Facebook and Instagram, 4) Local SEO optimization for Google Business Profile, 5) Community partnerships and flyer distribution. WashBizHub offers specialized B2B advertising packages starting at $299/month to reach 73,000+ industry professionals."
   },
   {
     question: "What are the best laundromat marketing ideas?",
@@ -101,7 +101,7 @@ const ADVERTISING_FAQS = [
   },
   {
     question: "What is the ROI of advertising on WashBizHub?",
-    answer: "WashBizHub advertising delivers strong ROI through targeted reach: 72,000+ monthly visitors who are laundromat owners, operators, investors, and industry vendors. Average click-through rates of 2.5-7.1% far exceed industry averages of 0.5-1%. With packages starting at $299/month and reaching 50,000+ impressions, you're connecting with qualified decision-makers actively researching equipment, services, and business opportunities."
+    answer: "WashBizHub advertising delivers strong ROI through targeted reach: 73,000+ monthly visitors who are laundromat owners, operators, investors, and industry vendors. Average click-through rates of 2.5-7.1% far exceed industry averages of 0.5-1%. With packages starting at $299/month and reaching 50,000+ impressions, you're connecting with qualified decision-makers actively researching equipment, services, and business opportunities."
   },
   {
     question: "How can I promote my laundromat vendor services?",
@@ -139,7 +139,7 @@ const ADVERTISING_HOWTO = {
     },
     {
       name: "Implement B2B Advertising",
-      text: "For vendors, brokers, or investors, advertise on industry platforms like WashBizHub with banner ads, logo placements, or sponsored content to reach 72,000+ industry professionals."
+      text: "For vendors, brokers, or investors, advertise on industry platforms like WashBizHub with banner ads, logo placements, or sponsored content to reach 73,000+ industry professionals."
     },
     {
       name: "Track and Optimize",
@@ -156,7 +156,7 @@ export default function Advertising() {
     <>
       <SEO
         title="Advertise on WashBizHub | Laundromat Marketing & Advertising Solutions"
-        description="Reach 72,000+ laundromat owners, operators, and investors with targeted advertising. Banner ads, logo placements, calculator sponsorships. Learn how to advertise your laundromat effectively."
+        description="Reach 73,000+ laundromat owners, operators, and investors with targeted advertising. Banner ads, logo placements, calculator sponsorships. Learn how to advertise your laundromat effectively."
         canonicalUrl="/advertising"
         keywords={[
           'how to advertise my laundromat',
@@ -208,14 +208,14 @@ export default function Advertising() {
               Advertise Your Brand
             </h1>
             <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto">
-              Reach 72,000+ laundromat owners, operators, investors, and industry professionals on WashBizHub.
+              Reach 73,000+ laundromat owners, operators, investors, and industry professionals on WashBizHub.
             </p>
 
             <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
               <Card className="bg-white/5 border-white/10">
                 <CardContent className="pt-6 text-center">
                   <Users className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-white">72K+</div>
+                  <div className="text-3xl font-bold text-white">73K+</div>
                   <div className="text-sm text-white/70">Monthly Visitors</div>
                 </CardContent>
               </Card>

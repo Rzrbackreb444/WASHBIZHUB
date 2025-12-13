@@ -1322,7 +1322,7 @@ export const STATE_DATA: Record<string, StateData> = {
     topCities: ["New York City", "Buffalo", "Rochester", "Yonkers", "Syracuse"],
     demographics: {
       renterPercentage: "45%",
-      medianIncome: "$72,000",
+      medianIncome: "$73,000",
       populationDensity: "411/sq mi"
     },
     marketInsights: [

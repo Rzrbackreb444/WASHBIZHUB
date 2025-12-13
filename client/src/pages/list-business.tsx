@@ -943,7 +943,7 @@ export default function ListBusinessPage() {
               <Globe className="w-5 h-5 text-[#39CCCC]" />
             </div>
             <h3 className="font-medium text-white mb-1">Get Discovered</h3>
-            <p className="text-slate-400 text-sm">Reach 72K+ laundromat owners and operators</p>
+            <p className="text-slate-400 text-sm">Reach 73K+ laundromat owners and operators</p>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
             <div className="w-10 h-10 bg-[#39CCCC]/20 rounded-full flex items-center justify-center mx-auto mb-3">

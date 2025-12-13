@@ -229,7 +229,7 @@ export default function AuthPage() {
           </Card>
 
           <p className="text-center text-sm text-muted-foreground mt-6" data-testid="text-trusted">
-            Trusted by <span className="text-[#C8A661] font-semibold">72,000+</span> laundromat professionals worldwide
+            Trusted by <span className="text-[#C8A661] font-semibold">73,000+</span> laundromat professionals worldwide
           </p>
         </div>
       </div>

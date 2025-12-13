@@ -57,7 +57,7 @@ const listingFormSchema = z.object({
 type ListingFormData = z.infer<typeof listingFormSchema>;
 
 const BENEFITS = [
-  { icon: Users, title: "72,000+ Qualified Buyers", description: "Access to our active buyer network" },
+  { icon: Users, title: "73,000+ Qualified Buyers", description: "Access to our active buyer network" },
   { icon: TrendingUp, title: "CLEANBI Score Included", description: "Professional location analysis report" },
   { icon: Shield, title: "Verified Listings Only", description: "We verify all financial claims" },
   { icon: Star, title: "Featured Placement", description: "Premium visibility for serious sellers" },
@@ -175,8 +175,8 @@ export default function ListYourLaundromat() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
       <SEO 
-        title="List Your Laundromat For Sale | Reach 72,000+ Buyers - WashBizHub"
-        description="Sell your laundromat to qualified buyers. Free listing with CLEANBI location score. Featured placement available. Trusted by 72,000+ industry professionals."
+        title="List Your Laundromat For Sale | Reach 73,000+ Buyers - WashBizHub"
+        description="Sell your laundromat to qualified buyers. Free listing with CLEANBI location score. Featured placement available. Trusted by 73,000+ industry professionals."
         keywords={["sell laundromat", "list laundromat for sale", "laundromat marketplace", "sell coin laundry"]}
       />
 
@@ -202,7 +202,7 @@ export default function ListYourLaundromat() {
               LIST YOUR LAUNDROMAT
             </h1>
             <p className="text-xl text-white/70 mb-8">
-              Reach 72,000+ qualified buyers in the largest laundromat community. 
+              Reach 73,000+ qualified buyers in the largest laundromat community. 
               Get a free CLEANBI location score with every listing.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
@@ -649,7 +649,7 @@ export default function ListYourLaundromat() {
             <Card className="bg-[#1e3a5f] text-white border-0">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-[#C8A661] mb-1">72,000+</p>
+                  <p className="text-3xl font-bold text-[#C8A661] mb-1">73,000+</p>
                   <p className="text-sm text-white/70 mb-4">Active Community Members</p>
                   <Separator className="bg-white/20 mb-4" />
                   <p className="text-3xl font-bold text-[#C8A661] mb-1">$2.1B+</p>

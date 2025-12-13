@@ -270,7 +270,7 @@ export function Hero() {
 
             {/* Trust indicators */}
             <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-600">
-              <span>72,000+ users</span>
+              <span>73,000+ users</span>
               <span className="text-[#C8A661] font-medium">4.9/5 rating</span>
               <span>Free to start</span>
             </div>

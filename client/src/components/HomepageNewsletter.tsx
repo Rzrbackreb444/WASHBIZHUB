@@ -164,7 +164,7 @@ export function HomepageNewsletter({ source = "homepage" }: HomepageNewsletterPr
             </div>
 
             <div className="flex items-center gap-6 pt-4 text-sm text-white/80">
-              <span data-testid="text-subscriber-count">72,000+ subscribers</span>
+              <span data-testid="text-subscriber-count">73,000+ subscribers</span>
               <span data-testid="text-no-spam">No spam, ever</span>
             </div>
           </div>

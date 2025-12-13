@@ -323,7 +323,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
             </form>
           </Form>
           <p className="text-xs text-muted-foreground mt-4 text-center">
-            No spam. Unsubscribe anytime. 72,000+ industry professionals trust us.
+            No spam. Unsubscribe anytime. 73,000+ industry professionals trust us.
           </p>
         </CardContent>
       </Card>
@@ -386,7 +386,7 @@ export function NewsletterSignup({ variant = "default", source = "unknown" }: Ne
           </form>
         </Form>
         <p className="text-xs text-muted-foreground mt-3 text-center">
-          No spam. Unsubscribe anytime. 72,000+ industry professionals trust us.
+          No spam. Unsubscribe anytime. 73,000+ industry professionals trust us.
         </p>
       </CardContent>
     </Card>

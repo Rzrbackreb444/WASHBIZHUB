@@ -260,7 +260,7 @@ export default function DoctrinePage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-teal-400" />
-                  <span>72K+ Community Members</span>
+                  <span>73K+ Community Members</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-blue-400" />

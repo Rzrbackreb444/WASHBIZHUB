@@ -558,7 +558,7 @@ export function generateSpeakableSchema(
 export const HOMEPAGE_FAQ_SCHEMA = generateFAQSchema([
   {
     question: "What is WashBizHub?",
-    answer: "WashBizHub is the #1 laundromat resource and educational hub, serving over 72,000 industry professionals worldwide. We provide CLEANBI™ universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors."
+    answer: "WashBizHub is the #1 laundromat resource and educational hub, serving over 73,000 industry professionals worldwide. We provide CLEANBI™ universal business scoring, AI-powered consulting, marketplace for equipment and businesses, professional courses, 50+ calculators, and comprehensive industry resources for laundromat owners, investors, operators, and vendors."
   },
   {
     question: "What is the CLEANBI score?",
@@ -624,7 +624,7 @@ export const LAUNDROMAT_INDUSTRY_FAQ_SCHEMA = generateFAQSchema([
 export const PRICING_FAQ_SCHEMA = generateFAQSchema([
   {
     question: "What's included in the free tier?",
-    answer: "The Free tier includes 3 CLEANBI location analyses, Service Guy AI (2 messages), basic calculators, Design Studio 2D, access to the 2,200+ error code database, community forum with 72K+ members, and educational content. No credit card required to get started."
+    answer: "The Free tier includes 3 CLEANBI location analyses, Service Guy AI (2 messages), basic calculators, Design Studio 2D, access to the 2,200+ error code database, community forum with 73K+ members, and educational content. No credit card required to get started."
   },
   {
     question: "What's included in the Starter plan?",

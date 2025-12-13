@@ -381,7 +381,7 @@ export function UpgradePrompt({
               <p className="text-xs text-muted-foreground">from 2,847 reviews</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">72,000+</p>
+              <p className="text-sm font-medium text-foreground">73,000+</p>
               <p className="text-xs text-muted-foreground">Laundromats served</p>
             </div>
             <div>

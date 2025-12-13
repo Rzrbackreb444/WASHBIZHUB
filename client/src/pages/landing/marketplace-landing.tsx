@@ -125,7 +125,7 @@ export default function MarketplaceLanding() {
             <h2 className="text-3xl font-bold">Why List on WashBizHub</h2>
             <div className="grid md:grid-cols-2 gap-4">
               {[
-                "Reach 72,000+ serious buyers",
+                "Reach 73,000+ serious buyers",
                 "SEO-optimized landing pages for your listing",
                 "CLEANBI scoring builds buyer confidence",
                 "Direct messaging without broker fees",

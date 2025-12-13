@@ -51,7 +51,7 @@ export default function Blog() {
   const blogFaqs = [
     {
       question: "Where can I find laundromat industry news?",
-      answer: "WashBizHub's blog publishes regular laundromat industry news covering equipment innovations, market trends, regulatory updates, and business strategies. We aggregate insights from 72,000+ professionals and industry experts to keep you informed about the latest developments in the coin laundry sector."
+      answer: "WashBizHub's blog publishes regular laundromat industry news covering equipment innovations, market trends, regulatory updates, and business strategies. We aggregate insights from 73,000+ professionals and industry experts to keep you informed about the latest developments in the coin laundry sector."
     },
     {
       question: "How do I run a successful laundromat blog?",
@@ -71,15 +71,15 @@ export default function Blog() {
     },
     {
       question: "Can I contribute articles to WashBizHub's blog?",
-      answer: "Yes, WashBizHub welcomes contributions from laundromat professionals. You can create and publish blog posts directly through our platform. Our AI content generation tool helps you draft professional articles, and your contributions reach our community of 72,000+ laundromat owners and operators."
+      answer: "Yes, WashBizHub welcomes contributions from laundromat professionals. You can create and publish blog posts directly through our platform. Our AI content generation tool helps you draft professional articles, and your contributions reach our community of 73,000+ laundromat owners and operators."
     },
     {
       question: "What makes WashBizHub different from other laundromat blogs?",
-      answer: "WashBizHub combines expert-written content with AI-powered tools, data-driven insights from 72,000+ members, and practical resources like calculators, CLEANBI scoring, and equipment databases. Unlike generic blogs, we provide actionable intelligence backed by real industry data and professional expertise."
+      answer: "WashBizHub combines expert-written content with AI-powered tools, data-driven insights from 73,000+ members, and practical resources like calculators, CLEANBI scoring, and equipment databases. Unlike generic blogs, we provide actionable intelligence backed by real industry data and professional expertise."
     },
     {
       question: "How can I stay updated on laundromat industry trends?",
-      answer: "Stay updated by: 1) Following the WashBizHub blog for weekly articles, 2) Joining our 72,000+ member community forum, 3) Subscribing to our newsletter for curated insights, 4) Using CLEANBI to track market conditions in your area, and 5) Connecting with industry vendors and experts through our directory."
+      answer: "Stay updated by: 1) Following the WashBizHub blog for weekly articles, 2) Joining our 73,000+ member community forum, 3) Subscribing to our newsletter for curated insights, 4) Using CLEANBI to track market conditions in your area, and 5) Connecting with industry vendors and experts through our directory."
     }
   ];
 
@@ -199,7 +199,7 @@ export default function Blog() {
     <>
       <SEO 
         title="WashBizHub Blog | Laundromat Industry News, Tips & Expert Articles" 
-        description="Expert laundromat articles: operations, profitability, maintenance, marketing. Industry news from 72,000+ professionals. Free tips and guides."
+        description="Expert laundromat articles: operations, profitability, maintenance, marketing. Industry news from 73,000+ professionals. Free tips and guides."
         keywords={seoKeywords} 
         canonicalUrl="/blog"
         structuredData={structuredData}

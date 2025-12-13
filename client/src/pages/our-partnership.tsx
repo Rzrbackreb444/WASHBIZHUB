@@ -34,7 +34,7 @@ const larryCredentials = [
 const nickCredentials = [
   "Third-generation laundromat operator",
   "Service-side industry veteran",
-  "Founder of 72,000+ member Facebook community",
+  "Founder of 73,000+ member Facebook community",
   "Creator of CLEANBI™ scoring algorithm",
   "Author of proprietary valuation formulas",
   "Developer of WashBizHub platform",
@@ -61,7 +61,7 @@ const partnershipBenefits = [
     icon: Zap
   },
   {
-    title: "72,000+ Community Members",
+    title: "73,000+ Community Members",
     description: "Access to the largest laundromat buying/selling community on Facebook - now WashBizHub: Laundromats for Sale.",
     icon: Users
   }
@@ -103,11 +103,11 @@ const servicesOffered = [
 const faqItems = [
   {
     question: "How did Nick and Larry meet?",
-    answer: "Nick founded the largest laundromat buying and selling community on Facebook, which has grown to over 72,000 members. Larry, with his 50+ years of industry expertise, joined the community and immediately became a trusted voice. Their shared passion for helping laundromat investors avoid costly mistakes and build successful businesses led to a natural partnership. Today, they co-author industry guides and provide joint consulting services through WashBizHub."
+    answer: "Nick founded the largest laundromat buying and selling community on Facebook, which has grown to over 73,000 members. Larry, with his 50+ years of industry expertise, joined the community and immediately became a trusted voice. Their shared passion for helping laundromat investors avoid costly mistakes and build successful businesses led to a natural partnership. Today, they co-author industry guides and provide joint consulting services through WashBizHub."
   },
   {
     question: "What makes this partnership unique in the laundromat industry?",
-    answer: "This partnership combines Larry's half-century of hands-on laundromat experience—having owned 50+ stores, built 135+ locations, and brokered 300+ transactions—with Nick's third-generation family legacy, modern technology solutions like the CLEANBI™ algorithm, and access to a 72,000+ member community. No other consultancy offers this blend of traditional expertise and cutting-edge tools."
+    answer: "This partnership combines Larry's half-century of hands-on laundromat experience—having owned 50+ stores, built 135+ locations, and brokered 300+ transactions—with Nick's third-generation family legacy, modern technology solutions like the CLEANBI™ algorithm, and access to a 73,000+ member community. No other consultancy offers this blend of traditional expertise and cutting-edge tools."
   },
   {
     question: "What is CLEANBI™ and how does it help laundromat buyers?",
@@ -119,7 +119,7 @@ const faqItems = [
   },
   {
     question: "Can you help me sell my laundromat?",
-    answer: "Absolutely. With Larry's 300+ brokered transactions and our 72,000+ member community of active laundromat buyers, we can help you sell your coin laundry quickly and at the right price. Our seller services include professional valuations, marketing support, and buyer qualification."
+    answer: "Absolutely. With Larry's 300+ brokered transactions and our 73,000+ member community of active laundromat buyers, we can help you sell your coin laundry quickly and at the right price. Our seller services include professional valuations, marketing support, and buyer qualification."
   },
   {
     question: "What geographic areas do you serve?",
@@ -181,7 +181,7 @@ export default function OurPartnership() {
                 <span className="text-amber-500">One Powerful Partnership.</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                When a third-generation laundromat operator with a 72,000-member community meets a 50-year industry veteran who's built 135+ stores — magic happens.
+                When a third-generation laundromat operator with a 73,000-member community meets a 50-year industry veteran who's built 135+ stores — magic happens.
               </p>
             </div>
 
@@ -241,7 +241,7 @@ export default function OurPartnership() {
                 <div className="text-sm text-muted-foreground">Stores Built</div>
               </Card>
               <Card className="p-4 text-center border-border bg-card/50 backdrop-blur">
-                <div className="text-3xl md:text-4xl font-bold text-green-500">72K+</div>
+                <div className="text-3xl md:text-4xl font-bold text-green-500">73K+</div>
                 <div className="text-sm text-muted-foreground">Community Members</div>
               </Card>
               <Card className="p-4 text-center border-border bg-card/50 backdrop-blur">
@@ -278,7 +278,7 @@ export default function OurPartnership() {
                         Nick Kremers didn't set out to build the largest laundromat buying and selling community on Facebook. 
                         It started simply—a place for laundromat owners, buyers, and industry professionals to share knowledge, 
                         post listings, and help each other avoid costly mistakes. What began as a small group exploded into a 
-                        <strong className="text-foreground"> 72,000+ member community</strong> now being renamed 
+                        <strong className="text-foreground"> 73,000+ member community</strong> now being renamed 
                         <strong className="text-amber-500"> "WashBizHub: Laundromats for Sale."</strong>
                       </p>
                     </div>
@@ -492,7 +492,7 @@ export default function OurPartnership() {
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      Built 72,000+ member Facebook community (largest in industry)
+                      Built 73,000+ member Facebook community (largest in industry)
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -707,7 +707,7 @@ export default function OurPartnership() {
               <div className="text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
                   <Facebook className="w-8 h-8 text-white" />
-                  <span className="text-white/80 text-sm font-medium">72,000+ Members</span>
+                  <span className="text-white/80 text-sm font-medium">73,000+ Members</span>
                 </div>
                 <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                   Join WashBizHub: Laundromats for Sale
@@ -744,7 +744,7 @@ export default function OurPartnership() {
                   Need Help Selling Your Laundromat?
                 </h2>
                 <p className="text-white/80 max-w-xl">
-                  With Larry's 50+ years of brokerage experience and access to 72,000+ qualified buyers, 
+                  With Larry's 50+ years of brokerage experience and access to 73,000+ qualified buyers, 
                   we'll help you sell your laundromat quickly and at the right price.
                 </p>
               </div>
@@ -805,7 +805,7 @@ export default function OurPartnership() {
                   "@type": "Person",
                   "name": "Nicholas Kremers",
                   "jobTitle": "Founder & Chief Technology Officer",
-                  "description": "Third-generation laundromat operator, creator of CLEANBI scoring system, founder of 72,000+ member laundromat community"
+                  "description": "Third-generation laundromat operator, creator of CLEANBI scoring system, founder of 73,000+ member laundromat community"
                 },
                 {
                   "@type": "Person",

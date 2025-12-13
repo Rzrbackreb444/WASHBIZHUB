@@ -144,7 +144,7 @@ function PlaceholderEquipmentCard() {
         </div>
         
         <p className="text-xs text-muted-foreground">
-          Reach 72,000+ laundromat owners actively looking for quality equipment.
+          Reach 73,000+ laundromat owners actively looking for quality equipment.
         </p>
         
         <Link href="/list-equipment" className="block">
@@ -298,7 +298,7 @@ export function EquipmentCarousel({ showListCTA = true, maxItems = 10 }: Equipme
                   Have Equipment to Sell?
                 </h3>
                 <p className="text-muted-foreground max-w-lg">
-                  List your commercial washers, dryers, or parts and reach 72,000+ laundromat owners. 
+                  List your commercial washers, dryers, or parts and reach 73,000+ laundromat owners. 
                   Includes financing options for your buyers through our funding partners.
                 </p>
               </div>

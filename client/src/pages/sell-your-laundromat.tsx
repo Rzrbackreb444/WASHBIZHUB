@@ -69,7 +69,7 @@ const valueProps = [
     icon: Target,
     title: "Targeted Audience",
     description: "No tire-kickers. Our buyers come from the largest laundromat Facebook communities and are pre-qualified for financing.",
-    stat: "72K+ industry members"
+    stat: "73K+ industry members"
   },
   {
     icon: BarChart3,
@@ -199,7 +199,7 @@ export default function SellYourLaundromat() {
   return (
     <>
       <SEO 
-        title="Sell Your Laundromat | List Free, Reach 72,000+ Buyers | WashBizHub"
+        title="Sell Your Laundromat | List Free, Reach 73,000+ Buyers | WashBizHub"
         description="Sell your laundromat fast. 120+ qualified buyers searching daily. List for free with CLEANBI valuation. No commission fees. Get offers in 14 days average."
         canonicalUrl="/sell-your-laundromat"
         ogType="website"
@@ -221,7 +221,7 @@ export default function SellYourLaundromat() {
           },
           {
             question: "How long does it take to sell a laundromat?",
-            answer: "Average time to sell a laundromat is 3-6 months. Well-priced laundromats with verified financials sell faster. WashBizHub listings reach 72,000+ investors with an average 14-day time to first offer."
+            answer: "Average time to sell a laundromat is 3-6 months. Well-priced laundromats with verified financials sell faster. WashBizHub listings reach 73,000+ investors with an average 14-day time to first offer."
           },
           {
             question: "What is my laundromat worth?",

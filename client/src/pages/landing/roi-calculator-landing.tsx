@@ -123,7 +123,7 @@ export default function ROICalculatorLanding() {
     <>
       <SeoHead
         title="Laundromat ROI Calculator - Free Investment Returns Analysis | WashBizHub"
-        description="Calculate your laundromat investment returns with our free ROI calculator. Get 5-year cash flow projections, cap rate analysis, and cash-on-cash returns. Used by 72,000+ investors."
+        description="Calculate your laundromat investment returns with our free ROI calculator. Get 5-year cash flow projections, cap rate analysis, and cash-on-cash returns. Used by 73,000+ investors."
         keywords={[
           "laundromat ROI calculator",
           "laundromat investment returns",
@@ -147,7 +147,7 @@ export default function ROICalculatorLanding() {
                 <div className="space-y-4">
                   <Badge className="bg-accent/10 text-accent border-accent/30 px-4 py-1.5">
                     <Star className="w-3.5 h-3.5 mr-1.5 fill-accent" />
-                    Trusted by 72,000+ Investors
+                    Trusted by 73,000+ Investors
                   </Badge>
                   <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
                     Laundromat ROI <span className="text-accent">Calculator</span>
@@ -417,7 +417,7 @@ export default function ROICalculatorLanding() {
               Ready to Calculate Your Returns?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join 72,000+ investors who use WashBizHub to make smarter laundromat investments.
+              Join 73,000+ investors who use WashBizHub to make smarter laundromat investments.
             </p>
             <Link href="/roi-calculator">
               <Button size="lg" className="btn-premium-gold text-white font-semibold h-14 px-10 group" data-testid="button-final-cta">
