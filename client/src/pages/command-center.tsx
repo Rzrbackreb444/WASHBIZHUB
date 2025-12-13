@@ -154,7 +154,7 @@ export default function CommandCenter() {
       openUpgradeModal({
         feature: "command-center",
         title: "Save Your Dashboard Layout",
-        description: "Upgrade to Pro to save your custom dashboard layouts and access your personalized command center from any device.",
+        description: "Upgrade to Business to save your custom dashboard layouts and access your personalized command center from any device.",
       });
       return;
     }
@@ -279,7 +279,7 @@ export default function CommandCenter() {
                   data-testid="button-save-layout"
                 >
                   {isDemo ? <Lock className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-                  {isDemo ? "Save (Pro)" : "Save"}
+                  {isDemo ? "Save (Business)" : "Save"}
                 </Button>
               </>
             )}

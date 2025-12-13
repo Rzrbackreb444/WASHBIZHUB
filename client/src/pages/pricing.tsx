@@ -301,8 +301,8 @@ export default function Pricing() {
   return (
     <>
       <SEO 
-        title="Simple Pricing - One Plan, Everything Included | WashBizHub"
-        description="One simple plan. Everything included. Free: 3 CLEANBI analyses. All-Access: $129/mo or $1,290/yr for unlimited analyses, 50+ calculators, courses, Design Studio, and more. 30-day money-back guarantee."
+        title="Pricing Plans That Grow With You | WashBizHub"
+        description="Start free, then upgrade as your business grows. Free: 3 CLEANBI analyses. Pro: unlimited analyses. Business: full suite with courses, Design Studio, POS. 30-day money-back guarantee."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
@@ -390,16 +390,16 @@ export default function Pricing() {
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight"
                 data-testid="text-pricing-title"
               >
-                One Simple Plan.{" "}
-                <span className="text-[#C8A661]">Everything Included.</span>
+                Plans That{" "}
+                <span className="text-[#C8A661]">Grow With You.</span>
               </h1>
               
               <p 
                 className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed"
                 data-testid="text-pricing-subtitle"
               >
-                No confusing tiers. No hidden features. Get complete access to every tool, 
-                calculator, course, and resource for one simple price.
+                Start free, then upgrade as your laundromat business grows. 
+                Transparent pricing with no hidden fees.
               </p>
 
               {/* Social proof stats */}
