@@ -172,20 +172,22 @@ const WEBSITE_SCHEMA = {
   }
 };
 
-// ===== DEFAULT AUTHOR (Nick - Industry Expert) =====
+// ===== DEFAULT AUTHOR (Nick Kremers - Industry Expert) =====
 
 export const DEFAULT_AUTHOR: SEOAuthor = {
-  name: "Nick",
-  url: "https://washbizhub.com/about",
-  jobTitle: "Laundromat Industry Expert & Founder",
+  name: "Nick Kremers",
+  url: "https://washbizhub.com/about-us",
+  image: "https://washbizhub.com/authors/nick-kremers.jpg",
+  jobTitle: "Founder & Laundromat Industry Expert",
   credentials: [
     "20+ years laundromat industry experience",
-    "Certified Business Valuator",
-    "Former multi-location operator"
+    "Multi-location owner/operator",
+    "Equipment valuation specialist",
+    "CLEANBI methodology creator"
   ],
-  experience: "Founded WashBizHub after operating multiple laundromats. Expert in CLEANBI methodology, equipment valuation, and operational optimization.",
+  experience: "Nick Kremers founded WashBizHub after successfully operating multiple laundromat locations. He created the CLEANBI scoring system and has helped hundreds of investors make data-driven decisions in the laundromat industry.",
   socialProfiles: {
-    linkedin: "https://linkedin.com/in/washbizhub",
+    linkedin: "https://www.linkedin.com/in/nickkremers",
     twitter: "https://twitter.com/washbizhub"
   }
 };
