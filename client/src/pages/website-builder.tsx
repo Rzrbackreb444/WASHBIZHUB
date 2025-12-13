@@ -28,10 +28,12 @@ import {
   Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor,
   Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle,
   Server, Lock, RefreshCw, Wifi, Activity, ShoppingCart, CreditCard,
-  FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck
+  FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck, Crown
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AuthGuard } from "@/components/AuthGuard";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeModal, useUpgradeModal } from "@/components/UpgradeModal";
 
 interface BusinessProfile {
   id: string;
@@ -306,6 +308,13 @@ const WEBSITE_BUILDER_HOWTO = {
 
 export default function WebsiteBuilder() {
   const { toast } = useToast();
+  const { isPro, isBusiness, tier } = useSubscription();
+  const { isOpen: isUpgradeOpen, openUpgradeModal, closeUpgradeModal, UpgradeModalComponent } = useUpgradeModal();
+  
+  const isDemo = !isPro;
+  const canPublish = isPro;
+  const canSaveSettings = isPro;
+  
   const [activeTab, setActiveTab] = useState("pages");
   const [isUploading, setIsUploading] = useState(false);
   const [editingCard, setEditingCard] = useState<ServiceCard | null>(null);
@@ -580,6 +589,14 @@ export default function WebsiteBuilder() {
 
   // Publish handler
   const handlePublish = () => {
+    if (!canPublish) {
+      openUpgradeModal({
+        feature: "website-builder",
+        title: "Publish Your Website",
+        description: "Upgrade to Pro to publish your website and make it live. Design for free, publish with a subscription.",
+      });
+      return;
+    }
     if (siteProject?.id) {
       publishMutation.mutate(!siteProject.isPublished);
     }
@@ -653,14 +670,27 @@ export default function WebsiteBuilder() {
           >
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <Badge className="mb-2 bg-primary/20 text-primary border-primary/30">
-                  <Globe className="w-3 h-3 mr-1" />
-                  Website Builder
-                </Badge>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className="bg-primary/20 text-primary border-primary/30">
+                    <Globe className="w-3 h-3 mr-1" />
+                    Website Builder
+                  </Badge>
+                  {isDemo && (
+                    <Badge 
+                      className="gap-1.5 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30"
+                      data-testid="badge-demo-mode"
+                    >
+                      <Eye className="h-3 w-3" />
+                      Demo
+                    </Badge>
+                  )}
+                </div>
                 <h1 className="text-3xl font-bold text-white">Build Your Website</h1>
-                <p className="text-white/70">Drag-and-drop pages, branding, AI chatbot, and more</p>
+                <p className="text-white/70">
+                  {isDemo ? "Demo Mode - Design freely, upgrade to publish" : "Drag-and-drop pages, branding, AI chatbot, and more"}
+                </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button 
                   variant="outline" 
                   className="border-primary/30" 
@@ -671,23 +701,74 @@ export default function WebsiteBuilder() {
                   Preview
                 </Button>
                 <Button 
-                  className={siteProject?.isPublished ? "bg-red-600 hover:bg-red-700" : "bg-primary"}
+                  className={isDemo ? "bg-primary/50" : siteProject?.isPublished ? "bg-red-600 hover:bg-red-700" : "bg-primary"}
                   onClick={handlePublish}
                   disabled={publishMutation.isPending}
                   data-testid="button-publish-site"
                 >
                   {publishMutation.isPending ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : isDemo ? (
+                    <Lock className="w-4 h-4 mr-2" />
                   ) : siteProject?.isPublished ? (
                     <EyeOff className="w-4 h-4 mr-2" />
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  {siteProject?.isPublished ? "Unpublish" : "Publish"}
+                  {isDemo ? "Publish (Pro)" : siteProject?.isPublished ? "Unpublish" : "Publish"}
                 </Button>
+                {isDemo && (
+                  <Button
+                    className="gap-1.5 bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628]"
+                    onClick={() => openUpgradeModal({
+                      feature: "website-builder",
+                      title: "Unlock Website Builder",
+                      description: "Publish your website, save your branding, and connect your custom domain.",
+                    })}
+                    data-testid="button-upgrade-cta"
+                  >
+                    <Crown className="h-4 w-4" />
+                    Upgrade
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
+
+          {isDemo && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-lg border border-[#C8A661]/30 bg-[#C8A661]/5"
+              data-testid="demo-banner"
+            >
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#C8A661]/10 flex items-center justify-center">
+                    <Zap className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white">Try the Website Builder</h3>
+                    <p className="text-sm text-white/70">
+                      Design your website, set up branding, and preview. Upgrade to publish.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
+                  onClick={() => openUpgradeModal({
+                    feature: "website-builder",
+                    title: "Unlock Website Builder",
+                    description: "Publish your website, save your branding, and connect your custom domain.",
+                  })}
+                  data-testid="button-demo-upgrade"
+                >
+                  <Crown className="h-4 w-4" />
+                  Unlock Full Access
+                </Button>
+              </div>
+            </motion.div>
+          )}
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-card/50 backdrop-blur-sm border border-primary/20 p-1 flex-wrap h-auto gap-1">
@@ -2961,6 +3042,8 @@ export default function WebsiteBuilder() {
           </Tabs>
         </div>
       </div>
+
+      <UpgradeModalComponent />
     </AuthGuard>
   );
 }
