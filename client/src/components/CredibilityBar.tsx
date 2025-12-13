@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Users, Wrench, MapPin, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -28,7 +29,7 @@ const stats = [
   }
 ];
 
-export function CredibilityBar() {
+export const CredibilityBar = memo(function CredibilityBar() {
   return (
     <section className="py-8 bg-gradient-to-b from-[#1e3a5f]/5 to-white border-b border-gray-100" data-testid="section-credibility-bar">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -58,4 +59,6 @@ export function CredibilityBar() {
       </div>
     </section>
   );
-}
+});
+
+CredibilityBar.displayName = 'CredibilityBar';

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion, useInView } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { 
@@ -170,7 +170,7 @@ const COMMUNITY_LINKS = [
   { icon: QrCode, title: "QR Feedback", link: "/forum" }
 ];
 
-export function FeaturesSection() {
+export const FeaturesSection = memo(function FeaturesSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
@@ -216,7 +216,9 @@ export function FeaturesSection() {
       <GoldDivider />
     </>
   );
-}
+});
+
+FeaturesSection.displayName = 'FeaturesSection';
 
 export function TrustSignalsSection() {
   const ref = useRef(null);
@@ -615,7 +617,7 @@ export function MarketplaceSection() {
   );
 }
 
-export function FeaturedVendorBanner() {
+export const FeaturedVendorBanner = memo(function FeaturedVendorBanner() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
@@ -704,7 +706,9 @@ export function FeaturedVendorBanner() {
       <GoldDivider />
     </>
   );
-}
+});
+
+FeaturedVendorBanner.displayName = 'FeaturedVendorBanner';
 
 export function FinancingSection() {
   const ref = useRef(null);
@@ -776,7 +780,7 @@ export function FinancingSection() {
   );
 }
 
-export function CalculatorHighlight() {
+export const CalculatorHighlight = memo(function CalculatorHighlight() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
@@ -815,7 +819,9 @@ export function CalculatorHighlight() {
       <GoldDivider />
     </>
   );
-}
+});
+
+CalculatorHighlight.displayName = 'CalculatorHighlight';
 
 export function AnalyzeLocationSection() {
   const ref = useRef(null);
@@ -1135,7 +1141,7 @@ export function CommunitySection() {
   );
 }
 
-export function CTASection() {
+export const CTASection = memo(function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   
@@ -1226,9 +1232,11 @@ export function CTASection() {
       </div>
     </section>
   );
-}
+});
 
-export function PremiumFooter() {
+CTASection.displayName = 'CTASection';
+
+export const PremiumFooter = memo(function PremiumFooter() {
   return (
     <footer className="bg-[#1e3a5f] text-white" data-testid="footer-main">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
@@ -1308,4 +1316,6 @@ export function PremiumFooter() {
       </div>
     </footer>
   );
-}
+});
+
+PremiumFooter.displayName = 'PremiumFooter';
