@@ -51,8 +51,9 @@ export function usePremiumGating(): PremiumGatingResult {
     return isPro || isBusiness || isEnterprise;
   }, [isPro, isBusiness, isEnterprise]);
   
-  // isAllAccess now means Enterprise (backwards compatibility)
-  const isAllAccess = isEnterprise;
+  // isAllAccess means Business+ (backwards compatibility for existing gates)
+  // Business and Enterprise users get "all-access" level features
+  const isAllAccess = isBusiness || isEnterprise;
 
   const tierDisplayName = useMemo(() => {
     return TIER_DISPLAY_NAMES[tier] || "Free";

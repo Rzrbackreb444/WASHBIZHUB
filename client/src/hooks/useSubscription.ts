@@ -117,9 +117,10 @@ export function useSubscription() {
   const isBusiness = ["business", "enterprise"].includes(currentTier);
   const isEnterprise = currentTier === "enterprise";
 
-  const isTrial = user?.isTrial === true;
-  const trialEndsAt = user?.trialEndsAt ? new Date(user.trialEndsAt) : null;
-  const trialDaysRemaining = trialEndsAt 
+  // Trial is active if trialEndDate exists and is in the future
+  const trialEndsAt = user?.trialEndDate ? new Date(user.trialEndDate) : null;
+  const isTrial = trialEndsAt ? trialEndsAt.getTime() > Date.now() : false;
+  const trialDaysRemaining = trialEndsAt && isTrial
     ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : 0;
 

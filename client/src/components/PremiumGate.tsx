@@ -137,7 +137,7 @@ export function PremiumGate({
             data-testid="premium-gate-badge"
           >
             <Crown className="h-3 w-3 mr-1" />
-            All-Access Feature
+            Premium Feature
           </Badge>
 
           <h3 

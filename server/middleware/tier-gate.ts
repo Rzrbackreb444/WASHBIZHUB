@@ -2,13 +2,13 @@
  * TIER-GATING MIDDLEWARE
  * 
  * Protects premium content based on user subscription tier.
- * Supports the simplified 2-tier structure: free | all_access
+ * Supports the 4-tier structure: free | pro | business | enterprise
  * 
  * Features:
  * - Authentication validation
- * - Subscription tier enforcement
- * - Trial period support (trial users get all_access features)
- * - Usage quota checking
+ * - Subscription tier enforcement with proper hierarchy
+ * - Trial period support (trial users get business features)
+ * - Usage quota checking per tier
  * 
  * © 2025 WashBizHub. All Rights Reserved.
  */
@@ -19,7 +19,7 @@ import { db } from "../db";
 import { cleanbiUsage } from "@shared/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
 
-export type SubscriptionTier = "free" | "all_access";
+export type SubscriptionTier = "free" | "pro" | "business" | "enterprise";
 
 const ADMIN_BYPASS_EMAILS = [
   "nick@washbizhub.com",
@@ -29,25 +29,47 @@ const ADMIN_BYPASS_EMAILS = [
 
 const TIER_LEVELS: Record<SubscriptionTier, number> = {
   free: 0,
-  all_access: 10,
+  pro: 1,
+  business: 2,
+  enterprise: 3,
 };
 
 const TIER_NAMES: Record<SubscriptionTier, string> = {
   free: "Free",
-  all_access: "All-Access",
+  pro: "Pro",
+  business: "Business",
+  enterprise: "Enterprise",
 };
 
-const QUOTA_LIMITS: Record<string, { free: number; all_access: number | "unlimited" }> = {
-  cleanbi_analyses: { free: 3, all_access: "unlimited" },
-  calculator_uses: { free: 5, all_access: "unlimited" },
-  design_exports: { free: 0, all_access: "unlimited" },
-  service_guy_diagnoses: { free: 3, all_access: "unlimited" },
+const QUOTA_LIMITS: Record<string, { free: number; pro: number; business: number | "unlimited"; enterprise: number | "unlimited" }> = {
+  cleanbi_analyses: { free: 3, pro: 25, business: "unlimited", enterprise: "unlimited" },
+  calculator_uses: { free: 5, pro: 50, business: "unlimited", enterprise: "unlimited" },
+  design_exports: { free: 0, pro: 10, business: "unlimited", enterprise: "unlimited" },
+  service_guy_diagnoses: { free: 3, pro: 20, business: "unlimited", enterprise: "unlimited" },
+};
+
+// Migration map for old tier names
+const TIER_MIGRATION: Record<string, SubscriptionTier> = {
+  accelerate: "business",
+  scale: "business",
+  summit: "enterprise",
+  starter: "pro",
+  all_access: "enterprise",
+  allaccess: "enterprise",
+  "all-access": "enterprise",
 };
 
 function normalizeTier(tier: string | null | undefined): SubscriptionTier {
   const t = tier?.toLowerCase() || "free";
-  if (t === "all_access" || t === "allaccess" || t === "all-access") return "all_access";
-  if (t === "accelerate" || t === "starter" || t === "pro" || t === "scale" || t === "summit" || t === "enterprise") return "all_access";
+  
+  // Check migration map first
+  if (TIER_MIGRATION[t]) return TIER_MIGRATION[t];
+  
+  // Check if it's already a valid tier
+  if (t === "free" || t === "pro" || t === "business" || t === "enterprise") {
+    return t as SubscriptionTier;
+  }
+  
   return "free";
 }
 
@@ -85,7 +107,7 @@ function getUserEmailFromRequest(req: Request): string | null {
  * considering both subscription status and trial period.
  * 
  * @param user - User object from database (can include subscriptionTier, trialEndDate, isPro)
- * @returns The effective tier ('free' or 'all_access')
+ * @returns The effective tier ('free' | 'pro' | 'business' | 'enterprise')
  */
 export function getUserTier(user: {
   subscriptionTier?: string | null;
@@ -95,14 +117,28 @@ export function getUserTier(user: {
 } | null | undefined): SubscriptionTier {
   if (!user) return "free";
   
-  if (user.isPro === true) return "all_access";
+  // Get the normalized tier from subscription
+  const subscriptionTier = normalizeTier(user.subscriptionTier);
   
-  if (isTrialActive(user.trialEndDate)) return "all_access";
+  // Check CLEANBI tier (may be higher than subscription tier)
+  const cleanbiTier = normalizeTier(user.cleanbiTier);
   
-  const cleanbiTier = user.cleanbiTier;
-  if (cleanbiTier && normalizeTier(cleanbiTier) === "all_access") return "all_access";
+  // Use the highest tier between subscription and CLEANBI
+  let effectiveTier = TIER_LEVELS[cleanbiTier] > TIER_LEVELS[subscriptionTier] 
+    ? cleanbiTier 
+    : subscriptionTier;
   
-  return normalizeTier(user.subscriptionTier);
+  // Trial users get business tier access
+  if (isTrialActive(user.trialEndDate) && TIER_LEVELS[effectiveTier] < TIER_LEVELS["business"]) {
+    effectiveTier = "business";
+  }
+  
+  // Legacy isPro flag grants at least pro access
+  if (user.isPro === true && TIER_LEVELS[effectiveTier] < TIER_LEVELS["pro"]) {
+    effectiveTier = "pro";
+  }
+  
+  return effectiveTier;
 }
 
 /**
@@ -138,9 +174,9 @@ export const requireAuth: RequestHandler = async (req: Request, res: Response, n
 /**
  * Middleware factory that checks if user has required subscription tier.
  * Returns 403 with upgrade message if tier is insufficient.
- * Trial users get all_access features.
+ * Trial users get business tier features.
  * 
- * @param minTier - Minimum required tier ('free' or 'all_access')
+ * @param minTier - Minimum required tier ('free' | 'pro' | 'business' | 'enterprise')
  * @returns Express middleware
  */
 export function requireTier(minTier: SubscriptionTier): RequestHandler {
@@ -161,7 +197,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
       if (isAdminBypass(userEmail)) {
         console.log(`[Tier Gate] Admin bypass granted for ${userEmail}`);
         (req as any).userId = userId;
-        (req as any).userTier = "all_access";
+        (req as any).userTier = "enterprise";
         (req as any).isAdminBypass = true;
         return next();
       }
@@ -191,7 +227,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
         code: "TIER_INSUFFICIENT",
         currentTier: userTier,
         requiredTier: minTier,
-        upgradeMessage: `Upgrade to ${requiredTierName} ($129/mo) to unlock unlimited access to all features.`,
+        upgradeMessage: `Upgrade to ${requiredTierName} to unlock ${minTier === 'enterprise' ? 'enterprise' : 'premium'} features.`,
         upgradeUrl: `/pricing?feature=${encodeURIComponent(req.path)}&required=${minTier}`,
         features: {
           unlocked: [
@@ -216,7 +252,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
 
 /**
  * Middleware factory that validates user hasn't exceeded usage limits.
- * Free users have limited usage, all_access users have unlimited.
+ * Free users have limited usage, Business+ users have unlimited.
  * 
  * @param quotaKey - The quota key to check (e.g., 'cleanbi_analyses', 'calculator_uses')
  * @returns Express middleware
@@ -272,13 +308,13 @@ export function checkQuota(quotaKey: string): RequestHandler {
         
         return res.status(403).json({
           error: "Quota exceeded",
-          message: `You've reached your ${quotaKey.replace(/_/g, ' ')} limit (${limit}). Upgrade to All-Access for unlimited usage.`,
+          message: `You've reached your ${quotaKey.replace(/_/g, ' ')} limit (${limit}). Upgrade to Business for unlimited usage.`,
           code: "QUOTA_EXCEEDED",
           currentTier: effectiveTier,
           quotaKey,
           used: usage,
           limit,
-          upgradeMessage: "Upgrade to All-Access ($129/mo) for unlimited usage of all features.",
+          upgradeMessage: "Upgrade to Business ($149/mo) for unlimited usage of all features.",
           upgradeUrl: `/pricing?quota=${quotaKey}`,
         });
       }

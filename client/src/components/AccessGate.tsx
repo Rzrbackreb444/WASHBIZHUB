@@ -11,7 +11,7 @@ import {
 import { Loader2 } from "lucide-react";
 
 interface AccessGateProps {
-  requiredTier: 'free' | 'all_access';
+  requiredTier: 'free' | 'pro' | 'business' | 'enterprise' | 'all_access';
   feature: string;
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -75,7 +75,9 @@ export function AccessGate({
     );
   }
 
-  const hasAccess = canAccessTier(requiredTier);
+  // Map 'all_access' to 'business' for backwards compatibility
+  const effectiveTier = requiredTier === 'all_access' ? 'business' : requiredTier;
+  const hasAccess = canAccessTier(effectiveTier as any);
 
   if (hasAccess) {
     return <>{children}</>;
@@ -101,7 +103,7 @@ export function AccessGate({
             <Link href="/pricing">
               <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid={`button-upgrade-${feature}`}>
                 <Crown className="h-4 w-4 mr-2" />
-                Upgrade to All-Access
+                Upgrade to Business
               </Button>
             </Link>
           </div>
@@ -128,7 +130,7 @@ export function AccessGate({
               </div>
               <Badge className="bg-[#C8A661] text-[#0A1628] mb-2">
                 <Crown className="h-3 w-3 mr-1" />
-                All-Access Feature
+                Business Feature
               </Badge>
               <p className="text-sm text-muted-foreground mt-2">Click to learn more</p>
             </div>
@@ -189,13 +191,13 @@ function UpgradeModal({
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">All-Access</h3>
-                  <p className="text-xs text-muted-foreground">Everything included</p>
+                  <h3 className="font-semibold text-foreground">Business</h3>
+                  <p className="text-xs text-muted-foreground">Most Popular</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-foreground">
-                  $129<span className="text-sm font-normal text-muted-foreground">/mo</span>
+                  $149<span className="text-sm font-normal text-muted-foreground">/mo</span>
                 </div>
               </div>
             </div>
@@ -220,7 +222,7 @@ function UpgradeModal({
               data-testid={`button-upgrade-modal-cta-${feature}`}
             >
               <Sparkles className="h-4 w-4 mr-2" />
-              Upgrade to All-Access
+              Upgrade to Business
               <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
