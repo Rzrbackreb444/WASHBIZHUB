@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -12,21 +12,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { 
-  Menu, LogOut, Search, X, ChevronRight, Sparkles,
+  LogOut, Search, ChevronRight, Sparkles,
   MapPin, Building2, DollarSign, Calculator, Palette,
   ShoppingCart, Package, Handshake,
   BookOpen, GraduationCap, HelpCircle, Wallet,
@@ -35,6 +22,7 @@ import {
   LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
+import { MobileMenu } from "@/components/MobileMenu";
 
 const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
@@ -127,77 +115,13 @@ function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
   );
 }
 
-function MobileNavLink({ href, label, isActive, onClick, testId }: { 
-  href: string; 
-  label: string; 
-  isActive: boolean; 
-  onClick: () => void; 
-  testId: string;
-}) {
-  const handleClick = () => {
-    onClick();
-    window.location.href = href;
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className={`w-full text-left flex items-center justify-between px-4 py-3 text-sm rounded-lg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50 ${
-        isActive 
-          ? "bg-[#C8A661]/20 text-[#C8A661] font-medium" 
-          : "text-white/80 hover:bg-white/10 hover:text-white"
-      }`}
-      data-testid={testId}
-      aria-current={isActive ? "page" : undefined}
-    >
-      <span>{label}</span>
-      {isActive && <ChevronRight className="w-4 h-4" aria-hidden="true" />}
-    </button>
-  );
-}
-
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [location] = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openAccordions, setOpenAccordions] = useState<string[]>(["products"]);
-  
-  const firstFocusableRef = useRef<HTMLInputElement>(null);
 
   const isActive = useMemo(() => (path: string) => location === path, [location]);
-
-  const closeMobileMenu = useCallback(() => {
-    setMobileOpen(false);
-  }, []);
-
-  useEffect(() => {
-    if (mobileOpen && firstFocusableRef.current) {
-      const timer = setTimeout(() => {
-        firstFocusableRef.current?.focus();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [mobileOpen]);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeMobileMenu();
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [mobileOpen, closeMobileMenu]);
-
-  useEffect(() => {
-    closeMobileMenu();
-  }, [location, closeMobileMenu]);
 
   return (
     <>
@@ -476,238 +400,7 @@ export function NavigationMenu() {
                 </Button>
 
                 {/* Mobile menu */}
-                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                  <SheetTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="lg:hidden h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted" 
-                      data-testid="button-mobile-menu"
-                    >
-                      <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                          key={mobileOpen ? "close" : "menu"}
-                          initial={{ rotate: -90, opacity: 0 }}
-                          animate={{ rotate: 0, opacity: 1 }}
-                          exit={{ rotate: 90, opacity: 0 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </motion.div>
-                      </AnimatePresence>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px] sm:w-[340px] p-0 bg-[#0f2744] border-l border-[#1e3a5f]">
-                    <SheetHeader className="p-4 border-b border-white/10 bg-[#1e3a5f]">
-                      <SheetTitle className="flex items-center gap-3 text-white">
-                        <img src={logoUrl} alt="" className="h-8 w-auto" />
-                        <span className="font-bold">WashBizHub</span>
-                      </SheetTitle>
-                    </SheetHeader>
-                    
-                    <div className="p-4 space-y-4 bg-[#0f2744] text-white min-h-full">
-                      {/* Mobile CLEANBI CTA - Full width, prominent */}
-                      <Button 
-                        onClick={() => {
-                          closeMobileMenu();
-                          window.location.href = '/cleanbi-explorer';
-                        }}
-                        className="w-full h-12 font-semibold bg-gradient-to-r from-[#C8A661] to-[#d4a017] hover:from-[#9a7209] hover:to-[#C8A661] text-white border-0 shadow-lg"
-                        data-testid="button-mobile-cleanbi-cta"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        Try CLEANBI Free
-                      </Button>
-
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input 
-                          ref={firstFocusableRef}
-                          placeholder="Search..." 
-                          className="pl-10 h-11"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          data-testid="input-mobile-search"
-                        />
-                      </div>
-
-                      <Accordion 
-                        type="multiple" 
-                        className="w-full" 
-                        value={openAccordions}
-                        onValueChange={setOpenAccordions}
-                      >
-                        <AccordionItem value="products" className="border-b border-white/20">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
-                            Products
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {PRODUCTS_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="calculators" className="border-b border-white/20">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
-                            Calculators
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {CALCULATORS_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="marketplace" className="border-b border-white/20">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
-                            Marketplace
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {MARKETPLACE_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="resources" className="border-b border-white/20">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
-                            Resources
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {RESOURCES_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-
-                        <AccordionItem value="funding" className="border-b border-white/20">
-                          <AccordionTrigger className="text-sm font-semibold hover:no-underline py-3 text-white">
-                            Funding
-                          </AccordionTrigger>
-                          <AccordionContent className="pb-2">
-                            <div className="space-y-1">
-                              {FUNDING_LINKS.map((link) => (
-                                <MobileNavLink
-                                  key={link.href}
-                                  href={link.href}
-                                  label={link.label}
-                                  isActive={isActive(link.href)}
-                                  onClick={closeMobileMenu}
-                                  testId={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                                />
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-
-                      {/* Pricing link */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          closeMobileMenu();
-                          window.location.href = '/pricing';
-                        }}
-                        className="w-full text-left flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50"
-                        data-testid="link-mobile-pricing"
-                      >
-                        <span>Pricing</span>
-                        <ChevronRight className="w-4 h-4 text-white/50" aria-hidden="true" />
-                      </button>
-
-                      <div className="pt-4 border-t border-white/20">
-                        {isAuthenticated && user ? (
-                          <div className="space-y-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                closeMobileMenu();
-                                window.location.href = '/account/subscription';
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-white/60 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50"
-                              data-testid="link-mobile-subscription"
-                            >
-                              {user.email}
-                            </button>
-                            <Button
-                              variant="ghost"
-                              className="w-full h-10 justify-start text-sm text-white/80 hover:text-white hover:bg-white/10"
-                              onClick={() => {
-                                logout();
-                                closeMobileMenu();
-                              }}
-                              data-testid="button-mobile-logout"
-                            >
-                              <LogOut className="w-4 h-4 mr-2" />
-                              Sign Out
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
-                            <Button 
-                              variant="outline" 
-                              className="w-full h-10 text-sm border-white/30 text-white hover:bg-white/10 hover:text-white"
-                              onClick={() => {
-                                closeMobileMenu();
-                                window.location.href = '/login';
-                              }}
-                              data-testid="button-mobile-signin"
-                            >
-                              Sign In
-                            </Button>
-                            <Button 
-                              className="w-full h-10 text-sm bg-[#C8A661] hover:bg-[#b8963d] text-[#0A1628] font-medium"
-                              onClick={() => {
-                                closeMobileMenu();
-                                window.location.href = '/signup';
-                              }}
-                              data-testid="button-mobile-signup"
-                            >
-                              Sign Up Free
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <MobileMenu />
               </div>
             </div>
           </div>
