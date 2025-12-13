@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
 import { Zap, Users, Target, Globe, Building2, Award, TrendingUp, Lightbulb } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { FAQSection } from '@/components/SuperSEOWrapper';
 import { motion } from 'framer-motion';
 import neonSignImage from "@assets/AdobeStock_111864759_1765330581864.jpeg";
 import modernInteriorImage from "@assets/AdobeStock_832897447_1765330812967.jpeg";
@@ -130,7 +131,6 @@ export default function AboutUs() {
         canonicalUrl="/about-us"
         keywords={aboutKeywords}
         structuredData={structuredData}
-        faqs={aboutFaqs}
         speakableSelectors={["h1", "h2", ".mission-statement"]}
         breadcrumbs={[
           { name: "Home", url: "/" },
@@ -422,6 +422,9 @@ export default function AboutUs() {
               </Card>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <FAQSection faqs={aboutFaqs} className="mt-12 max-w-4xl mx-auto" />
 
           {/* Contact */}
           <div className="bg-muted/30 rounded-lg p-12 text-center border border-border">

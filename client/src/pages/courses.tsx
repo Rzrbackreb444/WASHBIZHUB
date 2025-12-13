@@ -15,6 +15,7 @@ import {
   BarChart3, Filter, ArrowRight, Lock
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FeatureGate } from "@/components/monetization/FeatureGate";
@@ -54,6 +55,29 @@ const COURSE_CATEGORIES = [
   { id: 'finance', name: 'Finance', icon: TrendingUp, color: '#10b981' },
   { id: 'marketing', name: 'Marketing', icon: Target, color: '#ec4899' },
   { id: 'management', name: 'Management', icon: Users, color: '#8b5cf6' },
+];
+
+const coursesFaqs = [
+  {
+    question: "What courses are available for laundromat owners?",
+    answer: "WashBizHub Academy offers courses in Operations (day-to-day management), Finance (profitability, pricing, bookkeeping), Marketing (customer acquisition, retention), and Management (hiring, training, multi-location expansion). Courses range from beginner fundamentals to advanced strategies."
+  },
+  {
+    question: "Are the laundromat courses self-paced?",
+    answer: "Yes, all WashBizHub Academy courses are 100% self-paced. Learn on your schedule from any device. Video lessons, downloadable resources, and quizzes are available 24/7. Most courses include lifetime access after purchase."
+  },
+  {
+    question: "Do I get a certificate after completing a course?",
+    answer: "Yes, upon successful completion of any course, you receive a WashBizHub Academy Certificate of Completion. This certificate demonstrates your expertise to lenders, partners, and customers."
+  },
+  {
+    question: "How long does it take to complete a laundromat course?",
+    answer: "Course length varies: Beginner courses take 4-6 hours, Intermediate courses 6-8 hours, and Advanced courses 8-12 hours. Most students complete courses within 1-2 weeks studying 30-60 minutes daily."
+  },
+  {
+    question: "Are these courses good for first-time laundromat buyers?",
+    answer: "Absolutely! Our Beginner courses cover laundromat fundamentals from scratch: industry overview, location analysis, equipment selection, financing, and operations setup. Perfect preparation before buying your first laundromat."
+  }
 ];
 
 export default function Courses() {
@@ -157,40 +181,6 @@ export default function Courses() {
           "laundromat business plan course",
           "laundry business success training",
           "self-service laundry course"
-        ]}
-        faqs={[
-          {
-            question: "What courses are available for laundromat owners?",
-            answer: "WashBizHub Academy offers courses in Operations (day-to-day management), Finance (profitability, pricing, bookkeeping), Marketing (customer acquisition, retention), and Management (hiring, training, multi-location expansion). Courses range from beginner fundamentals to advanced strategies."
-          },
-          {
-            question: "Are the laundromat courses self-paced?",
-            answer: "Yes, all WashBizHub Academy courses are 100% self-paced. Learn on your schedule from any device. Video lessons, downloadable resources, and quizzes are available 24/7. Most courses include lifetime access after purchase."
-          },
-          {
-            question: "Do I get a certificate after completing a course?",
-            answer: "Yes, upon successful completion of any course, you receive a WashBizHub Academy Certificate of Completion. This certificate demonstrates your expertise to lenders, partners, and customers. Display it in your store or on your website."
-          },
-          {
-            question: "How long does it take to complete a laundromat course?",
-            answer: "Course length varies: Beginner courses take 4-6 hours, Intermediate courses 6-8 hours, and Advanced courses 8-12 hours. Most students complete courses within 1-2 weeks studying 30-60 minutes daily."
-          },
-          {
-            question: "Are these courses good for first-time laundromat buyers?",
-            answer: "Absolutely! Our Beginner courses cover laundromat fundamentals from scratch: industry overview, location analysis, equipment selection, financing, and operations setup. Perfect preparation before buying your first laundromat."
-          },
-          {
-            question: "What topics are covered in laundromat business courses?",
-            answer: "Topics include store operations, equipment maintenance, pricing strategies, customer service, marketing, financial management, employee training, multi-location expansion, technology adoption, and industry trends. Each course focuses on specific skills."
-          },
-          {
-            question: "How much do laundromat training courses cost?",
-            answer: "Individual courses range from $147-$497 depending on depth and content. Bundle packages offer significant savings. WashBizHub Pro subscribers get access to select courses included with their subscription."
-          },
-          {
-            question: "Can I access courses on mobile devices?",
-            answer: "Yes, all courses are mobile-responsive. Watch video lessons, complete quizzes, and download resources from your smartphone or tablet. The learning platform works on iOS, Android, and all web browsers."
-          }
         ]}
         howTo={{
           name: "How to Start Learning Laundromat Operations on WashBizHub",
@@ -741,6 +731,16 @@ export default function Courses() {
                 )}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* FAQ Section for SEO */}
+        <section className="py-16 bg-background">
+          <div className="max-w-4xl mx-auto px-6">
+            <FAQSection 
+              faqs={coursesFaqs}
+              className="bg-card border border-border rounded-xl p-6"
+            />
           </div>
         </section>
 

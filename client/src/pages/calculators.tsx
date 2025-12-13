@@ -13,6 +13,7 @@ import {
   Calculator, DollarSign, TrendingUp, Building2, Wrench, 
   Plus, ExternalLink, RefreshCw, Loader2
 } from "lucide-react";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 
 interface CalculatorType {
   id: string;
@@ -183,7 +184,6 @@ export default function CalculatorsHub() {
           "commercial laundry ROI",
           "laundromat expense calculator"
         ]}
-        faqs={calculatorFaqs}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Calculators", url: "/calculators" }
@@ -350,6 +350,9 @@ export default function CalculatorsHub() {
                 </Card>
               </div>
             </div>
+
+            {/* FAQ Section */}
+            <FAQSection faqs={calculatorFaqs} className="mt-12" />
           </div>
         </section>
       </div>
