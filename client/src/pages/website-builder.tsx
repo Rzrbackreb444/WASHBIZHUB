@@ -313,9 +313,9 @@ export default function WebsiteBuilder() {
   const { isPro, isBusiness, tier } = useSubscription();
   const { isOpen: isUpgradeOpen, openUpgradeModal, closeUpgradeModal, UpgradeModalComponent } = useUpgradeModal();
   
-  const isDemo = !isPro;
-  const canPublish = isPro;
-  const canSaveSettings = isPro;
+  const isDemo = !isBusiness;
+  const canPublish = isBusiness;
+  const canSaveSettings = isBusiness;
   
   const [activeTab, setActiveTab] = useState("pages");
   const [isUploading, setIsUploading] = useState(false);
@@ -595,7 +595,7 @@ export default function WebsiteBuilder() {
       openUpgradeModal({
         feature: "website-builder",
         title: "Publish Your Website",
-        description: "Upgrade to Pro to publish your website and make it live. Design for free, publish with a subscription.",
+        description: "Upgrade to Business to publish your website and make it live. Design for free, publish with a subscription.",
       });
       return;
     }
@@ -717,7 +717,7 @@ export default function WebsiteBuilder() {
                   ) : (
                     <ExternalLink className="w-4 h-4 mr-2" />
                   )}
-                  {isDemo ? "Publish (Pro)" : siteProject?.isPublished ? "Unpublish" : "Publish"}
+                  {isDemo ? "Publish (Business)" : siteProject?.isPublished ? "Unpublish" : "Publish"}
                 </Button>
                 {isDemo && (
                   <Button
