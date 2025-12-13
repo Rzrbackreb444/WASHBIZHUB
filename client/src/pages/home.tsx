@@ -101,7 +101,7 @@ const journeyPaths = [
     id: "partner",
     icon: Users,
     headline: "Vendor or Broker?",
-    description: "Get in front of 72,000+ serious buyers",
+    description: "Get in front of 73,000+ serious buyers",
     features: ["List Products", "Premium Ads", "Affiliate Program"],
     link: "/directory",
     color: "purple"
@@ -116,10 +116,10 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
 };
 
 const stats = [
-  { value: "72,000+", label: "Industry Professionals" },
-  { value: "220+", label: "Countries Covered" },
+  { value: "73,000+", label: "Industry Professionals" },
+  { value: "All 50", label: "States Covered" },
   { value: "50+", label: "Business Tools" },
-  { value: "4.9", label: "User Rating", icon: Star }
+  { value: "AI", label: "Powered Tools", icon: Zap }
 ];
 
 interface JourneyPath {
@@ -273,11 +273,11 @@ export default function Home() {
     "legalName": "WashBizHub LLC",
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "The #1 laundromat business resource hub. Find laundromats for sale, calculate ROI, analyze locations, get valuations. Serving 72,000+ laundromat owners, investors, and operators worldwide.",
+    "description": "The #1 laundromat business resource hub. Find laundromats for sale, calculate ROI, analyze locations, get valuations. Serving 73,000+ laundromat owners, investors, and operators worldwide.",
     "foundingDate": "2024",
     "numberOfEmployees": { "@type": "QuantitativeValue", "value": "10-50" },
     "slogan": "The #1 Laundromat Resource Hub - Buy, Sell, Operate Smarter",
-    "areaServed": { "@type": "Place", "name": "Worldwide" },
+    "areaServed": { "@type": "Place", "name": "United States" },
     "knowsAbout": [
       "laundromat for sale",
       "how to buy a laundromat",
@@ -324,12 +324,6 @@ export default function Home() {
       "highPrice": "699",
       "priceCurrency": "USD",
       "offerCount": "4"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "2847",
-      "bestRating": "5"
     },
     "featureList": [
       "Location scoring (0-100 CLEANBI grade)",
@@ -423,7 +417,7 @@ export default function Home() {
       "@type": "Organization",
       "name": "WashBizHub"
     },
-    "areaServed": "Worldwide",
+    "areaServed": "United States",
     "availableChannel": {
       "@type": "ServiceChannel",
       "serviceUrl": `${baseUrl}/cleanbi-explorer`,

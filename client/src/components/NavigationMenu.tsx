@@ -50,7 +50,7 @@ const MARKETPLACE_LINKS = [
 ];
 
 const RESOURCES_LINKS = [
-  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 72K+ owners", featured: true },
+  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 73K+ owners", featured: true },
   { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice", featured: true },
   { href: "/blog", label: "Blog", icon: BookOpen, desc: "News & insights" },
   { href: "/events", label: "Events", icon: Calendar, desc: "Trade shows & conferences" },
