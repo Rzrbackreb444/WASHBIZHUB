@@ -19,13 +19,14 @@ import {
   BookOpen, GraduationCap, HelpCircle, Wallet,
   BarChart3, Zap, Landmark, Factory, CreditCard, 
   Briefcase, TrendingUp, PiggyBank, Receipt, Users,
-  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag
+  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag, LayoutGrid
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 import { MobileMenu } from "@/components/MobileMenu";
 
 const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
+  { href: "/command-center", label: "Command Center", icon: LayoutGrid, desc: "Customizable dashboard", featured: true },
   { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Expert repair diagnostics", featured: true },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
   { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, desc: "Point-of-sale management" },

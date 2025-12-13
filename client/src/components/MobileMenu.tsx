@@ -7,7 +7,7 @@ import {
   CreditCard, Bell, Heart, Bookmark, FileText, MessageSquare,
   TrendingUp, BarChart3, Calendar, Cpu, MapPin, Building2,
   Users, Package, Truck, BookOpen, HelpCircle, Phone, Briefcase,
-  PiggyBank, ClipboardList, Smartphone, LineChart, Home
+  PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,6 +57,7 @@ const mobilePillars: MenuSection[] = [
     icon: LayoutDashboard,
     items: [
       { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, featured: true, description: "Command center" },
+      { href: "/command-center", label: "Command Center", icon: LayoutGrid, featured: true, description: "Custom dashboard" },
       { href: "/pos-command-center", label: "POS Command Center", icon: Smartphone, description: "Point of sale" },
       { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
       { href: "/iot-dashboard", label: "IoT Dashboard", icon: Cpu, description: "Machine monitoring" },
