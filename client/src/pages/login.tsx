@@ -172,7 +172,7 @@ export default function Login() {
     setIsSendingMagicLink(true);
 
     try {
-      const response = await fetch("/api/auth/email/magic-link/request", {
+      const response = await fetch("/api/auth/magic-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: magicLinkEmail }),
@@ -249,7 +249,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/email/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
