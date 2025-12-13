@@ -395,6 +395,7 @@ const AccountSubscription = lazy(() => import("@/pages/account-subscription"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const Login = lazy(() => import("@/pages/login"));
 const Signup = lazy(() => import("@/pages/signup"));
+const SignedOut = lazy(() => import("@/pages/signed-out"));
 const AuthVerify = lazy(() => import("@/pages/auth-verify"));
 const AuthPage = lazy(() => import("@/pages/auth"));
 const AuthCallback = lazy(() => import("@/pages/auth-callback"));
@@ -1745,6 +1746,11 @@ function Router() {
       <Route path="/signup">
         <Suspense fallback={<LoadingFallback />}>
           <Signup />
+        </Suspense>
+      </Route>
+      <Route path="/signed-out">
+        <Suspense fallback={<LoadingFallback />}>
+          <SignedOut />
         </Suspense>
       </Route>
       <Route path="/auth/verify">
