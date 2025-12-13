@@ -180,7 +180,7 @@ export function PremiumHero() {
                 data-testid="badge-hero-tagline"
               >
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
-                <span className="speakable">Your Laundromat Headquarters</span>
+                <span className="speakable">The Industry's Complete Expert Platform</span>
               </span>
             </motion.div>
             
@@ -191,10 +191,10 @@ export function PremiumHero() {
               data-testid="heading-hero-title"
             >
               <span className="block text-[clamp(2.5rem,7vw,5.25rem)] tracking-tight">
-                KNOW BEFORE YOU BUY
+                LEARN. START. OPERATE. EXPAND.
               </span>
               <span className="block text-[clamp(1.5rem,4vw,3rem)] text-white/70 tracking-wide mt-1 sm:mt-2">
-                SCORE ANY LOCATION INSTANTLY
+                ONE PLATFORM FOR YOUR ENTIRE JOURNEY
               </span>
             </motion.h1>
             
@@ -203,9 +203,9 @@ export function PremiumHero() {
               className="text-base sm:text-xl lg:text-2xl text-white/70 leading-relaxed mb-8 sm:mb-10 font-light speakable"
               data-testid="text-hero-description"
             >
-              Enter any address and get an instant investment grade. 
-              Our AI analyzes demographics, competition, traffic patterns, 
-              and 50+ data points to reveal hidden opportunities.
+              Funding, calculators, guides, courses, listings, marketplace — 
+              everything you need in one place. Expert tools with human-verified 
+              intelligence, connecting 73,000+ industry professionals.
             </motion.p>
             
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12">

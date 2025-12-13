@@ -1,4 +1,4 @@
-import { Users, Zap, MapPin, Globe } from "lucide-react";
+import { Users, Wrench, MapPin, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 const stats = [
@@ -9,21 +9,21 @@ const stats = [
     color: "text-blue-500"
   },
   {
-    icon: Zap,
-    value: "AI-Powered",
+    icon: Wrench,
+    value: "50+",
     label: "Expert Tools",
     color: "text-amber-500"
   },
   {
     icon: MapPin,
     value: "2,500+",
-    label: "Locations Analyzed",
+    label: "US Locations Analyzed",
     color: "text-green-500"
   },
   {
-    icon: Globe,
-    value: "50",
-    label: "States Covered",
+    icon: ShieldCheck,
+    value: "Human",
+    label: "Verified Intelligence",
     color: "text-purple-500"
   }
 ];

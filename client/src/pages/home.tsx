@@ -118,8 +118,8 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
 const stats = [
   { value: "73,000+", label: "Industry Professionals" },
   { value: "All 50", label: "States Covered" },
-  { value: "50+", label: "Business Tools" },
-  { value: "AI", label: "Powered Tools", icon: Zap }
+  { value: "50+", label: "Expert Tools" },
+  { value: "Human", label: "Verified Intelligence", icon: Shield }
 ];
 
 interface JourneyPath {
@@ -244,7 +244,7 @@ export default function Home() {
       "Coin Laundry Business Platform"
     ],
     "url": baseUrl,
-    "description": "Find laundromats for sale, get instant valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling, and operating laundromat businesses. 72,000+ professionals, 50+ calculators, AI-powered tools.",
+    "description": "The laundromat industry's complete expert platform. Learn, start, operate, and expand with human-verified intelligence. Funding, calculators, guides, courses, listings, marketplace — 73,000+ professionals, 50+ expert tools.",
     "inLanguage": "en-US",
     "copyrightYear": currentYear,
     "publisher": {
@@ -273,10 +273,10 @@ export default function Home() {
     "legalName": "WashBizHub LLC",
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "The #1 laundromat business resource hub. Find laundromats for sale, calculate ROI, analyze locations, get valuations. Serving 73,000+ laundromat owners, investors, and operators worldwide.",
+    "description": "The laundromat industry's complete expert platform. Learn, start, operate, and expand with 50+ expert tools, human-verified intelligence, and the industry's largest professional network of 73,000+ operators across the United States.",
     "foundingDate": "2024",
     "numberOfEmployees": { "@type": "QuantitativeValue", "value": "10-50" },
-    "slogan": "The #1 Laundromat Resource Hub - Buy, Sell, Operate Smarter",
+    "slogan": "Learn. Start. Operate. Expand. — The Industry's Complete Expert Platform",
     "areaServed": { "@type": "Place", "name": "United States" },
     "knowsAbout": [
       "laundromat for sale",
