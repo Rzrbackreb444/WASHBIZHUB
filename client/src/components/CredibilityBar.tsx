@@ -1,29 +1,29 @@
-import { Users, Star, BarChart3, Globe } from "lucide-react";
+import { Users, Zap, MapPin, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 
 const stats = [
   {
     icon: Users,
-    value: "72,000+",
+    value: "73,000+",
     label: "Industry Professionals",
     color: "text-blue-500"
   },
   {
-    icon: Star,
-    value: "4.9/5",
-    label: "User Rating",
+    icon: Zap,
+    value: "AI-Powered",
+    label: "Expert Tools",
     color: "text-amber-500"
   },
   {
-    icon: BarChart3,
-    value: "10,000+",
-    label: "Deals Analyzed",
+    icon: MapPin,
+    value: "2,500+",
+    label: "Locations Analyzed",
     color: "text-green-500"
   },
   {
     icon: Globe,
-    value: "220+",
-    label: "Countries",
+    value: "50",
+    label: "States Covered",
     color: "text-purple-500"
   }
 ];

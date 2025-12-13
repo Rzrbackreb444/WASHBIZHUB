@@ -113,7 +113,7 @@ export function PremiumHero() {
         <meta itemProp="name" content="CLEANBI Location Intelligence" />
         <meta itemProp="applicationCategory" content="BusinessApplication" />
         <meta itemProp="operatingSystem" content="Web" />
-        <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 72,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
+        <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 73,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
       </div>
 
       {/* Premium video background with fallback image */}

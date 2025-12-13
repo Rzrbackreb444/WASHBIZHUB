@@ -562,11 +562,11 @@ export function MobileMenu() {
           </SheetHeader>
           <SheetClose asChild>
             <button
-              className="p-1.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors"
               aria-label="Close menu"
               data-testid="button-mobile-close"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
           </SheetClose>
         </div>
