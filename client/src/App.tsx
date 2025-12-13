@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { LocationDesignProvider } from "@/contexts/LocationDesignContext";
 import { AuthModalProvider } from "@/components/AuthModal";
+import { SignOutConfirmationProvider } from "@/components/SignOutConfirmation";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
@@ -2021,11 +2022,13 @@ function App() {
                 <ThemeProvider>
                   <LocationDesignProvider>
                     <TooltipProvider>
-                      <AuthModalProvider>
-                        <AppContent />
-                        <Toaster />
-                        <ExitIntentModal />
-                      </AuthModalProvider>
+                      <SignOutConfirmationProvider>
+                        <AuthModalProvider>
+                          <AppContent />
+                          <Toaster />
+                          <ExitIntentModal />
+                        </AuthModalProvider>
+                      </SignOutConfirmationProvider>
                     </TooltipProvider>
                   </LocationDesignProvider>
                 </ThemeProvider>
@@ -2036,11 +2039,13 @@ function App() {
               <ThemeProvider>
                 <LocationDesignProvider>
                   <TooltipProvider>
-                    <AuthModalProvider>
-                      <AppContent />
-                      <Toaster />
-                      <ExitIntentModal />
-                    </AuthModalProvider>
+                    <SignOutConfirmationProvider>
+                      <AuthModalProvider>
+                        <AppContent />
+                        <Toaster />
+                        <ExitIntentModal />
+                      </AuthModalProvider>
+                    </SignOutConfirmationProvider>
                   </TooltipProvider>
                 </LocationDesignProvider>
               </ThemeProvider>
