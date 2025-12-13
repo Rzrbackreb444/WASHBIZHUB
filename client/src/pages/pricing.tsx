@@ -415,10 +415,6 @@ export default function Pricing() {
                   <TrendingUp className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
                   <span>2M+ analyses run</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
-                  <span>4.8/5 rating</span>
-                </div>
               </div>
 
               {/* Annual/Monthly Toggle */}
