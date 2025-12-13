@@ -583,7 +583,7 @@ export default function AIConsultationCouncil() {
                   <div className="flex flex-wrap items-center justify-center gap-6 mb-10" data-testid="trust-badges">
                     <div className="flex items-center gap-2 text-white/70">
                       <Users className="w-5 h-5 text-teal-400" />
-                      <span className="font-medium">72K+ Community</span>
+                      <span className="font-medium">73K+ Community</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/70">
                       <Globe className="w-5 h-5 text-teal-400" />

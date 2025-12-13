@@ -28,7 +28,7 @@ export default function WhyWashBizHub() {
     <>
       <SEO
         title="Why Choose WashBizHub - Enterprise Laundromat Management Platform Features"
-        description="Discover why 72,000+ laundromat owners trust WashBizHub for enterprise-grade POS systems, IoT machine monitoring, AI-powered consulting, CLEANBI™ business scoring, and comprehensive coin laundry industry resources. The #1 commercial laundry business resource."
+        description="Discover why 73,000+ laundromat owners trust WashBizHub for enterprise-grade POS systems, IoT machine monitoring, AI-powered consulting, CLEANBI™ business scoring, and comprehensive coin laundry industry resources. The #1 commercial laundry business resource."
         canonicalUrl="/why-washbizhub"
         keywords={[
           "laundromat management platform benefits",
@@ -47,7 +47,7 @@ export default function WhyWashBizHub() {
         author={{
           name: "WashBizHub Team",
           expertise: "Laundromat Industry Experts",
-          credentials: "Serving 72,000+ laundromat owners with 50+ years combined industry experience"
+          credentials: "Serving 73,000+ laundromat owners with 50+ years combined industry experience"
         }}
       />
       
@@ -77,7 +77,7 @@ export default function WhyWashBizHub() {
               North America's Leading Platform
             </Badge>
             <h1 className="text-5xl sm:text-6xl font-bold text-white mb-6 uppercase tracking-tight">
-              Why 72,000+ Owners Choose WashBizHub
+              Why 73,000+ Owners Choose WashBizHub
             </h1>
             <p className="text-xl text-white/70 mb-10 leading-relaxed">
               From corner laundromats to multi-location enterprises, we're modernizing the industry 
@@ -177,7 +177,7 @@ export default function WhyWashBizHub() {
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
-                    <span>72,000-member Facebook community insights</span>
+                    <span>73,000-member Facebook community insights</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
@@ -421,7 +421,7 @@ export default function WhyWashBizHub() {
         <section className="py-24 bg-muted/30">
           <div className="mx-auto max-w-4xl px-6 text-center">
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground mb-6 uppercase tracking-tight">
-              Join 72,000+ Industry Leaders
+              Join 73,000+ Industry Leaders
             </h2>
             <p className="text-xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto">
               Stop managing with spreadsheets. Start operating like an enterprise. 

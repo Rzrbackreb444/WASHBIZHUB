@@ -58,7 +58,7 @@ const listingCategories = [
     icon: Wrench,
     color: "from-amber-500 to-orange-600",
     href: "/list-services",
-    stats: { owners: "72K+", demand: "High" },
+    stats: { owners: "73K+", demand: "High" },
     features: ["Service Categories", "Geographic Targeting", "Lead Generation"],
     cta: "List Services",
     popular: false
@@ -81,7 +81,7 @@ const listingCategories = [
 const benefits = [
   {
     icon: TrendingUp,
-    title: "72,000+ Industry Professionals",
+    title: "73,000+ Industry Professionals",
     description: "Access the largest community of laundromat owners, operators, and investors."
   },
   {
@@ -106,7 +106,7 @@ export default function ListOnWashBizHub() {
     <>
       <SEO 
         title="List on WashBizHub | Sell Equipment, Services & Businesses"
-        description="The #1 marketplace for the laundromat industry. Sell your business, equipment, supplies, or offer professional services to 72,000+ industry professionals."
+        description="The #1 marketplace for the laundromat industry. Sell your business, equipment, supplies, or offer professional services to 73,000+ industry professionals."
         keywords={["sell laundromat", "list equipment", "laundromat services", "laundry marketplace", "sell commercial washers"]}
       />
 
@@ -128,7 +128,7 @@ export default function ListOnWashBizHub() {
               </h1>
               
               <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                Reach 72,000+ laundromat professionals. Sell your business, equipment, supplies, or offer services.
+                Reach 73,000+ laundromat professionals. Sell your business, equipment, supplies, or offer services.
               </p>
 
               <div className="flex flex-wrap justify-center gap-3 mb-10">

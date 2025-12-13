@@ -229,7 +229,7 @@ export default function ListingForm() {
       <>
         <SEO
           title="Create Listing | Sell Your Laundromat | WashBizHub"
-          description="List your laundromat, equipment, or business. Reach 72,000+ qualified buyers on the #1 laundromat marketplace."
+          description="List your laundromat, equipment, or business. Reach 73,000+ qualified buyers on the #1 laundromat marketplace."
           canonicalUrl="/listing-form"
         />
 
@@ -340,7 +340,7 @@ export default function ListingForm() {
     <>
       <SEO
         title="Create Listing | Sell Your Laundromat | WashBizHub"
-        description="List your laundromat, equipment, or business. Reach 72,000+ qualified buyers on the #1 laundromat marketplace."
+        description="List your laundromat, equipment, or business. Reach 73,000+ qualified buyers on the #1 laundromat marketplace."
         canonicalUrl="/listing-form"
       />
 
@@ -386,7 +386,7 @@ export default function ListingForm() {
               )}
             </div>
             <p className="text-white/70 mb-6">
-              Reach 72,000+ qualified buyers on the #1 laundromat marketplace
+              Reach 73,000+ qualified buyers on the #1 laundromat marketplace
             </p>
             
             <div className="max-w-md">

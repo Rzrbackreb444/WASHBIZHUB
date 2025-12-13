@@ -475,7 +475,7 @@ export default function AdminAds() {
                 onClick={() => setInvoiceData({
                   ...invoiceData,
                   amount: '500',
-                  description: 'Featured Post - Facebook Group (72K+ Members) + Branded Template',
+                  description: 'Featured Post - Facebook Group (73K+ Members) + Branded Template',
                 })}
                 data-testid="button-template-featured"
               >
@@ -488,7 +488,7 @@ export default function AdminAds() {
                 onClick={() => setInvoiceData({
                   ...invoiceData,
                   amount: '1400',
-                  description: 'Premium Sponsor - Monthly (72K+ Members) - Featured placement, Logo on cover, Monthly spotlight, Priority response',
+                  description: 'Premium Sponsor - Monthly (73K+ Members) - Featured placement, Logo on cover, Monthly spotlight, Priority response',
                 })}
                 data-testid="button-template-premium"
               >

@@ -2184,7 +2184,7 @@ export default function POSCommandCenter() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://washbizhub.com/pos" />
         <meta property="og:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
-        <meta property="og:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT machine monitoring, route optimization, and professional BI. Trusted by 72,000+ laundromat owners." />
+        <meta property="og:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT machine monitoring, route optimization, and professional BI. Trusted by 73,000+ laundromat owners." />
         <meta property="og:image" content="https://washbizhub.com/images/pos-og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -2199,7 +2199,7 @@ export default function POSCommandCenter() {
         <meta name="twitter:creator" content="@washbizhub" />
         <meta name="twitter:url" content="https://washbizhub.com/pos" />
         <meta name="twitter:title" content="Laundromat POS Command Center - Enterprise Point of Sale | WashBizHub" />
-        <meta name="twitter:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT monitoring, route optimization. Trusted by 72,000+ owners." />
+        <meta name="twitter:description" content="Enterprise POS for laundromats: Real-time analytics, WDF order management, IoT monitoring, route optimization. Trusted by 73,000+ owners." />
         <meta name="twitter:image" content="https://washbizhub.com/images/pos-twitter-card.png" />
         <meta name="twitter:image:alt" content="WashBizHub POS Command Center - Professional laundromat dashboard" />
         
@@ -2223,7 +2223,7 @@ export default function POSCommandCenter() {
         {/* AEO - Answer Engine Optimization */}
         <meta name="subject" content="Laundromat POS System and Business Management Software" />
         <meta name="abstract" content="WashBizHub POS Command Center is an enterprise-grade point-of-sale system designed for laundromats, offering real-time analytics, order management for Wash & Fold, Pickup/Delivery, and Self-Service, IoT machine monitoring, customer CRM, route optimization, inventory management, and professional business intelligence." />
-        <meta name="summary" content="Complete laundromat POS with WDF, PUD, IoT monitoring, analytics, CRM, and inventory management. Enterprise dashboard trusted by 72,000+ owners." />
+        <meta name="summary" content="Complete laundromat POS with WDF, PUD, IoT monitoring, analytics, CRM, and inventory management. Enterprise dashboard trusted by 73,000+ owners." />
         
         {/* Structured Data JSON-LD */}
         <script type="application/ld+json">

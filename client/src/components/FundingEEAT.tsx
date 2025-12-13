@@ -43,7 +43,7 @@ export function AuthorExpertise({ variant = "full" }: AuthorExpertiseProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Founder of WashBizHub, the #1 laundromat resource platform with 72,000+ members. 
+          Founder of WashBizHub, the #1 laundromat resource platform with 73,000+ members. 
           Specializing in helping entrepreneurs navigate laundromat financing, acquisitions, 
           and business optimization.
         </p>
@@ -54,7 +54,7 @@ export function AuthorExpertise({ variant = "full" }: AuthorExpertiseProps) {
           </Badge>
           <Badge variant="secondary" className="text-xs">
             <Users className="w-3 h-3 mr-1" />
-            72,000+ Community
+            73,000+ Community
           </Badge>
           <Badge variant="secondary" className="text-xs">
             <TrendingUp className="w-3 h-3 mr-1" />
@@ -73,7 +73,7 @@ interface TrustSignalsProps {
 export function TrustSignals({ variant = "horizontal" }: TrustSignalsProps) {
   const signals = [
     { icon: Shield, label: "Vetted Lenders", value: "7 Partners" },
-    { icon: Users, label: "Community", value: "72,000+" },
+    { icon: Users, label: "Community", value: "73,000+" },
     { icon: DollarSign, label: "Funded", value: "$50M+" },
     { icon: Clock, label: "Fast Approval", value: "24-48 hrs" },
   ];

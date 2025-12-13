@@ -468,7 +468,7 @@ export default function EquipmentMatcher() {
                     <SiFacebook className="w-8 h-8" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Join 72,000+ Laundromat Owners</h3>
+                <h3 className="text-xl font-bold mb-2">Join 73,000+ Laundromat Owners</h3>
                 <p className="text-blue-100 mb-4">
                   Get exclusive equipment deals, owner advice, and connect with the largest laundromat community online.
                 </p>
@@ -484,7 +484,7 @@ export default function EquipmentMatcher() {
                 </a>
                 <div className="mt-4 flex justify-center gap-4 text-sm text-blue-200">
                   <span className="flex items-center gap-1">
-                    <Users className="w-4 h-4" /> 72K Members
+                    <Users className="w-4 h-4" /> 73K Members
                   </span>
                   <span className="flex items-center gap-1">
                     <Star className="w-4 h-4" /> Expert Advice

@@ -123,7 +123,7 @@ function BlogIndexPage() {
   const seoFaqs = [
     {
       question: "What topics does WashBizHub blog cover?",
-      answer: "WashBizHub's blog covers comprehensive laundromat business topics including industry news, investment guides, case studies, equipment reviews, operational strategies, marketing tips, and financial analysis. Our content is backed by 72,000+ industry professionals."
+      answer: "WashBizHub's blog covers comprehensive laundromat business topics including industry news, investment guides, case studies, equipment reviews, operational strategies, marketing tips, and financial analysis. Our content is backed by 73,000+ industry professionals."
     },
     {
       question: "How can I stay updated with laundromat industry news?",
@@ -146,7 +146,7 @@ function BlogIndexPage() {
   return (
     <SuperSEOWrapper
       title="Laundromat Industry Blog | Expert Guides, News & Case Studies"
-      description="Expert laundromat business articles: industry news, investment guides, case studies, and operational strategies from 72,000+ professionals. Free tips and resources."
+      description="Expert laundromat business articles: industry news, investment guides, case studies, and operational strategies from 73,000+ professionals. Free tips and resources."
       keywords={[
         "laundromat blog",
         "laundromat industry news",
@@ -446,7 +446,7 @@ function BlogIndexPage() {
               Get Industry Updates Delivered
             </h2>
             <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-              Join 72,000+ laundromat professionals receiving weekly insights, tips, and exclusive content.
+              Join 73,000+ laundromat professionals receiving weekly insights, tips, and exclusive content.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
               <Input 

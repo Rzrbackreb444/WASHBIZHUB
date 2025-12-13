@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion";
 
 const partnerStats = [
-  { value: "72,000+", label: "Active Professionals" },
+  { value: "73,000+", label: "Active Professionals" },
   { value: "150K+", label: "Monthly Page Views" },
   { value: "45%", label: "Buyer Conversion Rate" }
 ];
@@ -78,11 +78,11 @@ const affiliateBenefits = [
 const partnerFaqs = [
   {
     question: "How do I list my laundromat for sale on WashBizHub?",
-    answer: "Listing your laundromat on WashBizHub is free and takes just 5 minutes: 1) Click 'List Your Business Free' and create an account, 2) Fill out the listing form with property details, financials, and photos, 3) Submit for review - we verify all listings within 24-48 hours, 4) Your listing goes live to 72,000+ active laundromat professionals, 5) Receive inquiries directly to your inbox. Premium listing options available for enhanced visibility and featured placement."
+    answer: "Listing your laundromat on WashBizHub is free and takes just 5 minutes: 1) Click 'List Your Business Free' and create an account, 2) Fill out the listing form with property details, financials, and photos, 3) Submit for review - we verify all listings within 24-48 hours, 4) Your listing goes live to 73,000+ active laundromat professionals, 5) Receive inquiries directly to your inbox. Premium listing options available for enhanced visibility and featured placement."
   },
   {
     question: "What are the benefits of becoming a WashBizHub vendor?",
-    answer: "WashBizHub vendors gain access to: 1) Direct exposure to 72,000+ laundromat professionals actively buying equipment and supplies, 2) Your own branded storefront to showcase products, 3) Lead generation tools and inquiry management, 4) Featured placement in relevant categories, 5) Integration with our marketplace and directory, 6) Marketing support including social media promotion. Vendor accounts start at $99/month with performance-based upgrades available."
+    answer: "WashBizHub vendors gain access to: 1) Direct exposure to 73,000+ laundromat professionals actively buying equipment and supplies, 2) Your own branded storefront to showcase products, 3) Lead generation tools and inquiry management, 4) Featured placement in relevant categories, 5) Integration with our marketplace and directory, 6) Marketing support including social media promotion. Vendor accounts start at $99/month with performance-based upgrades available."
   },
   {
     question: "What types of businesses can partner with WashBizHub?",
@@ -147,7 +147,7 @@ export default function PartnerPage() {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Partner With WashBizHub",
-    "description": "Reach 72,000+ laundromat professionals. List your laundromat, sell equipment, become a vendor, or advertise with us.",
+    "description": "Reach 73,000+ laundromat professionals. List your laundromat, sell equipment, become a vendor, or advertise with us.",
     "url": "https://washbizhub.com/partner",
     "mainEntity": {
       "@type": "Article",
@@ -169,7 +169,7 @@ export default function PartnerPage() {
     <>
       <SEO
         title="Partner With WashBizHub - Vendor, Advertising & Listing Opportunities"
-        description="Reach 72,000+ laundromat professionals. List your laundromat for sale free, sell equipment, become a vendor, advertise your services, or join our affiliate program. The largest laundromat industry marketplace."
+        description="Reach 73,000+ laundromat professionals. List your laundromat for sale free, sell equipment, become a vendor, advertise your services, or join our affiliate program. The largest laundromat industry marketplace."
         canonicalUrl="/partner"
         keywords={[
           "laundromat vendor",
@@ -195,7 +195,7 @@ export default function PartnerPage() {
         author={{
           name: "WashBizHub Team",
           expertise: "Laundromat Industry Marketplace",
-          credentials: "Connecting 72,000+ laundromat professionals with vendors, equipment, and opportunities"
+          credentials: "Connecting 73,000+ laundromat professionals with vendors, equipment, and opportunities"
         }}
       />
 
@@ -218,7 +218,7 @@ export default function PartnerPage() {
                 className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto"
                 data-testid="text-partner-hero-subtitle"
               >
-                Reach 72,000+ laundromat professionals
+                Reach 73,000+ laundromat professionals
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link href="/listing-form">

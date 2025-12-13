@@ -422,7 +422,7 @@ export default function ListingsHub() {
                 <div className="text-center md:text-left">
                   <h3 className="text-2xl font-bold text-white mb-2">Ready to Sell Your Laundromat?</h3>
                   <p className="text-white/70 max-w-xl">
-                    List with WashBizHub and reach 72,000+ qualified buyers. 
+                    List with WashBizHub and reach 73,000+ qualified buyers. 
                     Get a free CLEANBI™ score and professional listing support.
                   </p>
                 </div>

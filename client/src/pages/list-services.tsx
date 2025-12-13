@@ -239,7 +239,7 @@ export default function ListServicesPage() {
     <>
       <SEO 
         title="List Your Services | WashBizHub"
-        description="Offer your professional services to 72,000+ laundromat owners. Repair, maintenance, consulting, marketing, and more."
+        description="Offer your professional services to 73,000+ laundromat owners. Repair, maintenance, consulting, marketing, and more."
         keywords={["laundromat services", "equipment repair", "laundry consulting", "commercial laundry maintenance"]}
       />
 
@@ -255,7 +255,7 @@ export default function ListServicesPage() {
               List Your Services
             </h1>
             <p className="text-slate-400 max-w-xl mx-auto">
-              Connect with 72,000+ laundromat owners looking for professional services
+              Connect with 73,000+ laundromat owners looking for professional services
             </p>
           </div>
 

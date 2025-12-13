@@ -15,7 +15,7 @@ const listingCategories = [
     href: "/listing-form",
     title: "Sell Your Laundromat",
     subtitle: "List your business for sale",
-    description: "Get your laundromat in front of 72,000+ qualified buyers. Includes CLEANBI score, financing options display, and premium placement.",
+    description: "Get your laundromat in front of 73,000+ qualified buyers. Includes CLEANBI score, financing options display, and premium placement.",
     icon: Store,
     badge: "MOST POPULAR",
     badgeColor: "bg-green-500",
@@ -106,14 +106,14 @@ const listingCategories = [
       "Social media links",
       "Customer reviews enabled"
     ],
-    stats: { businesses: "500+", visibility: "72K+", inquiries: "10K/mo" },
+    stats: { businesses: "500+", visibility: "73K+", inquiries: "10K/mo" },
     color: "from-teal-500 to-teal-600",
     bgGlow: "bg-teal-500/20"
   },
 ];
 
 const benefits = [
-  { icon: Users, label: "72,000+ Monthly Visitors", description: "Largest laundromat industry audience online" },
+  { icon: Users, label: "73,000+ Monthly Visitors", description: "Largest laundromat industry audience online" },
   { icon: TrendingUp, label: "High Intent Buyers", description: "Actively searching for opportunities" },
   { icon: Shield, label: "Verified Inquiries", description: "Quality leads, not spam" },
   { icon: Clock, label: "Quick Setup", description: "List in under 5 minutes" },
@@ -124,16 +124,16 @@ export default function AddListingPage() {
     <>
       <Helmet>
         <title>Add a Listing | Sell Laundromats, Equipment, Services & Products | WashBizHub</title>
-        <meta name="description" content="List your laundromat for sale, sell equipment, become a vendor, or add your business to the #1 laundromat industry platform. Reach 72,000+ qualified buyers monthly." />
+        <meta name="description" content="List your laundromat for sale, sell equipment, become a vendor, or add your business to the #1 laundromat industry platform. Reach 73,000+ qualified buyers monthly." />
         <meta name="keywords" content="sell laundromat, list equipment, laundromat for sale, vendor directory, laundry equipment marketplace, laundromat business listing" />
         <link rel="canonical" href="https://washbizhub.com/add-listing" />
         <meta property="og:title" content="Add a Listing | WashBizHub Marketplace" />
-        <meta property="og:description" content="List your laundromat, equipment, or services. Reach 72,000+ industry professionals." />
+        <meta property="og:description" content="List your laundromat, equipment, or services. Reach 73,000+ industry professionals." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://washbizhub.com/add-listing" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Add a Listing | WashBizHub" />
-        <meta name="twitter:description" content="Reach 72,000+ laundromat industry buyers and operators." />
+        <meta name="twitter:description" content="Reach 73,000+ laundromat industry buyers and operators." />
         <meta name="robots" content="index, follow" />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -170,7 +170,7 @@ export default function AddListingPage() {
               {
                 "@type": "Offer",
                 "name": "Laundromat Business Listing",
-                "description": "List your laundromat business for sale to 72,000+ qualified buyers with CLEANBI score analysis",
+                "description": "List your laundromat business for sale to 73,000+ qualified buyers with CLEANBI score analysis",
                 "url": "https://washbizhub.com/listing-form",
                 "category": "Business For Sale",
                 "seller": {
@@ -269,7 +269,7 @@ export default function AddListingPage() {
                 "name": "How do I list my laundromat for sale?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Click 'Sell Your Laundromat' on the Add a Listing page, fill out your business details, pricing, and upload photos. Your listing will be visible to 72,000+ qualified buyers and includes a free CLEANBI score analysis."
+                  "text": "Click 'Sell Your Laundromat' on the Add a Listing page, fill out your business details, pricing, and upload photos. Your listing will be visible to 73,000+ qualified buyers and includes a free CLEANBI score analysis."
                 }
               },
               {
@@ -307,7 +307,7 @@ export default function AddListingPage() {
             <div className="text-center mb-12">
               <Badge className="mb-4 bg-[#39CCCC]/20 text-[#39CCCC] border-[#39CCCC]/30">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Reach 72,000+ Industry Professionals
+                Reach 73,000+ Industry Professionals
               </Badge>
               <h1 
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"

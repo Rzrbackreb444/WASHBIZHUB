@@ -134,8 +134,8 @@ export default function ForumPage() {
   return (
     <>
       <SEO 
-        title="Laundromat Owner Forum - 72,000+ Members | Free Community | WashBizHub" 
-        description="Join 72,000+ laundromat owners in the #1 industry forum. Get advice on pricing, operations, equipment, and more. Free to join. Ask questions, share experiences."
+        title="Laundromat Owner Forum - 73,000+ Members | Free Community | WashBizHub" 
+        description="Join 73,000+ laundromat owners in the #1 industry forum. Get advice on pricing, operations, equipment, and more. Free to join. Ask questions, share experiences."
         keywords={[
           "laundromat forum",
           "laundromat owner community",
@@ -162,11 +162,11 @@ export default function ForumPage() {
         faqs={[
           {
             question: "Where can I find a laundromat owner community or forum?",
-            answer: "WashBizHub hosts the largest laundromat owner community with 72,000+ members. Our free forum covers topics like pricing strategies, equipment selection, operations, marketing, and buying/selling laundromats. Join discussions, ask questions, and network with experienced owners and industry experts."
+            answer: "WashBizHub hosts the largest laundromat owner community with 73,000+ members. Our free forum covers topics like pricing strategies, equipment selection, operations, marketing, and buying/selling laundromats. Join discussions, ask questions, and network with experienced owners and industry experts."
           },
           {
             question: "How do I get advice from experienced laundromat owners?",
-            answer: "Post your question in the WashBizHub Community Forum. Our active community of 72,000+ laundromat owners and industry professionals responds to most questions within 24 hours. Categories include Operations, Equipment & Maintenance, Buying & Selling, Marketing, and more."
+            answer: "Post your question in the WashBizHub Community Forum. Our active community of 73,000+ laundromat owners and industry professionals responds to most questions within 24 hours. Categories include Operations, Equipment & Maintenance, Buying & Selling, Marketing, and more."
           },
           {
             question: "What topics are discussed in laundromat forums?",
@@ -186,7 +186,7 @@ export default function ForumPage() {
           },
           {
             question: "How active is the WashBizHub laundromat forum?",
-            answer: "Very active! With 72,000+ members, new topics and replies are posted daily. Trending topics are displayed on the sidebar, and you can sort by newest or most popular discussions. Most questions receive helpful responses within 24 hours."
+            answer: "Very active! With 73,000+ members, new topics and replies are posted daily. Trending topics are displayed on the sidebar, and you can sort by newest or most popular discussions. Most questions receive helpful responses within 24 hours."
           },
           {
             question: "Do industry experts participate in the forum?",
@@ -232,7 +232,7 @@ export default function ForumPage() {
             "@id": "https://washbizhub.com/forum"
           },
           "headline": "WashBizHub Community Forum - Laundromat Owner Discussions",
-          "description": "The largest online community for laundromat owners with 72,000+ members discussing operations, equipment, pricing, and business strategies.",
+          "description": "The largest online community for laundromat owners with 73,000+ members discussing operations, equipment, pricing, and business strategies.",
           "author": {
             "@type": "Organization",
             "name": "WashBizHub"
@@ -272,7 +272,7 @@ export default function ForumPage() {
                       Community Forum
                     </h1>
                     <p className="text-lg text-muted-foreground mt-1">
-                      Connect with 72,000+ laundromat owners
+                      Connect with 73,000+ laundromat owners
                     </p>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ export default function ForumPage() {
                 <div className="flex flex-wrap items-center gap-3 text-sm">
                   <StatusBadge 
                     variant="success" 
-                    label="72K+ Members" 
+                    label="73K+ Members" 
                     icon={Users}
                     size="md"
                     testId="badge-members"
