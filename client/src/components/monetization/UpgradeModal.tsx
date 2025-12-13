@@ -24,9 +24,9 @@ interface UpgradeModalProps {
 
 // Default tier config for safety
 const DEFAULT_TIER_CONFIG = {
-  name: "All-Access",
+  name: "Business",
   tagline: "Everything you need",
-  price: 129,
+  price: 149,
   iconBg: "bg-amber-100 dark:bg-amber-900/30",
   iconColor: "text-amber-600 dark:text-amber-400",
   popular: true
