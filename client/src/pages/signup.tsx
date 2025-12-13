@@ -25,7 +25,7 @@ import { queryClient } from "@/lib/queryClient";
 import { 
   UserPlus, Mail, Lock, Eye, EyeOff, AlertCircle, User, 
   CheckCircle2, Sparkles, Loader2, ArrowRight, Shield, Users,
-  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench, Building2
+  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 
@@ -115,7 +115,7 @@ function getPasswordStrength(password: string): {
 }
 
 export default function Signup() {
-  const { isAuthenticated, isLoading, isCloudflareAccess, login, providers } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -127,11 +127,6 @@ export default function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
-
-  // Manual Cloudflare SSO login handler
-  const handleCloudflareLogin = useCallback(() => {
-    login('/dashboard');
-  }, [login]);
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -386,22 +381,6 @@ export default function Signup() {
                 <SiGoogle className="h-5 w-5 mr-2" />
                 Continue with Google
               </Button>
-
-              {/* Enterprise SSO via Cloudflare Access */}
-              {isCloudflareAccess && (
-                <Button
-                  variant="outline"
-                  className="w-full h-12 text-base font-medium gap-2 border-primary/30 hover:border-primary hover:bg-primary/5 mb-4"
-                  onClick={handleCloudflareLogin}
-                  data-testid="button-signup-enterprise-sso"
-                >
-                  <Building2 className="w-5 h-5 text-primary" />
-                  <span>Enterprise SSO</span>
-                  <span className="ml-auto text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
-                    Zero Trust
-                  </span>
-                </Button>
-              )}
 
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Button

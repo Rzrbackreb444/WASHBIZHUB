@@ -12,7 +12,7 @@ import { SEO } from "@/components/SEO";
 import { motion } from "framer-motion";
 import { 
   Lock, LogIn, Mail, Eye, EyeOff, AlertCircle, Sparkles, 
-  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound, Building2
+  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound
 } from "lucide-react";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -141,7 +141,7 @@ const loginStructuredData = {
 };
 
 export default function Login() {
-  const { isAuthenticated, isLoading, login, isCloudflareAccess } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -160,11 +160,6 @@ export default function Login() {
       setLocation("/");
     }
   }, [isAuthenticated, isLoading, setLocation]);
-
-  // Manual Cloudflare SSO login handler
-  const handleCloudflareLogin = useCallback(() => {
-    login('/dashboard');
-  }, [login]);
 
   const handleMagicLinkRequest = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -570,22 +565,6 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Enterprise SSO via Cloudflare Access */}
-                  {isCloudflareAccess && (
-                    <Button
-                      variant="outline"
-                      className="w-full h-11 text-base font-medium gap-2 border-primary/30 hover:border-primary hover:bg-primary/5"
-                      onClick={() => login('/dashboard')}
-                      data-testid="button-login-enterprise-sso"
-                    >
-                      <Building2 className="w-5 h-5 text-primary" />
-                      <span>Enterprise SSO</span>
-                      <span className="ml-auto text-xs text-muted-foreground bg-primary/10 px-2 py-0.5 rounded-full">
-                        Zero Trust
-                      </span>
-                    </Button>
-                  )}
-
                   {isGoogleLoading ? (
                     <div className="w-full h-11 flex items-center justify-center border rounded-lg">
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
