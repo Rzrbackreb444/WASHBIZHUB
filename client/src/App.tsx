@@ -269,6 +269,7 @@ const Dashboard = lazy(() => import("@/pages/dashboard"));
 const UserDashboard = lazy(() => import("@/pages/user-dashboard"));
 const OwnerDashboard = lazy(() => import("@/pages/owner-dashboard"));
 const OwnerCommandCenter = lazy(() => import("@/pages/owner-command-center"));
+const CommandCenter = lazy(() => import("@/pages/command-center"));
 const OperatorDashboard = lazy(() => import("@/pages/operator-dashboard"));
 const BusinessBuilder = lazy(() => import("@/pages/business-builder"));
 const AffiliateDashboard = lazy(() => import("@/pages/affiliate-dashboard"));
@@ -1683,6 +1684,11 @@ function Router() {
       <Route path="/operator-dashboard">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <OperatorDashboard />
+        </Suspense>
+      </Route>
+      <Route path="/command-center">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <CommandCenter />
         </Suspense>
       </Route>
 
