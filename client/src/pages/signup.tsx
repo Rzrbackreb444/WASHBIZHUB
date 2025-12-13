@@ -25,7 +25,7 @@ import { queryClient } from "@/lib/queryClient";
 import { 
   UserPlus, Mail, Lock, Eye, EyeOff, AlertCircle, User, 
   CheckCircle2, Sparkles, Loader2, ArrowRight, Shield, Users,
-  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench
+  Star, TrendingUp, BarChart3, Palette, MessageSquare, Wrench, Zap
 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 
@@ -375,11 +375,21 @@ export default function Signup() {
             <CardContent className="p-6 md:p-8">
               <Button
                 onClick={handleGoogleSignup}
-                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-4"
+                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-3"
                 data-testid="button-google-signup"
               >
                 <SiGoogle className="h-5 w-5 mr-2" />
                 Continue with Google
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full h-12 text-base font-medium gap-2 mb-4"
+                onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                data-testid="button-cloudflare-signup"
+              >
+                <Zap className="w-5 h-5 text-amber-500" />
+                One-Click Sign Up
               </Button>
 
               <div className="flex items-center justify-center gap-3 mb-6">
