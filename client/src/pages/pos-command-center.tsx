@@ -503,7 +503,7 @@ export default function POSCommandCenter() {
     orderNumberPrefix: "WBH",
     autoPrintReceipts: true,
     receiptFooterMessage: "Thank you for your business!",
-    currentPlan: "starter" as "starter" | "professional" | "enterprise",
+    currentPlan: "free" as "free" | "pro" | "business" | "enterprise",
     pricingMode: "per_pound" as "flat_rate" | "per_pound",
     smallLoadPrice: "15.00",
     mediumLoadPrice: "25.00",
@@ -6983,56 +6983,82 @@ export default function POSCommandCenter() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Starter Plan */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Free Plan */}
                         <div 
                           className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
-                            settingsForm.currentPlan === "starter"
+                            settingsForm.currentPlan === "free"
                               ? "border-[#C8A661] bg-[#C8A661]/10"
                               : "border bg-background hover:border-[#C8A661]/50"
                           }`}
-                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "starter" })}
-                          data-testid="plan-starter"
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "free" })}
+                          data-testid="plan-free"
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-lg font-bold text-foreground">Starter</h4>
-                            {settingsForm.currentPlan === "starter" && (
+                            <h4 className="text-lg font-bold text-foreground">Free</h4>
+                            {settingsForm.currentPlan === "free" && (
+                              <Badge className="bg-[#C8A661] text-white text-xs">Current</Badge>
+                            )}
+                          </div>
+                          <p className="text-3xl font-black text-foreground mb-2">$0<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Up to 50 orders/month</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Basic POS features</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> 3 machines max</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Email support</li>
+                          </ul>
+                        </div>
+
+                        {/* Pro Plan */}
+                        <div 
+                          className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                            settingsForm.currentPlan === "pro"
+                              ? "border-[#C8A661] bg-[#C8A661]/10"
+                              : "border bg-background hover:border-[#C8A661]/50"
+                          }`}
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "pro" })}
+                          data-testid="plan-pro"
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-lg font-bold text-foreground">Pro</h4>
+                            {settingsForm.currentPlan === "pro" && (
                               <Badge className="bg-[#C8A661] text-white text-xs">Current</Badge>
                             )}
                           </div>
                           <p className="text-3xl font-black text-[#C8A661] mb-2">$49<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                           <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Up to 100 orders/month</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Basic analytics</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Email support</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Unlimited orders</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Advanced analytics</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Unlimited machines</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Priority support</li>
                           </ul>
                         </div>
 
-                        {/* Professional Plan - Recommended */}
+                        {/* Business Plan - Most Popular */}
                         <div 
                           className={`p-5 rounded-xl border-2 transition-all cursor-pointer relative ${
-                            settingsForm.currentPlan === "professional"
+                            settingsForm.currentPlan === "business"
                               ? "border-[#C8A661] bg-[#C8A661]/10"
                               : "border-[#C8A661]/50 bg-background hover:border-[#C8A661]"
                           }`}
-                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "professional" })}
-                          data-testid="plan-professional"
+                          onClick={() => setSettingsForm({ ...settingsForm, currentPlan: "business" })}
+                          data-testid="plan-business"
                         >
                           <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C8A661] text-white text-xs">
-                            RECOMMENDED
+                            MOST POPULAR
                           </Badge>
                           <div className="flex items-center justify-between mb-3 mt-1">
-                            <h4 className="text-lg font-bold text-foreground">Professional</h4>
-                            {settingsForm.currentPlan === "professional" && (
+                            <h4 className="text-lg font-bold text-foreground">Business</h4>
+                            {settingsForm.currentPlan === "business" && (
                               <Badge className="bg-[#C8A661] text-white text-xs">Current</Badge>
                             )}
                           </div>
                           <p className="text-3xl font-black text-[#C8A661] mb-2">$149<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                           <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Unlimited orders</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Advanced analytics</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Pro</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Route optimization</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Priority support</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> AI diagnostics</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Customer loyalty</li>
                           </ul>
                         </div>
 
@@ -7052,13 +7078,12 @@ export default function POSCommandCenter() {
                               <Badge className="bg-[#C8A661] text-white text-xs">Current</Badge>
                             )}
                           </div>
-                          <p className="text-3xl font-black text-[#C8A661] mb-2">$299<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <p className="text-3xl font-black text-purple-500 mb-2">$299<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                           <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Pro</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Everything in Business</li>
                             <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Multi-location support</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Custom integrations</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Dedicated account manager</li>
-                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> White-label options</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> White-label branding</li>
+                            <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-400" /> Dedicated manager</li>
                           </ul>
                         </div>
                       </div>
@@ -9211,20 +9236,21 @@ export default function POSCommandCenter() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              {/* Starter Plan */}
-              <div className="relative rounded-xl border-2 border-border bg-card/50 p-6 flex flex-col" data-testid="plan-starter">
-                {settingsForm.currentPlan === "starter" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              {/* Free Plan */}
+              <div className="relative rounded-xl border-2 border-border bg-card/50 p-6 flex flex-col" data-testid="plan-modal-free">
+                {settingsForm.currentPlan === "free" && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
                     Current Plan
                   </Badge>
                 )}
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-bold text-foreground mb-1">Starter</h3>
+                  <h3 className="text-lg font-bold text-foreground mb-1">Free</h3>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-3xl font-black text-foreground">Free</span>
+                    <span className="text-3xl font-black text-foreground">$0</span>
+                    <span className="text-muted-foreground">/month</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">For small laundromats</p>
+                  <p className="text-xs text-muted-foreground mt-1">Get started</p>
                 </div>
                 <div className="space-y-3 flex-1 mb-6">
                   {[
@@ -9239,34 +9265,20 @@ export default function POSCommandCenter() {
                       <span className="text-muted-foreground">{feature}</span>
                     </div>
                   ))}
-                  {[
-                    "Route optimization",
-                    "Customer loyalty program",
-                    "AI diagnostics",
-                    "Multi-location",
-                  ].map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm opacity-50">
-                      <X className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground line-through">{feature}</span>
-                    </div>
-                  ))}
                 </div>
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  disabled={settingsForm.currentPlan === "starter"}
+                  disabled={settingsForm.currentPlan === "free"}
                 >
-                  {settingsForm.currentPlan === "starter" ? "Current Plan" : "Select Plan"}
+                  {settingsForm.currentPlan === "free" ? "Current Plan" : "Select Plan"}
                 </Button>
               </div>
 
-              {/* Pro Plan - Highlighted */}
-              <div className="relative rounded-xl border-2 border-[#C8A661] bg-gradient-to-b from-[#C8A661]/10 to-card p-6 flex flex-col shadow-lg" data-testid="plan-pro">
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C8A661] text-white animate-pulse">
-                  Most Popular
-                </Badge>
-                {settingsForm.currentPlan === "professional" && (
-                  <Badge className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
+              {/* Pro Plan */}
+              <div className="relative rounded-xl border-2 border-border bg-card/50 p-6 flex flex-col" data-testid="plan-modal-pro">
+                {settingsForm.currentPlan === "pro" && (
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
                     Current Plan
                   </Badge>
                 )}
@@ -9276,7 +9288,7 @@ export default function POSCommandCenter() {
                     <span className="text-3xl font-black text-[#C8A661]">$49</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">For growing businesses</p>
+                  <p className="text-xs text-muted-foreground mt-1">For serious buyers</p>
                 </div>
                 <div className="space-y-3 flex-1 mb-6">
                   {[
@@ -9285,38 +9297,68 @@ export default function POSCommandCenter() {
                     "Unlimited machines",
                     "Priority support",
                     "Advanced analytics",
-                    "Route optimization",
-                    "Customer loyalty program",
-                    "AI diagnostics",
-                    "Demand forecasting",
                   ].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span className="text-foreground">{feature}</span>
                     </div>
                   ))}
+                </div>
+                <Button 
+                  className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
+                  disabled={settingsForm.currentPlan === "pro"}
+                  data-testid="button-upgrade-pro"
+                >
+                  {settingsForm.currentPlan === "pro" ? "Current Plan" : "Go Pro"}
+                </Button>
+              </div>
+
+              {/* Business Plan - Most Popular */}
+              <div className="relative rounded-xl border-2 border-[#C8A661] bg-gradient-to-b from-[#C8A661]/10 to-card p-6 flex flex-col shadow-lg" data-testid="plan-modal-business">
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#C8A661] text-white animate-pulse">
+                  Most Popular
+                </Badge>
+                {settingsForm.currentPlan === "business" && (
+                  <Badge className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
+                    Current Plan
+                  </Badge>
+                )}
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-foreground mb-1">Business</h3>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-3xl font-black text-[#C8A661]">$149</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">For operators & investors</p>
+                </div>
+                <div className="space-y-3 flex-1 mb-6">
                   {[
-                    "Multi-location",
-                    "White-label",
+                    "Everything in Pro",
+                    "Route optimization",
+                    "Customer loyalty program",
+                    "AI diagnostics",
+                    "Demand forecasting",
+                    "POS Command Center",
+                    "Design Studio",
                   ].map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm opacity-50">
-                      <X className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground line-through">{feature}</span>
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span className="text-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
                 <Button 
                   className="w-full bg-[#C8A661] hover:bg-[#9A7209] text-white font-semibold"
-                  disabled={settingsForm.currentPlan === "professional"}
-                  data-testid="button-upgrade-pro"
+                  disabled={settingsForm.currentPlan === "business"}
+                  data-testid="button-upgrade-business"
                 >
                   <Crown className="w-4 h-4 mr-2" />
-                  {settingsForm.currentPlan === "professional" ? "Current Plan" : "Upgrade to Pro"}
+                  {settingsForm.currentPlan === "business" ? "Current Plan" : "Get Business"}
                 </Button>
               </div>
 
               {/* Enterprise Plan */}
-              <div className="relative rounded-xl border-2 border-purple-500/50 bg-gradient-to-b from-purple-500/10 to-card p-6 flex flex-col" data-testid="plan-enterprise">
+              <div className="relative rounded-xl border-2 border-purple-500/50 bg-gradient-to-b from-purple-500/10 to-card p-6 flex flex-col" data-testid="plan-modal-enterprise">
                 {settingsForm.currentPlan === "enterprise" && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1e3a5f] text-white">
                     Current Plan
@@ -9325,23 +9367,20 @@ export default function POSCommandCenter() {
                 <div className="text-center mb-6">
                   <h3 className="text-lg font-bold text-foreground mb-1">Enterprise</h3>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-3xl font-black text-purple-500">$199</span>
+                    <span className="text-3xl font-black text-purple-500">$299</span>
                     <span className="text-muted-foreground">/month</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">For multi-location chains</p>
                 </div>
                 <div className="space-y-3 flex-1 mb-6">
                   {[
-                    "Everything in Pro",
+                    "Everything in Business",
                     "Multi-location management",
                     "White-label branding",
                     "Dedicated account manager",
                     "Custom integrations",
                     "API access",
                     "Predictive maintenance AI",
-                    "Staff management",
-                    "Custom reporting",
-                    "SLA guarantee",
                   ].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       <Check className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -9369,38 +9408,46 @@ export default function POSCommandCenter() {
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left py-2 px-3 text-muted-foreground font-medium">Feature</th>
-                      <th className="text-center py-2 px-3 text-muted-foreground font-medium">Starter</th>
-                      <th className="text-center py-2 px-3 text-[#C8A661] font-medium">Pro</th>
+                      <th className="text-center py-2 px-3 text-muted-foreground font-medium">Free</th>
+                      <th className="text-center py-2 px-3 text-muted-foreground font-medium">Pro</th>
+                      <th className="text-center py-2 px-3 text-[#C8A661] font-medium">Business</th>
                       <th className="text-center py-2 px-3 text-purple-500 font-medium">Enterprise</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { feature: "Orders per Month", starter: "50", pro: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Machine Tracking", starter: "3 max", pro: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Route Optimization", starter: false, pro: true, enterprise: true },
-                      { feature: "Customer Loyalty", starter: false, pro: true, enterprise: true },
-                      { feature: "AI Diagnostics", starter: false, pro: true, enterprise: true },
-                      { feature: "Multi-Location", starter: false, pro: false, enterprise: true },
-                      { feature: "Custom Branding", starter: false, pro: false, enterprise: true },
-                      { feature: "API Access", starter: false, pro: false, enterprise: true },
-                      { feature: "Predictive Maintenance", starter: false, pro: false, enterprise: true },
-                      { feature: "Support", starter: "Email", pro: "Priority", enterprise: "Dedicated" },
+                      { feature: "Orders per Month", free: "50", pro: "Unlimited", business: "Unlimited", enterprise: "Unlimited" },
+                      { feature: "Machine Tracking", free: "3 max", pro: "Unlimited", business: "Unlimited", enterprise: "Unlimited" },
+                      { feature: "Route Optimization", free: false, pro: false, business: true, enterprise: true },
+                      { feature: "Customer Loyalty", free: false, pro: false, business: true, enterprise: true },
+                      { feature: "AI Diagnostics", free: false, pro: false, business: true, enterprise: true },
+                      { feature: "Design Studio", free: false, pro: false, business: true, enterprise: true },
+                      { feature: "Multi-Location", free: false, pro: false, business: false, enterprise: true },
+                      { feature: "White-Label Branding", free: false, pro: false, business: false, enterprise: true },
+                      { feature: "API Access", free: false, pro: false, business: false, enterprise: true },
+                      { feature: "Support", free: "Email", pro: "Priority", business: "Priority", enterprise: "Dedicated" },
                     ].map((row, idx) => (
                       <tr key={idx} className="border-b border-border/50">
                         <td className="py-2 px-3 text-foreground">{row.feature}</td>
                         <td className="text-center py-2 px-3">
-                          {typeof row.starter === "boolean" ? (
-                            row.starter ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
+                          {typeof row.free === "boolean" ? (
+                            row.free ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
                           ) : (
-                            <span className="text-muted-foreground">{row.starter}</span>
+                            <span className="text-muted-foreground">{row.free}</span>
                           )}
                         </td>
-                        <td className="text-center py-2 px-3 bg-[#C8A661]/5">
+                        <td className="text-center py-2 px-3">
                           {typeof row.pro === "boolean" ? (
                             row.pro ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
                           ) : (
                             <span className="text-foreground font-medium">{row.pro}</span>
+                          )}
+                        </td>
+                        <td className="text-center py-2 px-3 bg-[#C8A661]/5">
+                          {typeof row.business === "boolean" ? (
+                            row.business ? <Check className="w-4 h-4 text-emerald-500 mx-auto" /> : <X className="w-4 h-4 text-muted-foreground mx-auto" />
+                          ) : (
+                            <span className="text-foreground font-medium">{row.business}</span>
                           )}
                         </td>
                         <td className="text-center py-2 px-3">
