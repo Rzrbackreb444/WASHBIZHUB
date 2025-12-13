@@ -42,12 +42,8 @@ export function useAuth() {
 
   const logout = () => {
     queryClient.setQueryData(["/api/auth/user"], null);
-    // Use appropriate logout URL based on provider
-    if (providers?.cloudflareAccess?.enabled) {
-      window.location.href = "/api/auth/cloudflare/logout";
-    } else {
-      window.location.href = "/api/logout";
-    }
+    // Always use Cloudflare logout endpoint (it handles session cleanup)
+    window.location.href = "/api/auth/cloudflare/logout";
   };
 
   const login = (redirectPath: string = '/dashboard') => {
@@ -55,7 +51,7 @@ export function useAuth() {
     if (providers?.cloudflareAccess?.enabled) {
       window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
     } else if (providers?.google?.enabled) {
-      window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
+      window.location.href = `/api/auth/google/login?redirect=${redirect}`;
     } else {
       window.location.href = `/login`;
     }

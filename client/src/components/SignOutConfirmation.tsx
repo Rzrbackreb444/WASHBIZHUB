@@ -1,4 +1,4 @@
-import { useState, useCallback, createContext, useContext, useEffect } from "react";
+import { useState, useCallback, createContext, useContext } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,12 +10,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getQueryFn } from "@/lib/queryClient";
-
-interface AuthProviders {
-  cloudflareAccess?: { enabled: boolean };
-}
 
 interface SignOutContextValue {
   signOut: () => void;
@@ -40,26 +34,15 @@ export function SignOutConfirmationProvider({ children }: SignOutConfirmationPro
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const { data: providers } = useQuery<AuthProviders>({
-    queryKey: ["/api/auth/cloudflare/providers"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-    staleTime: 300000,
-    retry: false,
-  });
-
   const signOut = useCallback(() => {
     setIsOpen(true);
   }, []);
 
   const handleConfirm = useCallback(() => {
     setIsSigningOut(true);
-    // Use Cloudflare logout if enabled, otherwise standard logout
-    if (providers?.cloudflareAccess?.enabled) {
-      window.location.href = "/api/auth/cloudflare/logout";
-    } else {
-      window.location.href = "/api/logout";
-    }
-  }, [providers]);
+    // Always use Cloudflare logout endpoint (it handles session cleanup)
+    window.location.href = "/api/auth/cloudflare/logout";
+  }, []);
 
   const handleCancel = useCallback(() => {
     setIsOpen(false);
