@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeModal, useUpgradeModal } from "@/components/UpgradeModal";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -26,6 +28,9 @@ import {
   LayoutGrid,
   Sparkles,
   Check,
+  Crown,
+  Lock,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,16 +68,21 @@ const DEFAULT_WIDGETS: LayoutItem[] = [
 
 export default function CommandCenter() {
   const { user, isLoading: authLoading } = useAuth();
+  const { isPro, isBusiness, tier } = useSubscription();
   const { toast } = useToast();
+  const { isOpen: isUpgradeOpen, openUpgradeModal, closeUpgradeModal, UpgradeModalComponent } = useUpgradeModal();
   
   const [widgets, setWidgets] = useState<LayoutItem[]>(DEFAULT_WIDGETS);
   const [isEditing, setIsEditing] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  const isDemo = !isPro;
+  const canSaveLayouts = isPro;
+
   const { data: savedLayout, isLoading: layoutLoading } = useQuery<DashboardLayout>({
     queryKey: ["/api/dashboard/layouts/default"],
-    enabled: !!user,
+    enabled: !!user && canSaveLayouts,
   });
 
   useEffect(() => {
@@ -137,15 +147,23 @@ export default function CommandCenter() {
   }, [toast]);
 
   const handleSave = useCallback(() => {
+    if (!canSaveLayouts) {
+      openUpgradeModal({
+        feature: "command-center",
+        title: "Save Your Dashboard Layout",
+        description: "Upgrade to Pro to save your custom dashboard layouts and access your personalized command center from any device.",
+      });
+      return;
+    }
     saveLayoutMutation.mutate(widgets);
-  }, [widgets, saveLayoutMutation]);
+  }, [widgets, saveLayoutMutation, canSaveLayouts, openUpgradeModal]);
 
   const toggleEditMode = useCallback(() => {
-    if (isEditing && hasUnsavedChanges) {
+    if (isEditing && hasUnsavedChanges && canSaveLayouts) {
       handleSave();
     }
     setIsEditing((prev) => !prev);
-  }, [isEditing, hasUnsavedChanges, handleSave]);
+  }, [isEditing, hasUnsavedChanges, handleSave, canSaveLayouts]);
 
   const usedWidgetTypes = widgets.map((w) => w.widgetType);
 
@@ -180,11 +198,21 @@ export default function CommandCenter() {
 
       <DashboardShell
         title="Command Center"
-        subtitle="Your customizable dashboard"
+        subtitle={isDemo ? "Demo Mode - Try it out!" : "Your customizable dashboard"}
         showDatePicker={false}
         showExportButtons={false}
         headerActions={
           <div className="flex items-center gap-2">
+            {isDemo && (
+              <Badge 
+                className="gap-1.5 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30"
+                data-testid="badge-demo-mode"
+              >
+                <Eye className="h-3 w-3" />
+                Demo
+              </Badge>
+            )}
+            
             {hasUnsavedChanges && (
               <Badge variant="secondary" className="gap-1">
                 <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
@@ -244,17 +272,68 @@ export default function CommandCenter() {
                   size="sm"
                   className="gap-1.5"
                   onClick={handleSave}
-                  disabled={!hasUnsavedChanges || saveLayoutMutation.isPending}
+                  disabled={saveLayoutMutation.isPending}
                   data-testid="button-save-layout"
                 >
-                  <Save className="h-4 w-4" />
-                  Save
+                  {isDemo ? <Lock className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                  {isDemo ? "Save (Pro)" : "Save"}
                 </Button>
               </>
+            )}
+
+            {isDemo && (
+              <Button
+                size="sm"
+                className="gap-1.5 bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628]"
+                onClick={() => openUpgradeModal({
+                  feature: "command-center",
+                  title: "Unlock Command Center",
+                  description: "Save your layouts, access real-time data, and build your perfect dashboard.",
+                })}
+                data-testid="button-upgrade-cta"
+              >
+                <Crown className="h-4 w-4" />
+                Upgrade
+              </Button>
             )}
           </div>
         }
       >
+        {isDemo && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 rounded-lg border border-[#C8A661]/30 bg-[#C8A661]/5"
+            data-testid="demo-banner"
+          >
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-[#C8A661]/10 flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-[#C8A661]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">Try the Command Center</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Add widgets, rearrange them, and explore. Upgrade to save your layout.
+                  </p>
+                </div>
+              </div>
+              <Button
+                className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
+                onClick={() => openUpgradeModal({
+                  feature: "command-center",
+                  title: "Unlock Command Center",
+                  description: "Save your layouts, access real-time data, and build your perfect dashboard.",
+                })}
+                data-testid="button-demo-upgrade"
+              >
+                <Crown className="h-4 w-4" />
+                Unlock Full Access
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -289,6 +368,8 @@ export default function CommandCenter() {
           usedWidgets={usedWidgetTypes}
         />
       </DashboardShell>
+
+      <UpgradeModalComponent />
     </AuthGuard>
   );
 }

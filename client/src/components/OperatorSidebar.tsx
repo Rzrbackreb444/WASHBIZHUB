@@ -34,6 +34,7 @@ import {
   DollarSign,
   MessageSquare,
   Crown,
+  LayoutGrid,
 } from "lucide-react";
 
 interface OperatorSidebarProps {
@@ -45,6 +46,7 @@ const operatorModules = [
     group: "Command Center",
     items: [
       { title: "Dashboard", url: "/operator-dashboard", icon: LayoutDashboard, badge: null },
+      { title: "Command Center", url: "/command-center", icon: LayoutGrid, badge: "New" },
       { title: "POS Suite", url: "/pos-suite", icon: ShoppingCart, badge: null },
       { title: "Machine Bookings", url: "/booking-management", icon: Calendar, badge: null },
     ]
