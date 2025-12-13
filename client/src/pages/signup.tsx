@@ -157,7 +157,7 @@ export default function Signup() {
   }, [isAuthenticated, isLoading, setLocation]);
 
   const handleGoogleSignup = useCallback(() => {
-    window.location.href = "/api/auth/google";
+    window.location.href = "/api/auth/cloudflare/login";
   }, []);
 
   const handleMagicLinkRequest = useCallback(async (data: MagicLinkFormData) => {
