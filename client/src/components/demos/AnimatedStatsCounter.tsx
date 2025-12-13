@@ -10,7 +10,7 @@ interface StatItem {
 }
 
 const STATS: StatItem[] = [
-  { icon: Users, value: 72000, suffix: "+", label: "Community Members", color: "text-teal-400" },
+  { icon: Users, value: 73000, suffix: "+", label: "Community Members", color: "text-teal-400" },
   { icon: MapPin, value: 15847, suffix: "+", label: "CLEANBI Analyses", color: "text-green-400" },
   { icon: Calculator, value: 50, suffix: "+", label: "Pro Calculators", color: "text-amber-400" },
   { icon: Building2, value: 847, suffix: "+", label: "Active Listings", color: "text-purple-400" },

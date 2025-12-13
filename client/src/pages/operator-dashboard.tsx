@@ -1098,7 +1098,7 @@ export default function OperatorDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-center p-4 bg-muted/30 rounded-lg">
-                      <div className="text-3xl font-bold">72K+</div>
+                      <div className="text-3xl font-bold">73K+</div>
                       <div className="text-sm text-muted-foreground">Community Members</div>
                     </div>
                     <Link href="/community">

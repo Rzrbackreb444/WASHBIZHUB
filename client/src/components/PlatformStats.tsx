@@ -79,7 +79,7 @@ function StatItem({ icon: Icon, value, label, suffix = "", color, delay }: StatI
 
 export function PlatformStats() {
   const stats = [
-    { icon: Users, value: "72000", label: "Industry Professionals", suffix: "+", color: "bg-[#C8A661]/20 text-[#C8A661]", delay: 0 },
+    { icon: Users, value: "73000", label: "Industry Professionals", suffix: "+", color: "bg-[#C8A661]/20 text-[#C8A661]", delay: 0 },
     { icon: FileText, value: "110", label: "Expert Blog Posts", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 200 },
     { icon: Calculator, value: "50", label: "Business Calculators", suffix: "+", color: "bg-[#C8A661]/20 text-[#C8A661]", delay: 400 },
     { icon: Globe, value: "220", label: "Countries Covered", suffix: "+", color: "bg-[#1e3a5f]/30 text-white/80", delay: 600 },

@@ -514,7 +514,7 @@ export default function BrokerDirectory() {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-[#C8A661]" />
-                      Access to 72,000+ member network
+                      Access to 73,000+ member network
                     </li>
                   </ul>
                   <Button 
@@ -531,7 +531,7 @@ export default function BrokerDirectory() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/10 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-bold text-[#C8A661]">72K+</div>
+                    <div className="text-3xl font-bold text-[#C8A661]">73K+</div>
                     <div className="text-sm text-gray-300">Active Members</div>
                   </div>
                   <div className="bg-white/10 rounded-lg p-4 text-center">

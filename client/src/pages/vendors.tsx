@@ -270,7 +270,7 @@ export default function Vendors() {
               Want to Sell on WashBizHub?
             </h2>
             <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              Join our verified vendor network and reach 72,000+ laundromat operators. 
+              Join our verified vendor network and reach 73,000+ laundromat operators. 
               List your products, manage orders, and grow your business.
             </p>
             <Button size="lg" className="bg-accent text-primary font-bold px-8 py-6 text-lg">

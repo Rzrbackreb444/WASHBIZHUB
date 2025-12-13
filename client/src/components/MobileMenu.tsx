@@ -41,7 +41,7 @@ const mobilePillars: MenuSection[] = [
     title: "Intelligence",
     icon: Search,
     items: [
-      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, featured: true, description: "AI location analysis" },
+      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, featured: true, description: "Location scoring" },
       { href: "/calculators", label: "All Calculators", icon: Calculator, description: "50+ tools" },
       { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "What's it worth?" },
       { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, description: "Investment returns" },
@@ -60,7 +60,7 @@ const mobilePillars: MenuSection[] = [
       { href: "/pos-command-center", label: "POS Command Center", icon: Smartphone, description: "Point of sale" },
       { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
       { href: "/iot-dashboard", label: "IoT Dashboard", icon: Cpu, description: "Machine monitoring" },
-      { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "AI diagnostics" },
+      { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "Expert diagnostics" },
     ]
   },
   {

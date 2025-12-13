@@ -74,7 +74,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
   const defaultAds = {
     header: {
       title: "List Your Laundromat",
-      description: "Sell faster with our 72,000+ buyer network",
+      description: "Sell faster with our 73,000+ buyer network",
       cta: "List Now - Free",
       link: "/listings/create",
       bgClass: "bg-gradient-to-r from-primary/10 to-accent/10",
@@ -82,7 +82,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
     },
     banner: {
       title: "List Your Laundromat",
-      description: "Sell faster with our 72,000+ buyer network",
+      description: "Sell faster with our 73,000+ buyer network",
       cta: "List Now - Free",
       link: "/listings/create",
       bgClass: "bg-gradient-to-r from-primary/10 to-accent/10",
@@ -90,7 +90,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
     },
     marketplace: {
       title: "Advertise Your Business",
-      description: "Reach 72,000+ laundromat owners and investors",
+      description: "Reach 73,000+ laundromat owners and investors",
       cta: "Learn More",
       link: "/contact",
       bgClass: "bg-gradient-to-r from-primary/10 to-accent/10",
@@ -106,7 +106,7 @@ export function Advertisement({ placement, className = "" }: AdvertisementProps)
     },
     footer: {
       title: "Partner With Us",
-      description: "List your services in our directory and reach 72,000+ laundromat owners",
+      description: "List your services in our directory and reach 73,000+ laundromat owners",
       cta: "Get Featured",
       link: "/directory",
       bgClass: "bg-gradient-to-r from-accent/10 to-primary/10",

@@ -42,11 +42,11 @@ router.get("/products/:category", async (req, res) => {
 router.post("/products/seed", async (req, res) => {
   try {
     const defaultProducts = [
-      // Facebook Group Advertising - 72,000 Members
+      // Facebook Group Advertising - 73,000 Members
       {
         name: "Premium Sponsor",
         slug: "fb-premium-sponsor",
-        description: "Top-tier visibility in our 72,000+ member laundromat owner Facebook group",
+        description: "Top-tier visibility in our 73,000+ member laundromat owner Facebook group",
         category: "facebook_group",
         priceMonthly: "1400.00",
         pricingType: "monthly",
@@ -57,7 +57,7 @@ router.post("/products/seed", async (req, res) => {
           "Logo on group cover photo",
           "Direct access to group owner",
           "Exclusive vendor status",
-          "Access to 72,000+ laundromat owners & aspiring owners"
+          "Access to 73,000+ laundromat owners & aspiring owners"
         ]),
         popular: true,
         displayOrder: 1
@@ -65,7 +65,7 @@ router.post("/products/seed", async (req, res) => {
       {
         name: "Vendor Partner Badge",
         slug: "fb-vendor-badge",
-        description: "Official vendor partner status with credibility boost to 72,000 members",
+        description: "Official vendor partner status with credibility boost to 73,000 members",
         category: "facebook_group",
         priceMonthly: "499.00",
         pricingType: "monthly",
@@ -74,7 +74,7 @@ router.post("/products/seed", async (req, res) => {
           "Access to post promotions",
           "Listed in vendor directory",
           "Group shoutout upon joining",
-          "Credibility with 72K decision-makers"
+          "Credibility with 73K decision-makers"
         ]),
         displayOrder: 2
       },
@@ -90,14 +90,14 @@ router.post("/products/seed", async (req, res) => {
           "Branded Canva template",
           "Badge icon + CTA button",
           "24-hour sticky post option",
-          "Reach 72,000+ targeted members"
+          "Reach 73,000+ targeted members"
         ]),
         displayOrder: 3
       },
       {
         name: "Logo Placement",
         slug: "fb-logo-placement",
-        description: "Your logo on the group cover photo seen by 72,000 members",
+        description: "Your logo on the group cover photo seen by 73,000 members",
         category: "facebook_group",
         priceMonthly: "499.00",
         pricingType: "monthly",
@@ -198,12 +198,12 @@ router.post("/products/seed", async (req, res) => {
       {
         name: "Standard License",
         slug: "vendor-license-standard",
-        description: "License your product/service to our 72K+ member network",
+        description: "License your product/service to our 73K+ member network",
         category: "vendor_licensing",
         priceMonthly: "999.00",
         pricingType: "monthly",
         features: JSON.stringify([
-          "Access to 72K laundromat owner network",
+          "Access to 73K laundromat owner network",
           "Product listing in marketplace",
           "Lead generation",
           "Monthly performance reports"

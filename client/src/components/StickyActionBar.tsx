@@ -37,7 +37,7 @@ export function StickyActionBar() {
             <div className="hidden sm:flex items-center gap-2">
               <Badge className="bg-[#39CCCC]/20 text-[#39CCCC] border-[#39CCCC]/30 text-xs">
                 <Sparkles className="w-3 h-3 mr-1" />
-                72K+ Professionals
+                73K+ Professionals
               </Badge>
             </div>
 
@@ -198,7 +198,7 @@ export function FloatingCTAButton() {
                 onClick={() => setIsExpanded(false)}
               >
                 <SiFacebook className="w-4 h-4 mr-2" />
-                Join 72K+ Community
+                Join 73K+ Community
                 <ExternalLink className="w-3 h-3 ml-auto" />
               </Button>
             </a>

@@ -197,7 +197,7 @@ function getFeatureDescription(feature: string): string {
   const descriptions: Record<string, string> = {
     "book-access": "The complete guide to buying, operating, and scaling laundromats. 500+ pages of expert knowledge.",
     "courses-access": "Video courses, training modules, and certifications to master laundromat ownership.",
-    "forum-post": "Join the conversation. Ask questions, share insights, and connect with 72,000+ industry professionals.",
+    "forum-post": "Join the conversation. Ask questions, share insights, and connect with 73,000+ industry professionals.",
     "cleanbi-full": "Get detailed breakdowns, AI recommendations, and export-ready reports for any location.",
     "cleanbi-unlimited": "Run unlimited location analyses without daily restrictions.",
     "cleanbi-bulk": "Analyze hundreds of locations at once with enterprise-grade batch processing.",

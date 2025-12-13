@@ -217,7 +217,7 @@ export function Paywall({
               ))}
             </div>
             <div className="text-xs text-muted-foreground">
-              <span className="font-medium text-card-foreground">72,000+</span> professionals trust WashBizHub
+              <span className="font-medium text-card-foreground">73,000+</span> professionals trust WashBizHub
             </div>
           </div>
         </CardContent>

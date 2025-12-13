@@ -406,7 +406,7 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
       { text: 'AUTO-INDEX: Submitted to Google & Bing instantly', included: true, highlight: true },
       { text: 'Homepage spotlight banner', included: true, highlight: true },
       { text: 'Social media promotion', included: true },
-      { text: 'Email blast to 72K+ members', included: true },
+      { text: 'Email blast to 73K+ members', included: true },
       { text: 'Unlimited photos & videos', included: true },
       { text: 'Concierge listing setup + priority support', included: true },
     ],

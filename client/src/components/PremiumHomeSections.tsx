@@ -577,7 +577,7 @@ export function MarketplaceSection() {
                     List Your Business
                   </h3>
                   <p className="text-xs text-gray-600 mb-4 leading-relaxed">
-                    Reach 72,000+ laundromat owners and operators
+                    Reach 73,000+ laundromat owners and operators
                   </p>
                   <Link href="/list-your-laundromat">
                     <Button variant="outline" className="w-full border-[#1e3a5f] text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white" data-testid="button-list-your-business">
@@ -1165,7 +1165,7 @@ export function CTASection() {
           >
             <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 hover:bg-[#C8A661]/30">
               <Sparkles className="w-3 h-3 mr-1" />
-              Join 72,000+ Professionals
+              Join 73,000+ Professionals
             </Badge>
           </motion.div>
           

@@ -69,7 +69,7 @@ const benefits = [
   { 
     icon: MessageSquare, 
     title: "Expert Community",
-    description: "Connect with 72,000+ professionals"
+    description: "Connect with 73,000+ professionals"
   },
   { 
     icon: Wrench, 
@@ -328,8 +328,8 @@ export default function Signup() {
   return (
     <>
       <Helmet>
-        <title>Sign Up - Join 72,000+ Laundromat Professionals | WashBizHub</title>
-        <meta name="description" content="Create your free WashBizHub account. Access CLEANBI location scoring, ROI calculators, Design Studio, and connect with 72,000+ laundromat professionals." />
+        <title>Sign Up - Join 73,000+ Laundromat Professionals | WashBizHub</title>
+        <meta name="description" content="Create your free WashBizHub account. Access CLEANBI location scoring, ROI calculators, Design Studio, and connect with 73,000+ laundromat professionals." />
         <meta property="og:title" content="Join the #1 Laundromat Community | WashBizHub" />
         <meta property="og:description" content="Sign up for free and access CLEANBI, Design Studio, expert community, and premium tools." />
         <meta property="og:type" content="website" />
@@ -355,7 +355,7 @@ export default function Signup() {
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8" data-testid="hero-stats">
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-[#C8A661]" />
-                <span className="text-white font-semibold">72,000+</span>
+                <span className="text-white font-semibold">73,000+</span>
                 <span className="text-gray-400">Professionals</span>
               </div>
               <div className="hidden md:block h-4 w-px bg-gray-600" />
@@ -762,7 +762,7 @@ export default function Signup() {
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-[#C8A661]" />
-              <span>72K+ Trusted</span>
+              <span>73K+ Trusted</span>
             </div>
           </div>
         </div>

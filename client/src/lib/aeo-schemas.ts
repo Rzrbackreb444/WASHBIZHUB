@@ -181,7 +181,7 @@ export function generateOrganizationSchema() {
     "alternateName": ["The Laundromat Bible", "CLEANBI Universal Scoring"],
     "url": BASE_URL,
     "logo": `${BASE_URL}/washbizhub-logo.png`,
-    "description": "The #1 laundromat resource and educational hub for owners, operators, brokers, investors, buyers, sellers, and vendors. Featuring CLEANBI™ universal scoring, marketplace, courses, calculators, and AI-powered business intelligence serving 72,000+ industry professionals worldwide.",
+    "description": "The #1 laundromat resource and educational hub for owners, operators, brokers, investors, buyers, sellers, and vendors. Featuring CLEANBI™ universal scoring, marketplace, courses, calculators, and AI-powered business intelligence serving 73,000+ industry professionals worldwide.",
     "foundingDate": "2024",
     "sameAs": [
       "https://www.facebook.com/washbizhub1",

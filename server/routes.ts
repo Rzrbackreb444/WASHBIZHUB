@@ -653,7 +653,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         blogPosts: blogPosts.length,
         resources: resources.length,
         listings: listings.length,
-        industryMembers: 72000,
+        industryMembers: 73000,
         downtimeReduction: 40,
         savedInRepairs: 1200000,
         updatedAt: new Date().toISOString()

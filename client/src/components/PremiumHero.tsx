@@ -487,7 +487,7 @@ export function PremiumHero() {
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-[#C8A661]" />
               <span className="text-xs sm:text-sm text-white/50 font-medium">
-                Trusted by 72,000+ Industry Professionals
+                Trusted by 73,000+ Industry Professionals
               </span>
             </div>
             <div className="hidden sm:block w-px h-4 bg-white/20" />
