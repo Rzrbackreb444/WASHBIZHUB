@@ -9,12 +9,12 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   
   res.setHeader('Content-Security-Policy', [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://accounts.google.com https://apis.google.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: blob: https: http:",
-    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://*.replit.dev wss://*.replit.dev https://maps.googleapis.com",
-    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+    "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://*.replit.dev wss://*.replit.dev https://maps.googleapis.com https://accounts.google.com https://oauth2.googleapis.com",
+    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
     "object-src 'none'",
     "base-uri 'self'",
   ].join('; '));
