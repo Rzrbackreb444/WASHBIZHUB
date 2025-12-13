@@ -12,13 +12,13 @@ import { SEO } from "@/components/SEO";
 import { motion } from "framer-motion";
 import { 
   Lock, LogIn, Mail, Eye, EyeOff, AlertCircle, Sparkles, 
-  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound, Zap
+  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound
 } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -192,52 +192,6 @@ export default function Login() {
       setIsSendingMagicLink(false);
     }
   }, [magicLinkEmail, toast]);
-
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
-  const handleGoogleSuccess = useCallback(async (credentialResponse: CredentialResponse) => {
-    if (!credentialResponse.credential) {
-      setError("Google sign-in failed. Please try again.");
-      return;
-    }
-
-    setIsGoogleLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/auth/google/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ credential: credentialResponse.credential }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Google sign-in failed");
-        return;
-      }
-
-      toast({
-        title: data.isNewUser ? "Welcome to WashBizHub!" : "Welcome back!",
-        description: data.isNewUser 
-          ? "Your account has been created successfully."
-          : "You've successfully signed in.",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setLocation("/");
-    } catch (err) {
-      setError("Google sign-in failed. Please try again.");
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  }, [toast, setLocation]);
-
-  const handleGoogleError = useCallback(() => {
-    setError("Google sign-in was cancelled or failed. Please try again.");
-  }, []);
 
   const handleEmailLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -566,12 +520,12 @@ export default function Login() {
                 </div>
 
                 <Button
-                  className="w-full h-11 text-base font-semibold gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+                  className="w-full h-11 text-base font-semibold gap-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
                   onClick={() => window.location.href = "/api/auth/cloudflare/login"}
-                  data-testid="button-login-cloudflare"
+                  data-testid="button-login-google"
                 >
-                  <Zap className="w-5 h-5" />
-                  One-Click Sign In
+                  <SiGoogle className="w-5 h-5 text-[#4285F4]" />
+                  Continue with Google
                 </Button>
               </CardContent>
             </Card>
