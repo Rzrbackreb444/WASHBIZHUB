@@ -220,14 +220,15 @@ router.get("/logout", async (req: Request, res: Response) => {
     });
 
     if (cloudflareAccess.isConfigured()) {
-      // Redirect to Cloudflare logout
-      res.redirect(cloudflareAccess.getLogoutUrl());
+      // For Cloudflare Access, redirect to signed-out page after logout
+      // Note: Cloudflare logout URL clears their session, then we show confirmation
+      res.redirect("/signed-out");
     } else {
-      res.redirect("/");
+      res.redirect("/signed-out");
     }
   } catch (error) {
     console.error("Logout error:", error);
-    res.redirect("/");
+    res.redirect("/signed-out");
   }
 });
 
