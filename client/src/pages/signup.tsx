@@ -374,21 +374,11 @@ export default function Signup() {
             <div className="h-1 bg-[#C8A661]" />
             <CardContent className="p-6 md:p-8">
               <Button
-                onClick={handleGoogleSignup}
-                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-3"
-                data-testid="button-google-signup"
-              >
-                <SiGoogle className="h-5 w-5 mr-2" />
-                Continue with Google
-              </Button>
-              
-              <Button
-                variant="outline"
-                className="w-full h-12 text-base font-medium gap-2 mb-4"
+                className="w-full h-12 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold text-base mb-4 gap-2"
                 onClick={() => window.location.href = "/api/auth/cloudflare/login"}
                 data-testid="button-cloudflare-signup"
               >
-                <Zap className="w-5 h-5 text-amber-500" />
+                <Zap className="h-5 w-5" />
                 One-Click Sign Up
               </Button>
 

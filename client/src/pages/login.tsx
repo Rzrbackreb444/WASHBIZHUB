@@ -565,37 +565,14 @@ export default function Login() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  {isGoogleLoading ? (
-                    <div className="w-full h-11 flex items-center justify-center border rounded-lg">
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      <span>Signing in with Google...</span>
-                    </div>
-                  ) : (
-                    <div className="w-full flex justify-center" data-testid="button-login-google">
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleError}
-                        useOneTap
-                        theme="outline"
-                        size="large"
-                        width="100%"
-                        text="continue_with"
-                        shape="rectangular"
-                      />
-                    </div>
-                  )}
-                  
-                  <Button
-                    variant="outline"
-                    className="w-full h-11 text-base font-medium gap-2"
-                    onClick={() => window.location.href = "/api/auth/cloudflare/login"}
-                    data-testid="button-login-cloudflare"
-                  >
-                    <Zap className="w-4 h-4 text-amber-500" />
-                    One-Click Sign In
-                  </Button>
-                </div>
+                <Button
+                  className="w-full h-11 text-base font-semibold gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+                  onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                  data-testid="button-login-cloudflare"
+                >
+                  <Zap className="w-5 h-5" />
+                  One-Click Sign In
+                </Button>
               </CardContent>
             </Card>
           </motion.div>
