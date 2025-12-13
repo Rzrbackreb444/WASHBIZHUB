@@ -86,17 +86,33 @@ function isTrialActive(trialEndDate: Date | string | null | undefined): boolean 
 
 /**
  * Gets user ID from request session
+ * Supports: unified-auth middleware, Cloudflare session, and legacy Replit passport
  */
 function getUserIdFromRequest(req: Request): string | null {
+  // Check unified auth user first (set by unified-auth middleware)
+  if ((req as any).user?.id) return (req as any).user.id;
+  
+  // Check session for Cloudflare auth
+  if ((req as any).session?.userId) return (req as any).session.userId;
+  
+  // Legacy Replit passport check
   const user = req.user as any;
   if (!user) return null;
-  return user.claims?.sub || user.sub || null;
+  return user.claims?.sub || user.sub || user.id || null;
 }
 
 /**
  * Gets user email from request session
+ * Supports: unified-auth middleware, Cloudflare session, and legacy Replit passport
  */
 function getUserEmailFromRequest(req: Request): string | null {
+  // Check unified auth user first (set by unified-auth middleware)
+  if ((req as any).user?.email) return (req as any).user.email;
+  
+  // Check session for Cloudflare auth
+  if ((req as any).session?.email) return (req as any).session.email;
+  
+  // Legacy Replit passport check
   const user = req.user as any;
   if (!user) return null;
   return user.claims?.email || user.email || null;
@@ -143,17 +159,28 @@ export function getUserTier(user: {
 
 /**
  * Middleware that validates user is logged in (session check).
+ * Supports: unified-auth middleware, Cloudflare session, and legacy Replit passport
  * Returns 401 if not authenticated.
  */
 export const requireAuth: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-  const user = req.user as any;
+  // Check unified auth user (set by unified-auth middleware)
+  const unifiedUser = (req as any).user;
   
-  if (typeof req.isAuthenticated !== 'function' || !req.isAuthenticated() || !user) {
+  // Check Cloudflare session
+  const sessionUserId = (req as any).session?.userId;
+  
+  // Check legacy Replit passport
+  const passportAuthenticated = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
+  
+  // User is authenticated if any of these are true
+  const isAuthenticated = !!(unifiedUser?.id || sessionUserId || passportAuthenticated);
+  
+  if (!isAuthenticated) {
     return res.status(401).json({
       error: "Authentication required",
       message: "Please log in to access this feature",
       code: "AUTH_REQUIRED",
-      loginUrl: "/api/login",
+      loginUrl: "/api/auth/cloudflare/login",
     });
   }
   
@@ -163,7 +190,7 @@ export const requireAuth: RequestHandler = async (req: Request, res: Response, n
       error: "Authentication required",
       message: "Session expired. Please log in again.",
       code: "SESSION_EXPIRED",
-      loginUrl: "/api/login",
+      loginUrl: "/api/auth/cloudflare/login",
     });
   }
   
@@ -190,7 +217,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
           error: "Authentication required",
           message: "Please log in to access this feature",
           code: "AUTH_REQUIRED",
-          loginUrl: "/api/login",
+          loginUrl: "/api/auth/cloudflare/login",
         });
       }
       

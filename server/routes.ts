@@ -4,7 +4,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, isAdmin } from "./replitAuth";
+import { getSession } from "./replitAuth";
+import { requireAuth, optionalAuth, requireAdmin } from "./services/unified-auth";
+import passport from "passport";
+import cloudflareAuthRoutes from "./cloudflare-auth-routes";
 import { setupGoogleAuth, verifyGoogleToken } from "./googleAuth";
 import { ObjectStorageService, objectStorageClient, parseObjectPath } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
@@ -485,15 +488,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== AUTH ====================
   
-  // Setup Replit Auth (login, logout, callback routes)
-  // This also initializes session middleware - MUST come before email/password auth routes
-  await setupAuth(app);
+  // Setup session middleware (must come before auth routes)
+  app.set("trust proxy", 1);
+  app.use(getSession());
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  // Configure passport serialization for session-based auth
+  passport.serializeUser((user: Express.User, cb) => cb(null, user));
+  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  
+  // Mount Cloudflare Access auth routes (Zero Trust authentication)
+  app.use("/api/auth/cloudflare", cloudflareAuthRoutes);
   
   // Setup Google OAuth (if configured)
   await setupGoogleAuth(app);
   
   // ==================== EMAIL/PASSWORD AUTH ====================
-  // Mounted after setupAuth() so session middleware is available
+  // Mounted after session middleware is initialized
   app.use("/api/auth", authRoutes);
   
   // ==================== PROFILE & SOCIAL ====================
@@ -507,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/activity", activityRouter);
   
   // Get authenticated user data
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const user = await storage.getUser(userId);
@@ -1334,7 +1346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Design Studio routes require all_access tier (Design Studio is premium feature)
-  app.post("/api/designs", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
+  app.post("/api/designs", requireAuth, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1352,7 +1364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/designs/:id", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
+  app.put("/api/designs/:id", requireAuth, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1376,7 +1388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/designs/:id/optimize", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
+  app.post("/api/designs/:id/optimize", requireAuth, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1409,7 +1421,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/designs/:id", isAuthenticated, tierGateRequireTier('all_access'), async (req: any, res) => {
+  app.delete("/api/designs/:id", requireAuth, tierGateRequireTier('all_access'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1445,7 +1457,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CLEANBI Score creation - free users get 3 analyses, all_access gets unlimited
-  app.post("/api/cleanbi", isAuthenticated, checkQuota('cleanbi_analyses'), async (req: any, res) => {
+  app.post("/api/cleanbi", requireAuth, checkQuota('cleanbi_analyses'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1465,7 +1477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // CLEANBI AI Insights (requires all_access tier)
-  app.post("/api/cleanbi/:id/insights", isAuthenticated, tierGateRequireTier("all_access"), async (req: any, res) => {
+  app.post("/api/cleanbi/:id/insights", requireAuth, tierGateRequireTier("all_access"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -1530,7 +1542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog", isAdmin, async (req, res) => {
+  app.post("/api/blog", requireAdmin, async (req, res) => {
     try {
       const validated = insertBlogPostSchema.parse(req.body);
       const post = await storage.createBlogPost(validated);
@@ -1543,7 +1555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/blog/:idOrSlug", isAdmin, async (req, res) => {
+  app.patch("/api/blog/:idOrSlug", requireAdmin, async (req, res) => {
     try {
       // Find post by ID or slug
       let post = await storage.getBlogPost(req.params.idOrSlug);
@@ -1563,7 +1575,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/blog/:idOrSlug", isAdmin, async (req, res) => {
+  app.delete("/api/blog/:idOrSlug", requireAdmin, async (req, res) => {
     try {
       // Find post by ID or slug
       let post = await storage.getBlogPost(req.params.idOrSlug);
@@ -1581,7 +1593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/generate", isAdmin, async (req, res) => {
+  app.post("/api/blog/generate", requireAdmin, async (req, res) => {
     try {
       const { topic, category } = req.body;
       const content = await generateBlogContent(topic, category);
@@ -1593,7 +1605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ==================== MULTI-AI BLOG GENERATION ====================
 
-  app.post("/api/blog/generate-multi-ai", isAdmin, async (req, res) => {
+  app.post("/api/blog/generate-multi-ai", requireAdmin, async (req, res) => {
     try {
       const { keyword, category, targetWordCount, tone } = req.body;
       
@@ -1658,7 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/batch-generate", isAdmin, async (req, res) => {
+  app.post("/api/blog/batch-generate", requireAdmin, async (req, res) => {
     try {
       const { keywords, category } = req.body;
       
@@ -1750,7 +1762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/aadvantage/generate-all", isAdmin, async (req, res) => {
+  app.post("/api/blog/aadvantage/generate-all", requireAdmin, async (req, res) => {
     try {
       const { generateAllAAdvantageBlogs } = await import("./aadvantage-blog-generator");
       
@@ -1787,7 +1799,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (apiKey !== expectedKey) {
         const user = await getCurrentUser(req).catch(() => null);
-        if (!user?.isAdmin) {
+        if (!user?.requireAdmin) {
           return res.status(401).json({ message: "Unauthorized - API key or admin access required" });
         }
       }
@@ -1850,7 +1862,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/aadvantage/generate-single", isAdmin, async (req, res) => {
+  app.post("/api/blog/aadvantage/generate-single", requireAdmin, async (req, res) => {
     try {
       const { state, brand, topic } = req.body;
       const { generateEquipmentBlog, STATES, BRANDS, EQUIPMENT_TOPICS } = await import("./aadvantage-blog-generator");
@@ -1871,7 +1883,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/blog/aadvantage/generate-forum", isAdmin, async (req, res) => {
+  app.post("/api/blog/aadvantage/generate-forum", requireAdmin, async (req, res) => {
     try {
       const { topic } = req.body;
       const { generateForumBlogPost, FORUM_TOPICS } = await import("./aadvantage-blog-generator");
@@ -1898,7 +1910,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate all DAC blogs (50+ blogs)
-  app.post("/api/blog/dac/generate-all", isAdmin, async (req, res) => {
+  app.post("/api/blog/dac/generate-all", requireAdmin, async (req, res) => {
     try {
       const { generateAllDACBlogs } = await import("./dac-blog-generator");
       
@@ -1946,7 +1958,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate all SEC blogs (50+ blogs)
-  app.post("/api/blog/sec/generate-all", isAdmin, async (req, res) => {
+  app.post("/api/blog/sec/generate-all", requireAdmin, async (req, res) => {
     try {
       const { generateAllSECBlogs } = await import("./sec-blog-generator");
       
@@ -1994,7 +2006,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate all PFRG blogs (50 state blogs)
-  app.post("/api/blog/pfrg/generate-all", isAdmin, async (req, res) => {
+  app.post("/api/blog/pfrg/generate-all", requireAdmin, async (req, res) => {
     try {
       const { generateAllPFRGBlogs } = await import("./pfrg-blog-generator");
       
@@ -2053,7 +2065,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/calculator/scenarios", isAuthenticated, async (req: any, res) => {
+  app.post("/api/calculator/scenarios", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2072,7 +2084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/calculator/scenarios/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/calculator/scenarios/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2138,7 +2150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/my-calculators - Get user's created calculators
-  app.get("/api/my-calculators", isAuthenticated, async (req: any, res) => {
+  app.get("/api/my-calculators", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2155,7 +2167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/calculator-marketplace - Create new calculator template
-  app.post("/api/calculator-marketplace", isAuthenticated, async (req: any, res) => {
+  app.post("/api/calculator-marketplace", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2194,7 +2206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PUT /api/calculator-marketplace/:id - Update calculator template
-  app.put("/api/calculator-marketplace/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/calculator-marketplace/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2219,7 +2231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/calculator-marketplace/:id/publish - Publish calculator
-  app.post("/api/calculator-marketplace/:id/publish", isAuthenticated, async (req: any, res) => {
+  app.post("/api/calculator-marketplace/:id/publish", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2245,7 +2257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // DELETE /api/calculator-marketplace/:id - Delete calculator template
-  app.delete("/api/calculator-marketplace/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/calculator-marketplace/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2306,7 +2318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/calculator-marketplace/:id/reviews - Add review
-  app.post("/api/calculator-marketplace/:id/reviews", isAuthenticated, async (req: any, res) => {
+  app.post("/api/calculator-marketplace/:id/reviews", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2331,7 +2343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/creator-profile - Get current user's creator profile
-  app.get("/api/creator-profile", isAuthenticated, async (req: any, res) => {
+  app.get("/api/creator-profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2346,7 +2358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/creator-profile - Create or update creator profile
-  app.post("/api/creator-profile", isAuthenticated, async (req: any, res) => {
+  app.post("/api/creator-profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2397,7 +2409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // POST /api/calculator-marketplace/:id/checkout - Create Stripe checkout for paid calculator
-  app.post("/api/calculator-marketplace/:id/checkout", isAuthenticated, async (req: any, res) => {
+  app.post("/api/calculator-marketplace/:id/checkout", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2517,7 +2529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GET /api/my-purchases - Get user's purchased calculators
-  app.get("/api/my-purchases", isAuthenticated, async (req: any, res) => {
+  app.get("/api/my-purchases", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2860,7 +2872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vendors", isAdmin, async (req, res) => {
+  app.post("/api/vendors", requireAdmin, async (req, res) => {
     try {
       const validated = insertVendorSchema.parse(req.body);
       const vendor = await storage.createVendor(validated);
@@ -2885,7 +2897,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/parts", isAdmin, async (req, res) => {
+  app.post("/api/parts", requireAdmin, async (req, res) => {
     try {
       const validated = insertPartSchema.parse(req.body);
       const part = await storage.createPart(validated);
@@ -2907,7 +2919,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/affiliates", isAuthenticated, async (req: any, res) => {
+  app.post("/api/affiliates", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -2964,7 +2976,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/laundromats", isAuthenticated, async (req: any, res) => {
+  app.post("/api/laundromats", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -3123,7 +3135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Stripe Customer Portal for subscription management
-  app.post("/api/stripe/customer-portal", isAuthenticated, async (req: any, res) => {
+  app.post("/api/stripe/customer-portal", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -3172,7 +3184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create Stripe Checkout for visibility add-on purchase
-  app.post("/api/visibility-addons/checkout", isAuthenticated, async (req: any, res) => {
+  app.post("/api/visibility-addons/checkout", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -3296,7 +3308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get visibility orders for a listing
-  app.get("/api/visibility-orders/listing/:listingId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/visibility-orders/listing/:listingId", requireAuth, async (req: any, res) => {
     try {
       const orders = await db.select({
         order: visibilityOrders,
@@ -3314,7 +3326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get user's visibility orders
-  app.get("/api/visibility-orders/my-orders", isAuthenticated, async (req: any, res) => {
+  app.get("/api/visibility-orders/my-orders", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -3339,7 +3351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get visibility jobs for an order (admin or owner)
-  app.get("/api/visibility-jobs/:orderId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/visibility-jobs/:orderId", requireAuth, async (req: any, res) => {
     try {
       const jobs = await db.select()
         .from(visibilityJobs)
@@ -3353,7 +3365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Manually trigger job processing (admin only)
-  app.post("/api/visibility-jobs/process", isAdmin, async (req, res) => {
+  app.post("/api/visibility-jobs/process", requireAdmin, async (req, res) => {
     try {
       const { processOrderJobs, processPendingJobs } = await import("./visibility-automation");
       
@@ -3373,7 +3385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Retry a failed job (admin only)
-  app.post("/api/visibility-jobs/:jobId/retry", isAdmin, async (req, res) => {
+  app.post("/api/visibility-jobs/:jobId/retry", requireAdmin, async (req, res) => {
     try {
       const { processVisibilityJob } = await import("./visibility-automation");
       
@@ -3414,7 +3426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/courses", isAdmin, async (req, res) => {
+  app.post("/api/courses", requireAdmin, async (req, res) => {
     try {
       const validated = insertCourseSchema.parse(req.body);
       const course = await storage.createCourse(validated);
@@ -3542,7 +3554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin: Auto-populate Academy lessons from diagnostic codes
-  app.post("/api/academy/populate-lessons", isAdmin, async (req, res) => {
+  app.post("/api/academy/populate-lessons", requireAdmin, async (req, res) => {
     try {
       const { tierLevel } = req.body;
       
@@ -3753,7 +3765,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
     }
   });
 
-  app.post("/api/lessons", isAdmin, async (req, res) => {
+  app.post("/api/lessons", requireAdmin, async (req, res) => {
     try {
       const validated = insertLessonSchema.parse(req.body);
       const lesson = await storage.createLesson(validated);
@@ -3764,7 +3776,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
   });
 
   // Submit quiz answers for grading (server-side validation)
-  app.post("/api/lessons/:lessonId/grade", isAuthenticated, async (req, res) => {
+  app.post("/api/lessons/:lessonId/grade", requireAuth, async (req, res) => {
     try {
       const { lessonId } = req.params;
       const { answers } = req.body; // { questionId: selectedOption }
@@ -3850,7 +3862,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
   });
   */
 
-  app.put("/api/enrollments/:id/progress", isAuthenticated, async (req, res) => {
+  app.put("/api/enrollments/:id/progress", requireAuth, async (req, res) => {
     try {
       const { progress, currentLessonId, completedLessons } = req.body;
       const updated = await storage.updateEnrollmentProgress(
@@ -3888,7 +3900,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
     }
   });
 
-  app.post("/api/book/chapters", isAdmin, async (req, res) => {
+  app.post("/api/book/chapters", requireAdmin, async (req, res) => {
     try {
       const validated = insertBookChapterSchema.parse(req.body);
       const chapter = await storage.createBookChapter(validated);
@@ -3985,7 +3997,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
     }
   });
 
-  app.post("/api/ai-blog-tasks", isAdmin, async (req, res) => {
+  app.post("/api/ai-blog-tasks", requireAdmin, async (req, res) => {
     try {
       const validated = insertAiBlogTaskSchema.parse(req.body);
       const task = await storage.createAiBlogTask(validated);
@@ -3995,7 +4007,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
     }
   });
 
-  app.put("/api/ai-blog-tasks/:id", isAdmin, async (req, res) => {
+  app.put("/api/ai-blog-tasks/:id", requireAdmin, async (req, res) => {
     try {
       const task = await storage.updateAiBlogTask(req.params.id, req.body);
       res.json(task);
@@ -4005,7 +4017,7 @@ ${code.quickFix ? `### Quick Fix\n${code.quickFix}` : ''}
   });
 
   // Generate blog content using multi-AI providers
-  app.post("/api/ai-blog-tasks/:id/generate", isAdmin, async (req, res) => {
+  app.post("/api/ai-blog-tasks/:id/generate", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const task = await storage.getAiBlogTask(id);
@@ -4076,7 +4088,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/seo-keywords", isAdmin, async (req, res) => {
+  app.post("/api/seo-keywords", requireAdmin, async (req, res) => {
     try {
       const validated = insertSeoKeywordSchema.parse(req.body);
       const keyword = await storage.createSeoKeyword(validated);
@@ -4098,7 +4110,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.post("/api/competitor-analysis", isAdmin, async (req, res) => {
+  app.post("/api/competitor-analysis", requireAdmin, async (req, res) => {
     try {
       const validated = insertCompetitorAnalysisSchema.parse(req.body);
       const analysis = await storage.createCompetitorAnalysis(validated);
@@ -4143,7 +4155,7 @@ Create engaging, well-researched content that provides value to laundromat owner
     }
   });
 
-  app.put("/api/consultations/:id", isAdmin, async (req, res) => {
+  app.put("/api/consultations/:id", requireAdmin, async (req, res) => {
     try {
       const validated = insertConsultationSchema.partial().parse(req.body);
       const updated = await storage.updateConsultation(req.params.id, validated);
@@ -4253,7 +4265,7 @@ ${notes || 'No additional notes provided'}
   });
 
   // Design Studio Consultation Request - sends complete design package to consultants
-  app.post("/api/send-design-consultation", isAuthenticated, async (req, res) => {
+  app.post("/api/send-design-consultation", requireAuth, async (req, res) => {
     try {
       const { dimensions, equipment, totals, projections, scores, location, notes, timestamp } = req.body;
       const user = req.user as any;
@@ -4627,7 +4639,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // ===== SAVED SEARCHES ENDPOINTS =====
-  app.get("/api/saved-searches", isAuthenticated, async (req: any, res) => {
+  app.get("/api/saved-searches", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4645,7 +4657,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/saved-searches", isAuthenticated, async (req: any, res) => {
+  app.post("/api/saved-searches", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4674,7 +4686,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.delete("/api/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/saved-searches/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4699,7 +4711,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.patch("/api/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/saved-searches/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4744,7 +4756,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/listings", isAuthenticated, async (req: any, res) => {
+  app.post("/api/listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4811,7 +4823,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.put("/api/listings/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/listings/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4871,7 +4883,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // PATCH handler (alias for PUT) - used by frontend for partial updates
-  app.patch("/api/listings/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/listings/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4930,7 +4942,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.delete("/api/listings/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/listings/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -4956,7 +4968,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   // ==================== LISTING SUBSCRIPTION TIERS ====================
   
   // Create Stripe checkout session for listing subscription
-  app.post("/api/listings/:id/subscribe", isAuthenticated, async (req: any, res) => {
+  app.post("/api/listings/:id/subscribe", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -5031,7 +5043,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
   
   // Get listing subscription status
-  app.get("/api/listings/:id/subscription", isAuthenticated, async (req: any, res) => {
+  app.get("/api/listings/:id/subscription", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5077,7 +5089,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/listings/:id/media/upload-url", isAuthenticated, async (req: any, res) => {
+  app.post("/api/listings/:id/media/upload-url", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5102,7 +5114,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Direct server-side upload to bypass CORS issues with signed URLs
-  app.post("/api/listings/:id/media/upload-direct", isAuthenticated, multerImageUpload.single('file'), async (req: any, res) => {
+  app.post("/api/listings/:id/media/upload-direct", requireAuth, multerImageUpload.single('file'), async (req: any, res) => {
     try {
       console.log("[Upload Direct] Starting server-side upload...");
       const currentUser = await getCurrentUser(req);
@@ -5230,7 +5242,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/listings/:id/media", isAuthenticated, async (req: any, res) => {
+  app.post("/api/listings/:id/media", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5272,7 +5284,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.patch("/api/listings/:id/media/reorder", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/listings/:id/media/reorder", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5300,7 +5312,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.delete("/api/listings/:id/media/:mediaId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/listings/:id/media/:mediaId", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5332,7 +5344,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.patch("/api/listings/:id/media/:mediaId", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/listings/:id/media/:mediaId", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5393,7 +5405,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/distributors", isAdmin, async (req, res) => {
+  app.post("/api/distributors", requireAdmin, async (req, res) => {
     try {
       const validated = insertDistributorSchema.parse(req.body);
       const distributor = await storage.createDistributor(validated);
@@ -5423,7 +5435,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.patch("/api/distributor-inquiries/:id", isAdmin, async (req, res) => {
+  app.patch("/api/distributor-inquiries/:id", requireAdmin, async (req, res) => {
     try {
       const validated = insertDistributorInquirySchema.partial().parse(req.body);
       const updated = await storage.updateDistributorInquiry(req.params.id, validated);
@@ -5619,7 +5631,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
     }
   });
 
-  app.post("/api/affiliate/content", isAuthenticated, async (req: any, res) => {
+  app.post("/api/affiliate/content", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -5757,7 +5769,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Template download (requires Starter tier for premium templates)
-  app.post("/api/templates/:id/download", isAuthenticated, requireTier("starter"), async (req: any, res) => {
+  app.post("/api/templates/:id/download", requireAuth, requireTier("starter"), async (req: any, res) => {
     try {
       const templateId = req.params.id;
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
@@ -5836,7 +5848,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Create resource (admin only)
-  app.post("/api/resources", isAdmin, async (req: any, res) => {
+  app.post("/api/resources", requireAdmin, async (req: any, res) => {
     try {
       const validated = insertResourceSchema.parse(req.body);
       const resource = await storage.createResource(validated);
@@ -5850,7 +5862,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Update resource (admin only)
-  app.put("/api/resources/:id", isAdmin, async (req: any, res) => {
+  app.put("/api/resources/:id", requireAdmin, async (req: any, res) => {
     try {
       const validated = insertResourceSchema.partial().parse(req.body);
       const resource = await storage.updateResource(req.params.id, validated);
@@ -5944,7 +5956,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Create vendor (admin only)
-  app.post("/api/vendors", isAdmin, async (req: any, res) => {
+  app.post("/api/vendors", requireAdmin, async (req: any, res) => {
     try {
       const validated = insertVendorDirectorySchema.parse(req.body);
       const vendor = await storage.createVendorDirectoryItem(validated);
@@ -5955,7 +5967,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Update vendor (admin only)
-  app.put("/api/vendors/:id", isAdmin, async (req: any, res) => {
+  app.put("/api/vendors/:id", requireAdmin, async (req: any, res) => {
     try {
       const validated = insertVendorDirectorySchema.partial().parse(req.body);
       const vendor = await storage.updateVendorDirectoryItem(req.params.id, validated);
@@ -5978,7 +5990,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Create vendor review (authenticated)
-  app.post("/api/vendors/:vendorId/reviews", isAuthenticated, async (req: any, res) => {
+  app.post("/api/vendors/:vendorId/reviews", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const validated = insertVendorReviewSchema.parse({
@@ -5994,7 +6006,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Update vendor review (authenticated)
-  app.put("/api/vendors/:vendorId/reviews/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/vendors/:vendorId/reviews/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6050,7 +6062,7 @@ Reply to: ${user?.email || 'consult@washbizhub.com'}
   });
 
   // Create benchmark (admin only)
-  app.post("/api/benchmarks", isAdmin, async (req: any, res) => {
+  app.post("/api/benchmarks", requireAdmin, async (req: any, res) => {
     try {
       const validated = insertIndustryBenchmarkSchema.parse(req.body);
       const benchmark = await storage.createIndustryBenchmark(validated);
@@ -6152,7 +6164,7 @@ Disallow: /private/`;
   });
 
   // POST /api/vendor-stores - Create vendor store
-  app.post("/api/vendor-stores", isAuthenticated, async (req: any, res) => {
+  app.post("/api/vendor-stores", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6174,7 +6186,7 @@ Disallow: /private/`;
   });
 
   // PATCH /api/vendor-stores/:id - Update vendor store
-  app.patch("/api/vendor-stores/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/vendor-stores/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6298,7 +6310,7 @@ Disallow: /private/`;
   });
 
   // POST /api/vendor-products - Create product
-  app.post("/api/vendor-products", isAuthenticated, async (req: any, res) => {
+  app.post("/api/vendor-products", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6333,7 +6345,7 @@ Disallow: /private/`;
   });
 
   // PATCH /api/vendor-products/:id - Update product
-  app.patch("/api/vendor-products/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/vendor-products/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6404,7 +6416,7 @@ Disallow: /private/`;
   });
 
   // DELETE /api/vendor-products/:id - Delete product
-  app.delete("/api/vendor-products/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/vendor-products/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -6432,7 +6444,7 @@ Disallow: /private/`;
 
   // ==================== EQUIPMENT INQUIRIES (to nick@washbizhub.com) ====================
   // POST /api/equipment-inquiries - Submit equipment inquiry
-  app.post("/api/equipment-inquiries", isAuthenticated, async (req, res) => {
+  app.post("/api/equipment-inquiries", requireAuth, async (req, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       // Validate input using Zod schema - override server-controlled fields
@@ -6456,7 +6468,7 @@ Disallow: /private/`;
   });
 
   // GET /api/equipment-inquiries - List inquiries (admin only)
-  app.get("/api/equipment-inquiries", isAdmin, async (req, res) => {
+  app.get("/api/equipment-inquiries", requireAdmin, async (req, res) => {
     try {
       const { status, email } = req.query;
       const inquiries = await storage.getEquipmentInquiries({
@@ -6470,7 +6482,7 @@ Disallow: /private/`;
   });
 
   // PATCH /api/equipment-inquiries/:id - Update inquiry (admin only)
-  app.patch("/api/equipment-inquiries/:id", isAdmin, async (req, res) => {
+  app.patch("/api/equipment-inquiries/:id", requireAdmin, async (req, res) => {
     try {
       const inquiry = await storage.updateEquipmentInquiry(req.params.id, req.body);
       res.json(inquiry);
@@ -6597,7 +6609,7 @@ Disallow: /private/`;
   });
   
   // GET /api/search/stats - Get search index statistics (admin only)
-  app.get("/api/search/stats", isAdmin, async (req, res) => {
+  app.get("/api/search/stats", requireAdmin, async (req, res) => {
     try {
       const stats = await getSearchIndexStats();
       res.json(stats);
@@ -6607,7 +6619,7 @@ Disallow: /private/`;
   });
   
   // POST /api/search/index - Trigger re-indexing (admin only)
-  app.post("/api/search/index", isAdmin, async (req, res) => {
+  app.post("/api/search/index", requireAdmin, async (req, res) => {
     try {
       console.log("🔄 Starting search index rebuild...");
       const result = await reindexAllContent();
@@ -6692,7 +6704,7 @@ Disallow: /private/`;
   });
 
   // GET /api/email-subscribers - List subscribers (admin only)
-  app.get("/api/email-subscribers", isAdmin, async (req, res) => {
+  app.get("/api/email-subscribers", requireAdmin, async (req, res) => {
     try {
       const { status, tag } = req.query;
       const subscribers = await storage.getEmailSubscribers({
@@ -6736,7 +6748,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/from-template - Create website from template
-  app.post("/api/websites/from-template", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/from-template", requireAuth, async (req: any, res) => {
     try {
       const { templateId, businessName, subdomain } = req.body;
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
@@ -6764,7 +6776,7 @@ Disallow: /private/`;
   });
 
   // GET /api/websites - Get current user's websites
-  app.get("/api/websites", isAuthenticated, async (req: any, res) => {
+  app.get("/api/websites", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const websites = await storage.getUserWebsites(userId);
@@ -6775,7 +6787,7 @@ Disallow: /private/`;
   });
 
   // GET /api/websites/:id - Get single website
-  app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/websites/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -6795,7 +6807,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/publish - Publish website (creates new version)
-  app.post("/api/websites/:id/publish", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/:id/publish", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -6832,7 +6844,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/unpublish - Unpublish website
-  app.post("/api/websites/:id/unpublish", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/:id/unpublish", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -6855,7 +6867,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/rollback - Rollback to a previous version
-  app.post("/api/websites/:id/rollback", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/:id/rollback", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const { version } = req.body;
@@ -6905,7 +6917,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/assets - Upload asset to object storage
-  app.post("/api/websites/:id/assets", isAuthenticated, multerImageUpload.single('file'), async (req: any, res) => {
+  app.post("/api/websites/:id/assets", requireAuth, multerImageUpload.single('file'), async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -6957,7 +6969,7 @@ Disallow: /private/`;
   });
 
   // GET /api/websites/:id/assets - Get assets for a website
-  app.get("/api/websites/:id/assets", isAuthenticated, async (req: any, res) => {
+  app.get("/api/websites/:id/assets", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -6980,7 +6992,7 @@ Disallow: /private/`;
   });
 
   // DELETE /api/websites/:id/assets/:assetId - Delete an asset
-  app.delete("/api/websites/:id/assets/:assetId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/websites/:id/assets/:assetId", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -7015,7 +7027,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/domain - Add custom domain
-  app.post("/api/websites/:id/domain", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/:id/domain", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const { domain } = req.body;
@@ -7052,7 +7064,7 @@ Disallow: /private/`;
   });
 
   // POST /api/websites/:id/verify-domain - Verify DNS records
-  app.post("/api/websites/:id/verify-domain", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites/:id/verify-domain", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -7081,7 +7093,7 @@ Disallow: /private/`;
   });
 
   // DELETE /api/websites/:id/domain - Remove custom domain
-  app.delete("/api/websites/:id/domain", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/websites/:id/domain", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const website = await storage.getCustomerWebsite(req.params.id);
@@ -7117,7 +7129,7 @@ Disallow: /private/`;
   }
 
   // POST /api/affiliate/signup - Apply for affiliate program with auto-code generation
-  app.post("/api/affiliate/signup", isAuthenticated, async (req: any, res) => {
+  app.post("/api/affiliate/signup", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const user = await storage.getUser(userId);
@@ -7167,7 +7179,7 @@ Disallow: /private/`;
   });
   
   // GET /api/affiliate/profile - Get current user's affiliate profile
-  app.get("/api/affiliate/profile", isAuthenticated, async (req: any, res) => {
+  app.get("/api/affiliate/profile", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const affiliates = await storage.getAffiliates(userId);
@@ -7183,7 +7195,7 @@ Disallow: /private/`;
   });
 
   // GET /api/affiliate/stats - Get affiliate performance stats
-  app.get("/api/affiliate/stats", isAuthenticated, async (req: any, res) => {
+  app.get("/api/affiliate/stats", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const affiliates = await storage.getAffiliates(userId);
@@ -7210,7 +7222,7 @@ Disallow: /private/`;
   });
 
   // GET /api/affiliate/sales - Get recent affiliate sales
-  app.get("/api/affiliate/sales", isAuthenticated, async (req: any, res) => {
+  app.get("/api/affiliate/sales", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const affiliates = await storage.getAffiliates(userId);
@@ -7227,7 +7239,7 @@ Disallow: /private/`;
   });
 
   // GET /api/affiliate/content - Get affiliate's UGC content
-  app.get("/api/affiliate/content", isAuthenticated, async (req: any, res) => {
+  app.get("/api/affiliate/content", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const affiliates = await storage.getAffiliates(userId);
@@ -7246,7 +7258,7 @@ Disallow: /private/`;
   // ==================== WEBSITE BUILDER ====================
   
   // GET /api/websites - List user's website projects
-  app.get("/api/websites", isAuthenticated, async (req: any, res) => {
+  app.get("/api/websites", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.sub || (req.user as any)?.claims?.sub;
       const projects = await storage.getSiteProjects(userId);
@@ -7257,22 +7269,22 @@ Disallow: /private/`;
   });
 
   // GET /api/websites/:id - Get single website project
-  app.get("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/websites/:id", requireAuth, async (req: any, res) => {
     res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // POST /api/websites - Create new website project
-  app.post("/api/websites", isAuthenticated, async (req: any, res) => {
+  app.post("/api/websites", requireAuth, async (req: any, res) => {
     res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // PUT /api/websites/:id - Update website project
-  app.put("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/websites/:id", requireAuth, async (req: any, res) => {
     res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
   // DELETE /api/websites/:id - Delete website project
-  app.delete("/api/websites/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/websites/:id", requireAuth, async (req: any, res) => {
     res.status(501).json({ error: "Website builder not yet implemented" });
   });
 
@@ -7320,7 +7332,7 @@ Disallow: /private/`;
   });
 
   // GET /api/newsletter/subscribers - Get all subscribers (admin only)
-  app.get("/api/newsletter/subscribers", isAdmin, async (req, res) => {
+  app.get("/api/newsletter/subscribers", requireAdmin, async (req, res) => {
     try {
       const status = req.query.status as string | undefined;
       const filters = status ? { status } : undefined;
@@ -7454,7 +7466,7 @@ Disallow: /private/`;
   });
 
   // POST /api/business-plan/create-checkout - Create Stripe checkout for business plan (requires Starter tier)
-  app.post("/api/business-plan/create-checkout", isAuthenticated, requireTier("starter"), async (req, res) => {
+  app.post("/api/business-plan/create-checkout", requireAuth, requireTier("starter"), async (req, res) => {
     try {
       const { businessName, email } = req.body;
       
@@ -7497,7 +7509,7 @@ Disallow: /private/`;
   });
 
   // POST /api/business-plan/verify-payment - Verify Stripe payment before generating plan (requires Starter tier)
-  app.post("/api/business-plan/verify-payment", isAuthenticated, requireTier("starter"), async (req, res) => {
+  app.post("/api/business-plan/verify-payment", requireAuth, requireTier("starter"), async (req, res) => {
     try {
       const { sessionId } = req.body;
       
@@ -7529,7 +7541,7 @@ Disallow: /private/`;
   });
 
   // POST /api/business-plan/generate - AI Business Plan Generator (requires Starter tier + verified payment)
-  app.post("/api/business-plan/generate", isAuthenticated, requireTier("starter"), async (req, res) => {
+  app.post("/api/business-plan/generate", requireAuth, requireTier("starter"), async (req, res) => {
     try {
       const {
         businessName,
@@ -8170,7 +8182,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // ==================== PLATFORM SETTINGS (ADMIN) ====================
   
-  app.get("/api/admin/settings", isAdmin, async (req, res) => {
+  app.get("/api/admin/settings", requireAdmin, async (req, res) => {
     try {
       const category = req.query.category as string | undefined;
       const settings = await storage.getPlatformSettings(category);
@@ -8180,7 +8192,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.get("/api/admin/settings/:key", isAdmin, async (req, res) => {
+  app.get("/api/admin/settings/:key", requireAdmin, async (req, res) => {
     try {
       const setting = await storage.getPlatformSetting(req.params.key);
       if (!setting) {
@@ -8192,7 +8204,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.post("/api/admin/settings", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/settings", requireAdmin, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8210,7 +8222,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.delete("/api/admin/settings/:key", isAdmin, async (req, res) => {
+  app.delete("/api/admin/settings/:key", requireAdmin, async (req, res) => {
     try {
       await storage.deletePlatformSetting(req.params.key);
       res.json({ success: true });
@@ -8221,7 +8233,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // ==================== NEWSLETTER CAMPAIGNS (ADMIN) ====================
   
-  app.get("/api/admin/newsletter/campaigns", isAdmin, async (req, res) => {
+  app.get("/api/admin/newsletter/campaigns", requireAdmin, async (req, res) => {
     try {
       const status = req.query.status as string | undefined;
       const campaigns = await storage.getNewsletterCampaigns({ status });
@@ -8231,7 +8243,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.get("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+  app.get("/api/admin/newsletter/campaigns/:id", requireAdmin, async (req, res) => {
     try {
       const campaign = await storage.getNewsletterCampaign(req.params.id);
       if (!campaign) {
@@ -8243,7 +8255,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.post("/api/admin/newsletter/campaigns", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/newsletter/campaigns", requireAdmin, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8261,7 +8273,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.patch("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+  app.patch("/api/admin/newsletter/campaigns/:id", requireAdmin, async (req, res) => {
     try {
       const validated = insertNewsletterCampaignSchema.omit({ id: true, createdBy: true, createdAt: true }).partial().parse(req.body);
       const updated = await storage.updateNewsletterCampaign(req.params.id, validated);
@@ -8274,7 +8286,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.delete("/api/admin/newsletter/campaigns/:id", isAdmin, async (req, res) => {
+  app.delete("/api/admin/newsletter/campaigns/:id", requireAdmin, async (req, res) => {
     try {
       await storage.deleteNewsletterCampaign(req.params.id);
       res.json({ success: true });
@@ -8283,7 +8295,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
-  app.post("/api/newsletter/send", isAdmin, async (req, res) => {
+  app.post("/api/newsletter/send", requireAdmin, async (req, res) => {
     try {
       const { subject, content } = req.body;
       
@@ -8561,7 +8573,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/brokers/my-profile - Get current user's broker profile (auth required)
-  app.get("/api/brokers/my-profile", isAuthenticated, async (req: any, res) => {
+  app.get("/api/brokers/my-profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8580,7 +8592,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PUT /api/brokers/my-profile - Update broker profile (auth required)
-  app.put("/api/brokers/my-profile", isAuthenticated, async (req: any, res) => {
+  app.put("/api/brokers/my-profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8600,7 +8612,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/brokers/my-listings - Get broker's listings with stats (auth required)
-  app.get("/api/brokers/my-listings", isAuthenticated, async (req: any, res) => {
+  app.get("/api/brokers/my-listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8628,7 +8640,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/brokers/my-listings - Create a new listing for broker
-  app.post("/api/brokers/my-listings", isAuthenticated, async (req: any, res) => {
+  app.post("/api/brokers/my-listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8650,7 +8662,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/brokers/my-leads - Get leads/inquiries for broker's listings (auth required)
-  app.get("/api/brokers/my-leads", isAuthenticated, async (req: any, res) => {
+  app.get("/api/brokers/my-leads", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8684,7 +8696,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PATCH /api/brokers/my-leads/:id - Update lead status (contacted, qualified, etc.)
-  app.patch("/api/brokers/my-leads/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/brokers/my-leads/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8723,7 +8735,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // Legacy routes for backwards compatibility
   // GET /api/broker/profile - Get broker profile for authenticated user
-  app.get("/api/broker/profile", isAuthenticated, async (req: any, res) => {
+  app.get("/api/broker/profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8742,7 +8754,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/broker/listings - Get all listings for authenticated broker
-  app.get("/api/broker/listings", isAuthenticated, async (req: any, res) => {
+  app.get("/api/broker/listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -8774,7 +8786,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   // ==================== SUBSCRIPTION MANAGEMENT ====================
 
   // POST /api/subscriptions/upgrade - Upgrade subscription plan
-  app.post("/api/subscriptions/upgrade", isAuthenticated, async (req: any, res) => {
+  app.post("/api/subscriptions/upgrade", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -8901,7 +8913,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   }
 
   // POST /api/subscriptions/cancel - Cancel subscription
-  app.post("/api/subscriptions/cancel", isAuthenticated, async (req: any, res) => {
+  app.post("/api/subscriptions/cancel", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -8946,7 +8958,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/subscriptions/pause - Pause subscription
-  app.post("/api/subscriptions/pause", isAuthenticated, async (req: any, res) => {
+  app.post("/api/subscriptions/pause", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -8982,7 +8994,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/subscriptions/resume - Resume paused subscription
-  app.post("/api/subscriptions/resume", isAuthenticated, async (req: any, res) => {
+  app.post("/api/subscriptions/resume", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -9016,7 +9028,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PATCH /api/users/profile - Update user profile
-  app.patch("/api/users/profile", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/users/profile", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -9042,7 +9054,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/subscriptions/billing-portal - Open Stripe billing portal
-  app.post("/api/subscriptions/billing-portal", isAuthenticated, async (req: any, res) => {
+  app.post("/api/subscriptions/billing-portal", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -9082,7 +9094,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   // ==================== ONBOARDING ====================
 
   // GET /api/onboarding/state - Get user's onboarding state
-  app.get("/api/onboarding/state", isAuthenticated, async (req: any, res) => {
+  app.get("/api/onboarding/state", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -9109,7 +9121,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   // SECURITY: Validate checklist items against allowed keys to prevent arbitrary data injection
   const ALLOWED_CHECKLIST_KEYS = ["business_info", "add_machines", "invite_team", "connect_payments", "launch_website"] as const;
   
-  app.patch("/api/onboarding/progress", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/onboarding/progress", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -9153,7 +9165,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/dashboard/summary - Get user dashboard summary
-  app.get("/api/dashboard/summary", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/summary", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -9210,7 +9222,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // GET /api/dashboard/my-listings - Get user's own marketplace listings with stats
-  app.get("/api/dashboard/my-listings", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/my-listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -9420,7 +9432,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/notifications - Get user's notifications
   app.get("/api/notifications", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9459,7 +9471,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notifications/:id/read - Mark notification as read
   app.put("/api/notifications/:id/read", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9480,7 +9492,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notifications/mark-all-read - Mark all notifications as read
   app.put("/api/notifications/mark-all-read", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9497,7 +9509,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // DELETE /api/notifications/:id - Delete notification
   app.delete("/api/notifications/:id", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9517,7 +9529,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/notification-preferences - Get user's notification preferences
   app.get("/api/notification-preferences", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9547,7 +9559,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notification-preferences - Update notification preferences
   app.put("/api/notification-preferences", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9599,7 +9611,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/conversations - Get user's conversations with last message preview
   app.get("/api/conversations", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9738,7 +9750,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/conversations - Start new conversation (find or create)
   app.post("/api/conversations", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9814,7 +9826,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/conversations/:id/messages - Get messages in a conversation with pagination
   app.get("/api/conversations/:id/messages", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9900,7 +9912,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/conversations/:id/messages - Send a message
   app.post("/api/conversations/:id/messages", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9978,7 +9990,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/conversations/:id/read - Mark conversation as read
   app.put("/api/conversations/:id/read", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10008,7 +10020,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members - Search members for messaging (name, role, location)
   app.get("/api/members", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10104,7 +10116,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/members/:userId/message - Start/get conversation with a user
   app.post("/api/members/:userId/message", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10219,7 +10231,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/:userId - Get member profile
   app.get("/api/members/:userId", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10338,7 +10350,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/members/profile - Update own member profile
   app.put("/api/members/profile", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10408,7 +10420,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/members/:userId/follow - Follow a user
   app.post("/api/members/:userId/follow", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10482,7 +10494,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // DELETE /api/members/:userId/follow - Unfollow a user
   app.delete("/api/members/:userId/follow", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10515,7 +10527,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/following - Get users the current user is following
   app.get("/api/members/following", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10570,7 +10582,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/followers - Get users following the current user
   app.get("/api/members/followers", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10625,7 +10637,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/profile/me - Get current user's member profile
   app.get("/api/members/profile/me", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10666,7 +10678,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/activity-feed - Get activity feed from followed users
   app.get("/api/activity-feed", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10764,7 +10776,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/forum/categories - Create category (admin only)
-  app.post("/api/forum/categories", isAdmin, async (req, res) => {
+  app.post("/api/forum/categories", requireAdmin, async (req, res) => {
     try {
       const validated = insertForumCategorySchema.parse(req.body);
       const category = await storage.createForumCategory(validated);
@@ -10806,7 +10818,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/forum/topics - Create new topic (authenticated)
-  app.post("/api/forum/topics", isAuthenticated, async (req: any, res) => {
+  app.post("/api/forum/topics", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10826,7 +10838,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PATCH /api/forum/topics/:id - Update topic
-  app.patch("/api/forum/topics/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/forum/topics/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10861,7 +10873,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // DELETE /api/forum/topics/:id - Delete topic
-  app.delete("/api/forum/topics/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/forum/topics/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10896,7 +10908,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/forum/replies - Create reply (authenticated)
-  app.post("/api/forum/replies", isAuthenticated, async (req: any, res) => {
+  app.post("/api/forum/replies", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10916,7 +10928,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // PATCH /api/forum/replies/:id - Update reply
-  app.patch("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/forum/replies/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10943,7 +10955,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // DELETE /api/forum/replies/:id - Delete reply
-  app.delete("/api/forum/replies/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/forum/replies/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10968,7 +10980,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/forum/votes - Vote on topic/reply (authenticated)
-  app.post("/api/forum/votes", isAuthenticated, async (req: any, res) => {
+  app.post("/api/forum/votes", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -10988,7 +11000,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // DELETE /api/forum/votes - Remove vote (authenticated)
-  app.delete("/api/forum/votes", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/forum/votes", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -11007,7 +11019,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   // ==================== FORUM FILE UPLOADS ====================
 
   // POST /api/forum/upload-url - Get signed URL for file upload (authenticated)
-  app.post("/api/forum/upload-url", isAuthenticated, async (req: any, res) => {
+  app.post("/api/forum/upload-url", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -11045,7 +11057,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
   });
 
   // POST /api/forum/upload-complete - Register uploaded file (authenticated)
-  app.post("/api/forum/upload-complete", isAuthenticated, async (req: any, res) => {
+  app.post("/api/forum/upload-complete", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -11339,7 +11351,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   app.get("/api/ai/health", async (req, res) => {
     try {
       const user = await getCurrentUser(req);
-      if (!user?.isAdmin) {
+      if (!user?.requireAdmin) {
         return res.status(403).json({ error: "Admin access required" });
       }
 
@@ -11365,7 +11377,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   app.get("/api/ai/usage", async (req, res) => {
     try {
       const user = await getCurrentUser(req);
-      if (!user?.isAdmin) {
+      if (!user?.requireAdmin) {
         return res.status(403).json({ error: "Admin access required" });
       }
 
@@ -11806,7 +11818,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
     try {
       const user = await getCurrentUser(req);
       
-      if (!user?.isAdmin) {
+      if (!user?.requireAdmin) {
         return res.status(403).json({ error: "Admin access required" });
       }
 
@@ -12357,7 +12369,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   // ==================== ADMIN CONTROL CENTER ====================
   
   // GET /api/admin/stats - Admin dashboard statistics (admin only)
-  app.get("/api/admin/stats", isAdmin, async (req, res) => {
+  app.get("/api/admin/stats", requireAdmin, async (req, res) => {
     try {
       // Get real counts from database
       const [userCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
@@ -12399,7 +12411,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/admin/analytics - Comprehensive live analytics from Stripe & database
-  app.get("/api/admin/analytics", isAdmin, async (req, res) => {
+  app.get("/api/admin/analytics", requireAdmin, async (req, res) => {
     try {
       const now = new Date();
       const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -12670,7 +12682,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/vendor/ads - Get vendor's advertisements (authenticated)
-  app.get("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
+  app.get("/api/vendor/ads", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12683,7 +12695,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/vendor/ads - Submit new advertisement (authenticated)
-  app.post("/api/vendor/ads", isAuthenticated, async (req: any, res) => {
+  app.post("/api/vendor/ads", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12710,7 +12722,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // PATCH /api/vendor/ads/:id - Update own advertisement (authenticated)
-  app.patch("/api/vendor/ads/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/vendor/ads/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12737,7 +12749,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/admin/ads - Get all advertisements (admin only)
-  app.get("/api/admin/ads", isAdmin, async (req, res) => {
+  app.get("/api/admin/ads", requireAdmin, async (req, res) => {
     try {
       const { status, placement, type } = req.query;
       const ads = await storage.getAdvertisements({
@@ -12752,7 +12764,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/admin/ads - Create advertisement (admin only)
-  app.post("/api/admin/ads", isAdmin, async (req, res) => {
+  app.post("/api/admin/ads", requireAdmin, async (req, res) => {
     try {
       const adData = insertAdvertisementSchema.parse(req.body);
       const ad = await storage.createAdvertisement(adData);
@@ -12763,7 +12775,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // PATCH /api/admin/ads/:id - Update advertisement (admin only)
-  app.patch("/api/admin/ads/:id", isAdmin, async (req, res) => {
+  app.patch("/api/admin/ads/:id", requireAdmin, async (req, res) => {
     try {
       const ad = await storage.updateAdvertisement(req.params.id, req.body);
       res.json(ad);
@@ -12773,7 +12785,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // PATCH /api/admin/ads/:id/status - Update ad status (admin only)
-  app.patch("/api/admin/ads/:id/status", isAdmin, async (req: any, res) => {
+  app.patch("/api/admin/ads/:id/status", requireAdmin, async (req: any, res) => {
     try {
       const { status, rejectionReason } = req.body;
       const reviewerId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
@@ -12794,7 +12806,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // DELETE /api/admin/ads/:id - Delete advertisement (admin only)
-  app.delete("/api/admin/ads/:id", isAdmin, async (req, res) => {
+  app.delete("/api/admin/ads/:id", requireAdmin, async (req, res) => {
     try {
       await storage.deleteAdvertisement(req.params.id);
       res.json({ message: "Advertisement deleted" });
@@ -12836,7 +12848,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/courses/:courseId/enroll - Enroll in course
-  app.post("/api/courses/:courseId/enroll", isAuthenticated, async (req: any, res) => {
+  app.post("/api/courses/:courseId/enroll", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12856,7 +12868,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/enrollments - Get user's enrollments
-  app.get("/api/enrollments", isAuthenticated, async (req: any, res) => {
+  app.get("/api/enrollments", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12869,7 +12881,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // PUT /api/enrollments/:enrollmentId/progress - Update lesson progress
-  app.put("/api/enrollments/:enrollmentId/progress", isAuthenticated, async (req: any, res) => {
+  app.put("/api/enrollments/:enrollmentId/progress", requireAuth, async (req: any, res) => {
     try {
       const enrollment = await storage.updateEnrollmentProgress(
         req.params.enrollmentId,
@@ -12972,7 +12984,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/book/access - Check user's book access
-  app.get("/api/book/access", isAuthenticated, async (req: any, res) => {
+  app.get("/api/book/access", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -12985,7 +12997,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/book/purchase - Create checkout session for book
-  app.post("/api/book/purchase", isAuthenticated, async (req: any, res) => {
+  app.post("/api/book/purchase", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -13025,7 +13037,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== QUIZ & CERTIFICATES ROUTES ==========
   // POST /api/quizzes/:lessonId/attempt - Submit quiz attempt
-  app.post("/api/quizzes/:lessonId/attempt", isAuthenticated, async (req: any, res) => {
+  app.post("/api/quizzes/:lessonId/attempt", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13051,7 +13063,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/certificates - Generate certificate on course completion
-  app.post("/api/certificates", isAuthenticated, async (req: any, res) => {
+  app.post("/api/certificates", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       const firstName = (req.user as any)?.claims?.first_name || "Student";
@@ -13079,7 +13091,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== ANNOTATIONS (BOOKMARKS/NOTES/HIGHLIGHTS) ROUTES ==========
   // GET /api/annotations/:chapterId - Get user's annotations for chapter
-  app.get("/api/annotations/:chapterId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/annotations/:chapterId", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13092,7 +13104,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/annotations - Create annotation (bookmark/note/highlight)
-  app.post("/api/annotations", isAuthenticated, async (req: any, res) => {
+  app.post("/api/annotations", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13118,7 +13130,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // DELETE /api/annotations/:annotationId - Delete annotation
-  app.delete("/api/annotations/:annotationId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/annotations/:annotationId", requireAuth, async (req: any, res) => {
     try {
       res.json({ message: "Annotation deleted" });
     } catch (error: any) {
@@ -13128,7 +13140,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== PREMIUM COMBO PACKAGE ROUTES ==========
   // POST /api/premium-combo/checkout - Create combo package checkout session
-  app.post("/api/premium-combo/checkout", isAuthenticated, async (req: any, res) => {
+  app.post("/api/premium-combo/checkout", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ message: "Payment service unavailable" });
@@ -13167,7 +13179,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/premium-combo/status - Check user's combo access
-  app.get("/api/premium-combo/status", isAuthenticated, async (req: any, res) => {
+  app.get("/api/premium-combo/status", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13491,7 +13503,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
    * - PRO: $29/mo - Unlimited daily reports, detailed breakdowns, competitor analysis
    * - ENTERPRISE: $149/mo - Everything + API access, bulk reports, priority support
    */
-  app.post("/api/cleanbi/subscribe", isAuthenticated, async (req: any, res) => {
+  app.post("/api/cleanbi/subscribe", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json(
@@ -13595,7 +13607,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         const anonQuota = await checkAnonymousQuota(clientIp);
         return res.json({
           tier: 'ANONYMOUS',
-          isAuthenticated: false,
+          requireAuth: false,
           quota: {
             allowed: anonQuota.allowed,
             remainingToday: anonQuota.remaining,
@@ -13620,7 +13632,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       res.json({
         tier: userTier,
         tierName: tierConfig.name,
-        isAuthenticated: true,
+        requireAuth: true,
         quota: {
           allowed: quota.allowed,
           remainingToday: quota.remainingToday,
@@ -13647,7 +13659,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   /**
    * GET /api/user/activity - Get recent CLEANBI analyses for the current user
    */
-  app.get("/api/user/activity", isAuthenticated, async (req: any, res) => {
+  app.get("/api/user/activity", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -13813,7 +13825,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== GAMIFICATION & BADGES ROUTES ==========
   // POST /api/badges - Award badge to user
-  app.post("/api/badges", isAuthenticated, async (req: any, res) => {
+  app.post("/api/badges", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13835,7 +13847,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/badges - Get user's badges
-  app.get("/api/badges", isAuthenticated, async (req: any, res) => {
+  app.get("/api/badges", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13849,7 +13861,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/learning-stats - Get user's learning statistics
-  app.get("/api/learning-stats", isAuthenticated, async (req: any, res) => {
+  app.get("/api/learning-stats", requireAuth, async (req: any, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub || (req.user as any)?.sub;
       if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -13870,7 +13882,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== GOOGLE INDEXING API ==========
   // POST /api/admin/index-all - Submit all URLs from sitemap to Google
-  app.post("/api/admin/index-all", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/index-all", requireAdmin, async (req: any, res) => {
     try {
       // Read sitemap.xml from public folder
       const sitemapPath = join(process.cwd(), "public", "sitemap.xml");
@@ -13894,7 +13906,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/admin/indexnow-all - Submit all URLs via IndexNow (Bing, Yahoo, Yandex, DuckDuckGo)
-  app.post("/api/admin/indexnow-all", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/indexnow-all", requireAdmin, async (req: any, res) => {
     try {
       // Read sitemap.xml from public folder
       const sitemapPath = join(process.cwd(), "public", "sitemap.xml");
@@ -13918,7 +13930,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/admin/indexing-log - Get recent IndexNow submission log
-  app.get("/api/admin/indexing-log", isAdmin, async (req: any, res) => {
+  app.get("/api/admin/indexing-log", requireAdmin, async (req: any, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const log = getIndexingLog(limit);
@@ -13938,7 +13950,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/admin/index-all-engines - Submit ALL URLs to ALL search engines (Google + IndexNow)
-  app.post("/api/admin/index-all-engines", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/index-all-engines", requireAdmin, async (req: any, res) => {
     try {
       console.log("\n🌐 [ADMIN] MASS INDEXING: Submitting to ALL search engines...\n");
       
@@ -14069,7 +14081,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/admin/trigger-indexnow - Manually trigger IndexNow for new content
-  app.post("/api/admin/trigger-indexnow", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/trigger-indexnow", requireAdmin, async (req: any, res) => {
     try {
       const { errorCodes, blogSlugs, listingIds, customUrls } = req.body;
       
@@ -14274,7 +14286,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
   
   // DELETE /api/indexnow/deduplication - Clear deduplication cache
-  app.delete("/api/indexnow/deduplication", isAdmin, async (req: any, res) => {
+  app.delete("/api/indexnow/deduplication", requireAdmin, async (req: any, res) => {
     try {
       const result = clearDeduplicationCache();
       
@@ -14303,7 +14315,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // GET /api/admin/pagespeed - Analyze Core Web Vitals using Google PageSpeed API
-  app.get("/api/admin/pagespeed", isAdmin, async (req: any, res) => {
+  app.get("/api/admin/pagespeed", requireAdmin, async (req: any, res) => {
     try {
       const url = req.query.url as string;
       const strategy = (req.query.strategy as "mobile" | "desktop") || "mobile";
@@ -14340,7 +14352,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
   });
 
   // POST /api/admin/pagespeed-batch - Analyze multiple URLs in batch
-  app.post("/api/admin/pagespeed-batch", isAdmin, async (req: any, res) => {
+  app.post("/api/admin/pagespeed-batch", requireAdmin, async (req: any, res) => {
     try {
       const { urls, strategy = "mobile" } = req.body;
       
@@ -14397,7 +14409,7 @@ IMPORTANT DISCLAIMER TO INCLUDE:
 
   // ========== SERVICE GUY AI - Equipment Diagnostics ==========
   // Service Guy AI requires all_access tier for unlimited usage
-  app.post("/api/service-guy-ai/diagnose", isAuthenticated, tierGateRequireTier('all_access'), async (req, res) => {
+  app.post("/api/service-guy-ai/diagnose", requireAuth, tierGateRequireTier('all_access'), async (req, res) => {
     try {
       const { symptoms, manufacturer, machineType } = req.body;
       
@@ -14460,7 +14472,7 @@ For immediate assistance, contact: 479-883-4314 or nick@washbizhub.com`
   });
 
   // Service Guy AI - PDF Manual Extraction (requires all_access tier)
-  app.post("/api/service-guy-ai/extract-manual", isAuthenticated, tierGateRequireTier('all_access'), multerUpload.single("manual"), async (req: any, res) => {
+  app.post("/api/service-guy-ai/extract-manual", requireAuth, tierGateRequireTier('all_access'), multerUpload.single("manual"), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No PDF file uploaded" });
@@ -14513,7 +14525,7 @@ ${pdfData.text.substring(0, 15000)}`;
   };
 
   // POST /api/service-guy/scan-image - Analyze equipment image with Gemini Vision (requires all_access)
-  app.post("/api/service-guy/scan-image", isAuthenticated, tierGateRequireTier('all_access'), async (req, res) => {
+  app.post("/api/service-guy/scan-image", requireAuth, tierGateRequireTier('all_access'), async (req, res) => {
     try {
       const { imageData, mimeType, manufacturer, machineType } = req.body;
 
@@ -14860,7 +14872,7 @@ ${pdfData.text.substring(0, 15000)}`;
           pro: { lookups: "unlimited", features: ["Full repair procedures", "Quick fix tips", "Test mode entry", "Video tutorials", "All starter features"] },
           enterprise: { lookups: "unlimited", features: ["API access", "Bulk exports", "Priority support", "All pro features"] },
         },
-        isAuthenticated: !!userId,
+        requireAuth: !!userId,
         "data-testid": "usage-stats",
       });
     } catch (error: any) {
@@ -14874,7 +14886,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // 5. POST /api/service-guy/report - Report an issue with a code (authenticated only)
-  app.post("/api/service-guy/report", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/report", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       
@@ -15551,7 +15563,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/service-guy/contribute - Techs submit knowledge (FREE - builds our DB)
-  app.post("/api/service-guy/contribute", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/contribute", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       
@@ -15641,7 +15653,7 @@ ${pdfData.text.substring(0, 15000)}`;
   const { serviceJobs, insertServiceJobSchema } = await import("@shared/schema");
 
   // GET /api/service-guy/jobs - List user's jobs
-  app.get("/api/service-guy/jobs", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/jobs", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       
@@ -15679,7 +15691,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/service-guy/jobs - Create new job from diagnosis
-  app.post("/api/service-guy/jobs", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/jobs", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       
@@ -15726,7 +15738,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/service-guy/jobs/:id - Get job details
-  app.get("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/jobs/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const jobId = req.params.id;
@@ -15763,7 +15775,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PATCH /api/service-guy/jobs/:id - Update job
-  app.patch("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/service-guy/jobs/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const jobId = req.params.id;
@@ -15819,7 +15831,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/service-guy/jobs/:id - Delete job
-  app.delete("/api/service-guy/jobs/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/service-guy/jobs/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const jobId = req.params.id;
@@ -15862,7 +15874,7 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ========== REPAIR TICKETS ROUTES ==========
   // Create repair ticket from diagnostic result
-  app.post("/api/service-guy/repair-tickets", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/repair-tickets", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -15901,7 +15913,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get user's repair tickets
-  app.get("/api/service-guy/repair-tickets", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/repair-tickets", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -15924,7 +15936,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Update repair ticket
-  app.patch("/api/service-guy/repair-tickets/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/service-guy/repair-tickets/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const ticketId = req.params.id;
@@ -15963,7 +15975,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Delete repair ticket
-  app.delete("/api/service-guy/repair-tickets/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/service-guy/repair-tickets/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const ticketId = req.params.id;
@@ -15990,7 +16002,7 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ========== MAINTENANCE PLANS ROUTES ==========
   // Get maintenance plans for user's machines
-  app.get("/api/service-guy/maintenance-plans", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/maintenance-plans", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -16009,7 +16021,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Create maintenance plan
-  app.post("/api/service-guy/maintenance-plans", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/maintenance-plans", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -16051,7 +16063,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Update maintenance plan
-  app.patch("/api/service-guy/maintenance-plans/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/service-guy/maintenance-plans/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const planId = req.params.id;
@@ -16083,7 +16095,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Complete maintenance task (updates lastCompleted and calculates nextDue)
-  app.post("/api/service-guy/maintenance-plans/:id/complete", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/maintenance-plans/:id/complete", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const planId = req.params.id;
@@ -16124,7 +16136,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Delete maintenance plan
-  app.delete("/api/service-guy/maintenance-plans/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/service-guy/maintenance-plans/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const planId = req.params.id;
@@ -16151,7 +16163,7 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ========== MACHINE REGISTRY ROUTES ==========
   // Get user's machine registry
-  app.get("/api/service-guy/machines", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/machines", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -16179,7 +16191,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Register new machine
-  app.post("/api/service-guy/machines", isAuthenticated, async (req: any, res) => {
+  app.post("/api/service-guy/machines", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -16226,7 +16238,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Update machine
-  app.patch("/api/service-guy/machines/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/service-guy/machines/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const machineId = req.params.id;
@@ -16268,7 +16280,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get machine repair history (linked repair tickets)
-  app.get("/api/service-guy/machines/:id/history", isAuthenticated, async (req: any, res) => {
+  app.get("/api/service-guy/machines/:id/history", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const machineId = req.params.id;
@@ -16289,7 +16301,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Delete machine
-  app.delete("/api/service-guy/machines/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/service-guy/machines/:id", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id || (req.user as any)?.claims?.sub;
       const machineId = req.params.id;
@@ -16359,11 +16371,11 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ========== WHITE-LABEL WEBSITE BUILDER ROUTES ==========
   const { createWhiteLabelRoutes } = await import('./whitelabel-routes');
-  app.use("/api/whitelabel", isAuthenticated, createWhiteLabelRoutes());
+  app.use("/api/whitelabel", requireAuth, createWhiteLabelRoutes());
 
   // ========== SEO SUITE ROUTES ==========
   const { createSeoRoutes } = await import('./seo-routes');
-  app.use("/api/seo", isAuthenticated, createSeoRoutes(storage));
+  app.use("/api/seo", requireAuth, createSeoRoutes(storage));
   
   // ========== SEO COMMAND CENTER ROUTES ==========
   app.use("/api/seo-center", seoCommandCenterRoutes);
@@ -16373,7 +16385,7 @@ ${pdfData.text.substring(0, 15000)}`;
   const { pageSeoMetadata } = await import('@shared/schema');
 
   // Generate SEO for a single page
-  app.post("/api/ai-seo/generate", isAdmin, async (req: any, res) => {
+  app.post("/api/ai-seo/generate", requireAdmin, async (req: any, res) => {
     try {
       const { pageTitle, pageType, industry = 'laundromat', pagePath, existingContent, targetKeywords } = req.body;
       
@@ -16461,7 +16473,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get all cached SEO metadata
-  app.get("/api/ai-seo/metadata", isAdmin, async (req, res) => {
+  app.get("/api/ai-seo/metadata", requireAdmin, async (req, res) => {
     try {
       const allSeo = await db.select().from(pageSeoMetadata).orderBy(pageSeoMetadata.pagePath);
       res.json(allSeo);
@@ -16472,7 +16484,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Bulk generate SEO for all major pages
-  app.post("/api/ai-seo/generate-all", isAdmin, async (req: any, res) => {
+  app.post("/api/ai-seo/generate-all", requireAdmin, async (req: any, res) => {
     try {
       console.log(`🔄 Starting bulk SEO generation for ${MAJOR_PAGES.length} pages...`);
       
@@ -16546,7 +16558,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Regenerate SEO for a specific page
-  app.post("/api/ai-seo/regenerate/:pagePath(*)", isAdmin, async (req: any, res) => {
+  app.post("/api/ai-seo/regenerate/:pagePath(*)", requireAdmin, async (req: any, res) => {
     try {
       const pagePath = "/" + req.params.pagePath;
       
@@ -16611,7 +16623,7 @@ ${pdfData.text.substring(0, 15000)}`;
 
   // ========== SRA (STROKE RECOVERY ACADEMY) ROUTES ==========
   const { createSraRoutes } = await import('./sra-routes');
-  app.use("/api/sra", isAuthenticated, createSraRoutes(storage));
+  app.use("/api/sra", requireAuth, createSraRoutes(storage));
 
   // ========== ADVERTISING & SPONSORSHIP ROUTES ==========
   const advertisingRoutes = await import('./advertising-routes');
@@ -16622,7 +16634,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== CONVERSATIONS ====================
   
   // Create a new conversation
-  app.post("/api/ai-studio/conversations", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/conversations", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16643,7 +16655,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // List all conversations for user
-  app.get("/api/ai-studio/conversations", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/conversations", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16664,7 +16676,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get a conversation by ID
-  app.get("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/conversations/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16692,7 +16704,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Update a conversation
-  app.patch("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/ai-studio/conversations/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16735,7 +16747,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Delete a conversation
-  app.delete("/api/ai-studio/conversations/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/ai-studio/conversations/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16766,7 +16778,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== CHAT ====================
   
   // Send message and get AI response
-  app.post("/api/ai-studio/chat", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/chat", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16841,7 +16853,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Stream response from Gemini (SSE)
-  app.post("/api/ai-studio/chat/stream", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/chat/stream", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16921,7 +16933,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== CONTENT GENERATION ====================
   
   // Generate blog topic suggestions
-  app.post("/api/ai-studio/blog-topics", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/blog-topics", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16938,7 +16950,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate a full blog post
-  app.post("/api/ai-studio/blog", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/blog", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -16965,7 +16977,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate a book chapter
-  app.post("/api/ai-studio/book-chapter", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/book-chapter", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17000,7 +17012,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate newsletter content
-  app.post("/api/ai-studio/newsletter", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/newsletter", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17024,7 +17036,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== IMAGE GENERATION ====================
 
   // Generate an image from a prompt
-  app.post("/api/ai-studio/generate-image", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/generate-image", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17067,7 +17079,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate a book cover
-  app.post("/api/ai-studio/generate-cover", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/generate-cover", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17105,7 +17117,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate a blog header image
-  app.post("/api/ai-studio/generate-blog-header", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/generate-blog-header", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17138,7 +17150,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate a newsletter banner
-  app.post("/api/ai-studio/generate-newsletter-banner", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/generate-newsletter-banner", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17176,7 +17188,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Generate or modify code
-  app.post("/api/ai-studio/code", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/code", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17205,7 +17217,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== PROJECTS ====================
   
   // Create content project
-  app.post("/api/ai-studio/projects", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/projects", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17226,7 +17238,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // List all projects for user
-  app.get("/api/ai-studio/projects", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/projects", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17247,7 +17259,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get project by ID
-  app.get("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/projects/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17275,7 +17287,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Update project
-  app.patch("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/ai-studio/projects/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17321,7 +17333,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Delete project
-  app.delete("/api/ai-studio/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/ai-studio/projects/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17352,7 +17364,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== EMAIL CONTACTS ====================
   
   // Add email contact
-  app.post("/api/ai-studio/email-contacts", isAuthenticated, async (req: any, res) => {
+  app.post("/api/ai-studio/email-contacts", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17376,7 +17388,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // List all contacts for user
-  app.get("/api/ai-studio/email-contacts", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/email-contacts", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17407,7 +17419,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Remove email contact
-  app.delete("/api/ai-studio/email-contacts/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/ai-studio/email-contacts/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17438,7 +17450,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== QUOTA ====================
   
   // Get Gemini API quota status
-  app.get("/api/ai-studio/quota", isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai-studio/quota", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17473,7 +17485,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== KDP BOOK EXPORT ====================
   
   // Get export metadata for a project (preview before export) - requires Pro tier
-  app.get("/api/ai-studio/export/:projectId/metadata", isAuthenticated, requireTier("pro"), async (req: any, res) => {
+  app.get("/api/ai-studio/export/:projectId/metadata", requireAuth, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17502,7 +17514,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Export project as PDF (requires Pro tier)
-  app.post("/api/ai-studio/export/pdf", isAuthenticated, requireTier("pro"), async (req: any, res) => {
+  app.post("/api/ai-studio/export/pdf", requireAuth, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17542,7 +17554,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Export project as DOCX (requires Pro tier)
-  app.post("/api/ai-studio/export/docx", isAuthenticated, requireTier("pro"), async (req: any, res) => {
+  app.post("/api/ai-studio/export/docx", requireAuth, requireTier("pro"), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -17637,8 +17649,8 @@ ${pdfData.text.substring(0, 15000)}`;
         .where(conditions.length > 0 ? sql`${conditions.reduce((acc, cond, i) => i === 0 ? cond : sql`${acc} AND ${cond}`)}` : undefined);
 
       // Obfuscate sensitive data for anonymous users
-      const isAuthenticated = !!(req as any).user;
-      const codes = obfuscateForAnonymous(rawCodes, isAuthenticated);
+      const requireAuth = !!(req as any).user;
+      const codes = obfuscateForAnonymous(rawCodes, requireAuth);
 
       res.json({
         codes,
@@ -17694,9 +17706,9 @@ ${pdfData.text.substring(0, 15000)}`;
         .limit(4);
 
       // Obfuscate sensitive data for anonymous users
-      const isAuthenticated = !!(req as any).user;
-      const code = obfuscateForAnonymous(rawCode, isAuthenticated);
-      const relatedCodes = obfuscateForAnonymous(rawRelatedCodes, isAuthenticated);
+      const requireAuth = !!(req as any).user;
+      const code = obfuscateForAnonymous(rawCode, requireAuth);
+      const relatedCodes = obfuscateForAnonymous(rawRelatedCodes, requireAuth);
 
       res.json({ code, relatedCodes, protected: true });
     } catch (error: any) {
@@ -17720,8 +17732,8 @@ ${pdfData.text.substring(0, 15000)}`;
       }
 
       // Obfuscate sensitive data for anonymous users
-      const isAuthenticated = !!(req as any).user;
-      const result = obfuscateForAnonymous(rawResult, isAuthenticated);
+      const requireAuth = !!(req as any).user;
+      const result = obfuscateForAnonymous(rawResult, requireAuth);
 
       res.json({ ...result, protected: true });
     } catch (error: any) {
@@ -17731,7 +17743,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Seed error codes (admin only)
-  app.post("/api/error-codes/seed", isAdmin, async (req, res) => {
+  app.post("/api/error-codes/seed", requireAdmin, async (req, res) => {
     try {
       const { seedErrorCodes } = await import("./seed-error-codes");
       const result = await seedErrorCodes();
@@ -17899,7 +17911,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== UTILITY BILL AUDITOR API ====================
 
   // POST /api/utility-bill/analyze - Analyze utility bill image using Gemini Vision AI
-  app.post("/api/utility-bill/analyze", isAuthenticated, rateLimiter, async (req, res) => {
+  app.post("/api/utility-bill/analyze", requireAuth, rateLimiter, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
       if (!userId) {
@@ -17982,7 +17994,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/utility-bill/compare - Compare two utility bills
-  app.post("/api/utility-bill/compare", isAuthenticated, rateLimiter, async (req, res) => {
+  app.post("/api/utility-bill/compare", requireAuth, rateLimiter, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
       if (!userId) {
@@ -18048,7 +18060,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/utility-bill/history - Get user's utility bill analysis history
-  app.get("/api/utility-bill/history", isAuthenticated, async (req, res) => {
+  app.get("/api/utility-bill/history", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
       if (!userId) {
@@ -18108,7 +18120,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/utility-bill/:id - Get a specific utility bill analysis
-  app.get("/api/utility-bill/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/utility-bill/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
       if (!userId) {
@@ -18144,7 +18156,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/utility-bill/:id - Delete a utility bill analysis
-  app.delete("/api/utility-bill/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/utility-bill/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
       if (!userId) {
@@ -18445,7 +18457,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // --- OWNER ENDPOINTS (require auth) ---
 
   // GET /api/directory/my-listings - Get user's own listings
-  app.get("/api/directory/my-listings", isAuthenticated, async (req: any, res) => {
+  app.get("/api/directory/my-listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -18466,7 +18478,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/directory/listings - Create new listing (free tier)
-  app.post("/api/directory/listings", isAuthenticated, async (req: any, res) => {
+  app.post("/api/directory/listings", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -18493,7 +18505,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PUT /api/directory/listings/:id - Update own listing
-  app.put("/api/directory/listings/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/directory/listings/:id", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -18534,7 +18546,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/directory/listings/:id/analytics - Get listing analytics (premium only)
-  app.get("/api/directory/listings/:id/analytics", isAuthenticated, async (req: any, res) => {
+  app.get("/api/directory/listings/:id/analytics", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
       if (!currentUser) {
@@ -18624,7 +18636,7 @@ ${pdfData.text.substring(0, 15000)}`;
   };
 
   // POST /api/directory/listings/:id/upgrade - Create Stripe checkout session for tier upgrade
-  app.post("/api/directory/listings/:id/upgrade", isAuthenticated, async (req: any, res) => {
+  app.post("/api/directory/listings/:id/upgrade", requireAuth, async (req: any, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ error: "Payment processing is not configured" });
@@ -19097,10 +19109,10 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Get pending listings (admin only)
-  app.get("/api/marketplace/admin/pending", isAuthenticated, async (req: any, res) => {
+  app.get("/api/marketplace/admin/pending", requireAuth, async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
-      if (!currentUser?.isAdmin) {
+      if (!currentUser?.requireAdmin) {
         return res.status(403).json({ error: "Admin access required" });
       }
       
@@ -19140,7 +19152,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ============================================================================
 
   // Saved Searches with Email Alerts
-  app.get("/api/buyer/saved-searches", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/saved-searches", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19153,7 +19165,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.post("/api/buyer/saved-searches", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/saved-searches", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19174,7 +19186,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.put("/api/buyer/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/buyer/saved-searches/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19192,7 +19204,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.delete("/api/buyer/saved-searches/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/buyer/saved-searches/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19211,7 +19223,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Favorite Listings (Buyer Watchlist)
-  app.get("/api/buyer/favorites", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/favorites", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19224,7 +19236,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.post("/api/buyer/favorites/:listingId", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/favorites/:listingId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19250,7 +19262,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.delete("/api/buyer/favorites/:listingId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/buyer/favorites/:listingId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19263,7 +19275,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.get("/api/buyer/favorites/:listingId/check", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/favorites/:listingId/check", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19276,7 +19288,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.patch("/api/buyer/favorites/:listingId/notes", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/buyer/favorites/:listingId/notes", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19291,7 +19303,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Buyer-Seller Messaging
-  app.get("/api/buyer/messages/threads", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/messages/threads", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19305,7 +19317,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.get("/api/buyer/messages/threads/:threadId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/messages/threads/:threadId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19325,7 +19337,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.post("/api/buyer/messages/threads", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/messages/threads", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19364,7 +19376,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.post("/api/buyer/messages/threads/:threadId", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/messages/threads/:threadId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19389,7 +19401,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.get("/api/buyer/messages/unread-count", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/messages/unread-count", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19404,7 +19416,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Listing Comparisons
-  app.get("/api/buyer/comparisons", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/comparisons", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19417,7 +19429,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.post("/api/buyer/comparisons", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/comparisons", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19442,7 +19454,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.get("/api/buyer/comparisons/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/comparisons/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19463,7 +19475,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.delete("/api/buyer/comparisons/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/buyer/comparisons/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19482,7 +19494,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Buyer Listing History
-  app.post("/api/buyer/history/track", isAuthenticated, async (req: any, res) => {
+  app.post("/api/buyer/history/track", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19496,7 +19508,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.get("/api/buyer/history/recent", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/history/recent", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19511,7 +19523,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Due Diligence Tasks
-  app.get("/api/buyer/due-diligence/:ndaRequestId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/due-diligence/:ndaRequestId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19524,7 +19536,7 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
-  app.patch("/api/buyer/due-diligence/:taskId", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/buyer/due-diligence/:taskId", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19538,7 +19550,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // Buyer Dashboard Stats
-  app.get("/api/buyer/dashboard-stats", isAuthenticated, async (req: any, res) => {
+  app.get("/api/buyer/dashboard-stats", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19570,7 +19582,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // ==================== USER PROFILE SAVED ITEMS & RECENTLY VIEWED ====================
   
   // GET /api/profile/saved - Get user's saved items (with optional type filter)
-  app.get("/api/profile/saved", isAuthenticated, async (req: any, res) => {
+  app.get("/api/profile/saved", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19600,7 +19612,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // POST /api/profile/saved - Save an item
-  app.post("/api/profile/saved", isAuthenticated, async (req: any, res) => {
+  app.post("/api/profile/saved", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19629,7 +19641,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // DELETE /api/profile/saved/:id - Remove a saved item
-  app.delete("/api/profile/saved/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/profile/saved/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19652,7 +19664,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // PATCH /api/profile/saved/:id - Update notes or toggle pinned
-  app.patch("/api/profile/saved/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/profile/saved/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19686,7 +19698,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // GET /api/profile/recent - Get recently viewed items (limit 20)
-  app.get("/api/profile/recent", isAuthenticated, async (req: any, res) => {
+  app.get("/api/profile/recent", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19713,7 +19725,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // POST /api/profile/recent - Track a view (upsert with viewCount increment)
-  app.post("/api/profile/recent", isAuthenticated, async (req: any, res) => {
+  app.post("/api/profile/recent", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -19768,7 +19780,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
   
   // DELETE /api/profile/recent/:id - Remove from history
-  app.delete("/api/profile/recent/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/profile/recent/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20290,7 +20302,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/parts-catalog - Add part to catalog (admin only)
-  app.post("/api/parts-catalog", isAuthenticated, async (req: any, res) => {
+  app.post("/api/parts-catalog", requireAuth, async (req: any, res) => {
     try {
       const data = insertPartsCatalogSchema.parse(req.body);
       const [part] = await db.insert(partsCatalog).values(data).returning();
@@ -20302,7 +20314,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PATCH /api/parts-catalog/:id - Update catalog part
-  app.patch("/api/parts-catalog/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/parts-catalog/:id", requireAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       const [updated] = await db.update(partsCatalog)
@@ -20318,7 +20330,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/parts-catalog/:id - Soft delete catalog part
-  app.delete("/api/parts-catalog/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/parts-catalog/:id", requireAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       await db.update(partsCatalog).set({ isActive: false }).where(eq(partsCatalog.id, id));
@@ -20330,7 +20342,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory - Get user's inventory items with optional filters
-  app.get("/api/inventory", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20363,7 +20375,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory/alerts - Get low stock alerts
-  app.get("/api/inventory/alerts", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory/alerts", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20379,7 +20391,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/inventory - Add inventory item
-  app.post("/api/inventory", isAuthenticated, async (req: any, res) => {
+  app.post("/api/inventory", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20394,7 +20406,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PATCH /api/inventory/:id - Update inventory item
-  app.patch("/api/inventory/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/inventory/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20415,7 +20427,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/inventory/:id - Delete inventory item
-  app.delete("/api/inventory/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/inventory/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20430,7 +20442,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/inventory/:id/use - Record inventory usage
-  app.post("/api/inventory/:id/use", isAuthenticated, async (req: any, res) => {
+  app.post("/api/inventory/:id/use", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20468,7 +20480,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory/:id/usage - Get usage history for an item
-  app.get("/api/inventory/:id/usage", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory/:id/usage", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20486,7 +20498,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/purchase-orders - Get user's purchase orders
-  app.get("/api/purchase-orders", isAuthenticated, async (req: any, res) => {
+  app.get("/api/purchase-orders", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20509,7 +20521,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/purchase-orders/:id - Get specific purchase order
-  app.get("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/purchase-orders/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20528,7 +20540,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/purchase-orders - Create purchase order
-  app.post("/api/purchase-orders", isAuthenticated, async (req: any, res) => {
+  app.post("/api/purchase-orders", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20553,7 +20565,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PATCH /api/purchase-orders/:id - Update purchase order
-  app.patch("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/purchase-orders/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20576,7 +20588,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/purchase-orders/:id/receive - Mark items as received
-  app.post("/api/purchase-orders/:id/receive", isAuthenticated, async (req: any, res) => {
+  app.post("/api/purchase-orders/:id/receive", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20656,7 +20668,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/purchase-orders/:id - Cancel/delete purchase order
-  app.delete("/api/purchase-orders/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/purchase-orders/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20683,7 +20695,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory/reports/spend - Parts spend by period
-  app.get("/api/inventory/reports/spend", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory/reports/spend", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20714,7 +20726,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory/reports/most-used - Most used parts
-  app.get("/api/inventory/reports/most-used", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory/reports/most-used", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20755,7 +20767,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/inventory/reports/valuation - Inventory valuation
-  app.get("/api/inventory/reports/valuation", isAuthenticated, async (req: any, res) => {
+  app.get("/api/inventory/reports/valuation", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20819,7 +20831,7 @@ ${pdfData.text.substring(0, 15000)}`;
   // =====================================================
 
   // GET /api/dashboard/layouts - List user's layouts
-  app.get("/api/dashboard/layouts", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/layouts", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20833,7 +20845,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/dashboard/layouts/default - Get user's default layout
-  app.get("/api/dashboard/layouts/default", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/layouts/default", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20850,7 +20862,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // GET /api/dashboard/layouts/:id - Get specific layout
-  app.get("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/dashboard/layouts/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20873,7 +20885,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // POST /api/dashboard/layouts - Create new layout
-  app.post("/api/dashboard/layouts", isAuthenticated, async (req: any, res) => {
+  app.post("/api/dashboard/layouts", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20895,7 +20907,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // PATCH /api/dashboard/layouts/:id - Update layout
-  app.patch("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/dashboard/layouts/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
@@ -20919,7 +20931,7 @@ ${pdfData.text.substring(0, 15000)}`;
   });
 
   // DELETE /api/dashboard/layouts/:id - Delete layout
-  app.delete("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/dashboard/layouts/:id", requireAuth, async (req: any, res) => {
     try {
       const user = await getCurrentUser(req);
       if (!user) return res.status(401).json({ error: "Not authenticated" });
