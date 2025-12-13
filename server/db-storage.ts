@@ -223,6 +223,10 @@ import {
   type InsertBuyerListingHistory,
   type Listing,
   type NdaRequest,
+  // Dashboard Layouts
+  dashboardLayouts,
+  type DashboardLayout,
+  type InsertDashboardLayout,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
 
@@ -3039,6 +3043,63 @@ export class DbStorage implements IStorage {
       .limit(limit);
     
     return history.map(h => ({ ...h.history, listing: h.listing }));
+  }
+
+  // ============================================================================
+  // DASHBOARD LAYOUTS
+  // ============================================================================
+  async getDashboardLayouts(userId: string): Promise<DashboardLayout[]> {
+    return await db.select().from(dashboardLayouts)
+      .where(eq(dashboardLayouts.userId, userId))
+      .orderBy(desc(dashboardLayouts.updatedAt));
+  }
+
+  async getDashboardLayout(id: string): Promise<DashboardLayout | undefined> {
+    const result = await db.select().from(dashboardLayouts)
+      .where(eq(dashboardLayouts.id, id));
+    return result[0];
+  }
+
+  async getDefaultDashboardLayout(userId: string): Promise<DashboardLayout | undefined> {
+    const result = await db.select().from(dashboardLayouts)
+      .where(and(
+        eq(dashboardLayouts.userId, userId),
+        eq(dashboardLayouts.isDefault, true)
+      ));
+    return result[0];
+  }
+
+  async createDashboardLayout(layout: InsertDashboardLayout): Promise<DashboardLayout> {
+    // If this is set as default, unset any existing default for this user
+    if (layout.isDefault) {
+      await db.update(dashboardLayouts)
+        .set({ isDefault: false })
+        .where(eq(dashboardLayouts.userId, layout.userId));
+    }
+    const result = await db.insert(dashboardLayouts).values(layout).returning();
+    return result[0];
+  }
+
+  async updateDashboardLayout(id: string, layout: Partial<InsertDashboardLayout>): Promise<DashboardLayout> {
+    // If setting as default, unset any existing default for this user
+    if (layout.isDefault) {
+      const existing = await this.getDashboardLayout(id);
+      if (existing) {
+        await db.update(dashboardLayouts)
+          .set({ isDefault: false })
+          .where(eq(dashboardLayouts.userId, existing.userId));
+      }
+    }
+    const updateData = { ...layout, updatedAt: new Date() };
+    const result = await db.update(dashboardLayouts)
+      .set(updateData)
+      .where(eq(dashboardLayouts.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteDashboardLayout(id: string): Promise<void> {
+    await db.delete(dashboardLayouts).where(eq(dashboardLayouts.id, id));
   }
 }
 
