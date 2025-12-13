@@ -77,8 +77,8 @@ export default function CommandCenter() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const isDemo = !isPro;
-  const canSaveLayouts = isPro;
+  const isDemo = !isBusiness;
+  const canSaveLayouts = isBusiness;
 
   const { data: savedLayout, isLoading: layoutLoading } = useQuery<DashboardLayout>({
     queryKey: ["/api/dashboard/layouts/default"],
