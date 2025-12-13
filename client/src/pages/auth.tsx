@@ -44,14 +44,14 @@ export default function AuthPage() {
     }
   }, [authResolved, isAuthenticated, user, redirectUrl, setLocation, toast]);
 
-  const handleContinueWithReplit = () => {
+  const handleContinueWithGoogle = () => {
     setIsRedirecting(true);
     
-    if (redirectUrl && redirectUrl !== "/") {
-      sessionStorage.setItem(REDIRECT_STORAGE_KEY, redirectUrl);
-    }
+    const redirect = redirectUrl && redirectUrl !== "/" 
+      ? `?redirect=${encodeURIComponent(redirectUrl)}`
+      : "";
     
-    window.location.href = "/api/login";
+    window.location.href = `/api/auth/cloudflare/login${redirect}`;
   };
 
   if (isLoading || !authResolved) {
@@ -154,10 +154,10 @@ export default function AuthPage() {
               </div>
 
               <Button 
-                onClick={handleContinueWithReplit}
+                onClick={handleContinueWithGoogle}
                 disabled={isRedirecting}
                 className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white h-12 text-base font-semibold mb-4"
-                data-testid="button-continue-replit"
+                data-testid="button-continue-google"
               >
                 {isRedirecting ? (
                   <>
@@ -166,8 +166,8 @@ export default function AuthPage() {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Continue with Replit
+                    <SiGoogle className="h-5 w-5 mr-2" />
+                    Continue with Google
                   </>
                 )}
               </Button>

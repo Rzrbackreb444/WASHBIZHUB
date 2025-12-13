@@ -55,7 +55,7 @@ export function useAuth() {
     if (providers?.cloudflareAccess?.enabled) {
       window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
     } else if (providers?.google?.enabled) {
-      window.location.href = `/api/auth/google/login?redirect=${redirect}`;
+      window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
     } else {
       window.location.href = `/login`;
     }

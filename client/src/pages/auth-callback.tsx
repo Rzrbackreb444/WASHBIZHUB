@@ -42,7 +42,7 @@ export default function AuthCallback() {
   }, [authResolved, isAuthenticated, user, setLocation, toast, hasProcessed]);
 
   const handleRetry = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/cloudflare/login";
   };
 
   const handleGoHome = () => {

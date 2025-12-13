@@ -44,7 +44,7 @@ export function AuthGuard({
             <Button 
               className="w-full" 
               size="lg"
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/api/auth/cloudflare/login'}
               data-testid="button-login-required"
             >
               <LogIn className="w-5 h-5 mr-2" />

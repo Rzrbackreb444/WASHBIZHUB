@@ -13,13 +13,10 @@ import {
   TrendingUp, 
   Star, 
   Save,
-  CheckCircle,
-  Sparkles
+  CheckCircle
 } from "lucide-react";
 import { SiGoogle, SiGithub, SiApple } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
-
-const REDIRECT_STORAGE_KEY = "washbizhub_auth_redirect";
 
 interface AuthModalContextType {
   isOpen: boolean;
@@ -68,15 +65,15 @@ interface AuthModalContentProps {
 function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const handleContinueWithReplit = () => {
+  const handleContinueWithGoogle = () => {
     setIsRedirecting(true);
     
     const currentUrl = window.location.pathname + window.location.search;
-    if (currentUrl && currentUrl !== "/") {
-      sessionStorage.setItem(REDIRECT_STORAGE_KEY, currentUrl);
-    }
+    const redirect = currentUrl && currentUrl !== "/" 
+      ? `?redirect=${encodeURIComponent(currentUrl)}`
+      : "";
     
-    window.location.href = "/api/login";
+    window.location.href = `/api/auth/cloudflare/login${redirect}`;
   };
 
   const benefits = [
@@ -161,10 +158,10 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
           </div>
 
           <Button 
-            onClick={handleContinueWithReplit}
+            onClick={handleContinueWithGoogle}
             disabled={isRedirecting}
             className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white h-11 text-sm font-semibold mb-4"
-            data-testid="button-modal-continue-replit"
+            data-testid="button-modal-continue-google"
           >
             {isRedirecting ? (
               <>
@@ -173,8 +170,8 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
               </>
             ) : (
               <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Continue with Replit
+                <SiGoogle className="h-4 w-4 mr-2" />
+                Continue with Google
               </>
             )}
           </Button>
