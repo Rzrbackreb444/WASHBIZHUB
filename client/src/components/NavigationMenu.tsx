@@ -13,7 +13,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { 
-  LogOut, Search, ChevronRight, Sparkles,
+  LogOut, Search, ChevronRight, Sparkles, Globe, Crown,
   MapPin, Building2, DollarSign, Calculator, Palette,
   ShoppingCart, Package, Handshake,
   BookOpen, GraduationCap, HelpCircle, Wallet,
@@ -24,12 +24,16 @@ import {
 import logoUrl from "@assets/6_1764040628012.png";
 import { MobileMenu } from "@/components/MobileMenu";
 
-const PRODUCTS_LINKS = [
-  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
+const PRODUCTS_INTELLIGENCE = [
+  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "AI-powered location scoring", featured: true },
   { href: "/command-center", label: "Command Center", icon: LayoutGrid, desc: "Customizable dashboard", featured: true },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Expert repair diagnostics", featured: true },
-  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
-  { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, desc: "Point-of-sale management" },
+];
+
+const PRODUCTS_OPERATIONS = [
+  { href: "/website-builder", label: "Website Builder", icon: Globe, desc: "Build your business website", featured: true },
+  { href: "/pos-command-center", label: "POS System", icon: Monitor, desc: "Point-of-sale management" },
+  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "2D/3D store layout planning" },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Expert repair diagnostics" },
 ];
 
 const CALCULATORS_LINKS = [
@@ -231,17 +235,64 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
+                          className="w-[560px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          <div className="mb-2 pb-2 border-b border-border">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Intelligence Tools
-                            </span>
+                          {/* 2-Column Layout */}
+                          <div className="grid grid-cols-2 gap-0">
+                            {/* Left Column - Intelligence */}
+                            <div className="p-4 border-r border-border">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <MapPin className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                                  Intelligence
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {PRODUCTS_INTELLIGENCE.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Right Column - Operations */}
+                            <div className="p-4">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <Monitor className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                                  Operations
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {PRODUCTS_OPERATIONS.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            {PRODUCTS_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
+                          
+                          {/* Bottom CTA Bar */}
+                          <div className="bg-muted/50 border-t border-border px-4 py-3 flex items-center justify-between">
+                            <button
+                              onClick={() => window.location.href = '/products'}
+                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
+                              data-testid="link-view-all-features"
+                            >
+                              View All Features
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                            <Button
+                              size="sm"
+                              onClick={() => window.location.href = '/pricing'}
+                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
+                              data-testid="button-upgrade-products"
+                            >
+                              <Crown className="w-3.5 h-3.5 mr-1.5" />
+                              Upgrade
+                            </Button>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>

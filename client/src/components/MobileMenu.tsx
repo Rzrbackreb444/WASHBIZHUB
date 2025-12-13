@@ -58,7 +58,9 @@ const mobilePillars: MenuSection[] = [
     items: [
       { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, featured: true, description: "Command center" },
       { href: "/command-center", label: "Command Center", icon: LayoutGrid, featured: true, description: "Custom dashboard" },
+      { href: "/website-builder", label: "Website Builder", icon: Store, featured: true, description: "Build your site" },
       { href: "/pos-command-center", label: "POS Command Center", icon: Smartphone, description: "Point of sale" },
+      { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "2D/3D planning" },
       { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
       { href: "/iot-dashboard", label: "IoT Dashboard", icon: Cpu, description: "Machine monitoring" },
       { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "Expert diagnostics" },
