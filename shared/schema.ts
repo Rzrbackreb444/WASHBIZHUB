@@ -16673,5 +16673,203 @@ export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 
 // ============================================================================
+// CUSTOMIZABLE DASHBOARD SYSTEM - Drag-and-Drop Widget Builder
+// ============================================================================
+
+// Widget Types Enum for type safety
+export const WIDGET_TYPES = {
+  // POS Widgets
+  POS_REVENUE_CARD: "pos_revenue_card",
+  POS_ORDERS_TODAY: "pos_orders_today",
+  POS_MACHINE_STATUS: "pos_machine_status",
+  POS_RECENT_ORDERS: "pos_recent_orders",
+  POS_REVENUE_CHART: "pos_revenue_chart",
+  POS_SERVICE_BREAKDOWN: "pos_service_breakdown",
+  
+  // Service Guy AI Widgets
+  SERVICE_REPAIR_TICKETS: "service_repair_tickets",
+  SERVICE_MAINTENANCE_DUE: "service_maintenance_due",
+  SERVICE_DIAGNOSTIC_QUICK: "service_diagnostic_quick",
+  SERVICE_PARTS_LOW: "service_parts_low",
+  
+  // CLEANBI Widgets
+  CLEANBI_RECENT_SCORES: "cleanbi_recent_scores",
+  CLEANBI_SAVED_ANALYSES: "cleanbi_saved_analyses",
+  CLEANBI_QUOTA_STATUS: "cleanbi_quota_status",
+  CLEANBI_SCORE_CHART: "cleanbi_score_chart",
+  
+  // Website Builder Widgets
+  WEBSITE_PROJECTS: "website_projects",
+  WEBSITE_QUICK_BUILD: "website_quick_build",
+  
+  // Calculator Widgets
+  CALC_QUICK_ACCESS: "calc_quick_access",
+  CALC_SAVED_RESULTS: "calc_saved_results",
+  CALC_ROI_SUMMARY: "calc_roi_summary",
+  
+  // Analytics Widgets
+  ANALYTICS_KPI_GRID: "analytics_kpi_grid",
+  ANALYTICS_TREND_LINE: "analytics_trend_line",
+  ANALYTICS_PIE_CHART: "analytics_pie_chart",
+  ANALYTICS_GAUGE: "analytics_gauge",
+  ANALYTICS_HEATMAP: "analytics_heatmap",
+  
+  // Activity & Social
+  ACTIVITY_FEED: "activity_feed",
+  NOTIFICATIONS: "notifications",
+  SAVED_ITEMS: "saved_items",
+  RECENT_VIEWED: "recent_viewed",
+  
+  // Quick Actions
+  QUICK_ACTIONS: "quick_actions",
+  SHORTCUTS: "shortcuts",
+} as const;
+
+export type WidgetType = typeof WIDGET_TYPES[keyof typeof WIDGET_TYPES];
+
+// Dashboard Layouts - User's saved dashboard configurations
+export const dashboardLayouts = pgTable("dashboard_layouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  // Layout Identity
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  isDefault: boolean("is_default").default(false),
+  isPublic: boolean("is_public").default(false), // Share with other users
+  
+  // Layout Settings
+  theme: varchar("theme", { length: 20 }).default("dark"), // "light", "dark", "system"
+  columns: integer("columns").default(12), // Grid columns (12 is standard)
+  rowHeight: integer("row_height").default(80), // Pixel height per row
+  compactType: varchar("compact_type", { length: 20 }).default("vertical"), // "vertical", "horizontal", null
+  
+  // Layout Data (JSON blob for flexibility)
+  layout: jsonb("layout").notNull().default(sql`'[]'::jsonb`), // Array of widget positions
+  
+  // Metadata
+  thumbnail: text("thumbnail"), // Auto-generated preview image
+  viewCount: integer("view_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("dashboard_layouts_user_idx").on(table.userId),
+  defaultIdx: index("dashboard_layouts_default_idx").on(table.isDefault),
+  publicIdx: index("dashboard_layouts_public_idx").on(table.isPublic),
+}));
+
+export const insertDashboardLayoutSchema = createInsertSchema(dashboardLayouts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  viewCount: true,
+});
+
+export type DashboardLayout = typeof dashboardLayouts.$inferSelect;
+export type InsertDashboardLayout = z.infer<typeof insertDashboardLayoutSchema>;
+
+// Dashboard Widget Instances - Individual widgets in a layout
+export const dashboardWidgets = pgTable("dashboard_widgets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  layoutId: varchar("layout_id").notNull().references(() => dashboardLayouts.id, { onDelete: "cascade" }),
+  
+  // Widget Identity
+  widgetType: varchar("widget_type", { length: 50 }).notNull(), // From WIDGET_TYPES
+  title: varchar("title", { length: 100 }), // Custom title override
+  
+  // Grid Position (react-grid-layout compatible)
+  x: integer("x").notNull().default(0), // Grid column
+  y: integer("y").notNull().default(0), // Grid row
+  w: integer("w").notNull().default(4), // Width in grid units
+  h: integer("h").notNull().default(3), // Height in grid units
+  minW: integer("min_w").default(2),
+  minH: integer("min_h").default(2),
+  maxW: integer("max_w"),
+  maxH: integer("max_h"),
+  
+  // Widget Configuration
+  settings: jsonb("settings").default(sql`'{}'::jsonb`), // Widget-specific settings
+  dataSource: jsonb("data_source"), // Custom data query overrides
+  refreshInterval: integer("refresh_interval").default(60), // Seconds (0 = manual)
+  
+  // Display Options
+  showHeader: boolean("show_header").default(true),
+  showBorder: boolean("show_border").default(true),
+  backgroundColor: varchar("background_color", { length: 20 }),
+  
+  // State
+  isCollapsed: boolean("is_collapsed").default(false),
+  isLocked: boolean("is_locked").default(false), // Prevent moving/resizing
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  layoutIdx: index("dashboard_widgets_layout_idx").on(table.layoutId),
+  typeIdx: index("dashboard_widgets_type_idx").on(table.widgetType),
+}));
+
+export const insertDashboardWidgetSchema = createInsertSchema(dashboardWidgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type DashboardWidget = typeof dashboardWidgets.$inferSelect;
+export type InsertDashboardWidget = z.infer<typeof insertDashboardWidgetSchema>;
+
+// Widget Layout Item Type (for JSON layout array)
+export const widgetLayoutItemSchema = z.object({
+  i: z.string(), // Widget ID
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+  minW: z.number().optional(),
+  minH: z.number().optional(),
+  maxW: z.number().optional(),
+  maxH: z.number().optional(),
+  static: z.boolean().optional(),
+});
+
+export type WidgetLayoutItem = z.infer<typeof widgetLayoutItemSchema>;
+
+// Dashboard Templates - Pre-built layouts users can clone
+export const dashboardTemplates = pgTable("dashboard_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template Identity
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).notNull(), // "operator", "owner", "investor", "service_tech"
+  
+  // Template Data
+  layout: jsonb("layout").notNull(), // Default widget positions
+  widgets: jsonb("widgets").notNull(), // Default widget configurations
+  
+  // Display
+  thumbnail: text("thumbnail"),
+  isPremium: boolean("is_premium").default(false),
+  
+  // Stats
+  usageCount: integer("usage_count").default(0),
+  rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("dashboard_templates_category_idx").on(table.category),
+  premiumIdx: index("dashboard_templates_premium_idx").on(table.isPremium),
+}));
+
+export const insertDashboardTemplateSchema = createInsertSchema(dashboardTemplates).omit({
+  id: true,
+  createdAt: true,
+  usageCount: true,
+});
+
+export type DashboardTemplate = typeof dashboardTemplates.$inferSelect;
+export type InsertDashboardTemplate = z.infer<typeof insertDashboardTemplateSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
