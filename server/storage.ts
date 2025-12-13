@@ -269,6 +269,9 @@ import {
   type InsertDesignQuote,
   type DesignOrder,
   type InsertDesignOrder,
+  // Dashboard Layouts
+  type DashboardLayout,
+  type InsertDashboardLayout,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -1101,6 +1104,14 @@ export interface IStorage {
   // Activity Feed
   getActivityFeed(userId: string, limit?: number, offset?: number): Promise<{ activities: ActivityEvent[]; total: number }>;
   createActivityEvent(event: InsertActivityEvent): Promise<ActivityEvent>;
+  
+  // ==================== DASHBOARD LAYOUTS ====================
+  getDashboardLayouts(userId: string): Promise<DashboardLayout[]>;
+  getDashboardLayout(id: string): Promise<DashboardLayout | undefined>;
+  getDefaultDashboardLayout(userId: string): Promise<DashboardLayout | undefined>;
+  createDashboardLayout(layout: InsertDashboardLayout): Promise<DashboardLayout>;
+  updateDashboardLayout(id: string, layout: Partial<InsertDashboardLayout>): Promise<DashboardLayout>;
+  deleteDashboardLayout(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -2018,6 +2029,14 @@ export class MemStorage implements IStorage {
   async isFollowing(): Promise<boolean> { return false; }
   async getActivityFeed(): Promise<{ activities: ActivityEvent[]; total: number }> { return { activities: [], total: 0 }; }
   async createActivityEvent(): Promise<ActivityEvent> { throw new Error("Use DbStorage for profile features"); }
+  
+  // Dashboard Layouts stubs
+  async getDashboardLayouts(): Promise<DashboardLayout[]> { return []; }
+  async getDashboardLayout(): Promise<DashboardLayout | undefined> { return undefined; }
+  async getDefaultDashboardLayout(): Promise<DashboardLayout | undefined> { return undefined; }
+  async createDashboardLayout(): Promise<DashboardLayout> { throw new Error("Use DbStorage for dashboard layout features"); }
+  async updateDashboardLayout(): Promise<DashboardLayout> { throw new Error("Use DbStorage for dashboard layout features"); }
+  async deleteDashboardLayout(): Promise<void> { throw new Error("Use DbStorage for dashboard layout features"); }
 }
 
 // Use DbStorage for production-grade persistence

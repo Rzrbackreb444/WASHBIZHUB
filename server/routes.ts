@@ -217,6 +217,7 @@ import {
   insertDirectMessageSchema,
   insertConversationSchema,
   userProfiles,
+  insertDashboardLayoutSchema,
 } from "@shared/schema";
 import {
   generateChatResponse,
@@ -20810,6 +20811,134 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error fetching manufacturers:", error);
       res.status(500).json({ error: "Failed to fetch manufacturers" });
+    }
+  });
+
+  // =====================================================
+  // DASHBOARD LAYOUTS API ROUTES
+  // =====================================================
+
+  // GET /api/dashboard/layouts - List user's layouts
+  app.get("/api/dashboard/layouts", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const layouts = await storage.getDashboardLayouts(user.userId);
+      res.json(layouts);
+    } catch (error: any) {
+      console.error("Error fetching dashboard layouts:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard layouts" });
+    }
+  });
+
+  // GET /api/dashboard/layouts/default - Get user's default layout
+  app.get("/api/dashboard/layouts/default", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const layout = await storage.getDefaultDashboardLayout(user.userId);
+      if (!layout) {
+        return res.status(404).json({ error: "No default layout found" });
+      }
+      res.json(layout);
+    } catch (error: any) {
+      console.error("Error fetching default layout:", error);
+      res.status(500).json({ error: "Failed to fetch default layout" });
+    }
+  });
+
+  // GET /api/dashboard/layouts/:id - Get specific layout
+  app.get("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const layout = await storage.getDashboardLayout(req.params.id);
+      if (!layout) {
+        return res.status(404).json({ error: "Layout not found" });
+      }
+      
+      // Ensure user owns this layout or it's public
+      if (layout.userId !== user.userId && !layout.isPublic) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      
+      res.json(layout);
+    } catch (error: any) {
+      console.error("Error fetching dashboard layout:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard layout" });
+    }
+  });
+
+  // POST /api/dashboard/layouts - Create new layout
+  app.post("/api/dashboard/layouts", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const validated = insertDashboardLayoutSchema.parse({
+        ...req.body,
+        userId: user.userId,
+      });
+
+      const layout = await storage.createDashboardLayout(validated);
+      res.status(201).json(layout);
+    } catch (error: any) {
+      console.error("Error creating dashboard layout:", error);
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid layout data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create dashboard layout" });
+    }
+  });
+
+  // PATCH /api/dashboard/layouts/:id - Update layout
+  app.patch("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const existing = await storage.getDashboardLayout(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: "Layout not found" });
+      }
+      
+      // Ensure user owns this layout
+      if (existing.userId !== user.userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const layout = await storage.updateDashboardLayout(req.params.id, req.body);
+      res.json(layout);
+    } catch (error: any) {
+      console.error("Error updating dashboard layout:", error);
+      res.status(500).json({ error: "Failed to update dashboard layout" });
+    }
+  });
+
+  // DELETE /api/dashboard/layouts/:id - Delete layout
+  app.delete("/api/dashboard/layouts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user) return res.status(401).json({ error: "Not authenticated" });
+
+      const existing = await storage.getDashboardLayout(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ error: "Layout not found" });
+      }
+      
+      // Ensure user owns this layout
+      if (existing.userId !== user.userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      await storage.deleteDashboardLayout(req.params.id);
+      res.status(204).send();
+    } catch (error: any) {
+      console.error("Error deleting dashboard layout:", error);
+      res.status(500).json({ error: "Failed to delete dashboard layout" });
     }
   });
 
