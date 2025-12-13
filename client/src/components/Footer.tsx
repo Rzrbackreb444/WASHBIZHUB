@@ -1,11 +1,15 @@
+import { memo } from "react";
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Twitter, MapPin, Building2 } from "lucide-react";
+import { ExternalLink, Facebook, Twitter, MapPin, Building2, Phone, Mail, MessageCircle, Shield, UserCheck } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
 import logoUrl from "@assets/6_1764040628012.png";
 import nycSkyline from "@assets/City_Lights_54_1765330986805.png";
+import whatsappQR from "@assets/image_1765639493747.png";
 
 const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || "consult@washbizhub.com";
+const OWNER_EMAIL = "nick@washbizhub.com";
+const OWNER_PHONE = "479-883-4314";
 
 const productsLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI™ Explorer", testId: "link-footer-cleanbi-explorer", featured: true },
@@ -44,7 +48,7 @@ const companyLinks = [
   { href: "/feedback", label: "Feedback & Suggestions", testId: "link-footer-feedback" },
 ];
 
-export function Footer() {
+function FooterComponent() {
   return (
     <footer className="relative mt-auto border-t border-border" data-testid="footer-main">
       {/* Navy gradient background */}
@@ -250,6 +254,91 @@ export function Footer() {
             </div>
           </div>
 
+          {/* E-E-A-T Section: Human Oversight & Direct Contact */}
+          <div className="mt-10 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Human Oversight */}
+              <div className="flex items-start gap-4" data-testid="section-human-oversight">
+                <div className="flex-shrink-0 p-2 bg-[#C8A661]/10 rounded-lg">
+                  <UserCheck className="h-6 w-6 text-[#C8A661]" />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-1">Human-Verified Intelligence</h4>
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    Every consultation reviewed by Nick Kremers and our expert council. 
+                    AI-enhanced tools with human oversight for accurate, trustworthy guidance.
+                  </p>
+                </div>
+              </div>
+
+              {/* Direct Contact */}
+              <div className="flex items-start gap-4" data-testid="section-direct-contact">
+                <div className="flex-shrink-0 p-2 bg-[#C8A661]/10 rounded-lg">
+                  <Phone className="h-6 w-6 text-[#C8A661]" />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-2">Talk to a Human</h4>
+                  <div className="space-y-1.5">
+                    <a 
+                      href={`tel:${OWNER_PHONE}`}
+                      className="flex items-center gap-2 text-white/70 hover:text-[#C8A661] transition-colors text-sm"
+                      data-testid="link-footer-phone"
+                    >
+                      <Phone className="h-3.5 w-3.5" />
+                      {OWNER_PHONE}
+                    </a>
+                    <a 
+                      href={`mailto:${OWNER_EMAIL}`}
+                      className="flex items-center gap-2 text-white/70 hover:text-[#C8A661] transition-colors text-sm"
+                      data-testid="link-footer-owner-email"
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                      {OWNER_EMAIL}
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* WhatsApp QR */}
+              <div className="flex items-start gap-4" data-testid="section-whatsapp">
+                <div className="flex-shrink-0">
+                  <LazyImage 
+                    src={whatsappQR}
+                    alt="Scan to WhatsApp Nick Kremers"
+                    className="w-20 h-20 rounded-lg border border-white/10"
+                    width={80}
+                    height={80}
+                    data-testid="img-whatsapp-qr"
+                  />
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-1 flex items-center gap-1.5">
+                    <MessageCircle className="h-4 w-4 text-[#25D366]" />
+                    WhatsApp Direct
+                  </h4>
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    Scan to message Nick directly. Real answers from a real person, usually within 24 hours.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Editorial Standards Note */}
+            <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10" data-testid="section-editorial-standards">
+              <div className="flex items-start gap-3">
+                <Shield className="h-5 w-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-1">Editorial Standards</h4>
+                  <p className="text-white/50 text-xs leading-relaxed">
+                    All content on WashBizHub is created and reviewed by laundromat industry professionals with combined 50+ years of experience. 
+                    Our CLEANBI scores, calculators, and guides are regularly updated to reflect current market conditions. 
+                    We maintain strict editorial independence and never accept payment for positive coverage.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Contact */}
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <a
@@ -338,3 +427,6 @@ export function Footer() {
     </footer>
   );
 }
+
+// Memoized for performance - Footer rarely changes
+export const Footer = memo(FooterComponent);
