@@ -236,7 +236,7 @@ export function UpgradeModal({
             className="text-2xl font-bold text-card-foreground"
             data-testid="upgrade-modal-title"
           >
-            Upgrade to All-Access
+            Upgrade to Business
           </DialogTitle>
           <DialogDescription 
             className="text-muted-foreground"
@@ -291,7 +291,7 @@ export function UpgradeModal({
             <div className="grid grid-cols-3 gap-2 text-xs mb-4">
               <div className="font-medium text-muted-foreground">Feature</div>
               <div className="text-center font-medium text-muted-foreground">Free</div>
-              <div className="text-center font-medium text-[#C8A661]">All-Access</div>
+              <div className="text-center font-medium text-[#C8A661]">Business</div>
             </div>
 
             <div 
@@ -393,7 +393,7 @@ export function UpgradeModal({
             ) : (
               <>
                 <Zap className="h-4 w-4 mr-2" />
-                Get All-Access for ${tierConfig.price}/mo
+                Get Business for ${tierConfig.price}/mo
                 <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
               </>
             )}

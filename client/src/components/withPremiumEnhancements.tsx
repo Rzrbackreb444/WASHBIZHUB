@@ -98,7 +98,7 @@ export function PremiumResults({
           data-testid="premium-results-badge"
         >
           <Crown className="h-3 w-3 mr-1" />
-          All-Access
+          Premium
         </Badge>
       )}
     </div>

@@ -162,7 +162,7 @@ export function OperatorSidebar({ locationName = "My Laundromat" }: OperatorSide
           <div className="rounded-lg bg-gradient-to-r from-[#C8A661]/20 to-[#C8A661]/10 p-3 border border-[#C8A661]/30">
             <div className="flex items-center gap-2 mb-2">
               <Crown className="h-4 w-4 text-[#C8A661]" />
-              <span className="text-xs font-semibold text-[#0A1628] dark:text-white">All-Access</span>
+              <span className="text-xs font-semibold text-[#0A1628] dark:text-white">Business</span>
             </div>
             <p className="text-[10px] text-muted-foreground mb-2">
               Unlock unlimited features

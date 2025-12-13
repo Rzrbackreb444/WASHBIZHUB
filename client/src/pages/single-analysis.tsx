@@ -112,8 +112,8 @@ const ANALYSIS_PRODUCTS = {
     name: "Complete Analysis Bundle",
     tagline: "Everything You Need",
     description: "All three reports combined at a 25% discount. Perfect for serious buyers and investors conducting due diligence.",
-    price: 12900, // $129 (saves $28)
-    originalPrice: 15700,
+    price: 14900, // $149 (saves $28)
+    originalPrice: 17700,
     icon: Crown,
     color: "bg-gradient-to-r from-amber-500 to-orange-500",
     features: [
@@ -434,7 +434,7 @@ export default function SingleAnalysis() {
           </div>
         </section>
 
-        {/* Upsell to All-Access */}
+        {/* Upsell to Business */}
         <section className="py-16">
           <div className="container mx-auto px-4">
             <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 border-primary/20">
@@ -447,13 +447,13 @@ export default function SingleAnalysis() {
                     <div>
                       <h3 className="text-xl font-bold">Need Unlimited Analyses?</h3>
                       <p className="text-muted-foreground">
-                        All-Access members get unlimited CLEANBI reports, all calculators, courses, and more for just $49/month.
+                        Business members get unlimited CLEANBI reports, all calculators, courses, and more for just $149/mo.
                       </p>
                     </div>
                   </div>
                   <Button asChild size="lg">
                     <Link href="/pricing">
-                      View All-Access <ChevronRight className="w-4 h-4 ml-1" />
+                      View Business <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
                 </div>
