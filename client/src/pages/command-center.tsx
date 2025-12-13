@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,8 @@ import {
   Crown,
   Lock,
   Zap,
+  Globe,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -318,18 +321,42 @@ export default function CommandCenter() {
                   </p>
                 </div>
               </div>
-              <Button
-                className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
-                onClick={() => openUpgradeModal({
-                  feature: "command-center",
-                  title: "Unlock Command Center",
-                  description: "Save your layouts, access real-time data, and build your perfect dashboard.",
-                })}
-                data-testid="button-demo-upgrade"
-              >
-                <Crown className="h-4 w-4" />
-                Unlock Full Access
-              </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link href="/website-builder">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 border-[#C8A661]/30 text-muted-foreground hover:text-foreground"
+                    data-testid="link-website-builder"
+                  >
+                    <Globe className="h-3.5 w-3.5" />
+                    Website Builder
+                  </Button>
+                </Link>
+                <Link href="/cleanbi-explorer">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 border-[#C8A661]/30 text-muted-foreground hover:text-foreground"
+                    data-testid="link-cleanbi-explorer"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    CLEANBI
+                  </Button>
+                </Link>
+                <Button
+                  className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
+                  onClick={() => openUpgradeModal({
+                    feature: "command-center",
+                    title: "Unlock Command Center",
+                    description: "Save your layouts, access real-time data, and build your perfect dashboard.",
+                  })}
+                  data-testid="button-demo-upgrade"
+                >
+                  <Crown className="h-4 w-4" />
+                  Unlock Full Access
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}

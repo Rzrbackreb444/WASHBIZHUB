@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -28,7 +29,8 @@ import {
   Loader2, WashingMachine, ShoppingBag, Truck, PenTool, Play, Monitor,
   Search, FileCode, Send, Users, BarChart3, Target, Gift, CheckCircle,
   Server, Lock, RefreshCw, Wifi, Activity, ShoppingCart, CreditCard,
-  FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck, Crown
+  FlaskConical, Copy, Pause, TrendingUp, Trophy, MousePointerClick, Timer, FileCheck, Crown,
+  LayoutGrid
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -754,18 +756,32 @@ export default function WebsiteBuilder() {
                     </p>
                   </div>
                 </div>
-                <Button
-                  className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
-                  onClick={() => openUpgradeModal({
-                    feature: "website-builder",
-                    title: "Unlock Website Builder",
-                    description: "Publish your website, save your branding, and connect your custom domain.",
-                  })}
-                  data-testid="button-demo-upgrade"
-                >
-                  <Crown className="h-4 w-4" />
-                  Unlock Full Access
-                </Button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href="/command-center">
+                    <Button variant="outline" size="sm" className="gap-1.5 border-[#C8A661]/30 text-white/70 hover:text-white" data-testid="link-command-center">
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                      Command Center
+                    </Button>
+                  </Link>
+                  <Link href="/cleanbi-explorer">
+                    <Button variant="outline" size="sm" className="gap-1.5 border-[#C8A661]/30 text-white/70 hover:text-white" data-testid="link-cleanbi-explorer">
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      CLEANBI
+                    </Button>
+                  </Link>
+                  <Button
+                    className="bg-[#C8A661] hover:bg-[#B89651] text-[#0A1628] gap-2"
+                    onClick={() => openUpgradeModal({
+                      feature: "website-builder",
+                      title: "Unlock Website Builder",
+                      description: "Publish your website, save your branding, and connect your custom domain.",
+                    })}
+                    data-testid="button-demo-upgrade"
+                  >
+                    <Crown className="h-4 w-4" />
+                    Unlock Full Access
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}
