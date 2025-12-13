@@ -12,8 +12,9 @@ import { SEO } from "@/components/SEO";
 import { motion } from "framer-motion";
 import { 
   Lock, LogIn, Mail, Eye, EyeOff, AlertCircle, Sparkles, 
-  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound
+  Loader2, ArrowRight, Shield, Users, CheckCircle2, KeyRound, Zap
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -584,6 +585,16 @@ export default function Login() {
                       />
                     </div>
                   )}
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 text-base font-medium gap-2"
+                    onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                    data-testid="button-login-cloudflare"
+                  >
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    One-Click Sign In
+                  </Button>
                 </div>
               </CardContent>
             </Card>
