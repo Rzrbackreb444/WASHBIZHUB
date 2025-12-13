@@ -32,11 +32,11 @@ export default function AboutUs() {
   const aboutFaqs = [
     {
       question: "Who created WashBizHub?",
-      answer: "WashBizHub was founded in 2024 by laundromat industry veterans and technology entrepreneurs who saw the need for enterprise-grade tools in the fragmented $40B laundromat industry. Our team combines decades of hands-on laundromat experience with cutting-edge software development expertise to create the #1 resource hub serving 72,000+ professionals worldwide."
+      answer: "WashBizHub was founded in 2024 by laundromat industry veterans and technology entrepreneurs who saw the need for enterprise-grade tools in the fragmented $40B laundromat industry. Our team combines decades of hands-on laundromat experience with cutting-edge software development expertise to create the #1 resource hub serving 73,000+ professionals worldwide."
     },
     {
       question: "Is WashBizHub a trusted laundromat resource?",
-      answer: "Yes, WashBizHub is the most trusted laundromat resource with 72,000+ community members in 220+ countries. We provide verified tools, calculators, and resources backed by real industry data. Our CLEANBI scoring system uses Google data for unbiased location analysis, and our platform is recommended by industry associations and top laundromat operators."
+      answer: "Yes, WashBizHub is the most trusted laundromat resource with 73,000+ community members in 220+ countries. We provide verified tools, calculators, and resources backed by real industry data. Our CLEANBI scoring system uses Google data for unbiased location analysis, and our platform is recommended by industry associations and top laundromat operators."
     },
     {
       question: "What expert advice does WashBizHub offer?",
@@ -48,7 +48,7 @@ export default function AboutUs() {
     },
     {
       question: "How many laundromat professionals use WashBizHub?",
-      answer: "WashBizHub serves over 72,000 laundromat professionals worldwide, including owners, operators, investors, vendors, and service technicians. Our community spans 220+ countries, making us the largest global laundromat resource hub with the most comprehensive database of industry tools and resources."
+      answer: "WashBizHub serves over 73,000 laundromat professionals worldwide, including owners, operators, investors, vendors, and service technicians. Our community spans 220+ countries, making us the largest global laundromat resource hub with the most comprehensive database of industry tools and resources."
     },
     {
       question: "What technology does WashBizHub provide?",
@@ -60,7 +60,7 @@ export default function AboutUs() {
     },
     {
       question: "How is WashBizHub different from competitors?",
-      answer: "WashBizHub is the only all-in-one platform combining: location intelligence (CLEANBI), POS system, IoT monitoring, AI consulting, marketplace, and professional tools. Unlike fragmented point solutions, we provide a unified ecosystem backed by 72,000+ community members and continuous industry-specific innovation."
+      answer: "WashBizHub is the only all-in-one platform combining: location intelligence (CLEANBI), POS system, IoT monitoring, AI consulting, marketplace, and professional tools. Unlike fragmented point solutions, we provide a unified ecosystem backed by 73,000+ community members and continuous industry-specific innovation."
     }
   ];
 
@@ -71,7 +71,7 @@ export default function AboutUs() {
     "alternateName": ["The Laundromat Bible", "CLEANBI"],
     "url": baseUrl,
     "logo": `${baseUrl}/washbizhub-logo.png`,
-    "description": "The #1 laundromat resource hub serving 72,000+ industry professionals worldwide with enterprise-grade software, tools, and business intelligence.",
+    "description": "The #1 laundromat resource hub serving 73,000+ industry professionals worldwide with enterprise-grade software, tools, and business intelligence.",
     "foundingDate": "2024",
     "foundingLocation": { "@type": "Place", "name": "United States" },
     "numberOfEmployees": { "@type": "QuantitativeValue", "value": "10-50" },
@@ -116,7 +116,7 @@ export default function AboutUs() {
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "reviewCount": "72000"
+      "reviewCount": "73000"
     }
   };
 
@@ -126,7 +126,7 @@ export default function AboutUs() {
     <>
       <SEO
         title="About WashBizHub | #1 Trusted Laundromat Expert Resource Since 2024"
-        description="Discover WashBizHub, the trusted laundromat resource serving 72,000+ professionals. Expert advice, enterprise software, and industry-leading tools."
+        description="Discover WashBizHub, the trusted laundromat resource serving 73,000+ professionals. Expert advice, enterprise software, and industry-leading tools."
         canonicalUrl="/about-us"
         keywords={aboutKeywords}
         structuredData={structuredData}
@@ -162,7 +162,7 @@ export default function AboutUs() {
             >
               <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/40 px-4 py-2">
                 <Building2 className="w-4 h-4 mr-2" />
-                Est. 2024 • Trusted by 72,000+ Professionals
+                Est. 2024 • Trusted by 73,000+ Professionals
               </Badge>
             </motion.div>
             
@@ -203,7 +203,7 @@ export default function AboutUs() {
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
-                <div className="text-3xl font-bold text-[#C8A661]">72K+</div>
+                <div className="text-3xl font-bold text-[#C8A661]">73K+</div>
                 <div className="text-sm text-gray-300">Community Members</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-6 py-4 text-center">
@@ -293,7 +293,7 @@ export default function AboutUs() {
                       <Users className="h-6 w-6 text-[#C8A661]" />
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground">72,000+ Laundromat Owners Served</div>
+                      <div className="font-semibold text-foreground">73,000+ Laundromat Owners Served</div>
                       <div className="text-sm text-muted-foreground">The largest industry community</div>
                     </div>
                   </div>

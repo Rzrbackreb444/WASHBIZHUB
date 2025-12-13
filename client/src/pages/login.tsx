@@ -624,7 +624,7 @@ export default function Login() {
             </div>
             <div className="flex items-center gap-1.5">
               <Users className="w-4 h-4 text-accent" aria-hidden="true" />
-              <span>72K+ Users</span>
+              <span>73K+ Users</span>
             </div>
           </motion.div>
 

@@ -107,7 +107,7 @@ export const WASHBIZHUB_BUTTONS = {
 
 export const WASHBIZHUB_TRUST_STATS = {
   countries: '220+',
-  members: '72,000+',
+  members: '73,000+',
   cleanbiFactors: '17',
   tools: '80+',
   rating: 4.9,
@@ -217,7 +217,7 @@ export const WASHBIZHUB_FAQS_DEFAULT = [
   },
   {
     question: 'Can I list my laundromat for sale on WashBizHub?',
-    answer: 'Yes! WashBizHub has a comprehensive marketplace where you can list your laundromat for sale. Our platform reaches over 72,000 members across 220+ countries.',
+    answer: 'Yes! WashBizHub has a comprehensive marketplace where you can list your laundromat for sale. Our platform reaches over 73,000 members across 220+ countries.',
   },
 ] as const;
 

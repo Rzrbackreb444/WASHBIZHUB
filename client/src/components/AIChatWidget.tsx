@@ -157,7 +157,7 @@ const getJourneyPrompts = (journey: JourneyType) => {
         { icon: BarChart3, label: "CLEANBI Value", prompt: "How does a high CLEANBI score affect sale price?" },
         { icon: Handshake, label: "Vendor", prompt: "How do I become a WashBizHub vendor partner?" },
         { icon: Users, label: "Affiliate", prompt: "What affiliate programs are available?" },
-        { icon: Megaphone, label: "Advertise", prompt: "How do I advertise to 72K laundromat owners?" },
+        { icon: Megaphone, label: "Advertise", prompt: "How do I advertise to 73K laundromat owners?" },
       ];
     default:
       return DEFAULT_PROMPTS;
@@ -173,7 +173,7 @@ const getWelcomeMessage = (journey: JourneyType): string => {
     case 'operate':
       return "**Let's Optimize Your Operations**\n\nI'll help you maximize profitability using data-driven insights from 18,375+ laundromats in our CLA benchmarks.\n\n**I can help you:**\n• 📈 Increase revenue by 20%+\n• 💲 Optimize vend pricing\n• 🔧 Equipment ROI decisions\n• ⚡ Reduce utility costs\n\nWhat's your biggest challenge?";
     case 'partner':
-      return "**Welcome, Industry Partner**\n\nI can help you connect with our community of 72,000+ laundromat professionals.\n\n**Available opportunities:**\n• 📋 List laundromats for sale\n• 🏪 Equipment marketplace\n• 🤝 Vendor partnerships\n• 📣 Advertising to owners\n\nHow can I help you grow?";
+      return "**Welcome, Industry Partner**\n\nI can help you connect with our community of 73,000+ laundromat professionals.\n\n**Available opportunities:**\n• 📋 List laundromats for sale\n• 🏪 Equipment marketplace\n• 🤝 Vendor partnerships\n• 📣 Advertising to owners\n\nHow can I help you grow?";
     default:
       return "**Welcome to WashBizHub AI**\n\nI'm your intelligent assistant powered by CLEANBI™ location intelligence, 80+ calculators, and deep industry expertise.\n\n**What I can help with:**\n• 📊 **CLEANBI Scoring** — A/B/C location grades\n• 💰 **Valuations** — EBITDA multiples & deal analysis\n• 🔧 **Equipment** — Repair diagnostics & comparisons\n• 📈 **Operations** — Revenue & cost optimization\n\nAsk me anything about laundromat investing!";
   }

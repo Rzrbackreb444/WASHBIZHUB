@@ -26,7 +26,7 @@ import { MobileMenu } from "@/components/MobileMenu";
 
 const PRODUCTS_LINKS = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "Location intelligence & scoring", featured: true },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "AI-powered repair assistant", featured: true },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Expert repair diagnostics", featured: true },
   { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "Store layout planning" },
   { href: "/pos-command-center", label: "POS Command Center", icon: Monitor, desc: "Point-of-sale management" },
 ];

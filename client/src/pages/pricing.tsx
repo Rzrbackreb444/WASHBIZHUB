@@ -409,7 +409,7 @@ export default function Pricing() {
               >
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
-                  <span>72K+ members</span>
+                  <span>73K+ members</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
@@ -887,7 +887,7 @@ export default function Pricing() {
                 Member Stories
               </Badge>
               <h2 id="testimonials-title" className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-                Trusted by 72,000+ Professionals
+                Trusted by 73,000+ Professionals
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 See what our members say about WashBizHub
@@ -984,7 +984,7 @@ export default function Pricing() {
               Ready to Accelerate Your Laundromat Journey?
             </h2>
             <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-              Join 72,000+ investors, operators, and brokers using WashBizHub to make smarter decisions.
+              Join 73,000+ investors, operators, and brokers using WashBizHub to make smarter decisions.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

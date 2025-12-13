@@ -47,7 +47,7 @@ const TESTIMONIALS = [
 ];
 
 const TRUST_BADGES = [
-  { icon: Users, text: "72,000+ Members" },
+  { icon: Users, text: "73,000+ Members" },
   { icon: Star, text: "4.9/5 Rating" },
   { icon: Shield, text: "30-Day Guarantee" },
 ];
@@ -134,7 +134,7 @@ const FEATURE_CONTEXTS: Record<string, { title: string; benefit: string }> = {
   },
   "forum-post": { 
     title: "Community Access", 
-    benefit: "Connect with 72,000+ laundromat professionals" 
+    benefit: "Connect with 73,000+ laundromat professionals" 
   },
   "service-guy-ai": { 
     title: "Service Guy AI", 

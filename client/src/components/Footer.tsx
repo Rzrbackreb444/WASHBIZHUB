@@ -56,7 +56,7 @@ export function Footer() {
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div data-testid="stat-community">
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">72K+</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">73K+</div>
                 <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Community</div>
               </div>
               <div data-testid="stat-analyses">
@@ -101,7 +101,7 @@ export function Footer() {
                   data-testid="link-footer-facebook-group"
                 >
                   <Facebook className="h-4 w-4" />
-                  Join 72K+ Community
+                  Join 73K+ Community
                 </a>
                 <div className="flex items-center gap-3">
                   <a
@@ -303,7 +303,7 @@ export function Footer() {
                 <Building2 className="h-5 w-5 text-[#C8A661]" />
               </div>
               <p className="text-white/70 text-sm max-w-xl">
-                Serving <span className="text-[#C8A661] font-bold">72,000+</span> laundromat professionals across{" "}
+                Serving <span className="text-[#C8A661] font-bold">73,000+</span> laundromat professionals across{" "}
                 <span className="text-[#C8A661] font-bold">220+ countries</span> with enterprise-grade tools
               </p>
             </div>

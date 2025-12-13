@@ -797,12 +797,12 @@ export const PAGE_SEO_CONFIGS: Record<string, PageSEOConfig> = {
     directAnswer: "Essential laundromat calculators include: Valuation (determine worth), ROI (investment returns), Loan (financing costs), Utility (operating costs), and Labor (staffing optimization). WashBizHub offers all free."
   },
   forum: {
-    title: "Laundromat Owners Forum - Connect with 72K+ Operators | WashBizHub",
-    description: "Join 72,000+ laundromat owners in the largest industry community. Get advice on operations, equipment, locations, and investments. Free to join.",
+    title: "Laundromat Owners Forum - Connect with 73K+ Operators | WashBizHub",
+    description: "Join 73,000+ laundromat owners in the largest industry community. Get advice on operations, equipment, locations, and investments. Free to join.",
     focusKeyphrase: "laundromat owners forum",
     keywords: ["laundromat forum", "laundromat owners group", "coin laundry community", "laundromat advice", "laundromat help"],
     primaryQuestion: "Where can I connect with other laundromat owners?",
-    directAnswer: "WashBizHub's forum connects you with 72,000+ laundromat owners and operators. Get advice on equipment, locations, operations, and investments from experienced industry professionals."
+    directAnswer: "WashBizHub's forum connects you with 73,000+ laundromat owners and operators. Get advice on equipment, locations, operations, and investments from experienced industry professionals."
   },
   designStudio: {
     title: "Laundromat Design Studio - Store Layout Planner | WashBizHub",

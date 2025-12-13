@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function SocialNavigation() {
   const socials = [
-    { href: "https://facebook.com/groups/thelaundromat", icon: Users, label: "FB Group (72K)", color: "hover:text-blue-600" },
+    { href: "https://facebook.com/groups/thelaundromat", icon: Users, label: "FB Group (73K)", color: "hover:text-blue-600" },
     { href: "https://facebook.com/washbizhub1", icon: Facebook, label: "Facebook Page", color: "hover:text-blue-600" },
     { href: "https://twitter.com/washbizhub", icon: Twitter, label: "Twitter", color: "hover:text-blue-400" },
     { href: "https://linkedin.com/company/washbizhub", icon: Linkedin, label: "LinkedIn", color: "hover:text-blue-700" },

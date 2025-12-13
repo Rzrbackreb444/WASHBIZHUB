@@ -40,7 +40,7 @@ const FEATURE_DESCRIPTIONS: Record<string, string> = {
   "book-access": "The complete 500+ page guide to buying, operating, and scaling laundromats.",
   "courses-access": "Expert-led video courses and certifications for laundromat mastery.",
   "design-studio": "Create professional 2D and 3D floor plans for your laundromat.",
-  "forum-post": "Join 72,000+ professionals to share insights and get advice.",
+  "forum-post": "Join 73,000+ professionals to share insights and get advice.",
   "service-guy-ai": "AI-powered equipment diagnostics and troubleshooting.",
   "ai-council-basic": "Get guidance from a panel of AI experts on any laundromat topic.",
   "business-plan-generator": "Generate SBA-ready business plans with AI assistance.",

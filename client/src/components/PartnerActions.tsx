@@ -22,7 +22,7 @@ const partnerActions = [
   {
     href: "/listing-form",
     title: "Sell Your Laundromat",
-    description: "Get your business in front of 72,000+ buyers",
+    description: "Get your business in front of 73,000+ buyers",
     icon: Store,
     badge: "FREE",
     badgeColor: "bg-green-500",
@@ -48,7 +48,7 @@ const partnerActions = [
     badge: "HOT",
     badgeColor: "bg-orange-500",
     highlight: true,
-    stats: "72K+ monthly views",
+    stats: "73K+ monthly views",
     color: "from-orange-500 to-red-500"
   },
 ];
@@ -75,7 +75,7 @@ export function PartnerActionsSection() {
             style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             data-testid="text-partner-heading"
           >
-            Ready to Reach 72,000+ Buyers?
+            Ready to Reach 73,000+ Buyers?
           </h2>
           <p className="text-white/70 max-w-2xl mx-auto text-lg">
             List your business, equipment, or services - it takes less than 2 minutes
@@ -162,7 +162,7 @@ export function QuickListBanner() {
               Selling Your Laundromat?
             </h3>
             <p className="text-white/80 text-sm sm:text-base">
-              List it FREE and reach 72,000+ qualified buyers instantly
+              List it FREE and reach 73,000+ qualified buyers instantly
             </p>
           </div>
           

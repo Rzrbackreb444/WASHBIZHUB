@@ -228,7 +228,7 @@ export default function Academy() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Users className="w-5 h-5" />
-                <span>72K+ Community</span>
+                <span>73K+ Community</span>
               </div>
             </div>
           </div>
@@ -435,7 +435,7 @@ export default function Academy() {
                 </div>
                 <h3 className="font-semibold mb-2">Community Support</h3>
                 <p className="text-muted-foreground">
-                  Join 72K+ industry professionals in our community for ongoing support and networking.
+                  Join 73K+ industry professionals in our community for ongoing support and networking.
                 </p>
               </div>
             </div>

@@ -64,7 +64,7 @@ export default function VendorForm() {
     <>
       <SEO
         title="Vendor Marketplace | List Products & Services | WashBizHub"
-        description="Sell equipment, supplies, services, and digital products to 72,000+ laundromat owners. Set your own prices and reach qualified buyers."
+        description="Sell equipment, supplies, services, and digital products to 73,000+ laundromat owners. Set your own prices and reach qualified buyers."
         canonicalUrl="/vendor-form"
       />
 

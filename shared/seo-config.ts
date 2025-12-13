@@ -404,7 +404,7 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
 
   '/superstore': {
     title: 'Laundromat Superstore - Shop Equipment & Supplies Online',
-    description: 'Shop commercial washers, dryers, folding tables, carts & supplies. Free shipping on orders over $500. Trusted by 72,000+ laundromat owners.',
+    description: 'Shop commercial washers, dryers, folding tables, carts & supplies. Free shipping on orders over $500. Trusted by 73,000+ laundromat owners.',
     keywords: [
       'laundromat superstore',
       'commercial laundry equipment',
@@ -507,7 +507,7 @@ export const PAGE_SEO_CONFIG: Record<string, PageSEOConfig> = {
   },
 
   '/forum': {
-    title: 'Laundromat Forum - 72,000+ Owner Community | WashBizHub',
+    title: 'Laundromat Forum - 73,000+ Owner Community | WashBizHub',
     description: 'Join the largest laundromat owner community. Ask questions, share experiences & connect with industry veterans. Free to join.',
     keywords: [
       'laundromat forum',
@@ -884,7 +884,7 @@ export const SCHEMA_TEMPLATES = {
     alternateName: ['The Laundromat Bible', 'The #1 Laundromat Resource Hub'],
     url: 'https://washbizhub.com',
     logo: 'https://washbizhub.com/washbizhub-logo.png',
-    description: 'The #1 laundromat resource and educational hub serving 72,000+ industry professionals worldwide.',
+    description: 'The #1 laundromat resource and educational hub serving 73,000+ industry professionals worldwide.',
     foundingDate: '2024',
     sameAs: [
       'https://www.facebook.com/washbizhub1',

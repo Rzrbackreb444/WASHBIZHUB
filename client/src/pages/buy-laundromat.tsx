@@ -1045,7 +1045,7 @@ export default function BuyLaundromat() {
                         <Facebook className="w-5 h-5 text-[#1877f2]" />
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">Join 72,000+ Laundromat Owners</p>
+                        <p className="font-semibold text-foreground">Join 73,000+ Laundromat Owners</p>
                         <p className="text-sm text-muted-foreground">Get real-time deals, advice, and industry insights</p>
                       </div>
                     </div>

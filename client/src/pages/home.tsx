@@ -664,7 +664,7 @@ export default function Home() {
     <>
       <SEO
         title="Laundromat For Sale | Buy a Laundromat | WashBizHub - #1 Laundromat Business Platform"
-        description="Find laundromats for sale, calculate ROI & valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling & operating laundromats. 72,000+ professionals. Free tools."
+        description="Find laundromats for sale, calculate ROI & valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling & operating laundromats. 73,000+ professionals. Free tools."
         canonicalUrl="/"
         ogType="website"
         keywords={[
@@ -931,7 +931,7 @@ export default function Home() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 text-center">
                 Real Results from Real Investors
               </h2>
-              <p className="text-gray-600">See why 72,000+ professionals trust WashBizHub</p>
+              <p className="text-gray-600">See why 73,000+ professionals trust WashBizHub</p>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, idx) => (
@@ -1255,7 +1255,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-6">
               <MapPin className="w-4 h-4" />
-              Trusted by 72,000+ Professionals
+              Trusted by 73,000+ Professionals
             </div>
             
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 text-center">
@@ -1318,7 +1318,7 @@ export default function Home() {
               Your Next Laundromat Shouldn't Be a Gamble
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-              72,000+ owners and investors trust WashBizHub to find winning locations.
+              73,000+ owners and investors trust WashBizHub to find winning locations.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/cleanbi-explorer">
