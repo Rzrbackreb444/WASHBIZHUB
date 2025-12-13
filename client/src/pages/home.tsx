@@ -31,6 +31,7 @@ import { HomeSkeleton } from "@/components/Skeletons";
 import { HomepageNewsletter } from "@/components/HomepageNewsletter";
 import { TrustSignals } from "@/components/TrustSignals";
 import { CombinedPartnershipSection } from "@/components/PartnershipBanners";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -721,7 +722,6 @@ export default function Home() {
           "laundromat industry resources"
         ]}
         structuredData={structuredData}
-        faqs={homepageFaqs}
         speakableSelectors={[
           "h1", 
           "h2", 
@@ -1184,6 +1184,16 @@ export default function Home() {
         <section className="py-16 md:py-20 bg-muted/30" data-testid="section-homepage-testimonials">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <TrustSignals variant="testimonials" showTitle />
+          </div>
+        </section>
+
+        {/* VISIBLE FAQ SECTION - SEO & E-E-A-T */}
+        <section className="py-16 md:py-20 bg-background" data-testid="section-homepage-faqs">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            <FAQSection 
+              faqs={homepageFaqs.slice(0, 8)}
+              className=""
+            />
           </div>
         </section>
 

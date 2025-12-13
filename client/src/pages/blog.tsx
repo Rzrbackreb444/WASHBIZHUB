@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import { defaultBlogImages, laundromatImages, getBlogVarietyImage } from "@/lib/laundromat-images";
 import { equipmentBlogs } from "@/data/equipment-blogs";
 
@@ -203,7 +204,6 @@ export default function Blog() {
         keywords={seoKeywords} 
         canonicalUrl="/blog"
         structuredData={structuredData}
-        faqs={blogFaqs}
         speakableSelectors={["h1", ".blog-post-title", "[data-testid='text-blog-title']"]}
         breadcrumbs={[
           { name: "Home", url: "/" },
@@ -461,6 +461,9 @@ export default function Blog() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* FAQ Section */}
+        <FAQSection faqs={blogFaqs} className="mt-12 max-w-4xl mx-auto px-4" />
       </div>
     </div>
     </>

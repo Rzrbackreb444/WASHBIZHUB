@@ -17,6 +17,7 @@ import {
   ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import FeaturedListingsCarousel from "@/components/FeaturedListingsCarousel";
 
 const listingsStructuredData = {
@@ -218,7 +219,6 @@ export default function LaundromatListings() {
           "laundromat valuation"
         ]}
         structuredData={[listingsStructuredData, marketplaceStructuredData]}
-        faqs={listingsFaqs}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Marketplace", url: "/marketplace" },
@@ -599,6 +599,14 @@ export default function LaundromatListings() {
               </Button>
             </div>
           )}
+
+          {/* FAQ Section for SEO */}
+          <div className="mt-16">
+            <FAQSection 
+              faqs={listingsFaqs}
+              className="bg-gradient-to-br from-slate-800/50 to-slate-900/30 border border-white/10 rounded-xl p-6"
+            />
+          </div>
 
           {/* Bottom CTA */}
           <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-[#C8A661]/20 to-[#C8A661]/10 border border-[#C8A661]/30">

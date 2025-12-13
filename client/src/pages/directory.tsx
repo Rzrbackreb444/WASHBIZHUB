@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SEO } from "@/components/SEO";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import { 
   Search, 
   MapPin, 
@@ -205,6 +206,21 @@ const SAMPLE_LISTINGS: DirectoryListing[] = [
   },
 ];
 
+const directoryFaqs = [
+  {
+    question: "How do I list my laundromat for sale?",
+    answer: "Click 'Add Listing' and fill out the form. Basic listings are free. Featured listings with priority placement are available for premium members."
+  },
+  {
+    question: "Are the listings verified?",
+    answer: "Verified listings display a blue checkmark badge. Our team reviews seller information to confirm business legitimacy."
+  },
+  {
+    question: "How do I contact a seller?",
+    answer: "Each listing includes contact information. Click on the listing to view phone, email, or website details to reach the seller directly."
+  }
+];
+
 export default function DirectoryPage() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -259,20 +275,6 @@ export default function DirectoryPage() {
           "laundry repair service",
           "coin laundry equipment",
           "laundromat directory"
-        ]}
-        faqs={[
-          {
-            question: "How do I list my laundromat for sale?",
-            answer: "Click 'Add Listing' and fill out the form. Basic listings are free. Featured listings with priority placement are available for premium members."
-          },
-          {
-            question: "Are the listings verified?",
-            answer: "Verified listings display a blue checkmark badge. Our team reviews seller information to confirm business legitimacy."
-          },
-          {
-            question: "How do I contact a seller?",
-            answer: "Each listing includes contact information. Click on the listing to view phone, email, or website details to reach the seller directly."
-          }
         ]}
         breadcrumbs={[
           { name: "Home", url: "/" },
@@ -579,6 +581,9 @@ export default function DirectoryPage() {
               </Link>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <FAQSection faqs={directoryFaqs} className="mt-12" />
         </div>
       </div>
     </>

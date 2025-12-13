@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
+import { FAQSection } from "@/components/SuperSEOWrapper";
+import { COMMON_FAQS } from "@/lib/seo-config";
 import { AuthGuard } from "@/components/AuthGuard";
 import { 
   Map, 
@@ -2693,40 +2695,6 @@ function CleanBIExplorerContent() {
           "income demographics laundromat",
           "laundromat investment tool",
           "laundry business location finder"
-        ]}
-        faqs={[
-          {
-            question: "What is a CLEANBI score?",
-            answer: "A CLEANBI score is a proprietary 0-100 rating that evaluates laundromat location viability. It analyzes 7 key factors: Customer demographics, Location accessibility, Equipment potential, Adaptability for growth, Numbers (financial metrics), Brand opportunity, and Intelligence (market competition). Scores 85+ earn an A grade (excellent), 70-84 earn B (good), 55-69 earn C (fair), and below 55 indicates the location needs improvement."
-          },
-          {
-            question: "How does CLEANBI analyze laundromat locations?",
-            answer: "CLEANBI uses a multi-factor algorithm that combines real-time Google Maps data, US Census demographics, Walk Score mobility metrics, and competitor intelligence. It evaluates population density within catchment areas, median household income, existing laundromat saturation, foot traffic patterns, parking availability, and accessibility scores to generate a comprehensive location grade."
-          },
-          {
-            question: "What data sources does CLEANBI use?",
-            answer: "CLEANBI integrates multiple authoritative data sources: Google Places API for competitor locations and reviews, US Census Bureau for demographic data (population, income, housing), Walk Score API for walkability/transit/bike scores, Google Maps for traffic patterns and accessibility, and proprietary algorithms for market saturation analysis. All data is refreshed in real-time when you analyze a location."
-          },
-          {
-            question: "How accurate is CLEANBI location scoring?",
-            answer: "CLEANBI scoring has been validated against thousands of successful laundromat locations nationwide. The algorithm weights factors based on industry research and operator feedback. While no tool can guarantee success, CLEANBI provides data-driven insights that help investors avoid common location mistakes and identify high-potential opportunities that manual research might miss."
-          },
-          {
-            question: "What's a good CLEANBI score for a laundromat?",
-            answer: "A CLEANBI score of 70 or above (B grade) indicates a solid location opportunity. Scores 85+ (A grade) represent 'goldmine' locations with ideal demographics, low competition, and strong accessibility. Scores between 55-69 (C grade) show potential but may require strategic positioning. Below 55 suggests significant challenges that would need to be addressed."
-          },
-          {
-            question: "Can CLEANBI help find new laundromat locations?",
-            answer: "Yes! CLEANBI Explorer includes a Market Gaps feature that identifies underserved areas within any region. It highlights zones with high population density but low laundromat coverage, helping you discover opportunities before competitors. You can analyze any US address to see if it's suitable for a new laundromat or evaluate existing locations for purchase."
-          },
-          {
-            question: "Does CLEANBI show competitor locations?",
-            answer: "Absolutely. CLEANBI maps all nearby laundromats within your selected radius (up to 5 miles), displaying their exact locations, Google ratings, review counts, and estimated pricing. The competition heatmap visualizes market saturation, and detailed competitor cards show strengths and weaknesses of each nearby business."
-          },
-          {
-            question: "How often is CLEANBI data updated?",
-            answer: "CLEANBI pulls fresh data every time you analyze a location. Google Places data (competitors, reviews) is real-time. Demographic data from the US Census is updated annually. Walk Scores are refreshed quarterly. This ensures you're always making decisions based on the most current market conditions available."
-          }
         ]}
         howTo={{
           name: "How to Use CLEANBI Explorer for Laundromat Site Analysis",
@@ -8921,6 +8889,14 @@ function CleanBIExplorerContent() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* CLEANBI FAQ Section for SEO */}
+        <div className="max-w-4xl mx-auto px-4 py-8 mt-8">
+          <FAQSection 
+            faqs={COMMON_FAQS.cleanbi}
+            className="bg-gradient-to-br from-slate-900/50 to-slate-800/30 border border-white/10 rounded-xl p-6"
+          />
+        </div>
 
         {/* CLEANBI Help Chat Widget */}
         <CLEANBIHelpChat />
