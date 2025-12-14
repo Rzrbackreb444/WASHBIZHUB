@@ -159,9 +159,10 @@ const FUNDING_CATEGORIES: Record<string, {
         },
         bestFor: ["$1M+ acquisitions", "Multi-unit portfolios", "Experienced operators"],
         alsoOffers: ["SBA 7(a) loans", "Term loans", "Equipment financing"],
-        affiliateUrl: "consultation",
+        affiliateUrl: "mailto:trosado@national.biz?cc=consult@washbizhub.com&subject=Laundromat%20Acquisition%20Funding%20-%20Nicholas%20Kremers%20Referral",
         specialFeature: "Dedicated acquisition advisor",
-        trustSignals: ["75+ lender network", "Dedicated advisors", "Inc. 5000 company"]
+        trustSignals: ["75+ lender network", "Dedicated advisors", "Inc. 5000 company"],
+        detailPageUrl: "/funding/national-business-capital"
       }
     ]
   },
@@ -231,6 +232,37 @@ const FUNDING_CATEGORIES: Record<string, {
         alsoOffers: ["SBA 7(a)", "Conventional loans", "Working capital"],
         affiliateUrl: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat",
         trustSignals: ["$3.2B Stearns Bank", "No prepayment penalty", "Same-day funding"]
+      },
+      {
+        id: "gokapital-equipment",
+        name: "GoKapital",
+        type: "Equipment Financing",
+        description: "Fast equipment financing for laundromat washers, dryers, and systems. Flexible terms with quick approvals for new and used equipment.",
+        requirements: {
+          minCreditScore: "500+",
+          timeInBusiness: "6+ months",
+          minAnnualRevenue: "$50,000+",
+          downPayment: "10-20%"
+        },
+        loanDetails: {
+          minAmount: "$10,000",
+          maxAmount: "$500,000",
+          termLength: "2-5 years",
+          approvalSpeed: "24-48 hours",
+          interestRate: "8-18%"
+        },
+        documentation: {
+          bankStatements: "3 months",
+          taxReturns: "1-2 years",
+          financials: "Equipment quote",
+          other: ["Valid ID", "Business registration"]
+        },
+        bestFor: ["New & used equipment", "Lower credit scores", "Fast funding"],
+        alsoOffers: ["Commercial RE", "Bridge loans", "Working capital"],
+        affiliateUrl: "mailto:deals@gokapital.com?cc=consult@washbizhub.com&subject=Equipment%20Financing%20-%20Nicholas%20Kremers%20Referral",
+        specialFeature: "Works with 500+ credit",
+        trustSignals: ["A+ BBB Rating", "500+ laundromats funded", "Fast 24-48hr approval"],
+        detailPageUrl: "/funding/gokapital"
       }
     ]
   },
@@ -266,7 +298,7 @@ const FUNDING_CATEGORIES: Record<string, {
         },
         bestFor: ["Property purchases", "Bridge financing", "Investment properties"],
         alsoOffers: ["Bridge loans", "Equipment financing", "Business term loans"],
-        affiliateUrl: "/gokapital",
+        affiliateUrl: "mailto:deals@gokapital.com?cc=consult@washbizhub.com&subject=Commercial%20Real%20Estate%20Financing%20-%20Nicholas%20Kremers%20Referral",
         isPrimary: true,
         specialFeature: "Up to 80% LTV",
         trustSignals: ["A+ BBB Rating", "$500M+ funded", "DSCR loans available"],
