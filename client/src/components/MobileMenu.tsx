@@ -38,54 +38,48 @@ interface MenuSection {
 
 const mobilePillars: MenuSection[] = [
   {
-    id: "intelligence",
-    title: "Intelligence",
-    icon: Search,
+    id: "products",
+    title: "Products",
+    icon: MapPin,
     items: [
       { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, featured: true, description: "Location scoring" },
-      { href: "/calculators", label: "All Calculators", icon: Calculator, description: "50+ tools" },
-      { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "What's it worth?" },
-      { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, description: "Investment returns" },
-      { href: "/tpd-calculator", label: "TPD Calculator", icon: BarChart3, description: "Turns per day" },
-      { href: "/utility-bill-auditor", label: "Utility Auditor", icon: Wrench, description: "Reduce costs" },
-      { href: "/design-studio", label: "Design Studio", icon: Palette, description: "2D/3D floor plans" },
-      { href: "/what-if-analysis", label: "What-If Analysis", icon: LineChart, description: "Scenario modeling" },
-    ]
-  },
-  {
-    id: "operate",
-    title: "Operate",
-    icon: LayoutDashboard,
-    items: [
-      { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, featured: true, description: "Command center" },
       { href: "/command-center", label: "Command Center", icon: LayoutGrid, featured: true, description: "Custom dashboard" },
       { href: "/website-builder", label: "Website Builder", icon: Store, featured: true, description: "Build your site" },
-      { href: "/pos-command-center", label: "POS Command Center", icon: Smartphone, description: "Point of sale" },
+      { href: "/pos-command-center", label: "POS System", icon: Smartphone, description: "Point of sale" },
       { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "2D/3D planning" },
-      { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
-      { href: "/iot-dashboard", label: "IoT Dashboard", icon: Cpu, description: "Machine monitoring" },
       { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "Expert diagnostics" },
     ]
   },
   {
-    id: "grow",
-    title: "Grow",
-    icon: TrendingUp,
+    id: "calculators",
+    title: "Calculators",
+    icon: Calculator,
     items: [
-      { href: "/marketplace", label: "Marketplace", icon: ShoppingBag, featured: true, description: "Browse listings" },
-      { href: "/buy-laundromat", label: "Buy a Laundromat", icon: Building2, description: "Listings for sale" },
-      { href: "/sell-laundromat", label: "Sell Your Laundromat", icon: DollarSign, description: "List your business" },
-      { href: "/brokers", label: "Find a Broker", icon: Users, featured: true, description: "Verified brokers" },
-      { href: "/equipment", label: "Equipment Hub", icon: Wrench, description: "Dexter & CG" },
-      { href: "/equipment-builder", label: "Get Equipment Quotes", icon: Store, description: "585+ distributors" },
-      { href: "/equipment-financing", label: "Equipment Financing", icon: PiggyBank, description: "Financing options" },
-      { href: "/funding-marketplace", label: "Funding Marketplace", icon: Briefcase, description: "Get funded" },
-      { href: "/directory", label: "Business Directory", icon: ClipboardList, description: "Vendors & services" },
+      { href: "/calculators", label: "Calculator Suite", icon: Calculator, featured: true, description: "All calculators" },
+      { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, description: "4 methods" },
+      { href: "/roi-calculator", label: "ROI", icon: TrendingUp, description: "5-year projections" },
+      { href: "/loan-calculator", label: "Loan", icon: BarChart3, description: "Amortization" },
+      { href: "/utility-calculator", label: "Utility", icon: Zap, description: "UPG benchmarking" },
+      { href: "/labor-calculator", label: "Labor", icon: Users, description: "Staffing" },
+      { href: "/tpd-calculator", label: "TPD", icon: LineChart, description: "Turns per day" },
     ]
   },
   {
-    id: "learn",
-    title: "Learn",
+    id: "marketplace",
+    title: "Marketplace",
+    icon: ShoppingBag,
+    items: [
+      { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, featured: true, description: "Browse listings" },
+      { href: "/brokers", label: "Find a Broker", icon: Users, description: "Verified brokers" },
+      { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Star, description: "Sell your business" },
+      { href: "/equipment", label: "Equipment Hub", icon: Package, featured: true, description: "Dexter & CG" },
+      { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Wrench, description: "Used & new" },
+      { href: "/directory", label: "Vendor Directory", icon: ClipboardList, description: "Service providers" },
+    ]
+  },
+  {
+    id: "resources",
+    title: "Resources",
     icon: BookOpen,
     items: [
       { href: "/forum", label: "Community Forum", icon: Users, featured: true, description: "73K+ owners" },
