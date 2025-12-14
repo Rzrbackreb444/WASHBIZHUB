@@ -77,6 +77,9 @@ const staticPages = [
   { url: "/equipment-hub", priority: 0.8, changefreq: "weekly" },
   { url: "/consultation", priority: 0.8, changefreq: "monthly" },
   { url: "/cleanbi-anywhere", priority: 0.8, changefreq: "weekly" },
+  { url: "/ai-consultation-council", priority: 0.8, changefreq: "monthly" },
+  { url: "/larry-larsen", priority: 0.7, changefreq: "monthly" },
+  { url: "/cleanbi-market-report", priority: 0.8, changefreq: "weekly" },
 ];
 
 function escapeXml(str: string): string {
