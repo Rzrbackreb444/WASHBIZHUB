@@ -761,6 +761,47 @@ export default function Home() {
             <JourneyCards journeyPaths={journeyPaths} colorClasses={colorClasses} />
           </div>
         </section>
+
+        {/* STARTUP FUNDING BANNER - Prominent funding promotion */}
+        <section className="py-12 bg-gradient-to-r from-[#1e3a5f] via-[#1e3a5f]/95 to-[#1e3a5f]" data-testid="section-startup-funding-banner">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div className="flex-1 text-center lg:text-left">
+                <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-funding-promo">
+                  <DollarSign className="w-3 h-3 mr-1" />
+                  Startup Funding Available
+                </Badge>
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3" data-testid="text-funding-headline">
+                  Ready to Fund Your First Laundromat?
+                </h2>
+                <p className="text-gray-300 max-w-xl mb-6" data-testid="text-funding-description">
+                  Access up to $750K in combined funding through our verified lending partners. 
+                  No business history required for personal credit options.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                  <Link href="/startup-funding">
+                    <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" size="lg" data-testid="button-explore-funding">
+                      Explore Funding Options
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
+                <Card className="bg-white/10 border-white/20 backdrop-blur-sm p-6 text-center min-w-[160px]" data-testid="card-personal-credit-highlight">
+                  <div className="text-3xl md:text-4xl font-bold text-[#C8A661] mb-1" data-testid="text-personal-credit-amount">$500K</div>
+                  <div className="text-sm text-white font-medium">Personal Credit</div>
+                  <div className="text-xs text-gray-400 mt-1">5-7 Year Terms</div>
+                </Card>
+                <Card className="bg-white/10 border-white/20 backdrop-blur-sm p-6 text-center min-w-[160px]" data-testid="card-business-credit-highlight">
+                  <div className="text-3xl md:text-4xl font-bold text-[#C8A661] mb-1" data-testid="text-business-credit-amount">$250K</div>
+                  <div className="text-sm text-white font-medium">Business Credit</div>
+                  <div className="text-xs text-gray-400 mt-1">24-48hr Approval</div>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </section>
         
         {/* FEATURED LISTINGS CAROUSEL - Real verified listings */}
         <FeaturedListingsCarousel />

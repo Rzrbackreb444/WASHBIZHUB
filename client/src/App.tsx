@@ -407,6 +407,8 @@ const AcquisitionsFunding = lazy(() => import("@/pages/acquisitions-funding"));
 const SBAReadiness = lazy(() => import("@/pages/sba-readiness"));
 const SBALoans = lazy(() => import("@/pages/sba-loans"));
 const BusinessPlanGenerator = lazy(() => import("@/pages/business-plan-generator"));
+const PreferredFundingGroupPage = lazy(() => import("@/pages/funding/preferred-funding-group"));
+const GoKapitalPage = lazy(() => import("@/pages/funding/gokapital"));
 
 // Listings & Vendors
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
@@ -1185,6 +1187,16 @@ function Router() {
         <Suspense fallback={<LoadingFallback />}>
           <StartupFunding />
         </Suspense>
+      </Route>
+      <Route path="/funding/preferred-funding-group">
+        <PageTransition>
+          <PreferredFundingGroupPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/gokapital">
+        <PageTransition>
+          <GoKapitalPage />
+        </PageTransition>
       </Route>
       <Route path="/acquisitions-funding">
         <Suspense fallback={<LoadingFallback />}>
