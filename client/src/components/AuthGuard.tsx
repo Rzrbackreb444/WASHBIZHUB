@@ -50,9 +50,7 @@ export function AuthGuard({
               <LogIn className="w-5 h-5 mr-2" />
               Sign In to Continue
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Free account includes 5 CLEANBI analyses total
-            </p>
+            <p className="text-center text-sm text-muted-foreground">Free account includes 3 CLEANBI analyses total</p>
           </CardContent>
         </Card>
       </div>
