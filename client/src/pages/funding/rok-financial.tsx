@@ -67,6 +67,54 @@ export default function RokFinancial() {
         title="ROK Financial | 75+ Lender Network - 72% Approval Rate"
         description="Access 75+ lenders through one application. 72% approval rate vs 13.5% at banks. Equipment financing in 1-5 days. SBA loans, term loans, commercial RE, and lines of credit up to $5M."
         canonicalUrl="/funding/rok-financial"
+        keywords={[
+          "laundromat lender marketplace",
+          "75 lender network laundromat",
+          "high approval rate laundromat loan",
+          "soft pull laundromat loan",
+          "DSCR laundromat loan",
+          "equipment financing laundromat",
+          "SBA loan marketplace",
+          "term loan laundromat",
+          "line of credit laundromat",
+          "fast laundromat approval"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "ROK Financial", url: "/funding/rok-financial" }
+        ]}
+        faqs={[
+          {
+            question: "How does ROK Financial's 75+ lender network benefit me?",
+            answer: "Instead of applying to lenders individually, you submit one application and receive multiple competing offers. This marketplace approach often results in better rates and terms, with 72% approval rate compared to 13.5% at traditional banks."
+          },
+          {
+            question: "What is a soft pull pre-qualification?",
+            answer: "ROK Financial's soft pull pre-qualification checks your eligibility without impacting your credit score. You can see what offers you qualify for risk-free before committing to a full application with a hard credit inquiry."
+          },
+          {
+            question: "How fast can I get equipment financing through ROK?",
+            answer: "Equipment financing through ROK Financial can be approved in 1-5 days with terms up to 84 months. Their lender network competes for your business, often resulting in faster approvals and better rates than single-lender options."
+          },
+          {
+            question: "What are DSCR loans for laundromat real estate?",
+            answer: "DSCR (Debt Service Coverage Ratio) loans qualify based on the property's cash flow rather than personal income. ROK offers DSCR loans up to 80% LTV for laundromat commercial real estate purchases and refinancing."
+          },
+          {
+            question: "Can ROK Financial help if I was declined by a traditional bank?",
+            answer: "Yes. With 75+ lenders in their network and 80% faster processing than banks, ROK specializes in finding options for borrowers declined elsewhere. Their 72% approval rate reflects their ability to match diverse borrower profiles with suitable lenders."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "ROK Financial - Laundromat Lending Marketplace",
+          "description": "Access 75+ lenders through one application for laundromat financing. 72% approval rate with equipment financing in 1-5 days and DSCR commercial real estate loans.",
+          "provider": { "@type": "Organization", "name": "ROK Financial" },
+          "areaServed": "United States",
+          "serviceType": "Business Loan"
+        }}
       />
 
       <div className="min-h-screen bg-background">

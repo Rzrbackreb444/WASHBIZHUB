@@ -413,6 +413,7 @@ const SouthEndCapitalPage = lazy(() => import("@/pages/funding/south-end-capital
 const RokFinancialPage = lazy(() => import("@/pages/funding/rok-financial"));
 const AdvanceFundsNetworkPage = lazy(() => import("@/pages/funding/advance-funds-network"));
 const DavidAllenCapitalPage = lazy(() => import("@/pages/funding/david-allen-capital"));
+const NationalBusinessCapitalPage = lazy(() => import("@/pages/funding/national-business-capital"));
 
 // Listings & Vendors
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
@@ -1220,6 +1221,11 @@ function Router() {
       <Route path="/funding/david-allen-capital">
         <PageTransition>
           <DavidAllenCapitalPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/national-business-capital">
+        <PageTransition>
+          <NationalBusinessCapitalPage />
         </PageTransition>
       </Route>
       <Route path="/acquisitions-funding">

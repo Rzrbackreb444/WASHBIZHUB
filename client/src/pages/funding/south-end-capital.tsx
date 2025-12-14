@@ -55,6 +55,54 @@ export default function SouthEndCapital() {
         title="South End Capital | SBA Loans Up to $5M - $0 Guarantee Fees"
         description="Preferred SBA Lender backed by $3.2B Stearns Bank. $0 guarantee fees on loans up to $1M through 2025. Same-day equipment financing. Story-based underwriting for complex situations."
         canonicalUrl="/funding/south-end-capital"
+        keywords={[
+          "SBA loan laundromat",
+          "SBA 7a laundromat",
+          "preferred SBA lender",
+          "laundromat acquisition loan",
+          "$0 SBA guarantee fees",
+          "commercial laundromat financing",
+          "laundromat real estate loan",
+          "equipment financing laundromat",
+          "SBA preferred lender",
+          "Stearns Bank laundromat"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "South End Capital", url: "/funding/south-end-capital" }
+        ]}
+        faqs={[
+          {
+            question: "What are the SBA guarantee fee savings through 2025?",
+            answer: "Through 2025, SBA guarantee fees are completely waived on loans up to $1 million. This can save you thousands of dollars in upfront costs when financing your laundromat acquisition or expansion."
+          },
+          {
+            question: "What does Preferred SBA Lender status mean?",
+            answer: "As a Preferred SBA Lender backed by $3.2 billion Stearns Bank, South End Capital has authority to approve loans directly without additional SBA review. This means faster processing, typically 2-4 weeks for SBA loans."
+          },
+          {
+            question: "How long does it take to get funded for equipment vs. SBA loans?",
+            answer: "Equipment financing can be approved the same day with funding in 1-5 days. SBA 7(a) loans typically take 2-4 weeks due to documentation requirements, but offer the best long-term rates with 10-25 year terms."
+          },
+          {
+            question: "Can South End Capital finance laundromat real estate?",
+            answer: "Yes. They offer commercial real estate financing up to 80% LTV for laundromat property purchases, refinancing, and build-outs. This can be combined with SBA loans for acquisitions that include real estate."
+          },
+          {
+            question: "What if I have a complex financial situation?",
+            answer: "South End Capital uses story-based underwriting, meaning they look beyond just numbers. If you have non-traditional income, complex ownership structures, or unique circumstances, they work with you to find solutions that traditional banks won't consider."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "South End Capital - SBA Laundromat Financing",
+          "description": "Preferred SBA Lender offering up to $5M in laundromat financing with $0 guarantee fees on loans under $1M. Backed by $3.2B Stearns Bank.",
+          "provider": { "@type": "Organization", "name": "South End Capital" },
+          "areaServed": "United States",
+          "serviceType": "SBA Loan"
+        }}
       />
 
       <div className="min-h-screen bg-background">

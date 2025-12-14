@@ -62,6 +62,54 @@ export default function DavidAllenCapital() {
         title="David Allen Capital | Working Capital $400-$2M in 48-72 Hours"
         description="A+ BBB rated. 50% less expensive than most MCA competitors. Funding from $400 to $2M in 48-72 hours. Bad credit OK - revenue-based approvals. Early payoff discounts available."
         canonicalUrl="/funding/david-allen-capital"
+        keywords={[
+          "MCA laundromat",
+          "bad credit laundromat loan",
+          "revenue based laundromat funding",
+          "fast laundromat capital",
+          "working capital laundromat",
+          "cheap MCA laundromat",
+          "early payoff discount laundromat",
+          "laundromat cash advance",
+          "48 hour laundromat funding",
+          "flexible laundromat financing"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "David Allen Capital", url: "/funding/david-allen-capital" }
+        ]}
+        faqs={[
+          {
+            question: "Can I get laundromat funding with bad credit?",
+            answer: "Yes. David Allen Capital specializes in revenue-based approvals, meaning your business income matters more than your credit score. If your laundromat generates consistent revenue, you can qualify even with challenging credit history."
+          },
+          {
+            question: "How is MCA different from a traditional business loan?",
+            answer: "MCA (Merchant Cash Advance) is repaid through a percentage of your daily credit card sales, providing flexibility when revenue fluctuates. Unlike traditional loans with fixed payments, your payments adjust with your business volume."
+          },
+          {
+            question: "Why is David Allen Capital 50% cheaper than other MCA providers?",
+            answer: "David Allen Capital operates as a broker connecting you with multiple funding sources, creating competition for your business. This model, combined with their early payoff discount program, results in significantly lower total cost compared to typical MCA rates."
+          },
+          {
+            question: "How do early payoff discounts work?",
+            answer: "If you pay off your funding early, David Allen Capital offers discounts on the remaining balance. This can substantially reduce your total cost of capital, especially if your laundromat has strong cash flow that allows faster repayment."
+          },
+          {
+            question: "What are the minimum requirements to apply?",
+            answer: "You need 4+ months in business, $5,000/month in credit card sales (for MCA), an active business bank account, and valid ID. The application requires 3-4 months of bank statements and credit card processing statements."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "David Allen Capital - Revenue-Based Laundromat Funding",
+          "description": "A+ BBB rated MCA and working capital for laundromats from $400-$2M in 48-72 hours. Bad credit OK with revenue-based approvals. 50% less expensive than most MCA competitors.",
+          "provider": { "@type": "Organization", "name": "David Allen Capital" },
+          "areaServed": "United States",
+          "serviceType": "Merchant Cash Advance"
+        }}
       />
 
       <div className="min-h-screen bg-background">
