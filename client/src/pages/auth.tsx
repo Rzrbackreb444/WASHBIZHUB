@@ -167,7 +167,7 @@ export default function AuthPage() {
                 ) : (
                   <>
                     <SiGoogle className="h-5 w-5 mr-2" />
-                    Continue with Google
+                    Continue with Google or OTP
                   </>
                 )}
               </Button>

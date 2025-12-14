@@ -171,7 +171,7 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
             ) : (
               <>
                 <SiGoogle className="h-4 w-4 mr-2" />
-                Continue with Google
+                Continue with Google or OTP
               </>
             )}
           </Button>
