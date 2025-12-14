@@ -7,7 +7,8 @@ import {
   CreditCard, Bell, Heart, Bookmark, FileText, MessageSquare,
   TrendingUp, BarChart3, Calendar, Cpu, MapPin, Building2,
   Users, Package, Truck, BookOpen, HelpCircle, Phone, Briefcase,
-  PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid, Info
+  PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid, Info,
+  Landmark, Award, GraduationCap, Zap, Factory, Shield
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -87,12 +88,29 @@ const mobilePillars: MenuSection[] = [
     title: "Learn",
     icon: BookOpen,
     items: [
-      { href: "/blog", label: "Blog", icon: Star, description: "Expert insights" },
-      { href: "/forum", label: "Community Forum", icon: Users, description: "Ask & share" },
-      { href: "/book", label: "The Bible", icon: BookOpen, featured: true, description: "Complete guide" },
-      { href: "/consultation", label: "Book a Consultation", icon: Phone, description: "Expert advice" },
-      { href: "/pricing", label: "Pricing & Plans", icon: CreditCard, description: "Membership options" },
-      { href: "/about-us", label: "About Us", icon: Info, description: "Our mission & team" },
+      { href: "/forum", label: "Community Forum", icon: Users, featured: true, description: "73K+ owners" },
+      { href: "/consultation", label: "Consultations", icon: Phone, featured: true, description: "Expert advice" },
+      { href: "/blog", label: "Blog", icon: Star, description: "News & insights" },
+      { href: "/events", label: "Events", icon: Calendar, description: "Trade shows" },
+      { href: "/courses", label: "Courses", icon: GraduationCap, description: "Training" },
+      { href: "/help-center", label: "Help Center", icon: HelpCircle, description: "FAQs & support" },
+      { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, description: "50+ years" },
+      { href: "/insurance-partners", label: "Insurance", icon: Shield, description: "Coverage options" },
+      { href: "/about-us", label: "About Us", icon: Info, description: "Our mission" },
+    ]
+  },
+  {
+    id: "funding",
+    title: "Funding",
+    icon: Landmark,
+    items: [
+      { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, featured: true, description: "First laundromat" },
+      { href: "/funding?tab=acquisitions", label: "Buy a Laundromat", icon: Briefcase, description: "SBA loans" },
+      { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, description: "Washers & dryers" },
+      { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Building2, description: "Property financing" },
+      { href: "/funding?tab=fastcash", label: "Fast Cash", icon: Zap, description: "Same-day funding" },
+      { href: "/funding/national-business-capital", label: "National Business Capital", icon: Landmark, description: "SBA $100K-$10M" },
+      { href: "/funding/preferred-funding-group", label: "Preferred Funding", icon: CreditCard, description: "Up to $500K" },
     ]
   },
 ];

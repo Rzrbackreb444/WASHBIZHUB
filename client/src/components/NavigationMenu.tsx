@@ -72,7 +72,7 @@ const RESOURCES_LINKS = [
   { href: "/courses", label: "Courses", icon: GraduationCap, desc: "Courses & training" },
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
   { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, desc: "50+ years experience" },
-  { href: "/larry-larsen", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
+  { href: "/insurance-partners", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
   { href: "/about-us", label: "About Us", icon: Info, desc: "Our mission & team" },
 ];
 
