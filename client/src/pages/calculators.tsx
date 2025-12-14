@@ -164,7 +164,7 @@ export default function CalculatorsHub() {
   };
 
   return (
-    <AuthGuard title="Sign In to Access Calculators" description="Sign in to access this calculator and track your usage.">
+    <>
       <SEO
         title="Laundromat Calculators - Valuation, ROI & Startup Cost Tools | WashBizHub"
         description="Free laundromat calculators: Business valuation (SDE multiples), ROI analysis with Monte Carlo simulations, startup costs, and operating expenses. Google Sheets powered. Trusted by 5,600+ operators."
@@ -356,7 +356,7 @@ export default function CalculatorsHub() {
           </div>
         </section>
       </div>
-    </AuthGuard>
+    </>
   );
 }
 

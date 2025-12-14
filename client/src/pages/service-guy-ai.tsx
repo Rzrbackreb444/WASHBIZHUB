@@ -1580,7 +1580,7 @@ export default function ServiceGuyAI() {
   const isAtLimit = usageData && !usageData.isUnlimited && usageData.lookupsRemaining === 0;
 
   return (
-    <AuthGuard title="Sign In for AI Diagnostics" description="Sign in to access this feature.">
+    <>
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <SEO 
         title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
@@ -3660,6 +3660,6 @@ export default function ServiceGuyAI() {
         </Suspense>
       )}
     </div>
-    </AuthGuard>
+    </>
   );
 }
