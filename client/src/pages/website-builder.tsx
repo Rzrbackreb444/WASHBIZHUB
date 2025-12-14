@@ -649,11 +649,7 @@ export default function WebsiteBuilder() {
   };
 
   return (
-    <AuthGuard
-      title="Sign In to Access Website Builder"
-      description="Sign in to create and manage your laundromat website."
-    >
-      <>
+    <>
         <SEO
         title="Website Builder - Build Your Laundromat Website"
         description="Create a professional laundromat website with drag-and-drop page building, custom branding, AI chatbot, and integrated marketing tools."
@@ -3064,7 +3060,6 @@ export default function WebsiteBuilder() {
       </div>
 
       <UpgradeModalComponent />
-      </>
-    </AuthGuard>
+    </>
   );
 }

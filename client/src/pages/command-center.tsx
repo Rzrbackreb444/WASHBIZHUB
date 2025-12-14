@@ -190,11 +190,7 @@ export default function CommandCenter() {
   }
 
   return (
-    <AuthGuard
-      title="Sign In to Access Command Center"
-      description="Sign in to access your personalized dashboard."
-    >
-      <>
+    <>
         <SEO
         title="Command Center | WashBizHub"
         description="Your customizable command center dashboard. Drag and drop widgets to create your perfect laundromat management experience."
@@ -398,8 +394,7 @@ export default function CommandCenter() {
       </DashboardShell>
 
       <UpgradeModalComponent />
-      </>
-    </AuthGuard>
+    </>
   );
 }
 
