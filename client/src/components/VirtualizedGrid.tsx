@@ -1,5 +1,8 @@
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import { FixedSizeGrid, GridChildComponentProps } from 'react-window';
+import ReactWindow from 'react-window';
+
+const { FixedSizeGrid } = ReactWindow as any;
+type GridChildComponentProps = { columnIndex: number; rowIndex: number; style: React.CSSProperties };
 
 interface VirtualizedGridProps<T> {
   items: T[];
