@@ -1580,8 +1580,12 @@ export default function ServiceGuyAI() {
   const isAtLimit = usageData && !usageData.isUnlimited && usageData.lookupsRemaining === 0;
 
   return (
-    <>
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <AuthGuard
+      title="Sign In to Access Service Guy AI"
+      description="Sign in to access AI-powered equipment diagnostics."
+    >
+      <>
+        <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <SEO 
         title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
         description="Free AI-powered laundromat equipment troubleshooting. 2,200+ error codes for Speed Queen, Dexter, Maytag, Huebsch & 35+ brands. Get repair guides, part numbers & fix times."
@@ -3659,7 +3663,8 @@ export default function ServiceGuyAI() {
           />
         </Suspense>
       )}
-    </div>
-    </>
+      </div>
+      </>
+    </AuthGuard>
   );
 }

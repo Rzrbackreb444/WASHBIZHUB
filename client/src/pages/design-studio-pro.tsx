@@ -113,9 +113,13 @@ export default function DesignStudioPro() {
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-background p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+    <AuthGuard
+      title="Sign In to Access Design Studio"
+      description="Sign in to access the professional design tools."
+    >
+      <>
+        <div className="min-h-screen bg-background p-6">
+          <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="text-center space-y-2 mb-8">
             <h1 className="text-5xl font-bold flex items-center justify-center gap-3">
@@ -494,8 +498,9 @@ export default function DesignStudioPro() {
             Export PDF Report
           </Button>
         </div>
+        </div>
       </div>
-    </div>
-    </>
+      </>
+    </AuthGuard>
   );
 }
