@@ -409,6 +409,10 @@ const SBALoans = lazy(() => import("@/pages/sba-loans"));
 const BusinessPlanGenerator = lazy(() => import("@/pages/business-plan-generator"));
 const PreferredFundingGroupPage = lazy(() => import("@/pages/funding/preferred-funding-group"));
 const GoKapitalPage = lazy(() => import("@/pages/funding/gokapital"));
+const SouthEndCapitalPage = lazy(() => import("@/pages/funding/south-end-capital"));
+const RokFinancialPage = lazy(() => import("@/pages/funding/rok-financial"));
+const AdvanceFundsNetworkPage = lazy(() => import("@/pages/funding/advance-funds-network"));
+const DavidAllenCapitalPage = lazy(() => import("@/pages/funding/david-allen-capital"));
 
 // Listings & Vendors
 const ListingsHub = lazy(() => import("@/pages/listings-hub"));
@@ -1196,6 +1200,26 @@ function Router() {
       <Route path="/funding/gokapital">
         <PageTransition>
           <GoKapitalPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/south-end-capital">
+        <PageTransition>
+          <SouthEndCapitalPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/rok-financial">
+        <PageTransition>
+          <RokFinancialPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/advance-funds-network">
+        <PageTransition>
+          <AdvanceFundsNetworkPage />
+        </PageTransition>
+      </Route>
+      <Route path="/funding/david-allen-capital">
+        <PageTransition>
+          <DavidAllenCapitalPage />
         </PageTransition>
       </Route>
       <Route path="/acquisitions-funding">

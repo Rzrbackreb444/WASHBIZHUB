@@ -1,9 +1,10 @@
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle2, ExternalLink, Clock, CreditCard, Building2, 
-  DollarSign, FileText, TrendingUp, Star, Shield, Zap
+  DollarSign, FileText, TrendingUp, Star, Shield, Zap, ArrowRight
 } from "lucide-react";
 
 export interface FundingPartnerRequirements {
@@ -43,6 +44,7 @@ export interface FundingPartner {
   isPrimary?: boolean;
   specialFeature?: string;
   trustSignals?: string[];
+  detailPageUrl?: string;
 }
 
 interface FundingPartnerCardProps {
@@ -97,13 +99,27 @@ export function FundingPartnerCard({
               <span>{requirements.timeInBusiness}</span>
             </div>
           </div>
-          <Button 
-            onClick={() => onApply(partner)} 
-            className="w-full mt-4 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
-            data-testid={`apply-${partner.id}`}
-          >
-            Get Pre-Qualified <ExternalLink className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="flex flex-col gap-2 mt-4">
+            <Button 
+              onClick={() => onApply(partner)} 
+              className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+              data-testid={`apply-${partner.id}`}
+            >
+              Get Pre-Qualified <ExternalLink className="w-4 h-4 ml-2" />
+            </Button>
+            {partner.detailPageUrl && (
+              <Link href={partner.detailPageUrl}>
+                <Button 
+                  variant="outline"
+                  className="w-full"
+                  size="sm"
+                  data-testid={`learn-more-${partner.id}`}
+                >
+                  Learn More <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            )}
+          </div>
         </CardContent>
       </Card>
     );
@@ -238,15 +254,29 @@ export function FundingPartnerCard({
           </div>
         )}
 
-        <Button 
-          onClick={() => onApply(partner)} 
-          className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
-          size="lg"
-          data-testid={`apply-${partner.id}`}
-        >
-          Get Pre-Qualified in {loanDetails.approvalSpeed.includes("Same") ? "Minutes" : loanDetails.approvalSpeed}
-          <ExternalLink className="w-4 h-4 ml-2" />
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button 
+            onClick={() => onApply(partner)} 
+            className="flex-1 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+            size="lg"
+            data-testid={`apply-${partner.id}`}
+          >
+            Get Pre-Qualified in {loanDetails.approvalSpeed.includes("Same") ? "Minutes" : loanDetails.approvalSpeed}
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </Button>
+          {partner.detailPageUrl && (
+            <Link href={partner.detailPageUrl}>
+              <Button 
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+                data-testid={`learn-more-${partner.id}`}
+              >
+                Learn More <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -59,7 +59,8 @@ const FUNDING_CATEGORIES: Record<string, {
         affiliateUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/",
         isPrimary: true,
         specialFeature: "No assets or collateral required",
-        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"]
+        trustSignals: ["BBB Accredited", "10,000+ funded businesses", "No upfront fees"],
+        detailPageUrl: "/funding/preferred-funding-group"
       },
       {
         id: "gokapital-startup",
@@ -89,7 +90,8 @@ const FUNDING_CATEGORIES: Record<string, {
         alsoOffers: ["Equipment financing", "Bridge loans", "Commercial RE"],
         affiliateUrl: "mailto:deals@gokapital.com?cc=consult@washbizhub.com&subject=Laundromat%20Startup%20Funding%20-%20Nicholas%20Kremers%20Referral",
         specialFeature: "Works with 500+ credit",
-        trustSignals: ["A+ BBB Rating", "500+ laundromats funded", "Fast 24-48hr approval"]
+        trustSignals: ["A+ BBB Rating", "500+ laundromats funded", "Fast 24-48hr approval"],
+        detailPageUrl: "/funding/gokapital"
       }
     ]
   },
@@ -128,7 +130,8 @@ const FUNDING_CATEGORIES: Record<string, {
         affiliateUrl: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat",
         isPrimary: true,
         specialFeature: "$0 SBA fees up to $1M",
-        trustSignals: ["$3.2B Stearns Bank", "Preferred SBA Lender", "Story-based underwriting"]
+        trustSignals: ["$3.2B Stearns Bank", "Preferred SBA Lender", "Story-based underwriting"],
+        detailPageUrl: "/funding/south-end-capital"
       },
       {
         id: "national-business-capital",
@@ -197,7 +200,8 @@ const FUNDING_CATEGORIES: Record<string, {
         affiliateUrl: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1",
         isPrimary: true,
         specialFeature: "Same-day funding available",
-        trustSignals: ["75+ lender network", "80% faster processing", "A+ BBB Rating"]
+        trustSignals: ["75+ lender network", "80% faster processing", "A+ BBB Rating"],
+        detailPageUrl: "/funding/rok-financial"
       },
       {
         id: "south-end-equipment",
@@ -265,7 +269,8 @@ const FUNDING_CATEGORIES: Record<string, {
         affiliateUrl: "/gokapital",
         isPrimary: true,
         specialFeature: "Up to 80% LTV",
-        trustSignals: ["A+ BBB Rating", "$500M+ funded", "DSCR loans available"]
+        trustSignals: ["A+ BBB Rating", "$500M+ funded", "DSCR loans available"],
+        detailPageUrl: "/funding/gokapital"
       },
       {
         id: "rok-realestate",
@@ -333,7 +338,8 @@ const FUNDING_CATEGORIES: Record<string, {
         affiliateUrl: "https://app.advancefundsnetwork.com/application/RcEBxFNwGGhwe5Z1Mehzaj2vqfm2?partner=OEO602XAIiZkhill7WmMwJ7NEfB3",
         isPrimary: true,
         specialFeature: "No minimum credit score",
-        trustSignals: ["Since 2007", "Same-day funding", "A+ BBB Rating"]
+        trustSignals: ["Since 2007", "Same-day funding", "A+ BBB Rating"],
+        detailPageUrl: "/funding/advance-funds-network"
       },
       {
         id: "david-allen-capital",
@@ -363,7 +369,8 @@ const FUNDING_CATEGORIES: Record<string, {
         alsoOffers: ["Equipment financing", "Invoice factoring", "Lines of credit"],
         affiliateUrl: "https://davidallencapital.com/nicholaskremers",
         specialFeature: "Zero-interest early payoff",
-        trustSignals: ["20+ funder network", "Early payoff options", "Fast approvals"]
+        trustSignals: ["20+ funder network", "Early payoff options", "Fast approvals"],
+        detailPageUrl: "/funding/david-allen-capital"
       }
     ]
   }
