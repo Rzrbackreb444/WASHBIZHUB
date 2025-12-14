@@ -115,7 +115,6 @@ export function PremiumHero() {
         <meta itemProp="operatingSystem" content="Web" />
         <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 73,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
       </div>
-
       {/* Premium video background with fallback image */}
       <div className="absolute inset-0">
         {/* Video background - desktop only for performance */}
@@ -161,7 +160,6 @@ export function PremiumHero() {
           style={{ boxShadow: 'inset 0 0 150px 50px rgba(10,22,40,0.4)' }}
         />
       </div>
-      
       <motion.div 
         className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         style={{ opacity }}
@@ -336,7 +334,7 @@ export function PremiumHero() {
                         >
                           <div className="flex items-center justify-center gap-1 mb-0.5 xl:mb-1">
                             <metric.icon className={`w-2.5 h-2.5 xl:w-3 xl:h-3 ${metric.color} flex-shrink-0`} />
-                            <p className="text-[8px] xl:text-[10px] text-gray-500 uppercase tracking-wider truncate">{metric.label}</p>
+                            <p className="xl:text-[10px] text-gray-500 uppercase tracking-wider truncate text-[12px]">{metric.label}</p>
                           </div>
                           <p className={`text-lg xl:text-xl font-bold ${metric.color}`}>{metric.value}</p>
                         </div>
@@ -474,7 +472,6 @@ export function PremiumHero() {
           </motion.div>
         </div>
       </motion.div>
-
       {/* Trusted by section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
