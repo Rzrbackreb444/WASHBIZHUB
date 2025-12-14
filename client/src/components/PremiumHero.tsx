@@ -5,7 +5,6 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/Untitled_design_(33)_1765330024631.png";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
-import heroVideo from "@assets/grok-video-c1b47cc0-3cae-4df8-aab3-c6d7516a6d89_1765337440628.mp4";
 
 // SSR-safe hook to detect mobile devices for performance optimization
 function useIsMobile() {
@@ -115,24 +114,11 @@ export function PremiumHero() {
         <meta itemProp="operatingSystem" content="Web" />
         <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 73,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
       </div>
-      {/* Premium video background with fallback image */}
+      {/* Premium image background */}
       <div className="absolute inset-0">
-        {/* Video background - desktop only for performance */}
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover hidden md:block"
-          poster={heroImage}
-          aria-hidden="true"
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
-        
-        {/* Fallback image for mobile and when video can't play */}
+        {/* Static image background for all devices - faster loading than video */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
             backgroundImage: `url(${heroImage})`,
             backgroundPosition: 'center 30%'
