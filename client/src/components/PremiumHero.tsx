@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useMemo, useEffect, useState } from "react";
-import heroImage from "@assets/City_Lights_54_1765732594776.png";
+import heroImage from "@assets/Add_a_little_bit_of_body_text_(1)_1765732776329.png";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
 
 // SSR-safe hook to detect mobile devices for performance optimization
