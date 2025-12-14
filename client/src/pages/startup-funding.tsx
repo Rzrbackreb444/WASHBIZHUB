@@ -1,9 +1,53 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Zap, CheckCircle, DollarSign, Lightbulb } from 'lucide-react';
+import { Zap, CheckCircle, DollarSign, Lightbulb, CreditCard, Clock, Shield, Phone, Mail, ArrowRight, Star, Banknote } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { AuthorExpertise, TrustSignals, RelatedFundingPaths, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
+
+const PERSONAL_CREDIT_PROGRAMS = {
+  termLoan: {
+    title: "5 or 7 Year Term Loans",
+    amount: "Up to $500,000",
+    rate: "9-15% based on credit strength",
+    features: [
+      "No minimum time in business",
+      "Fixed monthly payment",
+      "No upfront fees or down payment",
+      "Full liquidity immediately",
+      "Funding in 7-15 business days",
+      "No assets or collateral required",
+      "No prepayment penalty"
+    ],
+    requirements: [
+      "680+ credit score on all 3 bureaus",
+      "2 years tax returns showing $50K+ income"
+    ]
+  },
+  creditCard: {
+    title: "Business Credit Card Program",
+    amount: "Based on credit profile",
+    rate: "0% Interest for 6-12 months",
+    features: [
+      "No minimum time in business",
+      "Stated income",
+      "No upfront fees",
+      "Reports only to business"
+    ],
+    requirements: [
+      "700+ credit score",
+      "Established business entity"
+    ]
+  }
+};
+
+const FUNDING_CONTACT = {
+  name: "Nick Kremers",
+  company: "The Laundromat Financial Group",
+  phone: "(479) 883-4314",
+  email: "thelaundromater@gmail.com",
+  applyUrl: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/"
+};
 
 const STARTUP_PARTNERS = [
   {
@@ -19,21 +63,6 @@ const STARTUP_PARTNERS = [
     links: [
       { title: 'Apply for Startup Funding', url: 'https://itsgokapital.com' },
       { title: 'Get Pre-Qualified', url: 'https://itsgokapital.com/business-loans' },
-    ]
-  },
-  {
-    name: 'Preferred Funding Group',
-    description: 'Personal credit-based financing for new laundromat operators and entrepreneurs',
-    approval: '48 hours',
-    terms: 'Custom terms available',
-    amount: '$5,000 - $150,000',
-    creditType: 'Personal Credit',
-    rate: 'Based on personal credit score',
-    commission: '0.75%+',
-    specialization: 'Personal Credit Users',
-    links: [
-      { title: 'Apply with Personal Credit', url: 'https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/' },
-      { title: 'Get Pre-Qualified', url: 'https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/' },
     ]
   }
 ];
