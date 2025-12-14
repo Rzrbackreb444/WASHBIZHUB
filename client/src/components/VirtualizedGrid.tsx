@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import { FixedSizeGrid } from 'react-window';
+import * as ReactWindow from 'react-window';
+
+const FixedSizeGrid = (ReactWindow as any).FixedSizeGrid || (ReactWindow as any).default?.FixedSizeGrid;
 
 type GridChildComponentProps = { columnIndex: number; rowIndex: number; style: React.CSSProperties };
 
