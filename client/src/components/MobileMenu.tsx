@@ -7,7 +7,7 @@ import {
   CreditCard, Bell, Heart, Bookmark, FileText, MessageSquare,
   TrendingUp, BarChart3, Calendar, Cpu, MapPin, Building2,
   Users, Package, Truck, BookOpen, HelpCircle, Phone, Briefcase,
-  PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid
+  PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid, Info
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,6 +92,7 @@ const mobilePillars: MenuSection[] = [
       { href: "/book", label: "The Bible", icon: BookOpen, featured: true, description: "Complete guide" },
       { href: "/consultation", label: "Book a Consultation", icon: Phone, description: "Expert advice" },
       { href: "/pricing", label: "Pricing & Plans", icon: CreditCard, description: "Membership options" },
+      { href: "/about-us", label: "About Us", icon: Info, description: "Our mission & team" },
     ]
   },
 ];

@@ -19,7 +19,7 @@ import {
   BookOpen, GraduationCap, HelpCircle, Wallet,
   BarChart3, Zap, Landmark, Factory, CreditCard, 
   Briefcase, TrendingUp, PiggyBank, Receipt, Users,
-  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag, LayoutGrid
+  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag, LayoutGrid, Info
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 import { MobileMenu } from "@/components/MobileMenu";
@@ -73,6 +73,7 @@ const RESOURCES_LINKS = [
   { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
   { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, desc: "50+ years experience" },
   { href: "/larry-larsen", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
+  { href: "/about-us", label: "About Us", icon: Info, desc: "Our mission & team" },
 ];
 
 // Funding organized by PURPOSE for guided journey
