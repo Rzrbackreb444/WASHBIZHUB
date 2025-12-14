@@ -80,6 +80,50 @@ const staticPages = [
   { url: "/ai-consultation-council", priority: 0.8, changefreq: "monthly" },
   { url: "/larry-larsen", priority: 0.7, changefreq: "monthly" },
   { url: "/cleanbi-market-report", priority: 0.8, changefreq: "weekly" },
+  // SEO Landing Pages
+  { url: "/laundromat-valuation", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-for-sale", priority: 0.9, changefreq: "daily" },
+  { url: "/laundromat-due-diligence", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-location-analysis", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-roi-calculator", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-equipment-repair", priority: 0.8, changefreq: "monthly" },
+  { url: "/how-to-start-laundromat", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-financing", priority: 0.8, changefreq: "monthly" },
+  { url: "/laundromat-business-plan", priority: 0.8, changefreq: "monthly" },
+  { url: "/buy-coin-laundry", priority: 0.8, changefreq: "monthly" },
+  // Seller Pages
+  { url: "/sell-laundromat", priority: 0.8, changefreq: "weekly" },
+  { url: "/list-your-laundromat", priority: 0.8, changefreq: "weekly" },
+  { url: "/sell-your-laundromat", priority: 0.8, changefreq: "weekly" },
+  // Tools & Calculators
+  { url: "/tools", priority: 0.7, changefreq: "weekly" },
+  { url: "/calculator", priority: 0.7, changefreq: "monthly" },
+  { url: "/cleanbi-calculator", priority: 0.8, changefreq: "monthly" },
+  { url: "/ltv-calculator", priority: 0.7, changefreq: "monthly" },
+  { url: "/cac-calculator", priority: 0.7, changefreq: "monthly" },
+  { url: "/equipment-appraiser", priority: 0.7, changefreq: "monthly" },
+  { url: "/utility-bill-auditor", priority: 0.7, changefreq: "monthly" },
+  { url: "/utility-bill-scanner", priority: 0.7, changefreq: "monthly" },
+  { url: "/what-if-analysis", priority: 0.7, changefreq: "monthly" },
+  { url: "/smart-location-scout", priority: 0.7, changefreq: "monthly" },
+  { url: "/competitor-intelligence", priority: 0.7, changefreq: "monthly" },
+  { url: "/qr-generator", priority: 0.6, changefreq: "monthly" },
+  // Operator Tools
+  { url: "/operator-dashboard", priority: 0.7, changefreq: "weekly" },
+  { url: "/command-center", priority: 0.7, changefreq: "weekly" },
+  { url: "/pos-system", priority: 0.7, changefreq: "monthly" },
+  { url: "/pos-command-center", priority: 0.7, changefreq: "monthly" },
+  { url: "/iot-dashboard", priority: 0.7, changefreq: "monthly" },
+  { url: "/machine-booking", priority: 0.7, changefreq: "monthly" },
+  { url: "/website-builder", priority: 0.7, changefreq: "monthly" },
+  // Equipment
+  { url: "/equipment", priority: 0.8, changefreq: "weekly" },
+  // Funding
+  { url: "/funding-marketplace", priority: 0.8, changefreq: "weekly" },
+  // Legal Pages
+  { url: "/privacy-policy", priority: 0.4, changefreq: "monthly" },
+  { url: "/terms-of-service", priority: 0.4, changefreq: "monthly" },
+  { url: "/legal-disclaimer", priority: 0.4, changefreq: "monthly" },
 ];
 
 function escapeXml(str: string): string {
