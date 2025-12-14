@@ -118,13 +118,14 @@ export function PremiumHero() {
       <div className="absolute inset-0">
         {/* Static image background for all devices - faster loading than video */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-no-repeat"
           style={{ 
             backgroundImage: `url(${heroImage})`,
-            backgroundPosition: 'center 30%'
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center'
           }}
           role="img"
-          aria-label="Authentic laundromat storefront with classic signage"
+          aria-label="NYC skyline at night"
         />
         
         {/* Dynamic overlay - darker on left for text readability */}
