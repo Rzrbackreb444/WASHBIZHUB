@@ -57,7 +57,9 @@ export function useAuth() {
     }
   };
 
-  const authResolved = status === 'success' && !isFetching;
+  // Auth is resolved when query completes (success or error) and not currently fetching
+  // This ensures AuthGuard shows login prompt or content instead of infinite loading
+  const authResolved = (status === 'success' || status === 'error') && !isFetching;
 
   return {
     user,
