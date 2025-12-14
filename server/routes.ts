@@ -9472,7 +9472,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/notifications - Get user's notifications
   app.get("/api/notifications", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9511,7 +9511,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notifications/:id/read - Mark notification as read
   app.put("/api/notifications/:id/read", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9532,7 +9532,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notifications/mark-all-read - Mark all notifications as read
   app.put("/api/notifications/mark-all-read", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9549,7 +9549,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // DELETE /api/notifications/:id - Delete notification
   app.delete("/api/notifications/:id", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9569,7 +9569,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/notification-preferences - Get user's notification preferences
   app.get("/api/notification-preferences", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9599,7 +9599,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/notification-preferences - Update notification preferences
   app.put("/api/notification-preferences", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9651,7 +9651,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/conversations - Get user's conversations with last message preview
   app.get("/api/conversations", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9790,7 +9790,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/conversations - Start new conversation (find or create)
   app.post("/api/conversations", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9866,7 +9866,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/conversations/:id/messages - Get messages in a conversation with pagination
   app.get("/api/conversations/:id/messages", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -9952,7 +9952,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/conversations/:id/messages - Send a message
   app.post("/api/conversations/:id/messages", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10030,7 +10030,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/conversations/:id/read - Mark conversation as read
   app.put("/api/conversations/:id/read", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10060,7 +10060,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members - Search members for messaging (name, role, location)
   app.get("/api/members", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10156,7 +10156,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/members/:userId/message - Start/get conversation with a user
   app.post("/api/members/:userId/message", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10271,7 +10271,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/:userId - Get member profile
   app.get("/api/members/:userId", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10390,7 +10390,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // PUT /api/members/profile - Update own member profile
   app.put("/api/members/profile", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10460,7 +10460,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // POST /api/members/:userId/follow - Follow a user
   app.post("/api/members/:userId/follow", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10534,7 +10534,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // DELETE /api/members/:userId/follow - Unfollow a user
   app.delete("/api/members/:userId/follow", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10567,7 +10567,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/following - Get users the current user is following
   app.get("/api/members/following", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10622,7 +10622,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/followers - Get users following the current user
   app.get("/api/members/followers", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10677,7 +10677,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/members/profile/me - Get current user's member profile
   app.get("/api/members/profile/me", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
@@ -10718,7 +10718,7 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
 
   // GET /api/activity-feed - Get activity feed from followed users
   app.get("/api/activity-feed", async (req, res) => {
-    if (!req.requireAuth()) {
+    if (!req.user) {
       return res.status(401).json({ error: "Not authenticated" });
     }
     try {
