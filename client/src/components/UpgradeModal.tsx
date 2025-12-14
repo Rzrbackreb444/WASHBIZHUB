@@ -160,7 +160,7 @@ export function UpgradeModal({
   const displayDescription = description || featureContext?.benefit || 
     "Get complete access to all tools and resources to grow your laundromat business.";
 
-  const tierConfig = PLATFORM_TIERS.all_access;
+  const tierConfig = PLATFORM_TIERS.business;
 
   const handleUpgradeClick = async () => {
     setIsLoading(true);
