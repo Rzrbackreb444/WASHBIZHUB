@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Star, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import heroImage from "@assets/AdobeStock_711286802_1765733834364.jpeg";
 import { Link } from "wouter";
 
 const CONSULT_EMAIL = "consult@washbizhub.com";
@@ -358,17 +359,26 @@ export default function Marketplace() {
         ]}
         speakableSelectors={["h1", "h2", ".speakable"]}
       />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 md:py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-8 md:mb-12">
-            <ShoppingBag className="h-12 w-12 md:h-16 md:w-16 text-accent mx-auto mb-4" />
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-4" data-testid="text-marketplace-title">
-              Marketplace
-            </h1>
-            <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto" data-testid="text-marketplace-subtitle">
-              Equipment through authorized distributors, supplies direct to you
-            </p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        <div className="relative py-12 md:py-20">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="text-center mb-8 md:mb-12">
+              <ShoppingBag className="h-12 w-12 md:h-16 md:w-16 text-accent mx-auto mb-4" />
+              <h1 className="text-3xl md:text-5xl font-black text-white mb-4" data-testid="text-marketplace-title">
+                Marketplace
+              </h1>
+              <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto" data-testid="text-marketplace-subtitle">
+                Equipment through authorized distributors, supplies direct to you
+              </p>
+            </div>
           </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
 
           <Tabs defaultValue="supplies" className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/10 h-auto">

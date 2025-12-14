@@ -74,6 +74,7 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import heroImage from "@assets/AdobeStock_790549884_1765733867350.jpeg";
 
 // Revenue data types
 interface KPIData {
@@ -356,28 +357,37 @@ export default function OperatorDashboard() {
 
       <div className="h-full bg-muted/30 overflow-auto">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-          {/* Command Center Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3" data-testid="text-dashboard-title">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#0A1628] to-[#1a2d4a] flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-[#C8A661]" />
+          {/* Command Center Header with Hero Background */}
+          <div className="relative rounded-xl overflow-hidden mb-2">
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
+            <div className="relative z-10 p-6 sm:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3" data-testid="text-dashboard-title">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#C8A661] to-[#A8893F] flex items-center justify-center">
+                      <Sparkles className="h-5 w-5 text-white" />
+                    </div>
+                    Command Center
+                  </h1>
+                  <p className="text-white/80 mt-1">
+                    Everything you need to run your laundromat - one screen, total control
+                  </p>
                 </div>
-                Command Center
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Everything you need to run your laundromat - one screen, total control
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="gap-1.5 border-green-500/50 text-green-600">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                Live
-              </Badge>
-              <Button variant="outline" size="sm" data-testid="button-refresh-dashboard">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="gap-1.5 border-green-400/50 text-green-400 bg-green-500/10">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    Live
+                  </Badge>
+                  <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/10" data-testid="button-refresh-dashboard">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 

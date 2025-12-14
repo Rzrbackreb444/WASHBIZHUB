@@ -76,6 +76,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
 import waterOverflowImage from "@assets/AdobeStock_824530835_1765330793538.jpeg";
 import steelDrumImage from "@assets/AdobeStock_561067303_1765330620231.jpeg";
+import heroImage from "@assets/AdobeStock_561067303_1765733854072.jpeg";
 
 interface Manufacturer {
   id: string;
@@ -1877,7 +1878,7 @@ export default function ServiceGuyAI() {
       <section className="relative w-full h-[500px] md:h-[600px] overflow-hidden" data-testid="section-hero">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${waterOverflowImage})` }}
+          style={{ backgroundImage: `url(${heroImage})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />

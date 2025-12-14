@@ -149,6 +149,7 @@ import { AnalysisReportGenerator } from "@/components/cleanbi/AnalysisReportGene
 import { AnalysisSocialShare } from "@/components/cleanbi/AnalysisSocialShare";
 import { useLocationDesign } from "@/contexts/LocationDesignContext";
 import { RequestProfessionalAnalysisCTA } from "@/components/consultation/RequestProfessionalAnalysisCTA";
+import heroImage from "@assets/laundromat_aerial_view_hd_1765733630757.jpg";
 
 declare global {
   interface Window {

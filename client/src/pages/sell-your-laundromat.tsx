@@ -10,6 +10,7 @@ import {
   Eye, BarChart3, Target, Sparkles, FileEdit, PartyPopper, Phone, Mail,
   Building2, Package, Key, HelpCircle
 } from "lucide-react";
+import heroImage from "@assets/Dexter_Laundromat_1765733897149.jpg";
 
 const CONSULT_EMAIL = "consult@washbizhub.com";
 const OWNER_PHONE = "479-883-4314";
@@ -245,7 +246,11 @@ export default function SellYourLaundromat() {
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
         {/* Hero Section */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-green-500/10 via-transparent to-transparent" />
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
           
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 relative">
             <div className="text-center max-w-4xl mx-auto">
