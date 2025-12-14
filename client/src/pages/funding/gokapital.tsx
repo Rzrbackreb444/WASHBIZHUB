@@ -55,11 +55,11 @@ export default function GoKapital() {
               ← Back to Funding Options
             </Link>
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-14 w-14 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <Building2 className="h-7 w-7 text-green-400" />
+              <div className="h-14 w-14 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                <Building2 className="h-7 w-7 text-[#C8A661]" />
               </div>
               <div>
-                <Badge className="bg-green-500/30 text-green-300 mb-2">
+                <Badge className="bg-[#C8A661]/30 text-[#C8A661] mb-2">
                   <Zap className="w-3 h-3 mr-1" />
                   Business Credit Path
                 </Badge>
@@ -71,7 +71,7 @@ export default function GoKapital() {
             </p>
             <div className="flex flex-wrap gap-3">
               <a href={APPLY_URL} target="_blank" rel="noopener noreferrer">
-                <Button className="bg-green-500 text-white hover:bg-green-600" size="lg" data-testid="button-apply-hero">
+                <Button className="bg-[#C8A661] text-[#1e3a5f] hover:bg-[#C8A661]/90" size="lg" data-testid="button-apply-hero">
                   Apply Now
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -89,21 +89,21 @@ export default function GoKapital() {
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="text-center">
               <CardContent className="pt-6">
-                <DollarSign className="h-10 w-10 text-green-500 mx-auto mb-3" />
-                <div className="text-3xl font-bold text-green-600">$250K</div>
+                <DollarSign className="h-10 w-10 text-[#C8A661] mx-auto mb-3" />
+                <div className="text-3xl font-bold text-[#C8A661]">$250K</div>
                 <div className="text-sm text-muted-foreground">Maximum Funding</div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <Clock className="h-10 w-10 text-green-500 mx-auto mb-3" />
+                <Clock className="h-10 w-10 text-[#C8A661] mx-auto mb-3" />
                 <div className="text-3xl font-bold">24-48 Hours</div>
                 <div className="text-sm text-muted-foreground">Approval Decision</div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <TrendingUp className="h-10 w-10 text-green-500 mx-auto mb-3" />
+                <TrendingUp className="h-10 w-10 text-[#C8A661] mx-auto mb-3" />
                 <div className="text-3xl font-bold">Builds Credit</div>
                 <div className="text-sm text-muted-foreground">Business Profile</div>
               </CardContent>
@@ -124,15 +124,15 @@ export default function GoKapital() {
             <h2 className="text-3xl font-bold mb-8">Funding Options</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {FUNDING_TYPES.map((type, idx) => (
-                <Card key={idx} className={idx === 0 ? "border-2 border-green-500" : ""} data-testid={`card-funding-type-${idx}`}>
+                <Card key={idx} className={idx === 0 ? "border-2 border-[#C8A661]" : ""} data-testid={`card-funding-type-${idx}`}>
                   <CardHeader>
                     <CardTitle className="text-lg">{type.title}</CardTitle>
                     <CardDescription>{type.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="text-2xl font-bold text-green-600">{type.amount}</div>
-                    <div className="bg-green-500/10 p-3 rounded-lg">
-                      <div className="text-sm font-semibold text-green-600 mb-1">Best For:</div>
+                    <div className="text-2xl font-bold text-[#C8A661]">{type.amount}</div>
+                    <div className="bg-[#C8A661]/10 p-3 rounded-lg">
+                      <div className="text-sm font-semibold text-[#C8A661] mb-1">Best For:</div>
                       <div className="text-sm">{type.bestFor}</div>
                     </div>
                   </CardContent>
@@ -141,10 +141,10 @@ export default function GoKapital() {
             </div>
           </div>
 
-          <Card className="border-2 border-green-500" data-testid="card-why-business-credit">
+          <Card className="border-2 border-[#C8A661]" data-testid="card-why-business-credit">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-green-500" />
+                <Briefcase className="h-5 w-5 text-[#C8A661]" />
                 Why Build Business Credit?
               </CardTitle>
             </CardHeader>
@@ -153,7 +153,7 @@ export default function GoKapital() {
                 <div className="space-y-3">
                   {BUSINESS_LOAN_FEATURES.slice(0, 4).map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -161,7 +161,7 @@ export default function GoKapital() {
                 <div className="space-y-3">
                   {BUSINESS_LOAN_FEATURES.slice(4).map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -190,19 +190,19 @@ export default function GoKapital() {
                   <div className="font-semibold mb-3">Required Documents:</div>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
                       Valid government-issued ID
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
                       Business entity documentation (LLC, etc.)
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
                       EIN (Employer Identification Number)
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
                       Business bank statements (if available)
                     </li>
                   </ul>
@@ -236,27 +236,27 @@ export default function GoKapital() {
             <h3 className="text-xl font-bold mb-4">Ideal For First-Time Owners Who:</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Recently formed an LLC and want to build business credit</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Plan to expand to multiple locations in the future</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Want to keep personal and business finances separate</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Need faster approval than traditional bank loans</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Prefer shorter-term financing with flexible payoff</span>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <span>Want to establish banking relationships for growth</span>
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function GoKapital() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a href={APPLY_URL} target="_blank" rel="noopener noreferrer">
-                <Button className="bg-green-500 text-white hover:bg-green-600" size="lg" data-testid="button-apply-cta">
+                <Button className="bg-[#C8A661] text-[#1e3a5f] hover:bg-[#C8A661]/90" size="lg" data-testid="button-apply-cta">
                   Start Your Application
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
