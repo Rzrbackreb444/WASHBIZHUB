@@ -113,7 +113,7 @@ export default function DesignStudioPro() {
   };
 
   return (
-    <AuthGuard title="Sign In to Access Design Studio Pro" description="Sign in to access this tool.">
+    <>
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
@@ -496,6 +496,6 @@ export default function DesignStudioPro() {
         </div>
       </div>
     </div>
-    </AuthGuard>
+    </>
   );
 }
