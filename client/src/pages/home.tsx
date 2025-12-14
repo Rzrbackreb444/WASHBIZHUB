@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -140,8 +140,12 @@ interface ColorClass {
   hover: string;
 }
 
-function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPath[]; colorClasses: Record<string, ColorClass> }) {
+const JourneyCards = memo(function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPath[]; colorClasses: Record<string, ColorClass> }) {
   const [, setLocation] = useLocation();
+  
+  const handleCardClick = useCallback((link: string) => () => {
+    setLocation(link);
+  }, [setLocation]);
   
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -151,7 +155,7 @@ function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPat
         return (
           <Card 
             key={path.id}
-            onClick={() => setLocation(path.link)}
+            onClick={handleCardClick(path.link)}
             className={`p-6 h-full border ${colors.border} ${colors.hover} hover-elevate transition-all cursor-pointer group`}
             data-testid={`card-journey-${path.id}`}
           >
@@ -181,7 +185,7 @@ function JourneyCards({ journeyPaths, colorClasses }: { journeyPaths: JourneyPat
       })}
     </div>
   );
-}
+});
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);

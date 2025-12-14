@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -281,8 +282,8 @@ export default function ListingDetail() {
   return (
     <>
       <SEO
-        title={`${listing.title} | ${formatPrice(listing.priceOriginal || listing.priceInUSD)} | WashBizHub`}
-        description={listing.tagline || listing.description?.substring(0, 160) || ''}
+        title={`${listing.title} for Sale in ${listing.city || 'Your Area'}${listing.region ? `, ${listing.region}` : ''} | ${formatPrice(listing.priceOriginal || listing.priceInUSD)} | WashBizHub`}
+        description={`${listing.title} for sale in ${getLocation()}. ${listing.tagline || ''} Asking ${formatPrice(listing.priceOriginal || listing.priceInUSD)}. ${listing.ownerFinancing ? 'Owner financing available. ' : ''}View photos, financials, and contact the seller on WashBizHub.`.trim().substring(0, 160)}
         canonicalUrl={`/listing/${listing.slug || listing.id}`}
         ogType="product"
         ogImage={listing.featuredImage || undefined}
@@ -291,11 +292,29 @@ export default function ListingDetail() {
           'business for sale',
           listing.city || '',
           listing.region || '',
+          `laundromat for sale ${listing.city || ''}`,
+          `${listing.businessType} for sale ${listing.region || ''}`,
           'laundromat investment',
-          listing.ownerFinancing ? 'owner financing' : ''
+          listing.ownerFinancing ? 'owner financing' : '',
+          'coin laundry for sale'
         ].filter(Boolean)}
         structuredData={structuredData || undefined}
       />
+      
+      <Helmet>
+        {listing.city && listing.region && (
+          <meta name="geo.region" content={`US-${listing.region}`} />
+        )}
+        {listing.city && (
+          <meta name="geo.placename" content={listing.city} />
+        )}
+        {listing.latitude && listing.longitude && (
+          <meta name="geo.position" content={`${listing.latitude};${listing.longitude}`} />
+        )}
+        {listing.latitude && listing.longitude && (
+          <meta name="ICBM" content={`${listing.latitude}, ${listing.longitude}`} />
+        )}
+      </Helmet>
 
       <div className="min-h-screen bg-gradient-to-b from-[#0a0f1a] to-background">
         <div className="relative h-[500px] bg-black">
@@ -401,11 +420,13 @@ export default function ListingDetail() {
                         <span className="text-sm">•</span>
                         <span className="text-sm capitalize">{listing.listingType === 'broker' ? 'Broker Listing' : 'For Sale By Owner'}</span>
                       </div>
-                      <CardTitle className="text-2xl sm:text-3xl mb-3">{listing.title}</CardTitle>
-                      <div className="flex items-center gap-2 text-muted-foreground">
+                      <h1 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-listing-title">
+                        {listing.title} for Sale in {listing.city || 'Your Area'}{listing.region ? `, ${listing.region}` : ''}
+                      </h1>
+                      <address className="flex items-center gap-2 text-muted-foreground not-italic" data-testid="text-listing-address">
                         <MapPin className="w-4 h-4 flex-shrink-0" />
                         <span>{getLocation()}</span>
-                      </div>
+                      </address>
                     </div>
                     <div className="text-right">
                       <div className="text-3xl sm:text-4xl font-black text-[#39CCCC]">
@@ -430,7 +451,9 @@ export default function ListingDetail() {
                   )}
 
                   <div>
-                    <h3 className="font-semibold text-lg mb-4">About This Business</h3>
+                    <h2 className="font-semibold text-lg mb-4" data-testid="text-about-heading">
+                      About This {listing.businessType === 'laundromat' ? 'Laundromat' : 'Business'} in {listing.city || 'Your Area'}{listing.region ? `, ${listing.region}` : ''}
+                    </h2>
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown>{listing.description || ''}</ReactMarkdown>
                     </div>

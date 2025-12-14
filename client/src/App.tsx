@@ -82,6 +82,115 @@ const websiteSchema = {
   }
 };
 
+const softwareApplicationSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CLEANBI",
+  "alternateName": ["CLEANBI Location Analyzer", "Laundromat Location Intelligence Tool"],
+  "description": "AI-powered laundromat location analysis tool that scores any address for laundromat viability using demographics, competition, foot traffic, and market data. Get instant insights for investment decisions.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web Browser",
+  "url": "https://washbizhub.com/cleanbi",
+  "featureList": [
+    "Location viability scoring (0-100)",
+    "Demographic analysis within radius",
+    "Competition mapping and density",
+    "Foot traffic estimation",
+    "Income and population metrics",
+    "Investment risk assessment",
+    "PDF report generation",
+    "Multi-location comparison"
+  ],
+  "screenshot": [
+    "https://washbizhub.com/washbizhub-og-image.png"
+  ],
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "USD",
+    "lowPrice": "0",
+    "highPrice": "499",
+    "offerCount": "4",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free Tier",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro Monthly",
+        "price": "49",
+        "priceCurrency": "USD"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro Annual",
+        "price": "399",
+        "priceCurrency": "USD"
+      }
+    ]
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "127",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "WashBizHub"
+  }
+};
+
+const faqPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is CLEANBI and how does it work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CLEANBI is WashBizHub's AI-powered location intelligence tool that analyzes any address for laundromat investment viability. It scores locations from 0-100 based on demographics, competition density, foot traffic, income levels, and population data within customizable radius zones. Simply enter an address to get an instant analysis with actionable insights."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does a laundromat cost to buy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Laundromat prices vary widely based on location, size, equipment age, and revenue. Small laundromats typically sell for $50,000-$200,000, mid-size operations for $200,000-$500,000, and large profitable locations can exceed $1 million. Use WashBizHub's valuation calculator for accurate estimates based on actual financials."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What ROI can I expect from a laundromat investment?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Well-managed laundromats typically generate 20-35% cash-on-cash returns annually. ROI depends on purchase price, operating costs, location demographics, and management efficiency. WashBizHub's ROI calculator helps you model different scenarios with actual expense ratios and revenue projections."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find laundromats for sale near me?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WashBizHub's marketplace features laundromats for sale across the US with verified listings, financial data, and CLEANBI scores. You can search by location, price range, revenue, and other criteria. We also have broker connections and off-market deal alerts for premium members."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What equipment do I need to start a laundromat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A typical laundromat needs commercial washers (various sizes from 20-80 lb capacity), dryers, a payment system (coin, card, or app-based), folding tables, seating, and utility infrastructure. Equipment costs range from $100,000-$500,000+ depending on size. Use our equipment mix optimizer and distributor locator to plan your setup."
+      }
+    }
+  ]
+};
+
 // ============================================================================
 // STATIC IMPORTS - Only absolute critical path (minimal main bundle)
 // ============================================================================
@@ -1999,6 +2108,12 @@ function AppContent() {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(websiteSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(softwareApplicationSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(faqPageSchema)}
         </script>
       </Helmet>
       <div className="min-h-screen flex flex-col">

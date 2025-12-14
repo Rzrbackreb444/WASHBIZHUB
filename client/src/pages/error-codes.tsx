@@ -31,6 +31,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { VirtualizedGrid } from "@/components/VirtualizedGrid";
 import serviceGuyAILogo from "@assets/SERVICE GUY_1764436998885.png";
 
 interface ErrorCode {
@@ -522,9 +523,15 @@ export default function ErrorCodesPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {codesData?.codes?.map((code) => (
-                    <Link key={code.id} href={`/error-codes/${code.slug}`}>
+                <VirtualizedGrid
+                  items={codesData?.codes || []}
+                  itemHeight={180}
+                  minItemWidth={280}
+                  gap={16}
+                  containerHeight={800}
+                  testIdPrefix="virtualized-error-code"
+                  renderItem={(code) => (
+                    <Link href={`/error-codes/${code.slug}`}>
                       <Card 
                         className="h-full hover-elevate cursor-pointer transition-shadow"
                         data-testid={`card-error-code-${code.id}`}
@@ -552,8 +559,8 @@ export default function ErrorCodesPage() {
                         </CardContent>
                       </Card>
                     </Link>
-                  ))}
-                </div>
+                  )}
+                />
               )}
             </>
           )}

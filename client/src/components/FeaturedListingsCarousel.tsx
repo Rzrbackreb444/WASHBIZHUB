@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -39,7 +39,7 @@ function formatPrice(price: string | null | undefined): string {
   return `$${num.toLocaleString()}`;
 }
 
-function ListingSlide({ listing }: { listing: ListingWithDetails }) {
+const ListingSlide = memo(function ListingSlide({ listing }: { listing: ListingWithDetails }) {
   const price = listing.priceInUSD || listing.priceOriginal;
   const cleanbiUrl = `/cleanbi-explorer?address=${encodeURIComponent(
     listing.exactAddress || `${listing.city}, ${listing.region}`
@@ -136,9 +136,9 @@ function ListingSlide({ listing }: { listing: ListingWithDetails }) {
       </CardContent>
     </Card>
   );
-}
+});
 
-function ListYourLaundromatSlide() {
+const ListYourLaundromatSlide = memo(function ListYourLaundromatSlide() {
   return (
     <Card className="overflow-hidden border-0 bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground shadow-xl h-full">
       <div className="flex flex-col justify-center items-center text-center p-8 h-full min-h-[400px]">
@@ -192,9 +192,9 @@ function ListYourLaundromatSlide() {
       </div>
     </Card>
   );
-}
+});
 
-function CarouselSkeleton() {
+const CarouselSkeleton = memo(function CarouselSkeleton() {
   return (
     <div className="w-full">
       <div className="flex gap-4 overflow-hidden">
@@ -213,7 +213,7 @@ function CarouselSkeleton() {
       </div>
     </div>
   );
-}
+});
 
 export function FeaturedListingsCarousel() {
   const [api, setApi] = useState<CarouselApi>();
