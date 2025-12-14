@@ -32,6 +32,54 @@ export default function PreferredFundingGroup() {
         title="Preferred Funding Group | Personal Credit Laundromat Funding Up to $500K"
         description="Get up to $500,000 for your laundromat startup using personal credit. 5-7 year term loans at 9-15%, 0% business credit cards. No collateral, no upfront fees, funding in 7-15 days."
         canonicalUrl="/funding/preferred-funding-group"
+        keywords={[
+          "personal credit laundromat loan",
+          "laundromat startup funding",
+          "no collateral business loan",
+          "0% business credit card",
+          "term loan laundromat",
+          "first-time laundromat owner financing",
+          "laundromat credit card funding",
+          "laundromat startup capital",
+          "personal credit business loan",
+          "5 year laundromat loan"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "Preferred Funding Group", url: "/funding/preferred-funding-group" }
+        ]}
+        faqs={[
+          {
+            question: "What credit score do I need to qualify for Preferred Funding Group?",
+            answer: "For term loans, you need a minimum 680 credit score on all 3 bureaus. For business credit cards, a 700+ credit score is required. Both options use personal credit to qualify."
+          },
+          {
+            question: "How much funding can I get for my laundromat startup?",
+            answer: "Preferred Funding Group offers up to $500,000 through their term loan program. The exact amount depends on your credit strength, income history, and 2 years of tax returns showing $50K+ income."
+          },
+          {
+            question: "What are the term lengths for laundromat loans?",
+            answer: "Preferred Funding Group offers 5 or 7 year term loans with fixed monthly payments. Rates range from 9-15% based on your credit profile, with no prepayment penalties."
+          },
+          {
+            question: "Is collateral required for a laundromat startup loan?",
+            answer: "No. Preferred Funding Group requires no assets or collateral for their term loans or business credit card programs. Approval is based on your personal credit and income."
+          },
+          {
+            question: "How long does the approval and funding process take?",
+            answer: "Funding typically takes 7-15 business days. There are no upfront fees or down payment requirements, and you receive full liquidity immediately upon approval."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "Preferred Funding Group - Laundromat Financing",
+          "description": "Personal credit-based laundromat funding up to $500,000 with 5-7 year term loans and 0% business credit cards. No collateral required.",
+          "provider": { "@type": "Organization", "name": "Preferred Funding Group" },
+          "areaServed": "United States",
+          "serviceType": "Business Loan"
+        }}
       />
 
       <div className="min-h-screen bg-background">

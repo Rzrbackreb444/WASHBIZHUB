@@ -69,6 +69,54 @@ export default function AdvanceFundsNetwork() {
         title="Advance Funds Network | Same-Day Funding - 60 Minute Approvals"
         description="A+ BBB rated with 4.9/5 Trustpilot. Same-day funding with approvals in 60 minutes. No minimum credit score. Working capital, lines of credit up to $5M, and equipment financing from 6.95% APR."
         canonicalUrl="/funding/advance-funds-network"
+        keywords={[
+          "same day laundromat funding",
+          "fast laundromat loan",
+          "working capital laundromat",
+          "no credit check laundromat loan",
+          "MCA laundromat",
+          "laundromat emergency funding",
+          "60 minute laundromat approval",
+          "laundromat line of credit",
+          "low minimum laundromat loan",
+          "BBB rated laundromat lender"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "Advance Funds Network", url: "/funding/advance-funds-network" }
+        ]}
+        faqs={[
+          {
+            question: "How fast can Advance Funds Network approve and fund my laundromat?",
+            answer: "Advance Funds Network can approve applications in as little as 60 minutes with same-day funding available. Working capital and MCA products fund fastest, while equipment financing typically takes 1-3 days."
+          },
+          {
+            question: "What are the minimum requirements for approval?",
+            answer: "AFN has minimal requirements: 3+ months in business, $15,000/month revenue, and an active business bank account. There is no minimum credit score requirement, making them accessible to business owners with challenging credit."
+          },
+          {
+            question: "What types of funding does AFN offer for laundromats?",
+            answer: "AFN offers working capital ($5K-$2M), term loans ($10K-$500K), lines of credit (up to $5M), equipment financing, MCA/merchant cash advance ($5K-$500K), and invoice factoring. APRs start from 6.95%."
+          },
+          {
+            question: "Why is AFN's BBB rating and Trustpilot score important?",
+            answer: "AFN's A+ BBB rating and 4.9/5 Trustpilot score from 900+ reviews demonstrates their commitment to ethical practices and customer service. This reputation matters when choosing a funding partner for your laundromat business."
+          },
+          {
+            question: "How are MCA and working capital loans repaid?",
+            answer: "MCA funding is repaid through a percentage of daily sales, providing flexibility when revenue fluctuates. Working capital loans have fixed payment schedules. Both options are available with same-day funding for emergency situations."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "Advance Funds Network - Same-Day Laundromat Funding",
+          "description": "A+ BBB rated laundromat funding with 60-minute approvals and same-day funding. No minimum credit score with working capital up to $2M and lines of credit up to $5M.",
+          "provider": { "@type": "Organization", "name": "Advance Funds Network" },
+          "areaServed": "United States",
+          "serviceType": "Business Loan"
+        }}
       />
 
       <div className="min-h-screen bg-background">

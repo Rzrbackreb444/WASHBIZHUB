@@ -46,6 +46,54 @@ export default function GoKapital() {
         title="GoKapital | Business Credit Laundromat Funding Up to $250K"
         description="Build business credit while funding your laundromat startup. Up to $250,000 with 24-48 hour approvals. Flexible terms from 6-36 months. Perfect for new LLCs."
         canonicalUrl="/funding/gokapital"
+        keywords={[
+          "business credit laundromat",
+          "LLC laundromat financing",
+          "first-time business owner loan",
+          "fast laundromat approval",
+          "equipment financing laundromat",
+          "build business credit laundromat",
+          "term loan laundromat",
+          "line of credit laundromat",
+          "working capital laundromat",
+          "new LLC business loan"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Funding", url: "/startup-funding" },
+          { name: "GoKapital", url: "/funding/gokapital" }
+        ]}
+        faqs={[
+          {
+            question: "How does GoKapital help build my business credit?",
+            answer: "GoKapital reports your loan activity to business credit bureaus, not personal credit. After 6-12 months of on-time payments, your LLC establishes a credit history, qualifying you for larger loans and better rates for future expansion."
+          },
+          {
+            question: "Can I get funding with a newly formed LLC?",
+            answer: "Yes. GoKapital specializes in working with newer LLCs and first-time business owners. They focus on business credit building, making them ideal for entrepreneurs just starting their laundromat journey."
+          },
+          {
+            question: "How fast can I get approved and funded?",
+            answer: "GoKapital provides approval decisions within 24-48 hours. Once approved, funding is typically deposited in 3-7 business days, significantly faster than traditional bank loans."
+          },
+          {
+            question: "What types of funding does GoKapital offer for laundromats?",
+            answer: "GoKapital offers business term loans ($10K-$250K), business lines of credit (up to $150K), and equipment financing based on equipment value. All options help build your business credit profile."
+          },
+          {
+            question: "What do I need to apply for GoKapital funding?",
+            answer: "You need a valid government ID, business entity documentation (LLC), EIN number, and business bank statements if available. A business plan and equipment quotes are helpful but not required."
+          }
+        ]}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "FinancialService",
+          "name": "GoKapital - Laundromat Business Financing",
+          "description": "Business credit-building laundromat financing up to $250,000 with 24-48 hour approvals. Ideal for new LLCs and first-time business owners.",
+          "provider": { "@type": "Organization", "name": "GoKapital" },
+          "areaServed": "United States",
+          "serviceType": "Business Loan"
+        }}
       />
 
       <div className="min-h-screen bg-background">
