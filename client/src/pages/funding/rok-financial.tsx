@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Building2, Clock, Zap, ArrowRight, DollarSign, FileText, Landmark, Briefcase, Network, TrendingUp, Factory } from 'lucide-react';
+import { CheckCircle, Building2, Clock, Zap, ArrowRight, DollarSign, FileText, Landmark, Briefcase, Network, TrendingUp, Factory, Shield } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Link } from 'wouter';
 
@@ -291,6 +291,9 @@ export default function RokFinancial() {
           </div>
 
           <div className="bg-gradient-to-r from-[#1e3a5f] to-[#1e3a5f]/90 text-white rounded-lg p-12 text-center">
+            <Badge className="bg-white/20 text-white mb-4">
+              <Shield className="w-3 h-3 mr-1" /> WashBizHub Verified Partner
+            </Badge>
             <h2 className="text-3xl font-bold mb-4">Ready to See Your Options?</h2>
             <p className="mb-8 text-lg max-w-2xl mx-auto">
               One application, 75+ lenders competing for your business. Get multiple offers with no credit impact.
@@ -309,7 +312,7 @@ export default function RokFinancial() {
               </a>
             </div>
             <p className="mt-4 text-sm text-white/70">
-              No credit impact. Multiple offers. Fast decisions.
+              Recommended by WashBizHub. No credit impact. Multiple offers. Fast decisions.
             </p>
           </div>
 

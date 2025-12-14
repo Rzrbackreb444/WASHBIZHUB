@@ -284,6 +284,9 @@ export default function DavidAllenCapital() {
           </div>
 
           <div className="bg-gradient-to-r from-[#1e3a5f] to-[#1e3a5f]/90 text-white rounded-lg p-12 text-center">
+            <Badge className="bg-white/20 text-white mb-4">
+              <Shield className="w-3 h-3 mr-1" /> WashBizHub Verified Partner
+            </Badge>
             <h2 className="text-3xl font-bold mb-4">Ready for Affordable Working Capital?</h2>
             <p className="mb-8 text-lg max-w-2xl mx-auto">
               Apply now and get funded in 48-72 hours. 50% less expensive than most MCA. Early payoff discounts available.
@@ -302,7 +305,7 @@ export default function DavidAllenCapital() {
               </a>
             </div>
             <p className="mt-4 text-sm text-white/70">
-              A+ BBB rated. Fast decisions. Early payoff savings.
+              Recommended by WashBizHub. A+ BBB rated. Fast decisions. Early payoff savings.
             </p>
           </div>
 
