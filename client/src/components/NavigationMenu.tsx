@@ -65,14 +65,22 @@ const RESOURCES_LINKS = [
   { href: "/larry-larsen", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
 ];
 
-const FUNDING_LINKS = [
-  { href: "/funding", label: "Funding Hub", icon: DollarSign, desc: "Compare all 7 lenders", featured: true },
+// Funding organized by PURPOSE for guided journey
+const FUNDING_BY_PURPOSE = [
+  { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, desc: "First laundromat? Start here (680+ credit)", featured: true },
+  { href: "/funding?tab=acquisitions", label: "Buy a Laundromat", icon: Briefcase, desc: "SBA loans, 10-25 year terms" },
+  { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Washers, dryers & systems" },
+  { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Building2, desc: "Purchase or refinance property" },
+  { href: "/funding?tab=fastcash", label: "Fast Cash / Working Capital", icon: Zap, desc: "Same-day funding, any credit" },
+];
+
+const FUNDING_PARTNERS = [
   { href: "/funding/preferred-funding-group", label: "Preferred Funding Group", icon: CreditCard, desc: "Personal credit up to $500K" },
-  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "Business credit up to $250K" },
-  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA loans up to $5M" },
+  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA preferred lender" },
   { href: "/funding/rok-financial", label: "ROK Financial", icon: Factory, desc: "75+ lender network" },
+  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "500+ credit, DSCR loans" },
   { href: "/funding/advance-funds-network", label: "Advance Funds Network", icon: TrendingUp, desc: "Same-day funding" },
-  { href: "/funding/david-allen-capital", label: "David Allen Capital", icon: PiggyBank, desc: "Revenue-based funding" },
+  { href: "/funding/david-allen-capital", label: "David Allen Capital", icon: PiggyBank, desc: "Zero-interest early payoff" },
 ];
 
 interface NavLinkItem {
@@ -386,7 +394,7 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Funding - 7 Lending Partners */}
+                    {/* Funding - Guided by Purpose */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-[#C8A661] hover:text-[#C8A661] hover:bg-[#C8A661]/10 data-[state=open]:bg-[#C8A661]/10 data-[state=open]:text-[#C8A661]"
@@ -399,18 +407,64 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[380px] p-3 bg-popover rounded-xl shadow-xl border border-[#C8A661]/30"
+                          className="w-[560px] bg-popover rounded-xl shadow-xl border border-[#C8A661]/30 overflow-hidden"
                         >
-                          <div className="mb-2 pb-2 border-b border-[#C8A661]/20">
-                            <span className="text-xs font-medium text-[#C8A661] uppercase tracking-wider flex items-center gap-1.5">
-                              <DollarSign className="w-3 h-3" />
-                              7 Trusted Lending Partners
-                            </span>
+                          {/* 2-Column Layout */}
+                          <div className="grid grid-cols-2 gap-0">
+                            {/* Left Column - What are you funding? */}
+                            <div className="p-4 border-r border-[#C8A661]/20">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#C8A661]/20">
+                                <div className="h-6 w-6 rounded bg-[#C8A661]/20 flex items-center justify-center">
+                                  <DollarSign className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider">
+                                  What are you funding?
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {FUNDING_BY_PURPOSE.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Right Column - Our Partners */}
+                            <div className="p-4">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <Handshake className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                                  Our Partners
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {FUNDING_PARTNERS.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1 border-l-2 border-[#C8A661]/30 pl-2 ml-1">
-                            {FUNDING_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
+                          
+                          {/* Bottom CTA Bar */}
+                          <div className="bg-[#C8A661]/10 border-t border-[#C8A661]/20 px-4 py-3 flex items-center justify-between">
+                            <button
+                              onClick={() => window.location.href = '/funding'}
+                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
+                              data-testid="link-compare-all-lenders"
+                            >
+                              Compare All 7 Lenders
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                            <Button
+                              size="sm"
+                              onClick={() => window.location.href = '/consultation'}
+                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
+                              data-testid="button-funding-consultation"
+                            >
+                              <Handshake className="w-3.5 h-3.5 mr-1.5" />
+                              Get Expert Help
+                            </Button>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
