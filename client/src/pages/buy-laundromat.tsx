@@ -15,6 +15,7 @@ import { PushNotificationOptIn, NotificationBell } from "@/components/PushNotifi
 import { RequestProfessionalAnalysisCTA } from "@/components/consultation/RequestProfessionalAnalysisCTA";
 import CLEANBIGradeBadge from "@/components/cleanbi/CLEANBIGradeBadge";
 import { LazyGoogleMapsProvider } from "@/components/maps/LazyGoogleMapsProvider";
+import { VirtualizedGrid } from "@/components/VirtualizedGrid";
 import { Link } from "wouter";
 import { 
   MapPin, DollarSign, TrendingUp, Building2, Search, Filter,
@@ -263,10 +264,16 @@ function ListingCard({ listing }: { listing: ListingWithDetails }) {
         <CardTitle className="text-lg line-clamp-2 leading-tight">
           {listing.title}
         </CardTitle>
-        <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
-          <MapPin className="w-4 h-4 shrink-0" />
-          <span>{listing.city}, {listing.region}</span>
-        </div>
+        <address className="flex items-center gap-1.5 text-muted-foreground text-sm not-italic" data-testid={`address-listing-${listing.id}`}>
+          <MapPin className="w-4 h-4 shrink-0" aria-hidden="true" />
+          <span itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+            <span itemProp="addressLocality">{listing.city}</span>{listing.city && listing.region ? ', ' : ''}
+            <span itemProp="addressRegion">{listing.region}</span>
+            {listing.country && listing.country !== 'US' && (
+              <>, <span itemProp="addressCountry">{listing.country}</span></>
+            )}
+          </span>
+        </address>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
@@ -848,8 +855,8 @@ export default function BuyLaundromat() {
   return (
     <>
       <SEO 
-        title="Laundromats For Sale | Buy a Laundromat Business | WashBizHub"
-        description="Browse verified laundromat listings for sale. Real financials, CLEANBI location analysis, and direct broker connections. Find your perfect laundromat investment."
+        title="Laundromats For Sale Near You | Buy a Laundromat Business | WashBizHub"
+        description="Browse verified laundromats for sale in California, Texas, Florida, New York & nationwide. Find coin laundry businesses with real financials, CLEANBI location scores, and owner financing options."
         canonicalUrl="/buy-laundromat"
         ogType="website"
         keywords={[
@@ -859,7 +866,12 @@ export default function BuyLaundromat() {
           "coin laundry for sale",
           "laundromat listings",
           "laundromat investment",
-          "buy coin laundry business"
+          "buy coin laundry business",
+          "laundromat for sale near me",
+          "laundromats for sale California",
+          "laundromats for sale Texas",
+          "laundromats for sale Florida",
+          "coin laundry business opportunity"
         ]}
         structuredData={{
           "@context": "https://schema.org",
@@ -997,11 +1009,17 @@ export default function BuyLaundromat() {
                   {[...Array(6)].map((_, i) => <ListingSkeleton key={i} />)}
                 </div>
               ) : listings.length > 0 ? (
-                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {listings.map(listing => (
-                    <ListingCard key={listing.id} listing={listing} />
-                  ))}
-                </div>
+                <VirtualizedGrid
+                  items={listings}
+                  itemHeight={500}
+                  minItemWidth={320}
+                  gap={24}
+                  containerHeight={900}
+                  testIdPrefix="virtualized-listing"
+                  renderItem={(listing) => (
+                    <ListingCard listing={listing} />
+                  )}
+                />
               ) : (
                 <Card className="p-12 text-center">
                   <Building2 className="w-16 h-16 mx-auto text-muted-foreground mb-4" />

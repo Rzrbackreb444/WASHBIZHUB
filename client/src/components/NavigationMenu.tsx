@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -82,17 +82,17 @@ interface NavLinkItem {
   featured?: boolean;
 }
 
-function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
-  const handleClick = () => {
+const DropdownLink = memo(function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
+  const handleClick = useCallback(() => {
     window.location.href = href;
-  };
+  }, [href]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       window.location.href = href;
     }
-  };
+  }, [href]);
 
   return (
     <button
@@ -118,7 +118,7 @@ function DropdownLink({ href, label, desc, featured }: NavLinkItem) {
       <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
     </button>
   );
-}
+});
 
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
