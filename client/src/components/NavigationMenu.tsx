@@ -46,10 +46,20 @@ const CALCULATORS_LINKS = [
   { href: "/tpd-calculator", label: "TPD", icon: LineChart, desc: "Turns per day analysis" },
 ];
 
-const MARKETPLACE_LINKS = [
-  { href: "/equipment", label: "Equipment Hub", icon: Package, desc: "Dexter & Continental Girbau - Buy, Parts, Service", featured: true },
+const MARKETPLACE_BUY_LINKS = [
+  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings", featured: true },
+  { href: "/brokers", label: "Find a Broker", icon: Users, desc: "Verified industry brokers" },
+];
+
+const ACQUISITION_LENDERS = [
+  { href: "/funding/national-business-capital", label: "National Business Capital", icon: Landmark, desc: "SBA acquisitions $100K-$10M" },
+  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA preferred lender" },
+  { href: "/funding/rok-financial", label: "ROK Financial", icon: Factory, desc: "75+ lender network" },
+];
+
+const MARKETPLACE_SELL_LINKS = [
   { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Sparkles, desc: "Sell your business, equipment, or services" },
-  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings" },
+  { href: "/equipment", label: "Equipment Hub", icon: Package, desc: "Dexter & Continental Girbau - Buy, Parts, Service", featured: true },
   { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Tag, desc: "Used & new equipment marketplace" },
   { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
 ];
@@ -76,9 +86,7 @@ const FUNDING_BY_PURPOSE = [
 
 const FUNDING_PARTNERS = [
   { href: "/funding/preferred-funding-group", label: "Preferred Funding Group", icon: CreditCard, desc: "Personal credit up to $500K" },
-  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA preferred lender" },
-  { href: "/funding/rok-financial", label: "ROK Financial", icon: Factory, desc: "75+ lender network" },
-  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "500+ credit, DSCR loans" },
+  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "Build business credit" },
   { href: "/funding/advance-funds-network", label: "Advance Funds Network", icon: TrendingUp, desc: "Same-day funding" },
   { href: "/funding/david-allen-capital", label: "David Allen Capital", icon: PiggyBank, desc: "Zero-interest early payoff" },
 ];
@@ -349,17 +357,80 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
+                          className="w-[680px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          <div className="mb-2 pb-2 border-b border-border">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Buy & Sell
-                            </span>
+                          <div className="grid grid-cols-3 gap-0">
+                            {/* Column 1 - Buy a Laundromat */}
+                            <div className="p-4 border-r border-border">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <Building2 className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                                  Buy a Laundromat
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {MARKETPLACE_BUY_LINKS.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Column 2 - Financing for Buyers */}
+                            <div className="p-4 border-r border-border">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#C8A661]/30">
+                                <div className="h-6 w-6 rounded bg-[#C8A661]/20 flex items-center justify-center">
+                                  <Landmark className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider">
+                                  Financing for Buyers
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {ACQUISITION_LENDERS.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Column 3 - Sell & Equipment */}
+                            <div className="p-4">
+                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <Package className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                                  Sell & Equipment
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {MARKETPLACE_SELL_LINKS.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-1">
-                            {MARKETPLACE_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
+                          
+                          {/* Bottom CTA Bar */}
+                          <div className="bg-muted/50 border-t border-border px-4 py-3 flex items-center justify-between">
+                            <button
+                              onClick={() => window.location.href = '/laundromat-listings'}
+                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
+                              data-testid="link-browse-all-listings"
+                            >
+                              Browse All Listings
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                            <Button
+                              size="sm"
+                              onClick={() => window.location.href = '/list-on-washbizhub'}
+                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
+                              data-testid="button-list-your-business"
+                            >
+                              <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                              List Your Business
+                            </Button>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
@@ -428,14 +499,14 @@ export function NavigationMenu() {
                               </div>
                             </div>
                             
-                            {/* Right Column - Our Partners */}
+                            {/* Right Column - Startup & Working Capital */}
                             <div className="p-4">
                               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                                 <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <Handshake className="h-3 w-3 text-[#C8A661]" />
+                                  <PiggyBank className="h-3 w-3 text-[#C8A661]" />
                                 </div>
                                 <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Our Partners
+                                  Startup & Working Capital
                                 </span>
                               </div>
                               <div className="space-y-1">
@@ -453,7 +524,7 @@ export function NavigationMenu() {
                               className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
                               data-testid="link-compare-all-lenders"
                             >
-                              Compare All 7 Lenders
+                              Compare All Lenders
                               <ChevronRight className="w-4 h-4" />
                             </button>
                             <Button
