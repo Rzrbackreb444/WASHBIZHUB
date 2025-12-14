@@ -67,11 +67,12 @@ const RESOURCES_LINKS = [
 
 const FUNDING_LINKS = [
   { href: "/funding", label: "Funding Hub", icon: DollarSign, desc: "Compare all 7 lenders", featured: true },
-  { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, desc: "No business history required" },
-  { href: "/funding?tab=sba", label: "SBA Loans", icon: Briefcase, desc: "10-25 year terms" },
-  { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Same-day approval" },
-  { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Landmark, desc: "Up to 80% LTV" },
-  { href: "/funding?tab=fastcash", label: "Working Capital", icon: TrendingUp, desc: "Same-day funding" },
+  { href: "/funding/preferred-funding-group", label: "Preferred Funding Group", icon: CreditCard, desc: "Personal credit up to $500K" },
+  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "Business credit up to $250K" },
+  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA loans up to $5M" },
+  { href: "/funding/rok-financial", label: "ROK Financial", icon: Factory, desc: "75+ lender network" },
+  { href: "/funding/advance-funds-network", label: "Advance Funds Network", icon: TrendingUp, desc: "Same-day funding" },
+  { href: "/funding/david-allen-capital", label: "David Allen Capital", icon: PiggyBank, desc: "Revenue-based funding" },
 ];
 
 interface NavLinkItem {
