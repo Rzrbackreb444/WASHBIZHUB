@@ -1,9 +1,4 @@
-import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import * as ReactWindow from 'react-window';
-
-const FixedSizeGrid = (ReactWindow as any).FixedSizeGrid || (ReactWindow as any).default?.FixedSizeGrid;
-
-type GridChildComponentProps = { columnIndex: number; rowIndex: number; style: React.CSSProperties };
+import { useRef, useState, useEffect, memo } from 'react';
 
 interface VirtualizedGridProps<T> {
   items: T[];
@@ -29,63 +24,39 @@ function VirtualizedGridInner<T>({
   testIdPrefix = 'grid-item',
 }: VirtualizedGridProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, columns: 1 });
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 });
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container || items.length <= 50) return;
 
-    const updateDimensions = () => {
-      if (!containerRef.current) return;
-      const width = containerRef.current.offsetWidth;
-      const columns = Math.max(1, Math.floor((width + gap) / (minItemWidth + gap)));
-      setDimensions({ width, columns });
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop;
+      const viewportHeight = container.clientHeight;
+      const rowHeight = itemHeight + gap;
+      
+      const startRow = Math.floor(scrollTop / rowHeight);
+      const visibleRows = Math.ceil(viewportHeight / rowHeight);
+      const buffer = 5;
+      
+      const columnsPerRow = Math.max(1, Math.floor(container.clientWidth / (minItemWidth + gap)));
+      const startIndex = Math.max(0, (startRow - buffer) * columnsPerRow);
+      const endIndex = Math.min(items.length, (startRow + visibleRows + buffer) * columnsPerRow);
+      
+      setVisibleRange({ start: startIndex, end: endIndex });
     };
 
-    updateDimensions();
-
-    const resizeObserver = new ResizeObserver(updateDimensions);
-    resizeObserver.observe(containerRef.current);
-
-    return () => resizeObserver.disconnect();
-  }, [gap, minItemWidth]);
-
-  const { width, columns } = dimensions;
-  const columnWidth = columns > 0 ? (width - gap * (columns - 1)) / columns : width;
-  const rowCount = Math.ceil(items.length / columns);
-  const totalHeight = rowCount * (itemHeight + gap) - gap;
-  const actualHeight = Math.min(containerHeight, totalHeight + 20);
-
-  const Cell = useCallback(
-    ({ columnIndex, rowIndex, style }: GridChildComponentProps) => {
-      const index = rowIndex * columns + columnIndex;
-      if (index >= items.length) return null;
-
-      const adjustedStyle = {
-        ...style,
-        left: Number(style.left) + (columnIndex > 0 ? 0 : 0),
-        top: Number(style.top),
-        width: columnWidth,
-        height: itemHeight,
-        paddingRight: columnIndex < columns - 1 ? gap : 0,
-        paddingBottom: gap,
-      };
-
-      return (
-        <div style={adjustedStyle} data-testid={`${testIdPrefix}-${index}`}>
-          <div style={{ height: itemHeight }}>
-            {renderItem(items[index], index)}
-          </div>
-        </div>
-      );
-    },
-    [columns, columnWidth, items, itemHeight, gap, renderItem, testIdPrefix]
-  );
+    handleScroll();
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [items.length, itemHeight, gap, minItemWidth]);
 
   if (items.length === 0) {
     return emptyState || null;
   }
 
-  if (items.length < 50 || width === 0) {
+  // For smaller lists, render all items
+  if (items.length <= 50) {
     return (
       <div ref={containerRef} className={className}>
         <div 
@@ -104,21 +75,44 @@ function VirtualizedGridInner<T>({
     );
   }
 
+  // For larger lists, use windowing with CSS grid
+  const { start, end } = visibleRange;
+  const columnsPerRow = Math.max(1, Math.floor(800 / (minItemWidth + gap))); // Estimate
+  const totalRows = Math.ceil(items.length / columnsPerRow);
+  const totalHeight = totalRows * (itemHeight + gap);
+
   return (
-    <div ref={containerRef} className={className}>
-      {width > 0 && (
-        <FixedSizeGrid
-          columnCount={columns}
-          columnWidth={columnWidth + (columns > 1 ? gap / (columns - 1) * (columns - 1) / columns : 0)}
-          height={actualHeight}
-          rowCount={rowCount}
-          rowHeight={itemHeight + gap}
-          width={width}
-          overscanRowCount={2}
+    <div 
+      ref={containerRef} 
+      className={className}
+      style={{ 
+        height: containerHeight, 
+        overflowY: 'auto',
+        position: 'relative'
+      }}
+    >
+      <div style={{ height: totalHeight, position: 'relative' }}>
+        <div 
+          className="grid gap-4" 
+          style={{ 
+            gridTemplateColumns: `repeat(auto-fill, minmax(${minItemWidth}px, 1fr))`,
+            position: 'absolute',
+            top: Math.floor(start / columnsPerRow) * (itemHeight + gap),
+            left: 0,
+            right: 0
+          }}
         >
-          {Cell}
-        </FixedSizeGrid>
-      )}
+          {items.slice(start, end).map((item, idx) => (
+            <div 
+              key={start + idx} 
+              data-testid={`${testIdPrefix}-${start + idx}`}
+              style={{ height: itemHeight }}
+            >
+              {renderItem(item, start + idx)}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
