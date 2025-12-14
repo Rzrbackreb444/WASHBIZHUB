@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import heroImage from "@assets/AdobeStock_111864759_1765733151492.jpeg";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -888,8 +889,13 @@ export default function BuyLaundromat() {
       />
       
       <div className="min-h-screen bg-background">
-        <div className="bg-gradient-to-br from-[#0A1628] via-[#0A1628]/95 to-[#0A1628]/90 text-white py-10 md:py-14">
-          <div className="max-w-7xl mx-auto px-4">
+        <div className="relative text-white py-10 md:py-14">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
             <div className="text-center mb-6">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
