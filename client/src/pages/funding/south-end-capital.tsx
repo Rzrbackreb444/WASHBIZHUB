@@ -279,6 +279,9 @@ export default function SouthEndCapital() {
           </div>
 
           <div className="bg-gradient-to-r from-[#1e3a5f] to-[#1e3a5f]/90 text-white rounded-lg p-12 text-center">
+            <Badge className="bg-white/20 text-white mb-4">
+              <Shield className="w-3 h-3 mr-1" /> WashBizHub Verified Partner
+            </Badge>
             <h2 className="text-3xl font-bold mb-4">Ready to Apply for SBA Financing?</h2>
             <p className="mb-8 text-lg max-w-2xl mx-auto">
               Get pre-qualified today. Up to $5 million available with $0 guarantee fees on loans under $1M through 2025.
@@ -297,7 +300,7 @@ export default function SouthEndCapital() {
               </a>
             </div>
             <p className="mt-4 text-sm text-white/70">
-              Preferred SBA Lender. Story-based underwriting. Fast decisions.
+              Recommended by WashBizHub. Preferred SBA Lender. Story-based underwriting. Fast decisions.
             </p>
           </div>
 

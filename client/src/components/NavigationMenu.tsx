@@ -389,7 +389,7 @@ export function NavigationMenu() {
                     {/* Funding - 7 Lending Partners */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
+                        className="h-10 px-4 text-sm font-medium bg-transparent text-[#C8A661] hover:text-[#C8A661] hover:bg-[#C8A661]/10 data-[state=open]:bg-[#C8A661]/10 data-[state=open]:text-[#C8A661]"
                         data-testid="dropdown-funding"
                       >
                         Funding
@@ -399,14 +399,15 @@ export function NavigationMenu() {
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[380px] p-3 bg-popover rounded-xl shadow-xl border border-border"
+                          className="w-[380px] p-3 bg-popover rounded-xl shadow-xl border border-[#C8A661]/30"
                         >
-                          <div className="mb-2 pb-2 border-b border-border">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          <div className="mb-2 pb-2 border-b border-[#C8A661]/20">
+                            <span className="text-xs font-medium text-[#C8A661] uppercase tracking-wider flex items-center gap-1.5">
+                              <DollarSign className="w-3 h-3" />
                               7 Trusted Lending Partners
                             </span>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 border-l-2 border-[#C8A661]/30 pl-2 ml-1">
                             {FUNDING_LINKS.map((link) => (
                               <DropdownLink key={link.href} {...link} />
                             ))}
