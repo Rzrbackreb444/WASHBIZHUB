@@ -100,6 +100,47 @@ interface SoftwareApplicationData {
   reviewCount?: number;
 }
 
+interface VideoObjectData {
+  name: string;
+  description: string;
+  thumbnailUrl: string | string[];
+  uploadDate: string;
+  duration?: string;
+  contentUrl?: string;
+  embedUrl?: string;
+  interactionStatistic?: {
+    watchCount?: number;
+    likeCount?: number;
+    commentCount?: number;
+  };
+  hasPart?: Array<{
+    name: string;
+    startOffset: number;
+    endOffset?: number;
+    url?: string;
+  }>;
+}
+
+interface ToolApplicationData {
+  name: string;
+  description: string;
+  applicationCategory?: string;
+  applicationSubCategory?: string;
+  operatingSystem?: string;
+  browserRequirements?: string;
+  softwareVersion?: string;
+  featureList?: string[];
+  screenshot?: string | string[];
+  offers?: ProductOffer[];
+  ratingValue?: number;
+  reviewCount?: number;
+  isAccessibleForFree?: boolean;
+  creator?: {
+    name: string;
+    url?: string;
+  };
+}
+
 interface SEOProps {
   title: string;
   description: string;
@@ -124,6 +165,8 @@ interface SEOProps {
   aggregateRating?: AggregateRatingData;
   localBusiness?: LocalBusinessData;
   softwareApplication?: SoftwareApplicationData;
+  videoObject?: VideoObjectData;
+  toolApplication?: ToolApplicationData;
 }
 
 export function SEO({
@@ -150,6 +193,8 @@ export function SEO({
   aggregateRating,
   localBusiness,
   softwareApplication,
+  videoObject,
+  toolApplication,
 }: SEOProps) {
   const siteName = "WashBizHub";
   const fullTitle = title.includes('WashBizHub') ? title : `${title} | ${siteName} - #1 Laundromat Resource`;
@@ -388,6 +433,103 @@ export function SEO({
     })
   } : null;
 
+  // VideoObject structured data for video content and YouTube embeds
+  const videoObjectData = videoObject ? {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": videoObject.name,
+    "description": videoObject.description,
+    "thumbnailUrl": Array.isArray(videoObject.thumbnailUrl) ? videoObject.thumbnailUrl : [videoObject.thumbnailUrl],
+    "uploadDate": videoObject.uploadDate,
+    ...(videoObject.duration && { "duration": videoObject.duration }),
+    ...(videoObject.contentUrl && { "contentUrl": videoObject.contentUrl }),
+    ...(videoObject.embedUrl && { "embedUrl": videoObject.embedUrl }),
+    ...(videoObject.interactionStatistic && {
+      "interactionStatistic": [
+        ...(videoObject.interactionStatistic.watchCount ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "WatchAction" },
+          "userInteractionCount": videoObject.interactionStatistic.watchCount
+        }] : []),
+        ...(videoObject.interactionStatistic.likeCount ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": videoObject.interactionStatistic.likeCount
+        }] : []),
+        ...(videoObject.interactionStatistic.commentCount ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "CommentAction" },
+          "userInteractionCount": videoObject.interactionStatistic.commentCount
+        }] : [])
+      ]
+    }),
+    ...(videoObject.hasPart && videoObject.hasPart.length > 0 && {
+      "hasPart": videoObject.hasPart.map(part => ({
+        "@type": "Clip",
+        "name": part.name,
+        "startOffset": part.startOffset,
+        ...(part.endOffset && { "endOffset": part.endOffset }),
+        ...(part.url && { "url": part.url })
+      }))
+    }),
+    "publisher": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${baseUrl}/washbizhub-logo.png`
+      }
+    }
+  } : null;
+
+  // WebApplication/Tool structured data for calculators and interactive tools
+  const toolApplicationData = toolApplication ? {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": toolApplication.name,
+    "description": toolApplication.description,
+    "applicationCategory": toolApplication.applicationCategory || "FinanceApplication",
+    ...(toolApplication.applicationSubCategory && { "applicationSubCategory": toolApplication.applicationSubCategory }),
+    "operatingSystem": toolApplication.operatingSystem || "All",
+    "browserRequirements": toolApplication.browserRequirements || "Requires JavaScript",
+    ...(toolApplication.softwareVersion && { "softwareVersion": toolApplication.softwareVersion }),
+    "url": canonical,
+    ...(toolApplication.featureList && { "featureList": toolApplication.featureList }),
+    ...(toolApplication.screenshot && { 
+      "screenshot": Array.isArray(toolApplication.screenshot) ? toolApplication.screenshot : [toolApplication.screenshot] 
+    }),
+    ...(toolApplication.offers && toolApplication.offers.length > 0 && {
+      "offers": toolApplication.offers.map(offer => ({
+        "@type": "Offer",
+        "name": offer.name,
+        "description": offer.description,
+        "price": offer.price,
+        "priceCurrency": offer.priceCurrency || "USD",
+        "availability": `https://schema.org/${offer.availability || 'InStock'}`,
+        "url": canonical
+      }))
+    }),
+    ...(toolApplication.isAccessibleForFree !== undefined && { "isAccessibleForFree": toolApplication.isAccessibleForFree }),
+    ...(toolApplication.ratingValue && toolApplication.reviewCount && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": toolApplication.ratingValue.toString(),
+        "reviewCount": toolApplication.reviewCount.toString(),
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
+    "creator": toolApplication.creator ? {
+      "@type": "Organization",
+      "name": toolApplication.creator.name,
+      ...(toolApplication.creator.url && { "url": toolApplication.creator.url })
+    } : {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": baseUrl
+    }
+  } : null;
+
   return (
     <>
     <Helmet>
@@ -483,6 +625,16 @@ export function SEO({
       {softwareApplicationData && (
         <script type="application/ld+json">
           {JSON.stringify(sanitizeObject(softwareApplicationData))}
+        </script>
+      )}
+      {videoObjectData && (
+        <script type="application/ld+json">
+          {JSON.stringify(sanitizeObject(videoObjectData))}
+        </script>
+      )}
+      {toolApplicationData && (
+        <script type="application/ld+json">
+          {JSON.stringify(sanitizeObject(toolApplicationData))}
         </script>
       )}
     </Helmet>

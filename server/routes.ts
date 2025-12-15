@@ -456,6 +456,17 @@ async function applyTierBenefits(
   return result;
 }
 
+// Module-level Web Vitals store (persists across HMR/restarts within same process)
+const globalWebVitalsStore: Array<{
+  timestamp: Date;
+  url: string;
+  metric: string;
+  value: number;
+  rating: string;
+  userAgent?: string;
+  connection?: string;
+}> = [];
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== MULTI-TENANT MIDDLEWARE ====================
@@ -4135,6 +4146,152 @@ Create engaging, well-researched content that provides value to laundromat owner
       res.json(keyword);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ==================== WEB VITALS MONITORING ====================
+  
+  // Zod schema for Web Vitals validation
+  const webVitalsSchema = z.object({
+    name: z.enum(['CLS', 'LCP', 'FID', 'INP', 'FCP', 'TTFB']),
+    value: z.number().min(0).max(100000),
+    rating: z.enum(['good', 'needs-improvement', 'poor']).optional(),
+    id: z.string().optional(),
+    delta: z.number().optional(),
+    navigationType: z.string().optional(),
+    url: z.string().max(2048).optional(),
+    connection: z.string().max(50).optional(),
+  });
+
+  // Receive Web Vitals data from frontend
+  app.post("/api/seo/vitals", async (req, res) => {
+    try {
+      const validated = webVitalsSchema.parse(req.body);
+      const url = validated.url || req.headers.referer || "";
+      
+      const rating = validated.rating || (validated.name === 'CLS' ? (validated.value <= 0.1 ? 'good' : validated.value <= 0.25 ? 'needs-improvement' : 'poor') :
+                         validated.name === 'LCP' ? (validated.value <= 2500 ? 'good' : validated.value <= 4000 ? 'needs-improvement' : 'poor') :
+                         validated.name === 'FID' || validated.name === 'INP' ? (validated.value <= 200 ? 'good' : validated.value <= 500 ? 'needs-improvement' : 'poor') :
+                         validated.name === 'FCP' ? (validated.value <= 1800 ? 'good' : validated.value <= 3000 ? 'needs-improvement' : 'poor') :
+                         validated.name === 'TTFB' ? (validated.value <= 800 ? 'good' : validated.value <= 1800 ? 'needs-improvement' : 'poor') : 'unknown');
+
+      // Store in global module-level cache
+      globalWebVitalsStore.push({
+        timestamp: new Date(),
+        url: url.slice(0, 2048),
+        metric: validated.name,
+        value: Math.round(validated.value * 100) / 100,
+        rating,
+        userAgent: req.headers['user-agent']?.slice(0, 500),
+        connection: validated.connection,
+      });
+
+      // Keep only last 10000 entries to prevent memory overflow
+      if (globalWebVitalsStore.length > 10000) {
+        globalWebVitalsStore.splice(0, globalWebVitalsStore.length - 10000);
+      }
+
+      res.json({ success: true, received: { name: validated.name, value: validated.value, rating } });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get Web Vitals summary
+  app.get("/api/seo/vitals", async (req, res) => {
+    try {
+      const hours = parseInt(req.query.hours as string) || 24;
+      const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+      
+      const recentVitals = globalWebVitalsStore.filter(v => v.timestamp >= cutoff);
+      
+      // Calculate averages and percentiles for each metric
+      const metrics = ['CLS', 'LCP', 'FID', 'INP', 'FCP', 'TTFB'];
+      const summary: Record<string, {
+        count: number;
+        avg: number;
+        p75: number;
+        p95: number;
+        good: number;
+        needsImprovement: number;
+        poor: number;
+      }> = {};
+
+      for (const metric of metrics) {
+        const values = recentVitals
+          .filter(v => v.metric === metric)
+          .map(v => v.value)
+          .sort((a, b) => a - b);
+        
+        if (values.length > 0) {
+          const ratings = recentVitals.filter(v => v.metric === metric);
+          // Safe percentile calculation: Math.min ensures we never exceed array bounds
+          const p75Index = Math.min(Math.floor(values.length * 0.75), values.length - 1);
+          const p95Index = Math.min(Math.floor(values.length * 0.95), values.length - 1);
+          summary[metric] = {
+            count: values.length,
+            avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length * 100) / 100,
+            p75: values[p75Index] ?? 0,
+            p95: values[p95Index] ?? 0,
+            good: ratings.filter(r => r.rating === 'good').length,
+            needsImprovement: ratings.filter(r => r.rating === 'needs-improvement').length,
+            poor: ratings.filter(r => r.rating === 'poor').length,
+          };
+        }
+      }
+
+      // Calculate Core Web Vitals score (based on % of good ratings for CLS, LCP, INP)
+      const cwvMetrics = ['CLS', 'LCP', 'INP'];
+      let cwvGood = 0;
+      let cwvTotal = 0;
+      
+      for (const metric of cwvMetrics) {
+        if (summary[metric]) {
+          cwvGood += summary[metric].good;
+          cwvTotal += summary[metric].count;
+        }
+      }
+
+      const cwvScore = cwvTotal > 0 ? Math.round((cwvGood / cwvTotal) * 100) : null;
+
+      res.json({
+        period: `Last ${hours} hours`,
+        totalMeasurements: recentVitals.length,
+        coreWebVitalsScore: cwvScore,
+        metrics: summary,
+        thresholds: {
+          CLS: { good: 0.1, needsImprovement: 0.25 },
+          LCP: { good: 2500, needsImprovement: 4000 },
+          INP: { good: 200, needsImprovement: 500 },
+          FID: { good: 100, needsImprovement: 300 },
+          FCP: { good: 1800, needsImprovement: 3000 },
+          TTFB: { good: 800, needsImprovement: 1800 },
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get raw Web Vitals data for analysis
+  app.get("/api/seo/vitals/raw", requireAdmin, async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string) || 100, 1000);
+      const metric = req.query.metric as string;
+      const url = req.query.url as string;
+      
+      let filtered = [...globalWebVitalsStore].reverse();
+      
+      if (metric) {
+        filtered = filtered.filter(v => v.metric === metric);
+      }
+      if (url) {
+        filtered = filtered.filter(v => v.url.includes(url));
+      }
+      
+      res.json(filtered.slice(0, limit));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
     }
   });
 
