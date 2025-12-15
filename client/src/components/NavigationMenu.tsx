@@ -24,16 +24,56 @@ import {
 import logoUrl from "@assets/6_1764040628012.png";
 import { MobileMenu } from "@/components/MobileMenu";
 
+const PLATFORM_LAUNCH_ONLINE = {
+  title: "Launch Online",
+  subtitle: "Your digital presence, done right",
+  icon: Globe,
+  featured: { href: "/website-builder", label: "Website Builder", desc: "Build a professional site in minutes" },
+  links: [
+    { href: "/website-builder", label: "Website Builder", icon: Globe, desc: "Drag-and-drop site creator" },
+    { href: "/seo-command-center", label: "SEO Dashboard", icon: Search, desc: "Optimize for search engines" },
+  ],
+  hostingFeatures: [
+    "Managed CDN & Edge Caching",
+    "99.9% Uptime Monitoring",
+    "Real-time Visitor Analytics",
+    "Staging Environments",
+    "Multi-site Management"
+  ]
+};
+
+const PLATFORM_RUN_INSTORE = {
+  title: "Run In-Store",
+  subtitle: "Everything to run your operation",
+  icon: Monitor,
+  featured: { href: "/pos-command-center", label: "POS Command Center", desc: "Complete point-of-sale system" },
+  links: [
+    { href: "/pos-command-center", label: "POS System", icon: Monitor, desc: "Sales, customers & transactions" },
+    { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutGrid, desc: "KPIs & daily operations" },
+    { href: "/machine-booking", label: "Machine Booking", icon: Calendar, desc: "Online reservations" },
+    { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "2D/3D floor planning" },
+    { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Equipment diagnostics" },
+  ]
+};
+
+const PLATFORM_GROW_TRAFFIC = {
+  title: "Grow Traffic",
+  subtitle: "Get found by more customers",
+  icon: TrendingUp,
+  featured: { href: "/seo-command-center", label: "SEO Command Center", desc: "All-in-one SEO optimization" },
+  links: [
+    { href: "/seo-command-center", label: "SEO Auto-Fix Engine", icon: Zap, desc: "1-click issue resolution" },
+    { href: "/seo-command-center?tab=rankings", label: "Rank Tracking", icon: LineChart, desc: "Daily position monitoring" },
+    { href: "/seo-command-center?tab=citations", label: "Local Citations", icon: MapPin, desc: "Build local presence" },
+    { href: "/seo-command-center?tab=backlinks", label: "Backlink Builder", icon: Users, desc: "Authority & outreach" },
+    { href: "/seo-command-center?tab=llm", label: "AI Visibility", icon: Sparkles, desc: "Track ChatGPT, Gemini mentions" },
+  ],
+  stat: { value: "219", label: "fixes automated this week" }
+};
+
 const PRODUCTS_INTELLIGENCE = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "AI-powered location scoring", featured: true },
   { href: "/command-center", label: "Command Center", icon: LayoutGrid, desc: "Customizable dashboard", featured: true },
-];
-
-const PRODUCTS_OPERATIONS = [
-  { href: "/website-builder", label: "Website Builder", icon: Globe, desc: "Build your business website", featured: true },
-  { href: "/pos-command-center", label: "POS System", icon: Monitor, desc: "Point-of-sale management" },
-  { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "2D/3D store layout planning" },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Expert repair diagnostics" },
 ];
 
 const CALCULATORS_LINKS = [
@@ -240,54 +280,103 @@ export function NavigationMenu() {
               <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
                 <NavMenu>
                   <NavigationMenuList className="gap-0">
-                    {/* Products */}
+                    {/* Platform - 3-Pillar Mega Menu */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
-                        data-testid="dropdown-products"
+                        data-testid="dropdown-platform"
                       >
-                        Products
+                        Platform
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="w-[560px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
+                          className="w-[780px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          {/* 2-Column Layout */}
-                          <div className="grid grid-cols-2 gap-0">
-                            {/* Left Column - Intelligence */}
+                          {/* Hero Row */}
+                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-5 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                                <Zap className="h-4 w-4 text-[#C8A661]" />
+                              </div>
+                              <div>
+                                <p className="text-white font-semibold text-sm">The Complete Laundromat Platform</p>
+                                <p className="text-white/60 text-xs">Website, POS, SEO & Hosting - all in one place</p>
+                              </div>
+                            </div>
+                            <span className="bg-[#C8A661] text-[#0A1628] text-[10px] font-bold px-2 py-1 rounded-full uppercase">
+                              All-in-One
+                            </span>
+                          </div>
+
+                          {/* 3-Column Layout */}
+                          <div className="grid grid-cols-3 gap-0">
+                            {/* Column 1 - Launch Online */}
                             <div className="p-4 border-r border-border">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <MapPin className="h-3 w-3 text-[#C8A661]" />
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="h-6 w-6 rounded bg-[#C8A661]/15 flex items-center justify-center">
+                                  <Globe className="h-3 w-3 text-[#C8A661]" />
                                 </div>
-                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Intelligence
+                                <span className="text-xs font-bold text-[#C8A661] uppercase tracking-wider">
+                                  Launch Online
                                 </span>
                               </div>
+                              <p className="text-[10px] text-muted-foreground mb-3">Your digital presence, done right</p>
+                              <div className="space-y-1 mb-3">
+                                {PLATFORM_LAUNCH_ONLINE.links.map((link) => (
+                                  <DropdownLink key={link.href} {...link} />
+                                ))}
+                              </div>
+                              <div className="bg-muted/50 rounded-lg p-2.5 space-y-1">
+                                <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1.5">Includes Hosting</p>
+                                {PLATFORM_LAUNCH_ONLINE.hostingFeatures.map((feature, i) => (
+                                  <div key={i} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                    <div className="h-1 w-1 rounded-full bg-[#C8A661]" />
+                                    {feature}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Column 2 - Run In-Store */}
+                            <div className="p-4 border-r border-border">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
+                                  <Monitor className="h-3 w-3 text-[#C8A661]" />
+                                </div>
+                                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
+                                  Run In-Store
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mb-3">Everything to run your operation</p>
                               <div className="space-y-1">
-                                {PRODUCTS_INTELLIGENCE.map((link) => (
+                                {PLATFORM_RUN_INSTORE.links.map((link) => (
                                   <DropdownLink key={link.href} {...link} />
                                 ))}
                               </div>
                             </div>
                             
-                            {/* Right Column - Operations */}
+                            {/* Column 3 - Grow Traffic */}
                             <div className="p-4">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <Monitor className="h-3 w-3 text-[#C8A661]" />
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="h-6 w-6 rounded bg-green-500/15 flex items-center justify-center">
+                                  <TrendingUp className="h-3 w-3 text-green-500" />
                                 </div>
-                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Operations
+                                <span className="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">
+                                  Grow Traffic
                                 </span>
                               </div>
-                              <div className="space-y-1">
-                                {PRODUCTS_OPERATIONS.map((link) => (
+                              <p className="text-[10px] text-muted-foreground mb-3">Get found by more customers</p>
+                              <div className="space-y-1 mb-3">
+                                {PLATFORM_GROW_TRAFFIC.links.map((link) => (
                                   <DropdownLink key={link.href} {...link} />
                                 ))}
+                              </div>
+                              <div className="bg-green-500/10 rounded-lg p-2.5 flex items-center gap-2">
+                                <span className="text-lg font-bold text-green-600 dark:text-green-400">{PLATFORM_GROW_TRAFFIC.stat.value}</span>
+                                <span className="text-[10px] text-green-600/80 dark:text-green-400/80">{PLATFORM_GROW_TRAFFIC.stat.label}</span>
                               </div>
                             </div>
                           </div>
@@ -295,22 +384,33 @@ export function NavigationMenu() {
                           {/* Bottom CTA Bar */}
                           <div className="bg-muted/50 border-t border-border px-4 py-3 flex items-center justify-between">
                             <button
-                              onClick={() => window.location.href = '/products'}
+                              onClick={() => window.location.href = '/cleanbi-explorer'}
                               className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
-                              data-testid="link-view-all-features"
+                              data-testid="link-explore-cleanbi"
                             >
-                              View All Features
+                              Explore CLEANBI Intelligence
                               <ChevronRight className="w-4 h-4" />
                             </button>
-                            <Button
-                              size="sm"
-                              onClick={() => window.location.href = '/pricing'}
-                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
-                              data-testid="button-upgrade-products"
-                            >
-                              <Crown className="w-3.5 h-3.5 mr-1.5" />
-                              Upgrade
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => window.location.href = '/demo'}
+                                className="h-8"
+                                data-testid="button-book-demo"
+                              >
+                                Book Demo
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => window.location.href = '/pricing'}
+                                className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
+                                data-testid="button-view-pricing"
+                              >
+                                <Crown className="w-3.5 h-3.5 mr-1.5" />
+                                View Pricing
+                              </Button>
+                            </div>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
