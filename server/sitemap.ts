@@ -557,7 +557,6 @@ ${errorCodeUrls.map(url => `  <url>
         resourceType: resources.resourceType,
         createdAt: resources.createdAt,
       }).from(resources)
-        .where(eq(resources.published, true))
         .orderBy(desc(resources.createdAt));
 
       const resourceDetailUrls = allResources.map(resource => {
