@@ -38,16 +38,22 @@ interface MenuSection {
 
 const mobilePillars: MenuSection[] = [
   {
-    id: "products",
-    title: "Products",
-    icon: MapPin,
+    id: "platform",
+    title: "Platform",
+    icon: Zap,
     items: [
-      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, featured: true, description: "Location scoring" },
-      { href: "/command-center", label: "Command Center", icon: LayoutGrid, featured: true, description: "Custom dashboard" },
+      // Launch Online
       { href: "/website-builder", label: "Website Builder", icon: Store, featured: true, description: "Build your site" },
-      { href: "/pos-command-center", label: "POS System", icon: Smartphone, description: "Point of sale" },
+      { href: "/seo-command-center", label: "SEO Dashboard", icon: TrendingUp, description: "Search optimization" },
+      // Run In-Store
+      { href: "/pos-command-center", label: "POS System", icon: Smartphone, featured: true, description: "Point of sale" },
+      { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, description: "KPIs & operations" },
+      { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
       { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "2D/3D planning" },
       { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "Expert diagnostics" },
+      // Grow Traffic
+      { href: "/seo-command-center?tab=rankings", label: "Rank Tracking", icon: LineChart, description: "Position monitoring" },
+      { href: "/seo-command-center?tab=citations", label: "Local Citations", icon: MapPin, description: "Local presence" },
     ]
   },
   {
