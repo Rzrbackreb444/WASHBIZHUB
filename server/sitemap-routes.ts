@@ -18,6 +18,50 @@ const US_STATES = [
   "wisconsin", "wyoming"
 ];
 
+// Major metro areas for city landing pages
+const MAJOR_METROS = [
+  { city: "los-angeles", state: "california" },
+  { city: "new-york-city", state: "new-york" },
+  { city: "chicago", state: "illinois" },
+  { city: "houston", state: "texas" },
+  { city: "phoenix", state: "arizona" },
+  { city: "philadelphia", state: "pennsylvania" },
+  { city: "san-antonio", state: "texas" },
+  { city: "san-diego", state: "california" },
+  { city: "dallas", state: "texas" },
+  { city: "san-jose", state: "california" },
+  { city: "austin", state: "texas" },
+  { city: "jacksonville", state: "florida" },
+  { city: "fort-worth", state: "texas" },
+  { city: "columbus", state: "ohio" },
+  { city: "charlotte", state: "north-carolina" },
+  { city: "san-francisco", state: "california" },
+  { city: "indianapolis", state: "indiana" },
+  { city: "seattle", state: "washington" },
+  { city: "denver", state: "colorado" },
+  { city: "boston", state: "massachusetts" },
+  { city: "el-paso", state: "texas" },
+  { city: "detroit", state: "michigan" },
+  { city: "nashville", state: "tennessee" },
+  { city: "portland", state: "oregon" },
+  { city: "memphis", state: "tennessee" },
+  { city: "oklahoma-city", state: "oklahoma" },
+  { city: "las-vegas", state: "nevada" },
+  { city: "louisville", state: "kentucky" },
+  { city: "baltimore", state: "maryland" },
+  { city: "milwaukee", state: "wisconsin" },
+  { city: "albuquerque", state: "new-mexico" },
+  { city: "tucson", state: "arizona" },
+  { city: "fresno", state: "california" },
+  { city: "sacramento", state: "california" },
+  { city: "atlanta", state: "georgia" },
+  { city: "miami", state: "florida" },
+  { city: "tampa", state: "florida" },
+  { city: "orlando", state: "florida" },
+  { city: "pittsburgh", state: "pennsylvania" },
+  { city: "cleveland", state: "ohio" },
+];
+
 function getBaseUrl(req: Request): string {
   const host = req.get('host') || '';
   if (host.includes('washbizhub.xyz')) {
@@ -303,7 +347,8 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: ${BASE_URL}/sitemap.xml
+Sitemap: ${DEFAULT_BASE_URL}/sitemap-index.xml
+Sitemap: ${DEFAULT_BASE_URL}/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /admin/
@@ -345,13 +390,35 @@ Crawl-delay: 1
     res.send(robotsTxt);
   });
 
+  // New sitemap-index.xml that references all individual sitemaps
   app.get("/sitemap-index.xml", async (req, res) => {
+    const BASE_URL = getBaseUrl(req);
     const today = formatDate(new Date());
     
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>${BASE_URL}/sitemap.xml</loc>
+    <loc>${BASE_URL}/sitemap-static.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${BASE_URL}/sitemap-blog.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${BASE_URL}/sitemap-listings.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${BASE_URL}/sitemap-error-codes.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${BASE_URL}/sitemap-locations.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${BASE_URL}/sitemap-community.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
 </sitemapindex>`;
@@ -361,5 +428,279 @@ Crawl-delay: 1
     res.send(xml);
   });
 
-  console.log("✅ Sitemap routes registered");
+  // Sitemap for static pages (high-priority core pages)
+  app.get("/sitemap-static.xml", async (req, res) => {
+    const BASE_URL = getBaseUrl(req);
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+    for (const page of staticPages) {
+      xml += `  <url>
+    <loc>${BASE_URL}${escapeXml(page.url)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>
+`;
+    }
+    xml += `</urlset>`;
+    
+    res.header("Content-Type", "application/xml");
+    res.header("Cache-Control", "public, max-age=3600");
+    res.send(xml);
+  });
+
+  // Sitemap for blog posts
+  app.get("/sitemap-blog.xml", async (req, res) => {
+    try {
+      const BASE_URL = getBaseUrl(req);
+      
+      const blogs = await db.select({ slug: blogPosts.slug, updatedAt: blogPosts.updatedAt })
+        .from(blogPosts)
+        .where(eq(blogPosts.status, "published"))
+        .orderBy(desc(blogPosts.createdAt))
+        .limit(1000);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/blog</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+      for (const post of blogs) {
+        xml += `  <url>
+    <loc>${BASE_URL}/blog/${escapeXml(post.slug)}</loc>
+    <lastmod>${formatDate(post.updatedAt)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+      }
+      xml += `</urlset>`;
+      
+      res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (error) {
+      console.error("Blog sitemap error:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  // Sitemap for laundromat listings
+  app.get("/sitemap-listings.xml", async (req, res) => {
+    try {
+      const BASE_URL = getBaseUrl(req);
+      
+      const [allListings, allCourses, brokerUsers] = await Promise.all([
+        db.select({ id: listings.id, updatedAt: listings.updatedAt })
+          .from(listings)
+          .where(eq(listings.status, "active"))
+          .orderBy(desc(listings.createdAt))
+          .limit(1000),
+        db.select({ id: courses.id, updatedAt: courses.updatedAt })
+          .from(courses)
+          .where(eq(courses.isPublished, true))
+          .limit(200),
+        db.select({ id: users.id, updatedAt: users.updatedAt })
+          .from(users)
+          .where(eq(users.role, "broker"))
+          .limit(200),
+      ]);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/laundromat-listings</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/marketplace</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/brokers</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+      for (const listing of allListings) {
+        xml += `  <url>
+    <loc>${BASE_URL}/laundromat-listings/${escapeXml(listing.id)}</loc>
+    <lastmod>${formatDate(listing.updatedAt)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+      }
+      for (const course of allCourses) {
+        xml += `  <url>
+    <loc>${BASE_URL}/courses/${escapeXml(course.id)}</loc>
+    <lastmod>${formatDate(course.updatedAt)}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+      }
+      for (const broker of brokerUsers) {
+        xml += `  <url>
+    <loc>${BASE_URL}/broker/${escapeXml(broker.id)}</loc>
+    <lastmod>${formatDate(broker.updatedAt)}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+      }
+      xml += `</urlset>`;
+      
+      res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (error) {
+      console.error("Listings sitemap error:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  // Sitemap for error codes (programmatic SEO - can be large)
+  app.get("/sitemap-error-codes.xml", async (req, res) => {
+    try {
+      const BASE_URL = getBaseUrl(req);
+      
+      const errorCodes = await db.select({ slug: diagnosticCodes.slug })
+        .from(diagnosticCodes)
+        .limit(5000);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/error-codes</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+      for (const code of errorCodes) {
+        if (code.slug) {
+          xml += `  <url>
+    <loc>${BASE_URL}/error-codes/${escapeXml(code.slug)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+`;
+        }
+      }
+      xml += `</urlset>`;
+      
+      res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (error) {
+      console.error("Error codes sitemap error:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  // Sitemap for location pages (states + metros - programmatic SEO)
+  app.get("/sitemap-locations.xml", async (req, res) => {
+    const BASE_URL = getBaseUrl(req);
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/laundromats-for-sale</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+`;
+    // State landing pages
+    for (const state of US_STATES) {
+      xml += `  <url>
+    <loc>${BASE_URL}/laundromats-for-sale/${escapeXml(state)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+    }
+    // Metro/city landing pages
+    for (const metro of MAJOR_METROS) {
+      xml += `  <url>
+    <loc>${BASE_URL}/laundromats-for-sale/${escapeXml(metro.state)}/${escapeXml(metro.city)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+`;
+    }
+    xml += `</urlset>`;
+    
+    res.header("Content-Type", "application/xml");
+    res.header("Cache-Control", "public, max-age=3600");
+    res.send(xml);
+  });
+
+  // Sitemap for community content (forum, courses)
+  app.get("/sitemap-community.xml", async (req, res) => {
+    try {
+      const BASE_URL = getBaseUrl(req);
+      
+      const topics = await db.select({ id: forumTopics.id, updatedAt: forumTopics.updatedAt })
+        .from(forumTopics)
+        .orderBy(desc(forumTopics.createdAt))
+        .limit(500);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${BASE_URL}/forum</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/courses</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${BASE_URL}/academy</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+`;
+      for (const topic of topics) {
+        xml += `  <url>
+    <loc>${BASE_URL}/forum/topic/${escapeXml(topic.id)}</loc>
+    <lastmod>${formatDate(topic.updatedAt)}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+      xml += `</urlset>`;
+      
+      res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=3600");
+      res.send(xml);
+    } catch (error) {
+      console.error("Community sitemap error:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
+  console.log("✅ Sitemap routes registered (6 sitemaps + index)");
 }

@@ -95,6 +95,10 @@ import {
   triggerResourceIndexing,
   getIndexingLog 
 } from "./content-indexing-hooks";
+import { 
+  getIndexingHealth, 
+  triggerImmediateBackfill 
+} from "./indexing-scheduler";
 import { generateBlogWithMultiAI, generateBlogsInBatch } from "./ai-blog-generator";
 import { optimizeBlogForSEO } from "./seo-optimizer";
 import { 
@@ -14139,6 +14143,45 @@ IMPORTANT DISCLAIMER TO INCLUDE:
       });
     } catch (error: any) {
       console.error("Failed to get indexing log:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // GET /api/admin/indexing-health - Get indexing scheduler health metrics
+  app.get("/api/admin/indexing-health", requireAdmin, async (req: any, res) => {
+    try {
+      const health = getIndexingHealth();
+      
+      res.json({
+        success: true,
+        health: {
+          ...health,
+          lastBackfillTime: health.lastBackfillTime?.toISOString() || null,
+          lastQueueProcessTime: health.lastQueueProcessTime?.toISOString() || null,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("Failed to get indexing health:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
+  // POST /api/admin/indexing-backfill - Trigger immediate sitemap backfill
+  app.post("/api/admin/indexing-backfill", requireAdmin, async (req: any, res) => {
+    try {
+      console.log("\n⚡ [ADMIN] Triggering immediate sitemap backfill...\n");
+      const result = await triggerImmediateBackfill();
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error("Failed to trigger backfill:", error);
       res.status(500).json({ 
         success: false,
         error: error.message 
