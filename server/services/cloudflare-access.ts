@@ -75,10 +75,14 @@ export class CloudflareAccessService {
     if (!this.isConfigured()) {
       throw new Error('Cloudflare Access is not configured');
     }
-    // Use full app URL for redirect so Cloudflare returns to the correct domain
-    const baseUrl = appUrl || (process.env.REPLIT_DEV_DOMAIN 
+    // For production, prefer APP_URL. Fall back to dev domain for development.
+    const baseUrl = appUrl || process.env.APP_URL || (process.env.REPLIT_DEV_DOMAIN 
       ? `https://${process.env.REPLIT_DEV_DOMAIN}`
-      : (process.env.APP_URL || ''));
+      : '');
+    
+    if (!baseUrl) {
+      throw new Error('No base URL configured. Set APP_URL for production.');
+    }
     
     // Redirect to callback endpoint which will set up session, then redirect to final destination
     const callbackUrl = `${baseUrl}/api/auth/cloudflare/callback?state=${encodeURIComponent(redirectPath)}`;
