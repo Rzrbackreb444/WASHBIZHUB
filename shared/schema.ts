@@ -16992,5 +16992,591 @@ export const visionDiagnosticResultSchema = z.object({
 export type VisionDiagnosticResult = z.infer<typeof visionDiagnosticResultSchema>;
 
 // ============================================================================
+// ADVANCED SEO SUITE - Beat SearchAtlas, Semrush, Ahrefs
+// ============================================================================
+
+// LLM Visibility Tracking - Track AI mentions in ChatGPT, Perplexity, Gemini, Claude
+export const llmVisibilityTracking = pgTable("llm_visibility_tracking", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  domain: text("domain").notNull(),
+  
+  // AI Platform tracking
+  platform: text("platform").notNull(), // "chatgpt", "perplexity", "gemini", "claude", "copilot"
+  query: text("query").notNull(), // The query used to test
+  mentioned: boolean("mentioned").default(false), // Was the domain mentioned?
+  mentionContext: text("mention_context"), // Context of the mention
+  mentionRank: integer("mention_rank"), // Position in AI response (1st, 2nd, etc.)
+  recommendedAs: text("recommended_as"), // How it was recommended
+  competitorsMentioned: jsonb("competitors_mentioned").$type<string[]>(), // Other brands mentioned
+  
+  // Sentiment and quality
+  sentiment: text("sentiment"), // "positive", "neutral", "negative"
+  confidenceScore: integer("confidence_score"), // 0-100
+  responseSnippet: text("response_snippet"), // Actual AI response excerpt
+  
+  // Tracking metadata
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("llm_visibility_project_idx").on(table.projectId),
+  platformIdx: index("llm_visibility_platform_idx").on(table.platform),
+  domainIdx: index("llm_visibility_domain_idx").on(table.domain),
+  checkedAtIdx: index("llm_visibility_checked_at_idx").on(table.checkedAt),
+}));
+
+export const insertLlmVisibilityTrackingSchema = createInsertSchema(llmVisibilityTracking).omit({
+  id: true,
+  createdAt: true,
+  checkedAt: true,
+});
+
+export type InsertLlmVisibilityTracking = z.infer<typeof insertLlmVisibilityTrackingSchema>;
+export type LlmVisibilityTracking = typeof llmVisibilityTracking.$inferSelect;
+
+// Daily Rank Tracking - Historical keyword rankings
+export const rankHistory = pgTable("rank_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  keyword: text("keyword").notNull(),
+  domain: text("domain").notNull(),
+  
+  // Ranking data
+  position: integer("position"), // Current position (null if not ranked)
+  previousPosition: integer("previous_position"),
+  positionChange: integer("position_change"), // +/- movement
+  searchVolume: integer("search_volume"),
+  difficulty: integer("difficulty"), // 0-100
+  cpc: decimal("cpc", { precision: 8, scale: 2 }),
+  
+  // SERP features
+  serpFeatures: jsonb("serp_features").$type<string[]>(), // "featured_snippet", "local_pack", "images", etc.
+  ownsFeaturedSnippet: boolean("owns_featured_snippet").default(false),
+  localPackRank: integer("local_pack_rank"),
+  
+  // URL and page data
+  rankingUrl: text("ranking_url"),
+  searchEngine: text("search_engine").default("google"), // "google", "bing", "yahoo"
+  country: text("country").default("US"),
+  device: text("device").default("desktop"), // "desktop", "mobile"
+  
+  // Timestamps
+  trackedAt: timestamp("tracked_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("rank_history_project_idx").on(table.projectId),
+  keywordIdx: index("rank_history_keyword_idx").on(table.keyword),
+  trackedAtIdx: index("rank_history_tracked_at_idx").on(table.trackedAt),
+}));
+
+export const insertRankHistorySchema = createInsertSchema(rankHistory).omit({
+  id: true,
+  createdAt: true,
+  trackedAt: true,
+});
+
+export type InsertRankHistory = z.infer<typeof insertRankHistorySchema>;
+export type RankHistory = typeof rankHistory.$inferSelect;
+
+// Local Citation Management
+export const localCitations = pgTable("local_citations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Business info
+  businessName: text("business_name").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  phone: text("phone"),
+  website: text("website"),
+  
+  // Citation details
+  platform: text("platform").notNull(), // "google_business", "yelp", "facebook", "yellowpages", etc.
+  platformUrl: text("platform_url"), // URL of the citation
+  status: text("status").default("pending"), // "pending", "submitted", "live", "needs_update", "rejected"
+  
+  // NAP Consistency (Name, Address, Phone)
+  napConsistent: boolean("nap_consistent").default(true),
+  inconsistencies: jsonb("inconsistencies").$type<string[]>(),
+  
+  // Quality metrics
+  domainAuthority: integer("domain_authority"), // 0-100
+  citationScore: integer("citation_score"), // 0-100
+  
+  // Tracking
+  lastVerified: timestamp("last_verified"),
+  submittedAt: timestamp("submitted_at"),
+  liveAt: timestamp("live_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("local_citations_project_idx").on(table.projectId),
+  platformIdx: index("local_citations_platform_idx").on(table.platform),
+  statusIdx: index("local_citations_status_idx").on(table.status),
+}));
+
+export const insertLocalCitationSchema = createInsertSchema(localCitations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLocalCitation = z.infer<typeof insertLocalCitationSchema>;
+export type LocalCitation = typeof localCitations.$inferSelect;
+
+// SEO Auto-Fix Actions - 1-click automatic fix execution
+export const seoAutoFixes = pgTable("seo_auto_fixes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  auditId: varchar("audit_id"),
+  
+  // Fix details
+  fixType: text("fix_type").notNull(), // "meta_title", "meta_description", "alt_tag", "heading", "schema", "canonical", etc.
+  issueDescription: text("issue_description").notNull(),
+  targetElement: text("target_element"), // CSS selector or page path
+  targetPage: text("target_page"),
+  
+  // Before/After
+  originalValue: text("original_value"),
+  suggestedValue: text("suggested_value"),
+  appliedValue: text("applied_value"),
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "approved", "applied", "reverted", "failed"
+  priority: text("priority").default("medium"), // "critical", "high", "medium", "low"
+  impact: text("impact"), // "high", "medium", "low"
+  estimatedSeoGain: integer("estimated_seo_gain"), // Points gained (0-10)
+  
+  // Execution
+  autoApply: boolean("auto_apply").default(false),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  approvedAt: timestamp("approved_at"),
+  appliedAt: timestamp("applied_at"),
+  revertedAt: timestamp("reverted_at"),
+  errorMessage: text("error_message"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("seo_auto_fixes_project_idx").on(table.projectId),
+  statusIdx: index("seo_auto_fixes_status_idx").on(table.status),
+  priorityIdx: index("seo_auto_fixes_priority_idx").on(table.priority),
+}));
+
+export const insertSeoAutoFixSchema = createInsertSchema(seoAutoFixes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSeoAutoFix = z.infer<typeof insertSeoAutoFixSchema>;
+export type SeoAutoFix = typeof seoAutoFixes.$inferSelect;
+
+// Google Search Console Integration
+export const searchConsoleData = pgTable("search_console_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  siteUrl: text("site_url").notNull(),
+  
+  // Query performance
+  query: text("query"),
+  page: text("page"),
+  country: text("country"),
+  device: text("device"),
+  
+  // Metrics
+  clicks: integer("clicks").default(0),
+  impressions: integer("impressions").default(0),
+  ctr: decimal("ctr", { precision: 6, scale: 4 }), // Click-through rate
+  position: decimal("position", { precision: 6, scale: 2 }), // Average position
+  
+  // Index status
+  indexStatus: text("index_status"), // "indexed", "not_indexed", "blocked", "error"
+  indexIssues: jsonb("index_issues").$type<string[]>(),
+  
+  // Date tracking
+  dataDate: timestamp("data_date").notNull(),
+  fetchedAt: timestamp("fetched_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("search_console_project_idx").on(table.projectId),
+  siteUrlIdx: index("search_console_site_url_idx").on(table.siteUrl),
+  dataDateIdx: index("search_console_data_date_idx").on(table.dataDate),
+}));
+
+export const insertSearchConsoleDataSchema = createInsertSchema(searchConsoleData).omit({
+  id: true,
+  createdAt: true,
+  fetchedAt: true,
+});
+
+export type InsertSearchConsoleData = z.infer<typeof insertSearchConsoleDataSchema>;
+export type SearchConsoleData = typeof searchConsoleData.$inferSelect;
+
+// ============================================================================
+// ADVANCED HOSTING SUITE - White-Label SaaS Platform
+// ============================================================================
+
+// Uptime Monitoring
+export const uptimeMonitoring = pgTable("uptime_monitoring", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id),
+  domain: text("domain").notNull(),
+  
+  // Check configuration
+  checkUrl: text("check_url").notNull(),
+  checkType: text("check_type").default("http"), // "http", "https", "tcp", "ping"
+  checkInterval: integer("check_interval").default(60), // seconds
+  timeout: integer("timeout").default(30), // seconds
+  
+  // Current status
+  status: text("status").default("unknown"), // "up", "down", "degraded", "unknown"
+  lastStatusChange: timestamp("last_status_change"),
+  responseTime: integer("response_time"), // milliseconds
+  statusCode: integer("status_code"),
+  
+  // Uptime stats
+  uptime24h: decimal("uptime_24h", { precision: 5, scale: 2 }), // percentage
+  uptime7d: decimal("uptime_7d", { precision: 5, scale: 2 }),
+  uptime30d: decimal("uptime_30d", { precision: 5, scale: 2 }),
+  totalDowntimeMinutes: integer("total_downtime_minutes").default(0),
+  
+  // Alerting
+  alertsEnabled: boolean("alerts_enabled").default(true),
+  alertEmails: jsonb("alert_emails").$type<string[]>(),
+  alertSms: jsonb("alert_sms").$type<string[]>(),
+  alertWebhook: text("alert_webhook"),
+  
+  // SSL monitoring
+  sslExpiry: timestamp("ssl_expiry"),
+  sslDaysRemaining: integer("ssl_days_remaining"),
+  sslAlertSent: boolean("ssl_alert_sent").default(false),
+  
+  lastChecked: timestamp("last_checked"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  websiteIdx: index("uptime_monitoring_website_idx").on(table.websiteId),
+  statusIdx: index("uptime_monitoring_status_idx").on(table.status),
+  domainIdx: index("uptime_monitoring_domain_idx").on(table.domain),
+}));
+
+export const insertUptimeMonitoringSchema = createInsertSchema(uptimeMonitoring).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertUptimeMonitoring = z.infer<typeof insertUptimeMonitoringSchema>;
+export type UptimeMonitoring = typeof uptimeMonitoring.$inferSelect;
+
+// Uptime Check History
+export const uptimeCheckHistory = pgTable("uptime_check_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  monitorId: varchar("monitor_id").references(() => uptimeMonitoring.id, { onDelete: "cascade" }).notNull(),
+  
+  status: text("status").notNull(), // "up", "down", "degraded", "timeout"
+  responseTime: integer("response_time"), // milliseconds
+  statusCode: integer("status_code"),
+  errorMessage: text("error_message"),
+  
+  checkedAt: timestamp("checked_at").defaultNow().notNull(),
+}, (table) => ({
+  monitorIdx: index("uptime_check_history_monitor_idx").on(table.monitorId),
+  checkedAtIdx: index("uptime_check_history_checked_at_idx").on(table.checkedAt),
+}));
+
+export const insertUptimeCheckHistorySchema = createInsertSchema(uptimeCheckHistory).omit({
+  id: true,
+  checkedAt: true,
+});
+
+export type InsertUptimeCheckHistory = z.infer<typeof insertUptimeCheckHistorySchema>;
+export type UptimeCheckHistory = typeof uptimeCheckHistory.$inferSelect;
+
+// Visitor Analytics
+export const visitorAnalytics = pgTable("visitor_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Date aggregation
+  date: timestamp("date").notNull(),
+  hour: integer("hour"), // 0-23 for hourly breakdown
+  
+  // Traffic metrics
+  pageviews: integer("pageviews").default(0),
+  uniqueVisitors: integer("unique_visitors").default(0),
+  sessions: integer("sessions").default(0),
+  avgSessionDuration: integer("avg_session_duration"), // seconds
+  bounceRate: decimal("bounce_rate", { precision: 5, scale: 2 }),
+  
+  // Traffic sources
+  trafficSources: jsonb("traffic_sources"), // { direct: 100, organic: 50, referral: 30 }
+  topReferrers: jsonb("top_referrers").$type<Array<{domain: string, visits: number}>>(),
+  
+  // Geographic data
+  topCountries: jsonb("top_countries").$type<Array<{country: string, visits: number}>>(),
+  topCities: jsonb("top_cities").$type<Array<{city: string, visits: number}>>(),
+  
+  // Device/browser breakdown
+  deviceBreakdown: jsonb("device_breakdown"), // { desktop: 60, mobile: 35, tablet: 5 }
+  browserBreakdown: jsonb("browser_breakdown"), // { chrome: 50, safari: 30, firefox: 10 }
+  
+  // Top pages
+  topPages: jsonb("top_pages").$type<Array<{path: string, views: number}>>(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  websiteIdx: index("visitor_analytics_website_idx").on(table.websiteId),
+  dateIdx: index("visitor_analytics_date_idx").on(table.date),
+}));
+
+export const insertVisitorAnalyticsSchema = createInsertSchema(visitorAnalytics).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVisitorAnalytics = z.infer<typeof insertVisitorAnalyticsSchema>;
+export type VisitorAnalytics = typeof visitorAnalytics.$inferSelect;
+
+// Staging Environments
+export const stagingEnvironments = pgTable("staging_environments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  name: text("name").notNull(),
+  slug: text("slug").notNull(), // staging-xxx.washbizhub.com
+  status: text("status").default("active"), // "active", "building", "error", "archived"
+  
+  // Content snapshot
+  contentSnapshot: jsonb("content_snapshot"), // Full site content at time of creation
+  configSnapshot: jsonb("config_snapshot"), // Site config at time of creation
+  
+  // URLs
+  stagingUrl: text("staging_url"),
+  previewToken: text("preview_token"), // For password protection
+  
+  // Comparison
+  changesFromProduction: jsonb("changes_from_production"), // List of differences
+  
+  // Deployment
+  deployedToProduction: boolean("deployed_to_production").default(false),
+  deployedAt: timestamp("deployed_at"),
+  deployedBy: varchar("deployed_by").references(() => users.id),
+  
+  expiresAt: timestamp("expires_at"), // Auto-cleanup staging after X days
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  websiteIdx: index("staging_environments_website_idx").on(table.websiteId),
+  slugIdx: uniqueIndex("staging_environments_slug_idx").on(table.slug),
+}));
+
+export const insertStagingEnvironmentSchema = createInsertSchema(stagingEnvironments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertStagingEnvironment = z.infer<typeof insertStagingEnvironmentSchema>;
+export type StagingEnvironment = typeof stagingEnvironments.$inferSelect;
+
+// Version History - 1-click rollback
+export const versionHistory = pgTable("version_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  version: integer("version").notNull(), // Auto-incrementing version number
+  versionName: text("version_name"), // Optional friendly name
+  description: text("description"),
+  
+  // Full site snapshot
+  contentSnapshot: jsonb("content_snapshot").notNull(),
+  configSnapshot: jsonb("config_snapshot").notNull(),
+  seoSnapshot: jsonb("seo_snapshot"),
+  
+  // Change tracking
+  changeType: text("change_type"), // "content", "design", "config", "bulk"
+  changedElements: jsonb("changed_elements").$type<string[]>(), // List of what changed
+  changeSource: text("change_source").default("manual"), // "manual", "auto_save", "deploy", "ai_optimization"
+  
+  // Storage
+  sizeBytes: integer("size_bytes"),
+  isCompressed: boolean("is_compressed").default(false),
+  
+  // Rollback tracking
+  isCurrentVersion: boolean("is_current_version").default(false),
+  restoredFromVersion: integer("restored_from_version"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by").references(() => users.id),
+}, (table) => ({
+  websiteIdx: index("version_history_website_idx").on(table.websiteId),
+  versionIdx: index("version_history_version_idx").on(table.version),
+  createdAtIdx: index("version_history_created_at_idx").on(table.createdAt),
+}));
+
+export const insertVersionHistorySchema = createInsertSchema(versionHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertVersionHistory = z.infer<typeof insertVersionHistorySchema>;
+export type VersionHistory = typeof versionHistory.$inferSelect;
+
+// Site Performance Metrics
+export const sitePerformanceMetrics = pgTable("site_performance_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  websiteId: varchar("website_id").references(() => customerWebsites.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id),
+  pagePath: text("page_path").notNull(),
+  
+  // Core Web Vitals
+  lcp: decimal("lcp", { precision: 8, scale: 2 }), // Largest Contentful Paint (ms)
+  fid: decimal("fid", { precision: 8, scale: 2 }), // First Input Delay (ms)
+  cls: decimal("cls", { precision: 6, scale: 4 }), // Cumulative Layout Shift
+  ttfb: decimal("ttfb", { precision: 8, scale: 2 }), // Time to First Byte (ms)
+  fcp: decimal("fcp", { precision: 8, scale: 2 }), // First Contentful Paint (ms)
+  inp: decimal("inp", { precision: 8, scale: 2 }), // Interaction to Next Paint (ms)
+  
+  // PageSpeed scores (0-100)
+  performanceScore: integer("performance_score"),
+  accessibilityScore: integer("accessibility_score"),
+  seoScore: integer("seo_score"),
+  bestPracticesScore: integer("best_practices_score"),
+  
+  // Resource metrics
+  totalPageSize: integer("total_page_size"), // bytes
+  domElements: integer("dom_elements"),
+  requests: integer("requests"),
+  transferSize: integer("transfer_size"), // bytes
+  
+  // Asset breakdown
+  assetBreakdown: jsonb("asset_breakdown"), // { images: 500kb, scripts: 200kb, css: 50kb }
+  
+  // Strategy
+  device: text("device").default("mobile"), // "mobile", "desktop"
+  
+  measuredAt: timestamp("measured_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  websiteIdx: index("site_performance_website_idx").on(table.websiteId),
+  pagePathIdx: index("site_performance_page_path_idx").on(table.pagePath),
+  measuredAtIdx: index("site_performance_measured_at_idx").on(table.measuredAt),
+}));
+
+export const insertSitePerformanceMetricsSchema = createInsertSchema(sitePerformanceMetrics).omit({
+  id: true,
+  createdAt: true,
+  measuredAt: true,
+});
+
+export type InsertSitePerformanceMetrics = z.infer<typeof insertSitePerformanceMetricsSchema>;
+export type SitePerformanceMetrics = typeof sitePerformanceMetrics.$inferSelect;
+
+// Multi-Site Dashboard - Central management
+export const multiSiteDashboard = pgTable("multi_site_dashboard", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  // Site collection
+  websiteIds: jsonb("website_ids").$type<string[]>().default([]),
+  
+  // Dashboard settings
+  defaultView: text("default_view").default("grid"), // "grid", "list", "map"
+  sortBy: text("sort_by").default("name"), // "name", "traffic", "uptime", "performance"
+  groupBy: text("group_by"), // "status", "region", "tier"
+  
+  // Alerts aggregation
+  aggregatedAlerts: boolean("aggregated_alerts").default(true),
+  alertThreshold: integer("alert_threshold").default(3), // Min sites down to alert
+  
+  // Custom widgets
+  widgets: jsonb("widgets").$type<Array<{type: string, position: number, config: any}>>(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("multi_site_dashboard_user_idx").on(table.userId),
+}));
+
+export const insertMultiSiteDashboardSchema = createInsertSchema(multiSiteDashboard).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertMultiSiteDashboard = z.infer<typeof insertMultiSiteDashboardSchema>;
+export type MultiSiteDashboard = typeof multiSiteDashboard.$inferSelect;
+
+// Backlink Outreach - Automated link building
+export const backlinkOutreach = pgTable("backlink_outreach", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => seoProjects.id),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Target site
+  targetDomain: text("target_domain").notNull(),
+  targetUrl: text("target_url"),
+  targetEmail: text("target_email"),
+  contactName: text("contact_name"),
+  
+  // Opportunity details
+  opportunityType: text("opportunity_type").notNull(), // "guest_post", "resource_link", "broken_link", "mention", "partnership"
+  domainAuthority: integer("domain_authority"), // 0-100
+  relevanceScore: integer("relevance_score"), // 0-100
+  
+  // Outreach status
+  status: text("status").default("prospect"), // "prospect", "contacted", "responded", "negotiating", "won", "lost", "ignored"
+  lastContactedAt: timestamp("last_contacted_at"),
+  followUpCount: integer("follow_up_count").default(0),
+  nextFollowUp: timestamp("next_follow_up"),
+  
+  // Email templates
+  templateUsed: text("template_used"),
+  emailSubject: text("email_subject"),
+  emailBody: text("email_body"),
+  
+  // Results
+  linkAcquired: boolean("link_acquired").default(false),
+  linkUrl: text("link_url"),
+  anchorText: text("anchor_text"),
+  acquiredAt: timestamp("acquired_at"),
+  
+  // Notes
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("backlink_outreach_project_idx").on(table.projectId),
+  statusIdx: index("backlink_outreach_status_idx").on(table.status),
+  targetDomainIdx: index("backlink_outreach_target_domain_idx").on(table.targetDomain),
+}));
+
+export const insertBacklinkOutreachSchema = createInsertSchema(backlinkOutreach).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBacklinkOutreach = z.infer<typeof insertBacklinkOutreachSchema>;
+export type BacklinkOutreach = typeof backlinkOutreach.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
