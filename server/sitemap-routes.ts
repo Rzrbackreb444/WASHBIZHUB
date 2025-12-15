@@ -214,9 +214,9 @@ export function registerSitemapRoutes(app: Express) {
           .where(eq(listings.status, "active"))
           .orderBy(desc(listings.createdAt))
           .limit(500),
-        db.select({ id: courses.id, updatedAt: courses.updatedAt })
+        db.select({ id: courses.id, createdAt: courses.createdAt })
           .from(courses)
-          .where(eq(courses.isPublished, true))
+          .where(eq(courses.published, true))
           .limit(100),
         db.select({ id: forumTopics.id, updatedAt: forumTopics.updatedAt })
           .from(forumTopics)
@@ -225,7 +225,7 @@ export function registerSitemapRoutes(app: Express) {
         db.select({ slug: diagnosticCodes.slug, manufacturer: diagnosticCodes.manufacturer })
           .from(diagnosticCodes)
           .limit(2500),
-        db.select({ id: users.id, updatedAt: users.updatedAt })
+        db.select({ id: users.id })
           .from(users)
           .where(eq(users.role, "broker"))
           .limit(100),
@@ -270,7 +270,7 @@ export function registerSitemapRoutes(app: Express) {
       for (const course of allCourses) {
         xml += `  <url>
     <loc>${BASE_URL}/courses/${escapeXml(course.id)}</loc>
-    <lastmod>${formatDate(course.updatedAt)}</lastmod>
+    <lastmod>${formatDate(course.createdAt)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -304,7 +304,7 @@ export function registerSitemapRoutes(app: Express) {
       for (const broker of brokerUsers) {
         xml += `  <url>
     <loc>${BASE_URL}/broker/${escapeXml(broker.id)}</loc>
-    <lastmod>${formatDate(broker.updatedAt)}</lastmod>
+    <lastmod>${formatDate(new Date())}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -503,11 +503,11 @@ Crawl-delay: 1
           .where(eq(listings.status, "active"))
           .orderBy(desc(listings.createdAt))
           .limit(1000),
-        db.select({ id: courses.id, updatedAt: courses.updatedAt })
+        db.select({ id: courses.id, createdAt: courses.createdAt })
           .from(courses)
-          .where(eq(courses.isPublished, true))
+          .where(eq(courses.published, true))
           .limit(200),
-        db.select({ id: users.id, updatedAt: users.updatedAt })
+        db.select({ id: users.id })
           .from(users)
           .where(eq(users.role, "broker"))
           .limit(200),
@@ -546,7 +546,7 @@ Crawl-delay: 1
       for (const course of allCourses) {
         xml += `  <url>
     <loc>${BASE_URL}/courses/${escapeXml(course.id)}</loc>
-    <lastmod>${formatDate(course.updatedAt)}</lastmod>
+    <lastmod>${formatDate(course.createdAt)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -555,7 +555,7 @@ Crawl-delay: 1
       for (const broker of brokerUsers) {
         xml += `  <url>
     <loc>${BASE_URL}/broker/${escapeXml(broker.id)}</loc>
-    <lastmod>${formatDate(broker.updatedAt)}</lastmod>
+    <lastmod>${formatDate(new Date())}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
