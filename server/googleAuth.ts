@@ -116,8 +116,18 @@ export async function setupGoogleAuth(app: Express) {
     )
   );
 
+  // Primary Google OAuth route
   app.get(
     "/api/auth/google",
+    passport.authenticate("google", { 
+      scope: ["profile", "email"],
+      prompt: "select_account",
+    })
+  );
+
+  // Alias for /api/auth/google/login (used by frontend)
+  app.get(
+    "/api/auth/google/login",
     passport.authenticate("google", { 
       scope: ["profile", "email"],
       prompt: "select_account",
