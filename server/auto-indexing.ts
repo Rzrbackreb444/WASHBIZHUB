@@ -12,6 +12,8 @@
  * - URL inspection
  */
 
+import jwt from 'jsonwebtoken';
+
 export interface IndexingStatus {
   url: string;
   isIndexed: boolean;
@@ -102,7 +104,6 @@ async function getGoogleAccessToken(): Promise<{ token: string | null; error: st
       iat: now,
     };
 
-    const jwt = require('jsonwebtoken');
     let token: string;
     
     try {
