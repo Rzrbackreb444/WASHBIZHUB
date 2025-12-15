@@ -1,0 +1,224 @@
+The BCT Hard Mount Washer offers a combination of aesthetic appeal, durability, and energy efficiency.
+
+Elegant appearance influenced by European and American design traditions.
+Heavy-duty structure with imported components enhances quality and reduces maintenance.
+Designed for durability with a lifespan of 20 years or 200,000 cycles, extending profit cycles for customers.
+Energy savings of 10% in water usage and 50% in electricity per cycle due to advanced motor design and variable frequency drive technology.
+
+Hard Mount Washer Specifications
+The BCT series includes various models with different capacities and dimensions.
+
+Models available: BCT030 (30 lb), BCT040 (40 lb), BCT060 (60 lb). ​
+Overall dimensions vary: Height ranges from 44.8 in (1138 mm) to 49.9 in (1268 mm).
+Cylinder volume ranges from 4.2 cu. ​ ft (119 liters) to 9.0 cu. ft (255 liters).
+Motor power consumption varies from 2 HP (1.5 kW) to 3 HP (2.2 kW). ​
+
+Stacked Washer-Extractor and Tumble Dryers
+The SST series provides efficient stacked washer-extractor and tumble dryer options for commercial use. ​
+
+Models include BST30 (30 lb) and BST50 (50 lb) with touch/key control options. ​
+Overall height ranges from 79.8 in (2027 mm) to 84.3 in (2141 mm). ​
+Cylinder volume for BST30 is 6.3 cu. ​ ft (178 liters) and for BST50 is 14.8 cu. ft (419 liters).
+Gas connection and airflow specifications are included for optimal performance.
+
+Single Tumble Dryer Features
+The BT series single tumble dryers are designed for high efficiency and convenience.
+
+Models available: BT035 (35 lb) and BT055 (55 lb) with touch/key controls. ​
+Overall height ranges from 64.0 in (1625 mm) to 66.9 in (1700 mm).
+Cylinder volume varies from 12.3 cu. ​ ft (350 liters) to 17.3 cu. ft (490 liters).
+Heat input power ranges from 90,000 Btu/hr to 112,000 Btu/hr. ​
+
+Tumble Dryer Advantages and Features
+The BTT series tumble dryers emphasize safety, efficiency, and convenience.
+
+Elegant design with a heavy-duty structure using imported components.
+Enhanced safety features to prevent accidents and ensure precise temperature control.
+Axial airflow guidance technology for faster drying and reduced tangling of clothes.
+Super large filter structure for easier cleaning and maintenance.
+
+Pricing and Parts Information
+The pricing structure for washers and dryers is competitive, with a focus on parts availability.
+
+30-LB Hard Mount Washer priced at $3,895.00. ​
+30-LB Stacked Dryer priced at $4,750.00, and 50-LB Stacked Dryer at $5,580.00. ​
+Parts are readily available from USA parts houses, with a two-year parts replacement warranty.
+Delivery typically ranges from 30 to 60 days, with a 35% down payment required upon order.
+
+Machine Usage and Safety Guidelines
+Machines are designed for public use in various environments, and safety checks are crucial for operation.
+
+Intended for use in staff areas, hotels, communal spaces, and similar environments.
+Installation must adhere to the manual's instructions.
+Daily maintenance checks include verifying warning labels, checking door interlocks, and ensuring safety devices function properly.
+Operating under unsafe conditions, such as a malfunctioning door lock or high water levels, is prohibited.
+Operating with unbalanced loads can cause injury and equipment damage.
+
+Customer Service and Support
+Technical assistance is available through local distributors for maintenance and parts.
+
+Contact local distributor for technical support.
+Provide machine's serial and model number when ordering parts.
+
+Delivery Inspection Procedures
+Visual inspection of the machine upon delivery is essential to identify any shipping damage.
+
+Inspect crate, protective cover, and unit for visible damage.
+Report any damage to the carrier before signing the shipping receipt.
+
+Machine Specifications Overview
+Detailed specifications for different machine models are provided, including dimensions and capacities.
+
+Models: BCT030, BCT040, BCT060 with washing capacities of 30 lbs (14 kg), 40 lbs (18 kg), and 60 lbs (27 kg) respectively. ​
+Dimensions vary: width (29-34.1 inches), height (44.8-49.9 inches), and depth (34-41.6 inches). ​
+Drum volume ranges from 4.2 to 9.0 cu ft (119 to 255 liters). ​
+Motor power varies from 2 HP (1.5 kW) to 3 HP (2.2 kW). ​
+
+Installation Requirements and Guidelines
+Proper installation is critical for machine performance and safety, with specific foundation requirements.
+
+Minimum 3500 psi reinforced concrete foundation is required.
+Do not install on wooden or elevated floors due to high extract speeds.
+Machines must be anchored to a level surface to prevent excessive vibration.
+Follow detailed instructions for mounting and grouting to ensure stability.
+
+Maintenance Procedures for Optimal Performance
+Routine maintenance is essential to maximize efficiency and minimize downtime.
+
+Daily checks include inspecting door interlocks, leaks, and ensuring all panels are secure.
+Monthly tasks involve tightening electrical connections and cleaning inlet hose filters.
+Yearly maintenance includes inspecting belts, hoses, and electrical components for wear and tear.
+
+Drain Connection and Water Supply Requirements
+Proper drainage and water supply connections are vital for machine operation.
+
+Drain systems must be vented to prevent air locks; use a 3-inch PVC plumbing connection.
+Maximum water inlet temperature is 125°F (51°C) for vended models and 150°F (66°C) for on-premises models.
+Ensure proper sizing of hot and cold water lines according to local codes.
+
+Electrical Installation and Safety Precautions
+Electrical connections must be made by qualified personnel to ensure safety and compliance.
+
+Machines require specific circuit breakers and must be hardwired to prevent electrical hazards.
+Grounding is essential for safety; connect to a proven earth ground.
+Follow detailed wiring diagrams and specifications for proper installation.
+
+Controller Overview and Features
+The KH18070HSA controller is designed for commercial washer extractors, featuring a user-friendly interface.
+
+Composed of an industrial control board and a 7-inch touchscreen panel.
+Features include formula editing, USB functions, imbalance protection, and multi-language support.
+Allows for easy parameter setting and software updates via USB drive.
+
+Formula Editing and Management Features
+The text outlines the functionalities for editing, copying, deleting, and saving formulas in a system.
+
+Users can select a step to insert a new step before it, indicated by a "hand" icon.
+Steps can be copied to the position after the last step, with the copied step being sequentially numbered.
+Users can move selected steps up or down, exchanging their positions with adjacent steps.
+Steps can be deleted, causing subsequent steps to shift forward.
+After editing, users must save changes to the formula, with reminders to save if modifications are unsaved.
+Users can escape the formula edit page to return to the main menu or formula selection page.
+
+Editing Existing Formulas
+The text describes the process for modifying existing formulas within the system.
+
+Users can select an existing formula to edit from the formula selection page.
+Editing methods for existing formulas are the same as those for new formulas.
+Users can escape the edit page similarly to how they would for new formulas.
+
+Deleting and Copying Formulas
+The text explains how to delete or copy existing formulas.
+
+To delete a formula, users must confirm the action after selecting the formula. ​
+Users can copy a selected formula to a target formula by selecting the target after pressing "Copy." ​
+
+Parameter Settings Overview
+The text provides a detailed table of parameter settings for machine functions and user preferences.
+
+Parameters include machine capacity (default 100KG), drum diameter (default 1000mm), and temperature units (Celsius).
+Options for auto drain, drain valve status, and lubrication requirements are included.
+User settings such as operating during running and skipping steps are also available.
+The table includes default values, ranges, and levels for each parameter.
+
+Discount Functionality and Settings
+The text outlines the discount settings available in the system.
+
+Users can enable or disable discounts and set specific start and end times for discounts.
+Discounts can be applied on specific days of the week and within defined date ranges.
+The system allows for setting discounted prices for various programs.
+
+Parameter Initialization and Data Transfer
+The text describes the initialization of parameters and data transfer capabilities.
+
+Only manufacturers can initialize parameters, reverting them to default settings.
+Data transfer functions include uploading and downloading parameters and formulas via USB drives. ​
+
+Software Update and USB Functions
+The text details the process for updating software and potential USB-related alarms. ​
+
+Users can update software via USB, with progress displayed as a percentage.
+Common USB errors include "USB not found" and "File not found," with troubleshooting steps provided.
+
+Alarm Management and Troubleshooting
+The text provides information on alarm management and troubleshooting for the system.
+
+Alarms indicate various issues, such as door status errors and inverter errors. ​
+Users can reset alarms and follow troubleshooting steps for specific alarm types. ​
+
+Tumble Dryer Installation and Safety Instructions
+The text includes safety instructions and installation guidelines for tumble dryers. ​
+
+Installation must comply with local codes and safety standards.
+Users are warned against using flammable materials near the dryer and must ensure proper ventilation. ​
+The dryer should not be installed in areas exposed to water or weather conditions. ​
+
+Duct Design and Specifications for Tumble Dryers
+The design of the ducting system for tumble dryers is crucial for optimal performance and lint management.
+
+Duct diameter must increase by 10% for every additional 20 feet of length beyond 14 feet.
+Static back pressure should not exceed specified limits, measured 12 inches from the exhaust outlet.
+Airflow must be maintained at a minimum of 1200 feet/min to keep lint airborne. ​
+Provisions for lint removal and cleaning are mandatory.
+Avoid connecting ducts at 90° angles to prevent excessive back pressure.
+
+Gas Requirements for Tumble Dryers
+Proper gas supply and installation are essential to ensure safe and efficient operation of tumble dryers.
+
+All piping must be leak-tested before use, and connections should be tight. ​
+Gas supply pressure must be maintained between 6.5 ± 1.5 inches w.c. for natural gas. ​
+Use a new flexible stainless steel connector to prevent gas leaks. ​
+Installation must comply with local codes or relevant national standards.
+A manual shut-off valve must be used during pressure testing of the gas supply. ​
+
+Burner Orifice Size Adjustment Procedure
+Changing the burner orifice size is necessary when converting gas types or pressures.
+
+Disconnect power and close the gas shut-off valve before starting.
+Remove the orifice holder and replace with the correct size orifice, torqued to 9-10 Nm. ​
+Reinstall the orifice holder ensuring alignment with the burner tube. ​
+Commission the tumble dryer for use after adjustments.
+
+Electrical Requirements for Tumble Dryers
+Electrical connections must be made safely and in accordance with local codes to prevent hazards.
+
+A qualified electrician should perform all electrical connections. ​
+The dryer must be connected to an individual branch circuit, not shared with other equipment. ​
+Circuit breakers should be installed close to the dryer for safety. ​
+Grounding is essential to reduce the risk of electric shock. ​
+
+Maintenance Procedures for Tumble Dryers
+Regular maintenance is vital for the longevity and efficiency of tumble dryers.
+
+Daily checks should include door interlock functionality and leak inspections.
+Monthly tasks involve inspecting electrical connections and cleaning inlet hose filter screens.
+Yearly maintenance includes inspecting hoses, belts, and electrical components for wear and tear.
+All maintenance should be performed with the power disconnected to ensure safety.
+
+Coin Detection and Control System Overview
+The coin-operated device features advanced detection and control capabilities for efficient operation.
+
+It can detect and verify eight types of coins, rejecting invalid ones. ​
+The system includes jam detection and manual settings for coin data collection. ​
+Control modes can be set for different operational requirements, with factory reset options available.
+The device features a self-test function to ensure all components are functioning correctly.
