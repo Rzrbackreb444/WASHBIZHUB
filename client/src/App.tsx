@@ -201,6 +201,7 @@ import NotFound from "@/pages/not-found";
 // LAZY IMPORTS - SEO pages (still indexable, but code-split)
 // ============================================================================
 const CleanBI = lazy(() => import("@/pages/cleanbi"));
+const CLEANBIMethodology = lazy(() => import("@/pages/cleanbi-methodology"));
 const Pricing = lazy(() => import("@/pages/pricing"));
 const SingleAnalysis = lazy(() => import("@/pages/single-analysis"));
 const Blog = lazy(() => import("@/pages/blog"));
@@ -575,6 +576,11 @@ function Router() {
       <Route path="/cleanbi-market-report">
         <Suspense fallback={<LoadingFallback />}>
           <CLEANBIMarketReport />
+        </Suspense>
+      </Route>
+      <Route path="/cleanbi-methodology">
+        <Suspense fallback={<LoadingFallback />}>
+          <CLEANBIMethodology />
         </Suspense>
       </Route>
       <Route path="/expansion-planner">

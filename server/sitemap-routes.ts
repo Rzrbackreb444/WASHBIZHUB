@@ -136,6 +136,7 @@ const staticPages = [
   { url: "/ai-consultation-council", priority: 0.8, changefreq: "monthly" },
   { url: "/larry-larsen", priority: 0.7, changefreq: "monthly" },
   { url: "/cleanbi-market-report", priority: 0.8, changefreq: "weekly" },
+  { url: "/cleanbi-methodology", priority: 0.8, changefreq: "monthly" },
   // SEO Landing Pages
   { url: "/laundromat-valuation", priority: 0.8, changefreq: "monthly" },
   { url: "/laundromat-for-sale", priority: 0.9, changefreq: "daily" },
