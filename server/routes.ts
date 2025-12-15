@@ -34,6 +34,66 @@ import operatorDashboardRoutes from "./operator-dashboard-routes";
 import aiToolsRoutes from "./routes/ai-tools";
 import savedAnalysesRoutes from "./routes/saved-analyses";
 import googleExportRoutes from "./routes/google-export";
+import {
+  runVisibilityCheck,
+  getVisibilityHistory,
+  getVisibilityDashboard,
+  getOptimizationSuggestions
+} from "./llm-visibility-tracker";
+import {
+  scanPageForIssues,
+  generateFixesForPage,
+  applyFix,
+  batchApplyFixes,
+  revertFix,
+  getPendingFixes,
+  getFixHistory,
+  getFixStats
+} from "./seo-auto-fix-engine";
+import {
+  syncSearchConsoleData,
+  getSearchConsoleDashboard,
+  getQueryPositionChanges,
+  inspectUrl,
+  getVerifiedSites,
+  getSitemaps,
+  submitSitemap
+} from "./search-console";
+import {
+  checkMultipleKeywords,
+  getKeywordRankHistory,
+  getRankDashboard,
+  getPositionAlerts
+} from "./rank-tracker";
+import {
+  checkNapConsistency,
+  getCitationRecommendations,
+  upsertCitation,
+  getCitationDashboard,
+  generateBusinessDescription,
+  CITATION_DIRECTORIES
+} from "./local-citations";
+import {
+  analyzeBacklinkQuality,
+  generateOutreachEmail,
+  upsertOutreach,
+  getOutreachDashboard,
+  getLinkOpportunities,
+  calculateLinkProfileHealth
+} from "./backlink-builder";
+import {
+  performUptimeCheck,
+  getUptimeStats,
+  getUptimeDashboard,
+  recordPageView,
+  getAnalyticsDashboard,
+  createStagingEnvironment,
+  getStagingEnvironments,
+  createVersionSnapshot,
+  getVersionHistory,
+  rollbackToVersion,
+  getMultiSiteDashboard
+} from "./hosting-services";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
@@ -16619,6 +16679,750 @@ ${pdfData.text.substring(0, 15000)}`;
   
   // ========== SEO COMMAND CENTER ROUTES ==========
   app.use("/api/seo-center", seoCommandCenterRoutes);
+
+  // ========== LLM VISIBILITY TRACKER ROUTES ==========
+  // Check visibility across AI platforms (ChatGPT, Perplexity, Gemini, Claude)
+  app.post("/api/seo/llm-visibility/check", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain, projectId, customQueries } = req.body;
+      
+      if (!domain) {
+        return res.status(400).json({ message: "domain is required" });
+      }
+
+      const result = await runVisibilityCheck(domain, projectId, userId, customQueries);
+      res.json(result);
+    } catch (error: any) {
+      console.error("LLM visibility check error:", error);
+      res.status(500).json({ message: "Failed to check LLM visibility", error: error.message });
+    }
+  });
+
+  // Get visibility history for a domain
+  app.get("/api/seo/llm-visibility/history/:domain", requireAuth, async (req: any, res) => {
+    try {
+      const { domain } = req.params;
+      const { days, projectId } = req.query;
+      
+      const history = await getVisibilityHistory(domain, parseInt(days as string) || 30, projectId as string);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Visibility history error:", error);
+      res.status(500).json({ message: "Failed to get visibility history", error: error.message });
+    }
+  });
+
+  // Get visibility dashboard for user
+  app.get("/api/seo/llm-visibility/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const dashboard = await getVisibilityDashboard(userId);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Visibility dashboard error:", error);
+      res.status(500).json({ message: "Failed to get visibility dashboard", error: error.message });
+    }
+  });
+
+  // Get optimization suggestions for a domain
+  app.get("/api/seo/llm-visibility/suggestions/:domain", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain } = req.params;
+      
+      const suggestions = await getOptimizationSuggestions(domain, userId);
+      res.json(suggestions);
+    } catch (error: any) {
+      console.error("Optimization suggestions error:", error);
+      res.status(500).json({ message: "Failed to get suggestions", error: error.message });
+    }
+  });
+
+  // ========== SEO AUTO-FIX ENGINE ROUTES ==========
+  // Scan page for SEO issues
+  app.post("/api/seo/auto-fix/scan", requireAuth, async (req: any, res) => {
+    try {
+      const { url, html } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "url is required" });
+      }
+
+      const issues = await scanPageForIssues(url, html);
+      res.json(issues);
+    } catch (error: any) {
+      console.error("SEO scan error:", error);
+      res.status(500).json({ message: "Failed to scan page", error: error.message });
+    }
+  });
+
+  // Generate fixes for page issues
+  app.post("/api/seo/auto-fix/generate", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { url, html, projectId, targetKeywords } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "url is required" });
+      }
+
+      const fixes = await generateFixesForPage(url, html, projectId, userId, targetKeywords);
+      res.json(fixes);
+    } catch (error: any) {
+      console.error("Generate fixes error:", error);
+      res.status(500).json({ message: "Failed to generate fixes", error: error.message });
+    }
+  });
+
+  // Apply a single fix
+  app.post("/api/seo/auto-fix/apply/:id", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      
+      const result = await applyFix(id, userId);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Apply fix error:", error);
+      res.status(500).json({ message: "Failed to apply fix", error: error.message });
+    }
+  });
+
+  // Batch apply multiple fixes
+  app.post("/api/seo/auto-fix/batch-apply", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { fixIds } = req.body;
+      
+      if (!fixIds || !Array.isArray(fixIds)) {
+        return res.status(400).json({ message: "fixIds array is required" });
+      }
+
+      const results = await batchApplyFixes(fixIds, userId);
+      res.json(results);
+    } catch (error: any) {
+      console.error("Batch apply error:", error);
+      res.status(500).json({ message: "Failed to batch apply fixes", error: error.message });
+    }
+  });
+
+  // Revert a fix
+  app.post("/api/seo/auto-fix/revert/:id", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { id } = req.params;
+      
+      const result = await revertFix(id, userId);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Revert fix error:", error);
+      res.status(500).json({ message: "Failed to revert fix", error: error.message });
+    }
+  });
+
+  // Get pending fixes
+  app.get("/api/seo/auto-fix/pending", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { projectId } = req.query;
+      
+      const pending = await getPendingFixes(projectId as string, userId);
+      res.json(pending);
+    } catch (error: any) {
+      console.error("Get pending fixes error:", error);
+      res.status(500).json({ message: "Failed to get pending fixes", error: error.message });
+    }
+  });
+
+  // Get fix history
+  app.get("/api/seo/auto-fix/history", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { projectId, limit } = req.query;
+      
+      const history = await getFixHistory(projectId as string, userId, parseInt(limit as string) || 50);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Get fix history error:", error);
+      res.status(500).json({ message: "Failed to get fix history", error: error.message });
+    }
+  });
+
+  // Get fix stats
+  app.get("/api/seo/auto-fix/stats", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { projectId } = req.query;
+      
+      const stats = await getFixStats(projectId as string, userId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get fix stats error:", error);
+      res.status(500).json({ message: "Failed to get fix stats", error: error.message });
+    }
+  });
+
+  // ========== GOOGLE SEARCH CONSOLE ROUTES ==========
+  // Sync Search Console data
+  app.post("/api/seo/search-console/sync", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { accessToken, siteUrl, projectId, daysBack } = req.body;
+      
+      if (!accessToken || !siteUrl) {
+        return res.status(400).json({ message: "accessToken and siteUrl are required" });
+      }
+
+      const result = await syncSearchConsoleData(accessToken, siteUrl, projectId, userId, daysBack);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Search Console sync error:", error);
+      res.status(500).json({ message: "Failed to sync Search Console data", error: error.message });
+    }
+  });
+
+  // Get Search Console dashboard
+  app.get("/api/seo/search-console/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { siteUrl, daysBack } = req.query;
+      
+      if (!siteUrl) {
+        return res.status(400).json({ message: "siteUrl is required" });
+      }
+
+      const dashboard = await getSearchConsoleDashboard(siteUrl as string, userId, parseInt(daysBack as string) || 28);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Search Console dashboard error:", error);
+      res.status(500).json({ message: "Failed to get Search Console dashboard", error: error.message });
+    }
+  });
+
+  // Get query position changes
+  app.get("/api/seo/search-console/query-changes", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { siteUrl } = req.query;
+      
+      if (!siteUrl) {
+        return res.status(400).json({ message: "siteUrl is required" });
+      }
+
+      const changes = await getQueryPositionChanges(siteUrl as string, userId);
+      res.json(changes);
+    } catch (error: any) {
+      console.error("Query changes error:", error);
+      res.status(500).json({ message: "Failed to get query changes", error: error.message });
+    }
+  });
+
+  // Get verified sites
+  app.get("/api/seo/search-console/sites", requireAuth, async (req: any, res) => {
+    try {
+      const { accessToken } = req.query;
+      
+      if (!accessToken) {
+        return res.status(400).json({ message: "accessToken is required" });
+      }
+
+      const sites = await getVerifiedSites(accessToken as string);
+      res.json(sites);
+    } catch (error: any) {
+      console.error("Get sites error:", error);
+      res.status(500).json({ message: "Failed to get verified sites", error: error.message });
+    }
+  });
+
+  // Inspect URL
+  app.post("/api/seo/search-console/inspect", requireAuth, async (req: any, res) => {
+    try {
+      const { accessToken, siteUrl, inspectionUrl } = req.body;
+      
+      if (!accessToken || !siteUrl || !inspectionUrl) {
+        return res.status(400).json({ message: "accessToken, siteUrl, and inspectionUrl are required" });
+      }
+
+      const result = await inspectUrl(accessToken, siteUrl, inspectionUrl);
+      res.json(result);
+    } catch (error: any) {
+      console.error("URL inspection error:", error);
+      res.status(500).json({ message: "Failed to inspect URL", error: error.message });
+    }
+  });
+
+  // Get sitemaps
+  app.get("/api/seo/search-console/sitemaps", requireAuth, async (req: any, res) => {
+    try {
+      const { accessToken, siteUrl } = req.query;
+      
+      if (!accessToken || !siteUrl) {
+        return res.status(400).json({ message: "accessToken and siteUrl are required" });
+      }
+
+      const sitemaps = await getSitemaps(accessToken as string, siteUrl as string);
+      res.json(sitemaps);
+    } catch (error: any) {
+      console.error("Get sitemaps error:", error);
+      res.status(500).json({ message: "Failed to get sitemaps", error: error.message });
+    }
+  });
+
+  // Submit sitemap
+  app.post("/api/seo/search-console/sitemaps", requireAuth, async (req: any, res) => {
+    try {
+      const { accessToken, siteUrl, sitemapUrl } = req.body;
+      
+      if (!accessToken || !siteUrl || !sitemapUrl) {
+        return res.status(400).json({ message: "accessToken, siteUrl, and sitemapUrl are required" });
+      }
+
+      const result = await submitSitemap(accessToken, siteUrl, sitemapUrl);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Submit sitemap error:", error);
+      res.status(500).json({ message: "Failed to submit sitemap", error: error.message });
+    }
+  });
+
+  // ========== RANK TRACKER ROUTES ==========
+  // Check rankings for multiple keywords
+  app.post("/api/seo/rank-tracker/check", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain, keywords, projectId, options } = req.body;
+      
+      if (!domain || !keywords || !Array.isArray(keywords)) {
+        return res.status(400).json({ message: "domain and keywords array are required" });
+      }
+
+      const results = await checkMultipleKeywords(domain, keywords, projectId, userId, options);
+      res.json(results);
+    } catch (error: any) {
+      console.error("Rank check error:", error);
+      res.status(500).json({ message: "Failed to check rankings", error: error.message });
+    }
+  });
+
+  // Get keyword rank history
+  app.get("/api/seo/rank-tracker/history", requireAuth, async (req: any, res) => {
+    try {
+      const { domain, keyword, days, projectId } = req.query;
+      
+      if (!domain || !keyword) {
+        return res.status(400).json({ message: "domain and keyword are required" });
+      }
+
+      const history = await getKeywordRankHistory(
+        domain as string, 
+        keyword as string, 
+        parseInt(days as string) || 30, 
+        projectId as string
+      );
+      res.json(history);
+    } catch (error: any) {
+      console.error("Rank history error:", error);
+      res.status(500).json({ message: "Failed to get rank history", error: error.message });
+    }
+  });
+
+  // Get rank dashboard
+  app.get("/api/seo/rank-tracker/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain, days } = req.query;
+      
+      if (!domain) {
+        return res.status(400).json({ message: "domain is required" });
+      }
+
+      const dashboard = await getRankDashboard(domain as string, userId, parseInt(days as string) || 30);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Rank dashboard error:", error);
+      res.status(500).json({ message: "Failed to get rank dashboard", error: error.message });
+    }
+  });
+
+  // Get position alerts
+  app.get("/api/seo/rank-tracker/alerts", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { domain } = req.query;
+      
+      if (!domain) {
+        return res.status(400).json({ message: "domain is required" });
+      }
+
+      const alerts = await getPositionAlerts(domain as string, userId);
+      res.json(alerts);
+    } catch (error: any) {
+      console.error("Position alerts error:", error);
+      res.status(500).json({ message: "Failed to get position alerts", error: error.message });
+    }
+  });
+
+  // ========== LOCAL CITATIONS ROUTES ==========
+  // Get citation dashboard
+  app.get("/api/seo/citations/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { projectId } = req.query;
+      
+      const dashboard = await getCitationDashboard(projectId as string, userId);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Citation dashboard error:", error);
+      res.status(500).json({ message: "Failed to get citation dashboard", error: error.message });
+    }
+  });
+
+  // Check NAP consistency
+  app.post("/api/seo/citations/nap-check", requireAuth, async (req: any, res) => {
+    try {
+      const { businessNap, citations } = req.body;
+      
+      if (!businessNap) {
+        return res.status(400).json({ message: "businessNap is required" });
+      }
+
+      const result = await checkNapConsistency(businessNap, citations);
+      res.json(result);
+    } catch (error: any) {
+      console.error("NAP check error:", error);
+      res.status(500).json({ message: "Failed to check NAP consistency", error: error.message });
+    }
+  });
+
+  // Get citation recommendations
+  app.get("/api/seo/citations/recommendations", requireAuth, async (req: any, res) => {
+    try {
+      const { businessNap } = req.query;
+      
+      if (!businessNap) {
+        return res.status(400).json({ message: "businessNap is required" });
+      }
+
+      const parsedNap = JSON.parse(businessNap as string);
+      const recommendations = await getCitationRecommendations([], parsedNap);
+      res.json(recommendations);
+    } catch (error: any) {
+      console.error("Citation recommendations error:", error);
+      res.status(500).json({ message: "Failed to get recommendations", error: error.message });
+    }
+  });
+
+  // Upsert citation
+  app.post("/api/seo/citations/upsert", requireAuth, async (req: any, res) => {
+    try {
+      const citation = req.body;
+      
+      if (!citation.directoryName || !citation.projectId) {
+        return res.status(400).json({ message: "directoryName and projectId are required" });
+      }
+
+      const result = await upsertCitation(citation);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Upsert citation error:", error);
+      res.status(500).json({ message: "Failed to upsert citation", error: error.message });
+    }
+  });
+
+  // Generate business description
+  app.post("/api/seo/citations/generate-description", requireAuth, async (req: any, res) => {
+    try {
+      const { businessName, category, city, state, features } = req.body;
+      
+      if (!businessName || !category) {
+        return res.status(400).json({ message: "businessName and category are required" });
+      }
+
+      const description = await generateBusinessDescription(businessName, category, city, state, features);
+      res.json({ description });
+    } catch (error: any) {
+      console.error("Generate description error:", error);
+      res.status(500).json({ message: "Failed to generate description", error: error.message });
+    }
+  });
+
+  // Get citation directories list
+  app.get("/api/seo/citations/directories", requireAuth, async (req: any, res) => {
+    try {
+      res.json(CITATION_DIRECTORIES);
+    } catch (error: any) {
+      console.error("Get directories error:", error);
+      res.status(500).json({ message: "Failed to get directories", error: error.message });
+    }
+  });
+
+  // ========== BACKLINK BUILDER ROUTES ==========
+  // Get backlink/outreach dashboard
+  app.get("/api/seo/backlinks/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { projectId } = req.query;
+      
+      const dashboard = await getOutreachDashboard(projectId as string, userId);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Backlink dashboard error:", error);
+      res.status(500).json({ message: "Failed to get backlink dashboard", error: error.message });
+    }
+  });
+
+  // Get link opportunities
+  app.get("/api/seo/backlinks/opportunities", requireAuth, async (req: any, res) => {
+    try {
+      const { domain, competitorDomains } = req.query;
+      
+      if (!domain) {
+        return res.status(400).json({ message: "domain is required" });
+      }
+
+      const competitors = competitorDomains ? (competitorDomains as string).split(',') : [];
+      const opportunities = await getLinkOpportunities(domain as string, competitors);
+      res.json(opportunities);
+    } catch (error: any) {
+      console.error("Link opportunities error:", error);
+      res.status(500).json({ message: "Failed to get link opportunities", error: error.message });
+    }
+  });
+
+  // Upsert outreach record
+  app.post("/api/seo/backlinks/outreach", requireAuth, async (req: any, res) => {
+    try {
+      const outreach = req.body;
+      
+      if (!outreach.projectId || !outreach.targetUrl) {
+        return res.status(400).json({ message: "projectId and targetUrl are required" });
+      }
+
+      const result = await upsertOutreach(outreach);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Upsert outreach error:", error);
+      res.status(500).json({ message: "Failed to upsert outreach", error: error.message });
+    }
+  });
+
+  // Generate outreach email
+  app.post("/api/seo/backlinks/email", requireAuth, async (req: any, res) => {
+    try {
+      const { prospect, targetSite, contentType } = req.body;
+      
+      if (!prospect || !targetSite) {
+        return res.status(400).json({ message: "prospect and targetSite are required" });
+      }
+
+      const email = await generateOutreachEmail(prospect, targetSite, contentType);
+      res.json(email);
+    } catch (error: any) {
+      console.error("Generate email error:", error);
+      res.status(500).json({ message: "Failed to generate outreach email", error: error.message });
+    }
+  });
+
+  // Calculate link profile health
+  app.post("/api/seo/backlinks/profile-health", requireAuth, async (req: any, res) => {
+    try {
+      const { backlinks } = req.body;
+      
+      if (!backlinks || !Array.isArray(backlinks)) {
+        return res.status(400).json({ message: "backlinks array is required" });
+      }
+
+      const health = await calculateLinkProfileHealth(backlinks);
+      res.json(health);
+    } catch (error: any) {
+      console.error("Profile health error:", error);
+      res.status(500).json({ message: "Failed to calculate profile health", error: error.message });
+    }
+  });
+
+  // Analyze single backlink quality
+  app.post("/api/seo/backlinks/analyze", requireAuth, async (req: any, res) => {
+    try {
+      const backlink = req.body;
+      
+      if (!backlink.sourceUrl || !backlink.targetUrl) {
+        return res.status(400).json({ message: "sourceUrl and targetUrl are required" });
+      }
+
+      const analysis = analyzeBacklinkQuality(backlink);
+      res.json(analysis);
+    } catch (error: any) {
+      console.error("Backlink analysis error:", error);
+      res.status(500).json({ message: "Failed to analyze backlink", error: error.message });
+    }
+  });
+
+  // ========== HOSTING - UPTIME MONITORING ROUTES ==========
+  // Get uptime dashboard
+  app.get("/api/hosting/uptime/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const dashboard = await getUptimeDashboard(userId);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Uptime dashboard error:", error);
+      res.status(500).json({ message: "Failed to get uptime dashboard", error: error.message });
+    }
+  });
+
+  // Get uptime stats for a monitor
+  app.get("/api/hosting/uptime/stats/:monitorId", requireAuth, async (req: any, res) => {
+    try {
+      const { monitorId } = req.params;
+      const { days } = req.query;
+      
+      const stats = await getUptimeStats(monitorId, parseInt(days as string) || 30);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Uptime stats error:", error);
+      res.status(500).json({ message: "Failed to get uptime stats", error: error.message });
+    }
+  });
+
+  // Perform manual uptime check
+  app.post("/api/hosting/uptime/check", requireAuth, async (req: any, res) => {
+    try {
+      const { url, timeout } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "url is required" });
+      }
+
+      const result = await performUptimeCheck(url, timeout);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Uptime check error:", error);
+      res.status(500).json({ message: "Failed to perform uptime check", error: error.message });
+    }
+  });
+
+  // ========== HOSTING - ANALYTICS ROUTES ==========
+  // Get analytics dashboard
+  app.get("/api/hosting/analytics/dashboard/:websiteId", requireAuth, async (req: any, res) => {
+    try {
+      const { websiteId } = req.params;
+      const { days } = req.query;
+      
+      const dashboard = await getAnalyticsDashboard(websiteId, parseInt(days as string) || 30);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Analytics dashboard error:", error);
+      res.status(500).json({ message: "Failed to get analytics dashboard", error: error.message });
+    }
+  });
+
+  // Record page view (public endpoint for tracking)
+  app.post("/api/hosting/analytics/pageview", async (req: any, res) => {
+    try {
+      const { websiteId, ...data } = req.body;
+      
+      if (!websiteId) {
+        return res.status(400).json({ message: "websiteId is required" });
+      }
+
+      await recordPageView(websiteId, data);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Record pageview error:", error);
+      res.status(500).json({ message: "Failed to record pageview", error: error.message });
+    }
+  });
+
+  // ========== HOSTING - STAGING & VERSION CONTROL ROUTES ==========
+  // Get staging environments
+  app.get("/api/hosting/staging/:websiteId", requireAuth, async (req: any, res) => {
+    try {
+      const { websiteId } = req.params;
+      const environments = await getStagingEnvironments(websiteId);
+      res.json(environments);
+    } catch (error: any) {
+      console.error("Get staging error:", error);
+      res.status(500).json({ message: "Failed to get staging environments", error: error.message });
+    }
+  });
+
+  // Create staging environment
+  app.post("/api/hosting/staging", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { websiteId, name, branch } = req.body;
+      
+      if (!websiteId || !name) {
+        return res.status(400).json({ message: "websiteId and name are required" });
+      }
+
+      const environment = await createStagingEnvironment(websiteId, userId, name, branch);
+      res.json(environment);
+    } catch (error: any) {
+      console.error("Create staging error:", error);
+      res.status(500).json({ message: "Failed to create staging environment", error: error.message });
+    }
+  });
+
+  // Get version history
+  app.get("/api/hosting/versions/:websiteId", requireAuth, async (req: any, res) => {
+    try {
+      const { websiteId } = req.params;
+      const { limit } = req.query;
+      
+      const versions = await getVersionHistory(websiteId, parseInt(limit as string) || 20);
+      res.json(versions);
+    } catch (error: any) {
+      console.error("Get versions error:", error);
+      res.status(500).json({ message: "Failed to get version history", error: error.message });
+    }
+  });
+
+  // Create version snapshot
+  app.post("/api/hosting/versions", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { websiteId, description, changeType } = req.body;
+      
+      if (!websiteId) {
+        return res.status(400).json({ message: "websiteId is required" });
+      }
+
+      const version = await createVersionSnapshot(websiteId, userId, description, changeType);
+      res.json(version);
+    } catch (error: any) {
+      console.error("Create version error:", error);
+      res.status(500).json({ message: "Failed to create version snapshot", error: error.message });
+    }
+  });
+
+  // Rollback to version
+  app.post("/api/hosting/versions/rollback/:versionId", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const { versionId } = req.params;
+      
+      const result = await rollbackToVersion(versionId, userId);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Rollback error:", error);
+      res.status(500).json({ message: "Failed to rollback to version", error: error.message });
+    }
+  });
+
+  // ========== HOSTING - MULTI-SITE MANAGEMENT ==========
+  // Get multi-site dashboard
+  app.get("/api/hosting/multi-site/dashboard", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
+      const dashboard = await getMultiSiteDashboard(userId);
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Multi-site dashboard error:", error);
+      res.status(500).json({ message: "Failed to get multi-site dashboard", error: error.message });
+    }
+  });
 
   // ========== AI SEO METADATA GENERATOR ROUTES ==========
   const { generatePageSEO, MAJOR_PAGES, regenerateSEOForPage } = await import('./ai-seo-generator');
