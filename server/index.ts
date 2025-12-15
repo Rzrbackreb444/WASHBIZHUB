@@ -1373,5 +1373,9 @@ app.use((req, res, next) => {
     await seedEnterpriseDemos();
     
     await seedTemplatesIfNeeded();
+    
+    // Start the indexing scheduler for automatic URL submission
+    const { startIndexingScheduler } = await import('./indexing-scheduler');
+    await startIndexingScheduler();
   });
 })();
