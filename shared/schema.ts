@@ -16871,5 +16871,126 @@ export type DashboardTemplate = typeof dashboardTemplates.$inferSelect;
 export type InsertDashboardTemplate = z.infer<typeof insertDashboardTemplateSchema>;
 
 // ============================================================================
+// LOCATION INTELLIGENCE SYSTEM - Demographics, Walkability, Aerial Views
+// ============================================================================
+
+// Location Demographics (ATTOM + Census data)
+export const locationDemographicsSchema = z.object({
+  population: z.number(),
+  populationDensity: z.number(),
+  medianHouseholdIncome: z.number(),
+  medianAge: z.number(),
+  householdCount: z.number(),
+  renterPercentage: z.number(),
+  ownerPercentage: z.number(),
+  averageHouseholdSize: z.number(),
+  educationBachelorPlus: z.number(),
+  unemploymentRate: z.number(),
+  povertyRate: z.number(),
+  growthRate5Year: z.number().optional(),
+  projectedGrowth: z.number().optional(),
+  dataSource: z.enum(["attom", "census", "estimate"]),
+  lastUpdated: z.string(),
+  confidence: z.number().min(0).max(100),
+});
+
+export type LocationDemographics = z.infer<typeof locationDemographicsSchema>;
+
+// Walkability Metrics (Walk Score API)
+export const walkabilityMetricsSchema = z.object({
+  walkScore: z.number().min(0).max(100),
+  walkDescription: z.string(),
+  transitScore: z.number().min(0).max(100).nullable(),
+  transitDescription: z.string().nullable(),
+  transitSummary: z.string().nullable(),
+  bikeScore: z.number().min(0).max(100).nullable(),
+  bikeDescription: z.string().nullable(),
+  nearbyAmenities: z.array(z.object({
+    type: z.string(),
+    name: z.string(),
+    distance: z.string(),
+  })).optional(),
+  logoUrl: z.string(),
+  moreInfoLink: z.string(),
+});
+
+export type WalkabilityMetrics = z.infer<typeof walkabilityMetricsSchema>;
+
+// Aerial View Preview (Google Aerial View API)
+export const aerialPreviewSchema = z.object({
+  imageUrl: z.string(),
+  videoUrl: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
+  viewType: z.enum(["satellite", "aerial_3d", "street_level"]),
+  captureDate: z.string().optional(),
+  resolution: z.enum(["low", "medium", "high"]).default("medium"),
+  available: z.boolean(),
+  error: z.string().optional(),
+});
+
+export type AerialPreview = z.infer<typeof aerialPreviewSchema>;
+
+// Combined Location Intelligence Response
+export const locationIntelligenceSchema = z.object({
+  address: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  demographics: locationDemographicsSchema.optional(),
+  walkability: walkabilityMetricsSchema.optional(),
+  aerialPreview: aerialPreviewSchema.optional(),
+  fetchedAt: z.string(),
+  tier: z.string().default("free"),
+});
+
+export type LocationIntelligence = z.infer<typeof locationIntelligenceSchema>;
+
+// Voice Diagnostic Input (for Service Guy AI)
+export const voiceDiagnosticInputSchema = z.object({
+  transcript: z.string(),
+  manufacturer: z.string().optional(),
+  machineType: z.enum(["washer", "dryer", "payment", "unknown"]).optional(),
+  errorCode: z.string().optional(),
+  symptoms: z.array(z.string()).optional(),
+});
+
+export type VoiceDiagnosticInput = z.infer<typeof voiceDiagnosticInputSchema>;
+
+// Vision Diagnostic Result (for equipment photo analysis)
+export const visionDiagnosticResultSchema = z.object({
+  extractedText: z.string(),
+  errorCodes: z.array(z.object({
+    code: z.string(),
+    description: z.string(),
+    confidence: z.number(),
+  })),
+  detectedBrand: z.string().nullable(),
+  detectedModel: z.string().nullable(),
+  machineType: z.enum(["washer", "dryer", "payment", "unknown"]),
+  visibleParts: z.array(z.object({
+    name: z.string(),
+    condition: z.enum(["good", "worn", "damaged", "unknown"]),
+    notes: z.string(),
+  })),
+  wearPatterns: z.array(z.object({
+    area: z.string(),
+    severity: z.enum(["minor", "moderate", "severe"]),
+    description: z.string(),
+  })),
+  damageAssessment: z.array(z.object({
+    type: z.string(),
+    location: z.string(),
+    severity: z.enum(["minor", "moderate", "severe"]),
+    repairRecommendation: z.string(),
+  })),
+  overallCondition: z.enum(["excellent", "good", "fair", "poor", "critical"]),
+  recommendations: z.array(z.string()),
+  estimatedUrgency: z.enum(["immediate", "soon", "routine", "monitor"]),
+  analyzedAt: z.string(),
+  confidence: z.number(),
+});
+
+export type VisionDiagnosticResult = z.infer<typeof visionDiagnosticResultSchema>;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
