@@ -1,4 +1,4 @@
-import { onCLS, onFCP, onFID, onINP, onLCP, onTTFB, Metric } from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 
 const VITALS_ENDPOINT = '/api/seo/vitals';
 
@@ -33,7 +33,6 @@ export function initWebVitals() {
   try {
     onCLS(sendToAnalytics);
     onFCP(sendToAnalytics);
-    onFID(sendToAnalytics);
     onINP(sendToAnalytics);
     onLCP(sendToAnalytics);
     onTTFB(sendToAnalytics);
