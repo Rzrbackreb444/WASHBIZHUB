@@ -438,6 +438,10 @@ const ListBusiness = lazy(() => import("@/pages/list-business"));
 const Directory = lazy(() => import("@/pages/directory"));
 const DirectoryListing = lazy(() => import("@/pages/directory-listing"));
 
+// State SEO Landing Pages
+const StatesDirectory = lazy(() => import("@/pages/seo/states-directory"));
+const StateLanding = lazy(() => import("@/pages/state-landing"));
+
 // Parts & Repair
 const Parts = lazy(() => import("@/pages/parts"));
 const PartsStore = lazy(() => import("@/pages/parts-store"));
@@ -1679,10 +1683,24 @@ function Router() {
         </Suspense>
       </Route>
 
-      {/* Geo-targeted City Landing Pages for Local SEO */}
+      {/* Geo-targeted City Landing Pages for Local SEO - most specific first */}
       <Route path="/laundromats-for-sale/:state/:city">
         <Suspense fallback={<LoadingFallback />}>
           <CityLanding />
+        </Suspense>
+      </Route>
+      
+      {/* State SEO Landing Pages */}
+      <Route path="/laundromats-for-sale/:state">
+        {(params) => (
+          <Suspense fallback={<LoadingFallback />}>
+            <StateLanding stateSlug={params.state} />
+          </Suspense>
+        )}
+      </Route>
+      <Route path="/laundromats-for-sale">
+        <Suspense fallback={<LoadingFallback />}>
+          <StatesDirectory />
         </Suspense>
       </Route>
       <Route path="/cleanbi/:state/:city">
