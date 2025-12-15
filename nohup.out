@@ -1,0 +1,376 @@
+2025-12-15T19:37:52Z INF Starting tunnel tunnelID=0845a982-9657-4b64-b5b2-01d07b7c08aa
+2025-12-15T19:37:52Z INF Version 2025.11.1 (Checksum 991dffd8889ee9f0147b6b48933da9e4407e68ea8c6d984f55fa2d3db4bb431d)
+2025-12-15T19:37:52Z INF GOOS: linux, GOVersion: go1.24.9, GoArch: amd64
+2025-12-15T19:37:52Z INF Settings: map[no-tls-verify:true p:http2 protocol:http2 token:*****]
+2025-12-15T19:37:52Z INF Environmental variables map[CLOUDFLARE_TUNNEL_ID:0845a982-9657-4b64-b5b2-01d07b7c08aa]
+2025-12-15T19:37:52Z INF Autoupdate frequency is set autoupdateFreq=86400000
+2025-12-15T19:37:52Z INF Generated Connector ID: 08097e5b-e7b7-43c6-b872-df7e0a728ac6
+2025-12-15T19:37:53Z INF Initial protocol http2
+2025-12-15T19:37:53Z INF ICMP proxy will use 172.31.89.162 as source for IPv4
+2025-12-15T19:37:53Z INF ICMP proxy will use ::1 in zone lo as source for IPv6
+2025-12-15T19:37:53Z WRN The user running cloudflared process has a GID (group ID) that is not within ping_group_range. You might need to add that user to a group within that range, or instead update the range to encompass a group the user is already in by modifying /proc/sys/net/ipv4/ping_group_range. Otherwise cloudflared will not be able to ping this network error="Group ID 1000 is not between ping group 65534 to 65534"
+2025-12-15T19:37:53Z WRN ICMP proxy feature is disabled error="cannot create ICMPv4 proxy: Group ID 1000 is not between ping group 65534 to 65534 nor ICMPv6 proxy: socket: permission denied"
+2025-12-15T19:37:53Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp /etc/cloudflared /usr/local/etc/cloudflared]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+2025-12-15T19:37:53Z INF ICMP proxy will use 172.31.89.162 as source for IPv4
+2025-12-15T19:37:53Z INF ICMP proxy will use ::1 in zone lo as source for IPv6
+2025-12-15T19:37:53Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2025-12-15T19:37:53Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:37:53Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:37:53Z INF Retrying connection in up to 2s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:37:53Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:37:53Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:37:53Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:37:56Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:37:56Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:37:56Z INF Retrying connection in up to 8s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:00Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:38:00Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:00Z INF Retrying connection in up to 16s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:11Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:38:11Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:11Z INF Retrying connection in up to 32s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:22Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:38:23Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:23Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:43Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:38:43Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:43Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:56Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:38:56Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:38:56Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:20Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:39:20Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:20Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:25Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:39:25Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:25Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:43Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:39:43Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:39:43Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:08Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:40:08Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:08Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:28Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:40:28Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:28Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:44Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:40:44Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:44Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:56Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:40:56Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:56Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:59Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:40:59Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:40:59Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:41:25Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:41:25Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:41:25Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:41:50Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:41:50Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:41:50Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:21Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:42:21Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:21Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:47Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:42:47Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:47Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:51Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:42:51Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:51Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:55Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:42:55Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:42:55Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:05Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:43:05Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:05Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:15Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:43:15Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:15Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:29Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:43:29Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:29Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:52Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:43:52Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:43:52Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:03Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:44:03Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:03Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:06Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:44:06Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:06Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:07Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:44:07Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:07Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:27Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:44:27Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:27Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:49Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:44:49Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:44:49Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:05Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:45:05Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:05Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:06Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:45:06Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:06Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:24Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:45:24Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:24Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:53Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:45:53Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:45:53Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:10Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:46:10Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:10Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:27Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:46:27Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:27Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:58Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:46:58Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:46:58Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:01Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:47:01Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:01Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:14Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:47:14Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:14Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:41Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:47:41Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:41Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:55Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:47:55Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:55Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:55Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:47:55Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:47:55Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:20Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:48:20Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:20Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:26Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:48:26Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:26Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:41Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:48:41Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:41Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:55Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:48:55Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:48:55Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:25Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:49:25Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:25Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:26Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:49:26Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:26Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:32Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:49:32Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:32Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:37Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:49:37Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:37Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:44Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:49:44Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:49:44Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:13Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:50:13Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:13Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:40Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:50:40Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:40Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:58Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:50:58Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:50:58Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:03Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:51:03Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:03Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:14Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:51:14Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:14Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:18Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:51:18Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:18Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:45Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:51:45Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:45Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:46Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:51:46Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:51:46Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:12Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:52:12Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:12Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:27Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:52:27Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:27Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:27Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:52:27Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:27Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:37Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:52:37Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:37Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:49Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:52:49Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:52:49Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:07Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:53:07Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:07Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:31Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:53:31Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:31Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:40Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:53:40Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:40Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:40Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:53:40Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:40Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:44Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:53:44Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:53:44Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:07Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:54:07Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:07Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:35Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:54:35Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:35Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:48Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:54:48Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:54:48Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:07Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:55:07Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:07Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:19Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:55:19Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:19Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:26Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:55:26Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:26Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:28Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:55:28Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:28Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:57Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:55:57Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:55:57Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:07Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:56:07Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:07Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:37Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:56:37Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:37Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:44Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:56:44Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:56:44Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:10Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:57:10Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:10Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:26Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:57:26Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:26Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:46Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:57:46Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:57:46Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:17Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:58:17Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:17Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:28Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:58:28Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:28Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:38Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:58:38Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:58:38Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:05Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:59:05Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:05Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:21Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:59:21Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:21Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:43Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T19:59:43Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T19:59:43Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:10Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:00:10Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:10Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:33Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:00:33Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:33Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:35Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:00:36Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:00:36Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:03Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:01:03Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:03Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:24Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:01:24Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:24Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:52Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:01:52Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:01:52Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:11Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:02:11Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:11Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:18Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:02:18Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:18Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:45Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:02:45Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:02:45Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:13Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:03:13Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:13Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:34Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:03:34Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:34Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:46Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:03:46Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:03:46Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:08Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:04:08Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:08Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:09Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:04:09Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:09Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:12Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:04:12Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:12Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:20Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:04:20Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:20Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:34Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:04:34Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:04:34Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:06Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:05:06Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:06Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:26Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:05:26Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:26Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:35Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:05:35Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:05:35Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:06Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:06:06Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:06Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:06Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:06:06Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:06Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:19Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:06:19Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:19Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:45Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:06:45Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:45Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:56Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:06:56Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:06:56Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:05Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:07:05Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:05Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:34Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:07:34Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:34Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:45Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:07:45Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:45Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:57Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:07:57Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:07:57Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:08:28Z ERR failed to serve incoming request error="Unauthorized: Failed to get tunnel"
+2025-12-15T20:08:28Z ERR Register tunnel error from server side error="Unauthorized: Failed to get tunnel" connIndex=0 event=0 ip=198.41.192.57
+2025-12-15T20:08:28Z INF Retrying connection in up to 1m4s connIndex=0 event=0 ip=198.41.192.57
