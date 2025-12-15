@@ -30,8 +30,17 @@ Disallow: /*?*page=2
 Disallow: /*?*page=3
 Disallow: /*?*page=4
 
-# Sitemap location
+# Sitemap locations
 Sitemap: https://washbizhub.com/sitemap.xml
+Sitemap: https://washbizhub.com/sitemap_index.xml
+Sitemap: https://washbizhub.com/sitemap-blogs.xml
+Sitemap: https://washbizhub.com/sitemap-listings.xml
+Sitemap: https://washbizhub.com/sitemap-error-codes.xml
+Sitemap: https://washbizhub.com/sitemap-resources.xml
+Sitemap: https://washbizhub.com/sitemap-courses.xml
+Sitemap: https://washbizhub.com/sitemap-forum.xml
+Sitemap: https://washbizhub.com/sitemap-vendors.xml
+Sitemap: https://washbizhub.com/sitemap-states.xml
 
 # Crawl-delay for considerate crawling
 Crawl-delay: 1

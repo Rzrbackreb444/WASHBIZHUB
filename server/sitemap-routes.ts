@@ -341,15 +341,25 @@ export function registerSitemapRoutes(app: Express) {
   });
 
   app.get("/robots.txt", (req, res) => {
+    const BASE_URL = getBaseUrl(req);
     const robotsTxt = `# WashBizHub Robots.txt
 # https://washbizhub.com
+# The #1 Laundromat Resource & Educational Hub
 
 User-agent: *
 Allow: /
 
-# Sitemaps
-Sitemap: ${DEFAULT_BASE_URL}/sitemap-index.xml
-Sitemap: ${DEFAULT_BASE_URL}/sitemap.xml
+# Sitemaps - All content indexed
+Sitemap: ${BASE_URL}/sitemap.xml
+Sitemap: ${BASE_URL}/sitemap_index.xml
+Sitemap: ${BASE_URL}/sitemap-blogs.xml
+Sitemap: ${BASE_URL}/sitemap-listings.xml
+Sitemap: ${BASE_URL}/sitemap-error-codes.xml
+Sitemap: ${BASE_URL}/sitemap-resources.xml
+Sitemap: ${BASE_URL}/sitemap-courses.xml
+Sitemap: ${BASE_URL}/sitemap-forum.xml
+Sitemap: ${BASE_URL}/sitemap-vendors.xml
+Sitemap: ${BASE_URL}/sitemap-states.xml
 
 # Disallow admin and private areas
 Disallow: /admin/
@@ -357,10 +367,13 @@ Disallow: /api/
 Disallow: /auth
 Disallow: /account/
 Disallow: /dashboard/
+Disallow: /settings
+Disallow: /vault
 
 # Allow important crawlers
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
@@ -371,23 +384,37 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-# Block bad bots
+# AI Crawlers (AEO optimization)
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Rate limit aggressive bots
 User-agent: AhrefsBot
-Disallow: /
+Crawl-delay: 10
 
 User-agent: SemrushBot
-Disallow: /
+Crawl-delay: 10
 
 User-agent: MJ12bot
-Disallow: /
+Crawl-delay: 10
 
-# Crawl-delay for aggressive bots
+# Crawl-delay for other bots
 User-agent: *
 Crawl-delay: 1
 `;
 
     res.header("Content-Type", "text/plain");
-    res.header("Cache-Control", "public, max-age=86400");
+    res.header("Cache-Control", "public, max-age=3600");
     res.send(robotsTxt);
   });
 
