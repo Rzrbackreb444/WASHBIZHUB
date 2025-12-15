@@ -6,6 +6,18 @@ import { eq, desc, and, isNotNull, or } from "drizzle-orm";
 const ALLOWED_DOMAINS = ["washbizhub.com", "washbizhub.xyz"];
 const DEFAULT_BASE_URL = "https://washbizhub.com";
 
+// All 50 US states for programmatic SEO
+const US_STATES = [
+  "alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut",
+  "delaware", "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", "iowa",
+  "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan",
+  "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new-hampshire",
+  "new-jersey", "new-mexico", "new-york", "north-carolina", "north-dakota", "ohio",
+  "oklahoma", "oregon", "pennsylvania", "rhode-island", "south-carolina", "south-dakota",
+  "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west-virginia",
+  "wisconsin", "wyoming"
+];
+
 function getBaseUrl(req: Request): string {
   const host = req.get('host') || '';
   if (host.includes('washbizhub.xyz')) {
@@ -250,6 +262,24 @@ export function registerSitemapRoutes(app: Express) {
     <lastmod>${formatDate(broker.updatedAt)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+`;
+      }
+
+      // State landing pages for programmatic SEO (50 states)
+      xml += `  <url>
+    <loc>${BASE_URL}/laundromats-for-sale</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+`;
+      for (const state of US_STATES) {
+        xml += `  <url>
+    <loc>${BASE_URL}/laundromats-for-sale/${escapeXml(state)}</loc>
+    <lastmod>${formatDate(new Date())}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 `;
       }
