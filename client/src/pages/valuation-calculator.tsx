@@ -4,7 +4,13 @@ import { PremiumCalculatorEngine } from "@/components/PremiumCalculatorEngine";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ValuationDisclaimer } from "@/components/LegalDisclaimer";
+import { FAQDisplay } from "@/components/FAQDisplay";
+import { DatasetSchema } from "@/components/AEOSchemas";
+import { getFAQs, getAuthor } from "@/lib/seo-content-registry";
 import type { PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+
+const valuationFaqs = getFAQs("valuationCalculator");
+const valuationAuthor = getAuthor("washbizhubTeam");
 
 const valuationStructuredData = {
   "@context": "https://schema.org",
@@ -34,41 +40,6 @@ const valuationStructuredData = {
   "datePublished": "2024-01-15",
   "dateModified": "2025-11-30"
 };
-
-const valuationFaqs = [
-  {
-    question: "How much is a laundromat worth?",
-    answer: "A laundromat is typically worth 2.5-4.5x annual revenue or 3.5-6.5x EBITDA. For example, a laundromat generating $200,000 annual revenue would be valued between $500,000-$900,000. Key factors affecting value include location quality, equipment condition, lease terms, and documented financials."
-  },
-  {
-    question: "What are the valuation multiples for laundromats?",
-    answer: "Laundromat valuation multiples typically range from 2.5-4.5x annual revenue and 3.5-6.5x EBITDA. Premium multiples (4x+ revenue, 6x+ EBITDA) apply to stores with prime locations, modern equipment, strong lease terms, diversified services, and 3+ years of documented financials."
-  },
-  {
-    question: "How do you value a laundromat business?",
-    answer: "Professional brokers use 4 methods: (1) Revenue Multiple: 2.5-4.5x annual gross revenue, (2) EBITDA Multiple: 3.5-6.5x annual earnings, (3) Cap Rate Method: NOI divided by market cap rate (6-12%), (4) Asset-Based: equipment value plus 25-50% goodwill. Most appraisers average 2-3 methods."
-  },
-  {
-    question: "What is a typical EBITDA multiple for a laundromat?",
-    answer: "Laundromats typically trade at 3.5-6.5x EBITDA, with 4.5-5x being most common for established stores. Factors increasing multiples include prime location, modern equipment, strong lease, wash-dry-fold services, commercial accounts, and clean documented financials for 3+ years."
-  },
-  {
-    question: "What cap rate should I use for laundromat valuation?",
-    answer: "Market cap rates for laundromats range from 6-12%, with 8-9% being average. Lower cap rates (6-8%) indicate lower-risk, prime locations with stable income streams. Higher cap rates (10-12%) reflect higher-risk markets, older equipment, or stores needing improvements."
-  },
-  {
-    question: "How much is a laundromat worth with $300,000 annual revenue?",
-    answer: "A laundromat with $300,000 annual revenue typically sells for $750,000-$1,350,000 using industry multiples. Revenue method: $960,000 (3.2x), EBITDA method (assuming 40% margins): $576,000 (4.8x on $120K EBITDA). Actual price depends on location, equipment, and profitability."
-  },
-  {
-    question: "Does location affect laundromat valuation?",
-    answer: "Yes, location significantly impacts laundromat value. Prime locations near dense residential areas, apartment complexes, or universities command 20-30% higher valuations. Stores in lower-income areas with high foot traffic often generate better returns. Lease terms and rent ratios also affect value."
-  },
-  {
-    question: "What increases a laundromat's selling price?",
-    answer: "Key value drivers include: strong documented financials (3+ years), favorable lease terms (10+ years remaining), modern equipment (under 7 years old), additional services (wash-dry-fold, pickup/delivery), commercial accounts, low rent ratio (under 15% of revenue), and prime location with limited competition."
-  }
-];
 
 const valuationHowTo = {
   name: "How to Calculate Laundromat Value",
@@ -334,9 +305,9 @@ export default function ValuationCalculator() {
           { name: "Valuation Calculator", url: "/valuation-calculator" }
         ]}
         author={{
-          name: "WashBizHub Valuation Team",
-          expertise: "Laundromat Appraisal & Business Valuation Specialists",
-          credentials: "50+ years combined experience in laundromat acquisitions and sales across 1,000+ transactions"
+          name: valuationAuthor.name,
+          expertise: valuationAuthor.expertise,
+          credentials: valuationAuthor.credentials
         }}
         structuredData={valuationStructuredData}
         speakableSelectors={["h1", ".speakable", "[data-highlight='true']"]}
@@ -354,7 +325,27 @@ export default function ValuationCalculator() {
         </div>
       </div>
 
+      {/* Dataset Schema for AEO */}
+      <DatasetSchema
+        name="Laundromat Valuation Data"
+        description="Comprehensive laundromat business valuation methodology data including revenue multiples, EBITDA multiples, cap rates, and asset-based calculations used by industry professionals."
+        keywords={["laundromat valuation", "business appraisal", "EBITDA multiple", "revenue multiple", "cap rate", "laundromat worth"]}
+        variableMeasured={["Revenue Multiple", "EBITDA Multiple", "Cap Rate", "Asset Value", "Fair Market Value"]}
+        measurementTechnique="Industry-standard valuation methodologies based on 1,000+ laundromat transactions"
+        dateModified="2025-12-01"
+      />
+
       <PremiumCalculatorEngine config={config} onSave={handleSave} />
+      
+      {/* FAQ Section for SEO/AEO - Uses centralized FAQ registry */}
+      <div className="mx-auto max-w-4xl px-6 py-8">
+        <FAQDisplay
+          title="Laundromat Valuation Questions"
+          description="Common questions about calculating laundromat business value"
+          faqs={valuationFaqs}
+          variant="accordion"
+        />
+      </div>
       
       <div className="mx-auto max-w-4xl px-6 py-8">
         <ValuationDisclaimer />
