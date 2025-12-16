@@ -94,6 +94,12 @@ const DEFAULT_PROMPTS = [
     category: "cleanbi",
   },
   {
+    icon: AlertTriangle,
+    label: "Larry's Trap Alerts",
+    prompt: "What are Larry Larsen's top trap alerts I should watch for when buying a laundromat?",
+    category: "due-diligence",
+  },
+  {
     icon: DollarSign,
     label: "Valuation",
     prompt: "How do I value a laundromat using EBITDA multiples and the C.L.E.A.N. methodology?",
@@ -107,21 +113,15 @@ const DEFAULT_PROMPTS = [
   },
   {
     icon: Wrench,
-    label: "Equipment",
-    prompt: "Compare Speed Queen vs Dexter vs Electrolux - which is best for my situation?",
+    label: "Sasquatch Diagnostics",
+    prompt: "What are Nick's Sasquatch Service Tips for equipment maintenance?",
     category: "equipment",
   },
   {
     icon: TrendingUp,
-    label: "ROI Analysis",
-    prompt: "What's a realistic ROI for a laundromat and how do I calculate it?",
-    category: "analysis",
-  },
-  {
-    icon: Calculator,
-    label: "Pricing",
-    prompt: "What vend prices maximize profit while staying competitive?",
-    category: "operations",
+    label: "Due Diligence",
+    prompt: "What does Larry Larsen say about verifying water bills and revenue claims?",
+    category: "due-diligence",
   },
 ];
 
@@ -175,7 +175,7 @@ const getWelcomeMessage = (journey: JourneyType): string => {
     case 'partner':
       return "**Welcome, Industry Partner**\n\nI can help you connect with our community of 73,000+ laundromat professionals.\n\n**Available opportunities:**\n• 📋 List laundromats for sale\n• 🏪 Equipment marketplace\n• 🤝 Vendor partnerships\n• 📣 Advertising to owners\n\nHow can I help you grow?";
     default:
-      return "**Welcome to WashBizHub AI**\n\nI'm your intelligent assistant powered by CLEANBI™ location intelligence, 80+ calculators, and deep industry expertise.\n\n**What I can help with:**\n• 📊 **CLEANBI Scoring** — A/B/C location grades\n• 💰 **Valuations** — EBITDA multiples & deal analysis\n• 🔧 **Equipment** — Repair diagnostics & comparisons\n• 📈 **Operations** — Revenue & cost optimization\n\nAsk me anything about laundromat investing!";
+      return "**Ask Larry & Nick — Your Laundromat Experts**\n\nI'm powered by *The Laundromat Bible* — combining Nick Kremers' 3rd-generation expertise with Larry Larsen's 50+ years of due diligence wisdom.\n\n**What I can help with:**\n• 📊 **CLEANBI Scoring** — A/B/C location grades\n• ⚠️ **Larry's Trap Alerts** — Avoid costly mistakes\n• 🔧 **Sasquatch Diagnostics** — Equipment expertise\n• 💰 **Valuations** — EBITDA multiples & deal analysis\n\n*\"If the seller can't produce 12 months of utility bills, walk away.\"* — Larry Larsen";
   }
 };
 

@@ -24,10 +24,10 @@ import {
 
 const BASE_URL = 'https://washbizhub.com';
 
-// Scheduler intervals
-const QUEUE_PROCESS_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-const DAILY_BACKFILL_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
-const HEALTH_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+// Scheduler intervals - optimized to prevent over-indexing
+const QUEUE_PROCESS_INTERVAL_MS = 60 * 60 * 1000; // 1 hour (reduced from 5 minutes)
+const DAILY_BACKFILL_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000; // Weekly (reduced from daily)
+const HEALTH_CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 hours (reduced from 1 hour)
 
 // Scheduler state
 let isSchedulerRunning = false;
@@ -243,9 +243,9 @@ export async function startIndexingScheduler(): Promise<void> {
   }, HEALTH_CHECK_INTERVAL_MS);
   
   console.log('✅ Indexing Scheduler started successfully');
-  console.log(`   Queue processor: every ${QUEUE_PROCESS_INTERVAL_MS / 60000} minutes`);
-  console.log(`   Daily backfill: every ${DAILY_BACKFILL_INTERVAL_MS / 3600000} hours`);
-  console.log(`   Health check: every ${HEALTH_CHECK_INTERVAL_MS / 60000} minutes\n`);
+  console.log(`   Queue processor: every ${QUEUE_PROCESS_INTERVAL_MS / 3600000} hour(s)`);
+  console.log(`   Sitemap backfill: every ${DAILY_BACKFILL_INTERVAL_MS / 86400000} days`);
+  console.log(`   Health check: every ${HEALTH_CHECK_INTERVAL_MS / 3600000} hours\n`);
 }
 
 /**

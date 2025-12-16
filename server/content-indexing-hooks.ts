@@ -30,8 +30,13 @@ const MAX_LOG_SIZE = 1000;
 
 const pendingBatch: string[] = [];
 let batchTimeout: NodeJS.Timeout | null = null;
-const BATCH_DELAY_MS = 5000;
-const MAX_BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 60 * 60 * 1000; // 1 hour batch delay to prevent over-indexing
+const MAX_BATCH_SIZE = 50; // Larger batch size since we wait longer
+const MIN_REINDEX_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hour cooldown per URL
+
+// Track recently indexed URLs to prevent duplicate submissions
+const recentlyIndexedUrls = new Map<string, Date>();
+const MAX_RECENTLY_INDEXED = 5000;
 
 /**
  * Add result to indexing log with size limit
@@ -79,6 +84,7 @@ async function processBatch(): Promise<void> {
 
       if (result.success) {
         console.log(`✅ IndexNow submitted: ${url}`);
+        markAsIndexed(url); // Track successful submission for cooldown
       } else {
         console.log(`❌ IndexNow failed: ${url} - ${result.message}`);
       }
@@ -104,18 +110,57 @@ async function processBatch(): Promise<void> {
 }
 
 /**
- * Queue URL for batch submission
+ * Check if URL is on cooldown (recently indexed)
+ */
+function isOnCooldown(url: string): boolean {
+  const lastIndexed = recentlyIndexedUrls.get(url);
+  if (!lastIndexed) return false;
+  
+  const timeSinceLastIndex = Date.now() - lastIndexed.getTime();
+  return timeSinceLastIndex < MIN_REINDEX_COOLDOWN_MS;
+}
+
+/**
+ * Mark URL as recently indexed
+ */
+function markAsIndexed(url: string): void {
+  // Cleanup old entries if map is getting too large
+  if (recentlyIndexedUrls.size >= MAX_RECENTLY_INDEXED) {
+    const oldestCutoff = Date.now() - MIN_REINDEX_COOLDOWN_MS;
+    for (const [key, date] of recentlyIndexedUrls) {
+      if (date.getTime() < oldestCutoff) {
+        recentlyIndexedUrls.delete(key);
+      }
+    }
+  }
+  recentlyIndexedUrls.set(url, new Date());
+}
+
+/**
+ * Queue URL for batch submission (with deduplication and cooldown)
  */
 function queueForIndexing(url: string): void {
-  if (!pendingBatch.includes(url)) {
-    pendingBatch.push(url);
-    console.log(`📋 Queued for IndexNow: ${url} (batch size: ${pendingBatch.length})`);
+  // Skip if URL was indexed recently (24h cooldown)
+  if (isOnCooldown(url)) {
+    console.log(`⏳ Skipping ${url} - indexed within last 24h`);
+    return;
   }
+  
+  // Skip if already in pending batch
+  if (pendingBatch.includes(url)) {
+    return;
+  }
+  
+  pendingBatch.push(url);
+  console.log(`📋 Queued for IndexNow: ${url} (batch size: ${pendingBatch.length})`);
 
+  // Schedule batch processing if not already scheduled
   if (!batchTimeout) {
     batchTimeout = setTimeout(processBatch, BATCH_DELAY_MS);
+    console.log(`⏰ Batch scheduled for ${new Date(Date.now() + BATCH_DELAY_MS).toISOString()}`);
   }
 
+  // Process immediately if batch is full
   if (pendingBatch.length >= MAX_BATCH_SIZE && batchTimeout) {
     clearTimeout(batchTimeout);
     processBatch();
