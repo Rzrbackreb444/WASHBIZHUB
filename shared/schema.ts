@@ -96,6 +96,35 @@ export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
 // ========================================
+// OTP AUTHENTICATION TOKENS
+// ========================================
+export const otpTokens = pgTable("otp_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email").notNull(),
+  codeHash: text("code_hash").notNull(),
+  purpose: varchar("purpose", { length: 20 }).default("login").notNull(), // "login", "mfa", "email_verify"
+  channel: varchar("channel", { length: 20 }).default("email").notNull(), // "email", "sms"
+  attempts: integer("attempts").default(0).notNull(),
+  maxAttempts: integer("max_attempts").default(5).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  emailIdx: index("otp_tokens_email_idx").on(table.email),
+  expiresIdx: index("otp_tokens_expires_idx").on(table.expiresAt),
+}));
+
+export const insertOtpTokenSchema = createInsertSchema(otpTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertOtpToken = z.infer<typeof insertOtpTokenSchema>;
+export type OtpToken = typeof otpTokens.$inferSelect;
+
+// ========================================
 // USER PROFILE & SOCIAL SYSTEM
 // ========================================
 
