@@ -473,6 +473,7 @@ const AIConsultationCouncil = lazy(() => import("@/pages/ai-consultation-council
 const ConsultationLanding = lazy(() => import("@/pages/consultation-landing"));
 const InsurancePartners = lazy(() => import("@/pages/insurance-partners"));
 const LarryLarsen = lazy(() => import("@/pages/larry-larsen"));
+const LarrysAcademy = lazy(() => import("@/pages/larrys-academy"));
 const OurPartnership = lazy(() => import("@/pages/our-partnership"));
 
 // Order Portal
@@ -1611,6 +1612,11 @@ function Router() {
       <Route path="/larry-larsen">
         <Suspense fallback={<LoadingFallback />}>
           <LarryLarsen />
+        </Suspense>
+      </Route>
+      <Route path="/larrys-academy">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarrysAcademy />
         </Suspense>
       </Route>
       <Route path="/our-partnership">

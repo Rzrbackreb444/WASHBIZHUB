@@ -185,9 +185,9 @@ export default function EquipmentHub() {
   return (
     <>
       <Helmet>
-        <title>Commercial Laundry Equipment | Dexter & Continental Girbau Authorized Dealer | WashBizHub</title>
-        <meta name="description" content="Buy commercial laundry equipment from authorized Dexter and Continental Girbau distributor. Washers, dryers, parts for laundromats, hotels, healthcare, universities. Financing available. Made in USA." />
-        <meta name="keywords" content="commercial laundry equipment, Dexter washers, Continental Girbau, laundromat equipment, commercial washers, commercial dryers, laundry parts, OPL equipment, hotel laundry, healthcare laundry" />
+        <title>Commercial Laundry Equipment | Blue Whale SQ, Dexter & Continental Girbau | WashBizHub</title>
+        <meta name="description" content="Buy commercial laundry equipment from WashBizHub. Featured Blue Whale SQ Series with 95% Speed Queen compatible parts. Plus authorized Dexter and Continental Girbau distributor. Washers, dryers for laundromats, hotels, healthcare. Financing available." />
+        <meta name="keywords" content="commercial laundry equipment, Blue Whale SQ Series, Dexter washers, Continental Girbau, laundromat equipment, commercial washers, commercial dryers, laundry parts, Speed Queen compatible, OPL equipment" />
         <link rel="canonical" href="https://washbizhub.com/equipment" />
         <meta property="og:title" content="Commercial Laundry Equipment | Dexter & Continental Girbau | WashBizHub" />
         <meta property="og:description" content="Authorized distributor of Dexter and Continental Girbau commercial laundry equipment. Washers, dryers, parts, financing for laundromats, hotels, healthcare." />
@@ -316,6 +316,158 @@ export default function EquipmentHub() {
                 Learn More <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </a>
+          </div>
+        </section>
+
+        {/* Featured Partner: Blue Whale */}
+        <section className="py-16 bg-gradient-to-b from-[#0A1628] to-[#0d1c33]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-10">
+              <Badge className="mb-4 bg-[#C8A661] text-[#0A1628] px-4 py-1.5 text-sm font-semibold">
+                <Trophy className="w-4 h-4 mr-2" />
+                Featured Partner — Direct Distributorship
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Blue Whale SQ Series</h2>
+              <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+                Premium commercial laundry equipment at competitive prices. 95% Speed Queen compatible parts, 
+                200G-force extraction, and 30-60 day delivery. Perfect for new builds and remodels.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {/* SQ Washers */}
+              <Card className="bg-[#0d1c33]/80 border-[#C8A661]/30 text-white overflow-hidden group hover:border-[#C8A661] transition-colors">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge className="bg-[#C8A661] text-[#0A1628]">30-80 LB</Badge>
+                    <WashingMachine className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-xl text-white mt-2">SQ Series Washers</CardTitle>
+                  <CardDescription className="text-gray-400">Hard Mount 200G Extraction</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>95% Speed Queen Compatible Parts</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Coin Box & Hoses Included</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>2-Year Parts Warranty</span>
+                  </div>
+                  <Button className="w-full mt-4 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-bluewhale-washer-quote">
+                    Request Quote
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* SQ Dryers */}
+              <Card className="bg-[#0d1c33]/80 border-[#C8A661]/30 text-white overflow-hidden group hover:border-[#C8A661] transition-colors">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge className="bg-[#C8A661] text-[#0A1628]">30-75 LB</Badge>
+                    <Flame className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-xl text-white mt-2">SQ Series Dryers</CardTitle>
+                  <CardDescription className="text-gray-400">Stainless Steel Front Singles & Stacks</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Gas & Electric Options</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Reversible Doors</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Heavy-Duty Construction</span>
+                  </div>
+                  <Button className="w-full mt-4 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-bluewhale-dryer-quote">
+                    Request Quote
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Stack Washer-Dryers */}
+              <Card className="bg-[#0d1c33]/80 border-[#C8A661]/30 text-white overflow-hidden group hover:border-[#C8A661] transition-colors">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Badge className="bg-[#C8A661] text-[#0A1628]">20-35 LB</Badge>
+                    <Zap className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <CardTitle className="text-xl text-white mt-2">Stack Washer-Dryers</CardTitle>
+                  <CardDescription className="text-gray-400">Space-Saving Combo Units</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>50% Floor Space Savings</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Perfect for Multi-Housing</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <CheckCircle2 className="h-4 w-4 text-[#C8A661] flex-shrink-0" />
+                    <span>Quick 30-60 Day Delivery</span>
+                  </div>
+                  <Button className="w-full mt-4 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-bluewhale-stack-quote">
+                    Request Quote
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Why Blue Whale */}
+            <div className="bg-[#0d1c33]/50 rounded-xl border border-[#C8A661]/20 p-6 md:p-8">
+              <div className="grid md:grid-cols-4 gap-6 text-center">
+                <div className="space-y-2">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <h4 className="font-semibold text-white">Competitive Pricing</h4>
+                  <p className="text-sm text-gray-400">Premium quality at 20-30% below major brands</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+                    <Settings className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <h4 className="font-semibold text-white">Parts Compatibility</h4>
+                  <p className="text-sm text-gray-400">95% Speed Queen compatible for easy maintenance</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+                    <Truck className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <h4 className="font-semibold text-white">Fast Delivery</h4>
+                  <p className="text-sm text-gray-400">30-60 day delivery to your location</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
+                    <HeadphonesIcon className="h-6 w-6 text-[#C8A661]" />
+                  </div>
+                  <h4 className="font-semibold text-white">Expert Support</h4>
+                  <p className="text-sm text-gray-400">Backed by WashBizHub's industry expertise</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-8">
+              <Link href="/contact?subject=blue-whale-quote">
+                <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] px-8" data-testid="button-bluewhale-full-quote">
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  Get Full Store Quote — $500/Machine Commission for Referrals
+                </Button>
+              </Link>
+              <p className="text-gray-400 text-sm mt-3">
+                30-100+ machines per store = $15,000 - $50,000+ in equipment value. Contact us for bulk pricing.
+              </p>
+            </div>
           </div>
         </section>
 
