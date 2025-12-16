@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -309,13 +309,51 @@ export default function TemplateVault() {
 
   return (
     <>
-      <Helmet>
-        <title>Template Vault - Premium Laundromat Templates & Worksheets | WashBizHub</title>
-        <meta 
-          name="description" 
-          content="Download premium laundromat templates: business plans, lease checklists, operations guides, and due diligence tools. Larry Larsen's 50+ trap alerts included." 
-        />
-      </Helmet>
+      <SEO
+        title="Laundromat Business Plan Template & Due Diligence Checklist | Template Vault | WashBizHub"
+        description="Download premium laundromat templates: AI business plan generator, lease red flag checklist (50+ trap alerts), due diligence verifier, LOI templates. SBA-ready, attorney-reviewed. Larry Larsen's 50+ years expertise."
+        canonicalUrl="/template-vault"
+        ogType="website"
+        keywords={[
+          "laundromat business plan template",
+          "laundromat due diligence checklist",
+          "laundromat lease checklist",
+          "laundromat LOI template",
+          "laundromat acquisition templates",
+          "laundromat operations manual template",
+          "laundromat employee handbook template",
+          "laundromat financial model template",
+          "SBA laundromat business plan",
+          "laundromat lease red flags",
+          "laundromat purchase checklist",
+          "how to buy a laundromat checklist",
+          "laundromat investment templates",
+          "coin laundry business plan",
+          "laundromat startup checklist"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Template Vault", url: "/template-vault" }
+        ]}
+        faqs={[
+          {
+            question: "What is the Template Vault?",
+            answer: "The Template Vault is WashBizHub's premium collection of professional templates, checklists, and tools for laundromat buyers, operators, and sellers. It includes AI-powered business plan generators, Larry Larsen's 50+ lease red flag alerts, due diligence checklists, LOI templates, and operational guides."
+          },
+          {
+            question: "What's included in the Lease Red Flag Checklist?",
+            answer: "The Lease Red Flag Checklist includes 50+ trap alerts from Larry Larsen's 50+ years of laundromat experience. It covers critical lease clauses like CAM charges, rent escalation caps, assignment rights, exclusivity provisions, and more. Free users get 7 critical alerts; Pro members get all 50+."
+          },
+          {
+            question: "Is the AI Business Plan Generator SBA-ready?",
+            answer: "Yes! Our AI Business Plan Generator creates comprehensive 30-page business plans in SBA-ready format. It integrates CLEANBI market data, financial projections, competitive analysis, and funding requirements automatically. Perfect for bank financing and SBA loan applications."
+          },
+          {
+            question: "Can I download templates after my subscription ends?",
+            answer: "Yes, any templates you've purchased or downloaded are yours to keep. Subscription members have access to all templates while subscribed. Individual template purchases provide lifetime access to that specific template."
+          }
+        ]}
+      />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
         {/* Hero Section */}

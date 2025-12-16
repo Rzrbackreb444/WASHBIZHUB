@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "wouter";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useAuth } from "@/hooks/useAuth";
@@ -283,10 +283,31 @@ export default function TemplateDetail() {
 
   return (
     <>
-      <Helmet>
-        <title>{templateData.name} | WashBizHub Template Vault</title>
-        <meta name="description" content={templateData.description} />
-      </Helmet>
+      <SEO
+        title={`${templateData.name} | Laundromat Template | WashBizHub`}
+        description={`${templateData.description} Professional, attorney-reviewed template for laundromat buyers and operators. Download instantly.`}
+        canonicalUrl={`/vault/${slug}`}
+        ogType="product"
+        keywords={[
+          `laundromat ${templateData.name.toLowerCase()}`,
+          `${templateData.category.toLowerCase()} template`,
+          "laundromat acquisition template",
+          "laundromat business template",
+          "professional laundromat documents"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Template Vault", url: "/template-vault" },
+          { name: templateData.name, url: `/vault/${slug}` }
+        ]}
+        productOffers={templateData.price ? [{
+          name: templateData.name,
+          description: templateData.description,
+          price: (templateData.price / 100).toFixed(2),
+          priceCurrency: "USD",
+          availability: "InStock"
+        }] : undefined}
+      />
 
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
         {/* Header */}

@@ -718,6 +718,16 @@ export default function Home() {
           "laundromat owner income",
           "laundry business opportunity",
           
+          // TEMPLATE VAULT KEYPHRASES
+          "laundromat business plan template",
+          "laundromat due diligence checklist",
+          "laundromat lease checklist",
+          "laundromat LOI template",
+          "laundromat acquisition templates",
+          "laundromat operations manual",
+          "laundromat employee handbook",
+          "laundromat financial model",
+          
           // BRANDED TERMS
           "CLEANBI location score",
           "CLEANBI location intelligence",
