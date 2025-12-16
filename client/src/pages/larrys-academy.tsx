@@ -14,9 +14,14 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { FAQDisplay } from "@/components/FAQDisplay";
 import { useAuth } from "@/hooks/useAuth";
 import { bibleChapters, bibleAppendices, bibleMetadata } from "@/data/laundromat-bible";
+import { getFAQs, getAuthor } from "@/lib/seo-content-registry";
 import larryLarsenPhoto from "@assets/image_1765341641648.png";
+
+const larrysAcademyFaqs = getFAQs("larrysAcademy");
+const larryAuthor = getAuthor("larryLarsen");
 
 interface CourseModule {
   id: string;
@@ -176,14 +181,21 @@ export default function LarrysAcademy() {
           { name: "Home", url: "/" },
           { name: "Larry's Academy", url: "/larrys-academy" }
         ]}
+        author={{
+          name: larryAuthor.name,
+          expertise: larryAuthor.expertise,
+          credentials: larryAuthor.credentials
+        }}
+        faqs={larrysAcademyFaqs}
+        dateModified={new Date().toISOString().split('T')[0]}
       />
 
       <div className="min-h-screen bg-background" data-testid="page-larrys-academy">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Breadcrumb 
             items={[
-              { label: "Home", href: "/" },
-              { label: "Larry's Academy", href: "/larrys-academy" }
+              { name: "Home", url: "/" },
+              { name: "Larry's Academy", url: "/larrys-academy" }
             ]} 
           />
 
@@ -638,6 +650,15 @@ export default function LarrysAcademy() {
                 </div>
               </CardContent>
             </Card>
+          </section>
+
+          {/* FAQ Section for SEO/AEO - Uses centralized FAQ registry */}
+          <section className="mt-12">
+            <FAQDisplay
+              title="Frequently Asked Questions About Larry's Academy"
+              faqs={larrysAcademyFaqs}
+              variant="accordion"
+            />
           </section>
         </div>
       </div>
