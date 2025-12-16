@@ -7,3 +7,7 @@ GOOGLE_CALLBACK_URL = "https://washbizhub.com/api/auth/google/callback"
 
 [userenv.production]
 DISABLE_CLOUDFLARE_AUTH = "true"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
