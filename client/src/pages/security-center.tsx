@@ -69,7 +69,7 @@ export default function SecurityCenter() {
   }
 
   if (!isAuthenticated) {
-    setLocation("/login");
+    setLocation("/auth");
     return null;
   }
 
