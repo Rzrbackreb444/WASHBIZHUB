@@ -26,6 +26,7 @@ import seoCommandCenterRoutes from "./seo-command-center";
 import routeOptimizationRoutes from "./routes/route-optimization";
 import driverTrackingRoutes from "./routes/driver-tracking";
 import googleDriveRoutes from "./routes/google-drive";
+import googleCalendarRoutes from "./routes/google-calendar";
 import profileRoutes, { activityRouter } from "./profile-routes";
 import bookingRoutes from "./booking-routes";
 import singleAnalysisRoutes from "./single-analysis-routes";
@@ -557,6 +558,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/driver-tracking", driverTrackingRoutes);
   app.use("/api/google-drive", googleDriveRoutes);
   console.log("✅ Google Drive routes registered");
+  app.use("/api/google-calendar", googleCalendarRoutes);
+  console.log("✅ Google Calendar routes registered");
   app.use("/api/ai", aiToolsRoutes);
   app.use("/api/analyses", savedAnalysesRoutes);
   app.use("/api/google", googleExportRoutes);
