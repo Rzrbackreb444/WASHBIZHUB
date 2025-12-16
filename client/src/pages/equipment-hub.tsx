@@ -17,7 +17,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { 
   AFFILIATE_LINK, PARTNER_NAME,
   brands, models, partCategories, industryVerticals, financingOptions, faqs,
-  getPopularModels, getModelsByBrand, getFaqsByCategory
+  getPopularModels, getModelsByBrand, getFaqsByCategory, blueWhaleModels
 } from "@/data/equipment-catalog";
 import { equipmentBlogs } from "@/data/equipment-blogs";
 
@@ -178,6 +178,7 @@ const partIcons: Record<string, any> = {
 export default function EquipmentHub() {
   const [activeTab, setActiveTab] = useState("overview");
   const popularModels = getPopularModels();
+  const blueWhaleBrand = brands.find(b => b.id === 'blue-whale');
   const dexterBrand = brands.find(b => b.id === 'dexter');
   const continentalBrand = brands.find(b => b.id === 'continental-girbau');
 

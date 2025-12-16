@@ -8,11 +8,12 @@ import {
   TrendingUp, BarChart3, Calendar, Cpu, MapPin, Building2,
   Users, Package, Truck, BookOpen, HelpCircle, Phone, Briefcase,
   PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid, Info,
-  Landmark, Award, GraduationCap, Zap, Factory, Shield
+  Landmark, Award, GraduationCap, Zap, Factory, Shield, UserPlus
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSignOut } from "@/components/SignOutConfirmation";
+import { useAuthModal } from "@/components/AuthModal";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -137,6 +138,7 @@ function MobileMenuContent({
   const [panelStack, setPanelStack] = useState<string[]>(['main']);
   const { user, isAuthenticated, isLoading } = useAuth();
   const { signOut, isSigningOut } = useSignOut();
+  const { openAuthModal } = useAuthModal();
   
   const { data: notifications } = useQuery<{ unreadCount: number }>({
     queryKey: ['/api/user-dashboard/notifications'],
@@ -332,12 +334,18 @@ function MobileMenuContent({
               </>
             ) : (
               <div className="flex gap-2">
-                <Link href="/login" onClick={handleLinkClick} className="flex-1">
-                  <Button variant="outline" className="w-full h-9 text-[13px]" data-testid="link-mobile-login-bottom">
-                    <LogIn className="h-3.5 w-3.5 mr-1" />
-                    Sign In
-                  </Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  className="flex-1 h-9 text-[13px]" 
+                  onClick={() => {
+                    onClose();
+                    openAuthModal();
+                  }}
+                  data-testid="link-mobile-login-bottom"
+                >
+                  <LogIn className="h-3.5 w-3.5 mr-1" />
+                  Sign In
+                </Button>
                 <Link href="/pricing" onClick={handleLinkClick} className="flex-1">
                   <Button className="w-full h-9 bg-[#C8A661] hover:bg-[#b8963d] text-white text-[13px]" data-testid="link-mobile-getstarted-bottom">
                     Get Started

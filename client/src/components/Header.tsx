@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare } from "lucide-react";
+import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +16,7 @@ import { GlobalSearchTrigger } from "@/components/GlobalSearch";
 import { UsageIndicator } from "@/components/UsageIndicator";
 import { useSignOut } from "@/components/SignOutConfirmation";
 import { MobileMenu } from "@/components/MobileMenu";
+import { useAuthModal } from "@/components/AuthModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -458,6 +459,7 @@ export function Header() {
   const megaMenuRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, isLoading } = useAuth();
   const { signOut, isSigningOut } = useSignOut();
+  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -703,28 +705,27 @@ export function Header() {
                     </div>
                   ) : (
                     <div className="hidden sm:flex items-center gap-2">
-                      <Link href="/login">
-                        <Button 
-                          variant="ghost"
-                          size="sm"
-                          className="text-sm"
-                          data-testid="button-signin"
-                        >
-                          <LogIn className="h-4 w-4 mr-1.5" />
-                          Sign In
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="ghost"
+                        size="sm"
+                        className="text-sm"
+                        onClick={openAuthModal}
+                        data-testid="button-signin"
+                      >
+                        <LogIn className="h-4 w-4 mr-1.5" />
+                        Sign In
+                      </Button>
                       
-                      <Link href="/signup">
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          className="text-sm border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10"
-                          data-testid="button-signup"
-                        >
-                          Sign Up
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="text-sm border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10"
+                        onClick={openAuthModal}
+                        data-testid="button-signup"
+                      >
+                        <UserPlus className="h-4 w-4 mr-1.5" />
+                        Sign Up
+                      </Button>
                       
                       <Link href="/pricing">
                         <Button 

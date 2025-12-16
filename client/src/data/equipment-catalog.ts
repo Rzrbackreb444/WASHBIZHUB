@@ -103,6 +103,37 @@ export interface FAQ {
 
 export const brands: EquipmentBrand[] = [
   {
+    id: 'blue-whale',
+    name: 'Blue Whale (SQ Series)',
+    slug: 'blue-whale',
+    tagline: 'Premium Equipment at Competitive Prices',
+    description: 'High-quality commercial laundry equipment with Speed Queen compatible parts and exceptional value for new builds and remodels.',
+    longDescription: `Blue Whale SQ Series brings premium commercial laundry equipment to the market at highly competitive prices. With 95% of parts compatible with Speed Queen machines, operators benefit from easy maintenance and widespread parts availability. The SQ Series features 200G extraction washers from 30-LB to 60-LB capacity, stainless steel front dryers in both stack and single configurations, and innovative stack washer-dryer combinations. All equipment comes with a 2-year parts warranty and is backed by WashBizHub's expert support. Perfect for new laundromat builds, remodels, and operators looking to maximize ROI without sacrificing quality.`,
+    madeInUSA: false,
+    headquarters: 'International',
+    keyFeatures: [
+      '200G-Force Hard Mount Extraction',
+      '95% Speed Queen Compatible Parts',
+      'Stainless Steel Front Panels',
+      '2-Year Parts Replacement Warranty',
+      'Coin Box & Hoses Included',
+      '30-60 Day Delivery',
+      'Competitive Pricing',
+      'Expert WashBizHub Support'
+    ],
+    warranty: '2-Year Parts Replacement Warranty',
+    warrantyDetails: [
+      '2 years on parts replacement (customer pays freight only)',
+      'Parts available from any USA parts house',
+      '95% compatible with Speed Queen parts',
+      'Expert support through WashBizHub'
+    ],
+    certifications: ['Commercial Grade', 'Safety Certified'],
+    industries: ['Laundromats', 'Multi-Housing', 'Hotels', 'Universities'],
+    website: 'https://washbizhub.com/equipment/blue-whale',
+    isPrimary: true
+  },
+  {
     id: 'dexter',
     name: 'Dexter Laundry',
     slug: 'dexter',
@@ -895,8 +926,190 @@ export const continentalModels: EquipmentModel[] = [
   }
 ];
 
+// ============================================================================
+// EQUIPMENT MODELS - BLUE WHALE (SQ SERIES)
+// ============================================================================
+
+export const blueWhaleModels: EquipmentModel[] = [
+  // Hard Mount Washers (200G)
+  {
+    id: 'bw-sq-30',
+    brandId: 'blue-whale',
+    series: 'sq-washer',
+    seriesName: 'SQ Series Washers',
+    model: 'SQ-30',
+    name: 'Blue Whale SQ-30 Hard Mount Washer',
+    capacity: '30 lb',
+    capacityLbs: 30,
+    capacityKg: 13.6,
+    type: 'washer',
+    gForce: 200,
+    features: ['200G Extraction', '95% Speed Queen Compatible Parts', 'Coin Box Included', 'Hoses Included', 'Hard Mount Design', 'Commercial Grade Construction'],
+    specs: {
+      'Capacity': '30 lb / 13.6 kg',
+      'Extraction': '200 G-Force',
+      'Control Type': 'Micro Processor',
+      'Voltage': '208-240V',
+      'Parts Compatibility': '95% Speed Queen Compatible'
+    },
+    idealFor: ['Laundromats', 'Multi-Housing', 'New Builds'],
+    isPopular: true
+  },
+  {
+    id: 'bw-sq-40',
+    brandId: 'blue-whale',
+    series: 'sq-washer',
+    seriesName: 'SQ Series Washers',
+    model: 'SQ-40',
+    name: 'Blue Whale SQ-40 Hard Mount Washer',
+    capacity: '40 lb',
+    capacityLbs: 40,
+    capacityKg: 18.1,
+    type: 'washer',
+    gForce: 200,
+    features: ['200G Extraction', '95% Speed Queen Compatible Parts', 'Coin Box Included', 'Hoses Included', 'Hard Mount Design', 'Commercial Grade Construction'],
+    specs: {
+      'Capacity': '40 lb / 18.1 kg',
+      'Extraction': '200 G-Force',
+      'Control Type': 'Micro Processor',
+      'Voltage': '208-240V',
+      'Parts Compatibility': '95% Speed Queen Compatible'
+    },
+    idealFor: ['Laundromats', 'Multi-Housing', 'Hotels'],
+    isPopular: true
+  },
+  {
+    id: 'bw-sq-60',
+    brandId: 'blue-whale',
+    series: 'sq-washer',
+    seriesName: 'SQ Series Washers',
+    model: 'SQ-60',
+    name: 'Blue Whale SQ-60 Hard Mount Washer',
+    capacity: '60 lb',
+    capacityLbs: 60,
+    capacityKg: 27.2,
+    type: 'washer',
+    gForce: 200,
+    features: ['200G Extraction', '95% Speed Queen Compatible Parts', 'Coin Box Included', 'Hoses Included', 'Hard Mount Design', 'Commercial Grade Construction'],
+    specs: {
+      'Capacity': '60 lb / 27.2 kg',
+      'Extraction': '200 G-Force',
+      'Control Type': 'Micro Processor',
+      'Voltage': '208-240V',
+      'Parts Compatibility': '95% Speed Queen Compatible'
+    },
+    idealFor: ['Laundromats', 'High-Volume Locations', 'Hotels'],
+    isPopular: true
+  },
+  // Stainless Steel Front Dryers
+  {
+    id: 'bw-sq-dryer-30',
+    brandId: 'blue-whale',
+    series: 'sq-dryer',
+    seriesName: 'SQ Series Dryers',
+    model: 'SQ-D30',
+    name: 'Blue Whale SQ-D30 Stainless Front Dryer',
+    capacity: '30 lb',
+    capacityLbs: 30,
+    capacityKg: 13.6,
+    type: 'dryer',
+    features: ['Stainless Steel Front', 'Commercial Grade', 'Large Drum', 'Efficient Heat Distribution'],
+    specs: {
+      'Capacity': '30 lb / 13.6 kg',
+      'Heat Source': 'Gas',
+      'Control Type': 'Digital Timer',
+      'Voltage': '120V/208-240V'
+    },
+    idealFor: ['Laundromats', 'Multi-Housing', 'Hotels']
+  },
+  {
+    id: 'bw-sq-dryer-50',
+    brandId: 'blue-whale',
+    series: 'sq-dryer',
+    seriesName: 'SQ Series Dryers',
+    model: 'SQ-D50',
+    name: 'Blue Whale SQ-D50 Stainless Front Dryer',
+    capacity: '50 lb',
+    capacityLbs: 50,
+    capacityKg: 22.7,
+    type: 'dryer',
+    features: ['Stainless Steel Front', 'Commercial Grade', 'Large Drum', 'Efficient Heat Distribution'],
+    specs: {
+      'Capacity': '50 lb / 22.7 kg',
+      'Heat Source': 'Gas',
+      'Control Type': 'Digital Timer',
+      'Voltage': '120V/208-240V'
+    },
+    idealFor: ['Laundromats', 'High-Volume', 'Hotels']
+  },
+  {
+    id: 'bw-sq-dryer-75',
+    brandId: 'blue-whale',
+    series: 'sq-dryer',
+    seriesName: 'SQ Series Dryers',
+    model: 'SQ-D75',
+    name: 'Blue Whale SQ-D75 Stainless Front Dryer',
+    capacity: '75 lb',
+    capacityLbs: 75,
+    capacityKg: 34,
+    type: 'dryer',
+    features: ['Stainless Steel Front', 'Commercial Grade', 'Extra Large Drum', 'Efficient Heat Distribution'],
+    specs: {
+      'Capacity': '75 lb / 34 kg',
+      'Heat Source': 'Gas',
+      'Control Type': 'Digital Timer',
+      'Voltage': '120V/208-240V'
+    },
+    idealFor: ['Laundromats', 'High-Volume', 'Industrial']
+  },
+  // Stack Dryers
+  {
+    id: 'bw-sq-stack-dryer-30',
+    brandId: 'blue-whale',
+    series: 'sq-stack',
+    seriesName: 'SQ Series Stack Dryers',
+    model: 'SQ-SD30',
+    name: 'Blue Whale SQ-SD30 Stack Dryer',
+    capacity: '30/30 lb',
+    capacityLbs: 30,
+    capacityKg: 13.6,
+    type: 'stack',
+    features: ['Space-Saving Design', 'Dual Pocket', 'Independent Controls', 'Stainless Steel Front'],
+    specs: {
+      'Capacity': '30/30 lb (Each Pocket)',
+      'Heat Source': 'Gas',
+      'Control Type': 'Digital Timer',
+      'Configuration': 'Stack (2 Pockets)'
+    },
+    idealFor: ['Laundromats', 'Space-Constrained Locations'],
+    isPopular: true
+  },
+  // Stack Washer/Dryer Combo
+  {
+    id: 'bw-sq-stack-wd-20',
+    brandId: 'blue-whale',
+    series: 'sq-combo',
+    seriesName: 'SQ Series Stack Washer/Dryer',
+    model: 'SQ-WD20',
+    name: 'Blue Whale SQ-WD20 Stack Washer/Dryer',
+    capacity: '20/30 lb',
+    capacityLbs: 20,
+    capacityKg: 9,
+    type: 'stack',
+    features: ['Washer + Dryer Stack', 'Space-Saving Design', 'Independent Controls', 'Commercial Grade'],
+    specs: {
+      'Washer Capacity': '20 lb / 9 kg',
+      'Dryer Capacity': '30 lb / 13.6 kg',
+      'Washer Extraction': '200 G-Force',
+      'Configuration': 'Washer Bottom, Dryer Top'
+    },
+    idealFor: ['Multi-Housing', 'Small Laundromats', 'Hotels'],
+    isPopular: true
+  }
+];
+
 // Combine all models
-export const models: EquipmentModel[] = [...dexterModels, ...continentalModels];
+export const models: EquipmentModel[] = [...blueWhaleModels, ...dexterModels, ...continentalModels];
 
 // ============================================================================
 // PARTS CATEGORIES
