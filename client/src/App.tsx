@@ -512,6 +512,10 @@ const FacebookGroup = lazy(() => import("@/pages/FacebookGroup"));
 const AtmServices = lazy(() => import("@/pages/AtmServices"));
 const Templates = lazy(() => import("@/pages/templates"));
 const Vault = lazy(() => import("@/pages/vault"));
+const TemplateVault = lazy(() => import("@/pages/template-vault"));
+const UserLibrary = lazy(() => import("@/pages/user-library"));
+const VaultBusinessPlan = lazy(() => import("@/pages/vault/business-plan"));
+const VaultLeaseChecklist = lazy(() => import("@/pages/vault/lease-checklist"));
 const Resources = lazy(() => import("@/pages/resources"));
 const ResourceDetail = lazy(() => import("@/pages/resource-detail"));
 const Settings = lazy(() => import("@/pages/settings"));
@@ -1784,6 +1788,26 @@ function Router() {
       <Route path="/vault">
         <Suspense fallback={<LoadingFallback />}>
           <Vault />
+        </Suspense>
+      </Route>
+      <Route path="/template-vault">
+        <Suspense fallback={<LoadingFallback />}>
+          <TemplateVault />
+        </Suspense>
+      </Route>
+      <Route path="/vault/business-plan">
+        <Suspense fallback={<LoadingFallback />}>
+          <VaultBusinessPlan />
+        </Suspense>
+      </Route>
+      <Route path="/vault/lease-checklist">
+        <Suspense fallback={<LoadingFallback />}>
+          <VaultLeaseChecklist />
+        </Suspense>
+      </Route>
+      <Route path="/my-library">
+        <Suspense fallback={<LoadingFallback />}>
+          <UserLibrary />
         </Suspense>
       </Route>
       <Route path="/resources">

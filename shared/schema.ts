@@ -17578,5 +17578,128 @@ export type InsertBacklinkOutreach = z.infer<typeof insertBacklinkOutreachSchema
 export type BacklinkOutreach = typeof backlinkOutreach.$inferSelect;
 
 // ============================================================================
+// TEMPLATE VAULT - Premium Templates & Due Diligence Tools
+// ============================================================================
+
+// Template Products - Catalog of available templates
+export const templateProducts = pgTable("template_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Product Info
+  slug: varchar("slug").unique().notNull(), // URL-friendly identifier
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category").notNull(), // "buyer", "operator", "vendor"
+  
+  // Pricing & Access
+  tier: text("tier").default("free"), // "free", "pro", "business", "enterprise"
+  priceInCents: integer("price_in_cents").default(0), // For one-time purchases
+  stripePriceId: text("stripe_price_id"), // Stripe Price ID for one-time purchase
+  
+  // Template Files
+  previewFileUrl: text("preview_file_url"), // Free preview (watermarked or partial)
+  fullFileUrl: text("full_file_url"), // Premium full version
+  fileFormat: text("file_format").default("pdf"), // "pdf", "xlsx", "docx"
+  
+  // Metadata
+  features: jsonb("features").$type<string[]>().default([]),
+  downloadCount: integer("download_count").default(0),
+  isPopular: boolean("is_popular").default(false),
+  isNew: boolean("is_new").default(false),
+  sortOrder: integer("sort_order").default(0),
+  
+  // SEO
+  metaTitle: text("meta_title"),
+  metaDescription: text("meta_description"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  slugIdx: uniqueIndex("template_products_slug_idx").on(table.slug),
+  categoryIdx: index("template_products_category_idx").on(table.category),
+  tierIdx: index("template_products_tier_idx").on(table.tier),
+}));
+
+export const insertTemplateProductSchema = createInsertSchema(templateProducts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertTemplateProduct = z.infer<typeof insertTemplateProductSchema>;
+export type TemplateProduct = typeof templateProducts.$inferSelect;
+
+// Template Purchases - Track user purchases (one-time or subscription access)
+export const templatePurchases = pgTable("template_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  templateId: varchar("template_id").references(() => templateProducts.id),
+  
+  // Purchase Info
+  accessType: text("access_type").default("subscription"), // "subscription", "one_time", "free"
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeInvoiceId: text("stripe_invoice_id"),
+  amountPaidCents: integer("amount_paid_cents").default(0),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  
+  // Email capture for free downloads
+  email: varchar("email"),
+  
+  // Access
+  downloadedAt: timestamp("downloaded_at"),
+  downloadCount: integer("download_count").default(0),
+  expiresAt: timestamp("expires_at"), // For time-limited access
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("template_purchases_user_idx").on(table.userId),
+  templateIdx: index("template_purchases_template_idx").on(table.templateId),
+  emailIdx: index("template_purchases_email_idx").on(table.email),
+}));
+
+export const insertTemplatePurchaseSchema = createInsertSchema(templatePurchases).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTemplatePurchase = z.infer<typeof insertTemplatePurchaseSchema>;
+export type TemplatePurchase = typeof templatePurchases.$inferSelect;
+
+// Template Lead Captures - Track email captures from free previews
+export const templateLeads = pgTable("template_leads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").notNull(),
+  templateId: varchar("template_id").references(() => templateProducts.id),
+  source: text("source").default("preview_download"), // "preview_download", "business_plan", "checkout_abandon"
+  
+  // User context (if logged in)
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Additional metadata
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  
+  // Marketing consent
+  marketingOptIn: boolean("marketing_opt_in").default(true),
+  
+  // Follow-up tracking
+  emailSentAt: timestamp("email_sent_at"),
+  convertedAt: timestamp("converted_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  emailIdx: index("template_leads_email_idx").on(table.email),
+  templateIdx: index("template_leads_template_idx").on(table.templateId),
+}));
+
+export const insertTemplateLeadSchema = createInsertSchema(templateLeads).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertTemplateLead = z.infer<typeof insertTemplateLeadSchema>;
+export type TemplateLead = typeof templateLeads.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

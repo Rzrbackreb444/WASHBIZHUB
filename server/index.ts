@@ -391,6 +391,34 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         }
       }
 
+      // Template Vault purchase
+      if (metadata.type === "template_purchase" && metadata.templateId) {
+        try {
+          const { handleTemplatePurchaseWebhook } = await import("./template-vault-routes");
+          await handleTemplatePurchaseWebhook(session);
+          
+          // Log activity
+          await logActivity('purchase', `Template purchased: ${metadata.templateSlug}`, session.customer_email || metadata.userEmail || undefined, {
+            type: 'template',
+            templateId: metadata.templateId,
+            templateSlug: metadata.templateSlug,
+            amount: amountTotal / 100,
+          });
+          
+          // Send purchase notification
+          await notifyPurchase({
+            type: 'template',
+            productName: metadata.templateSlug || 'Template',
+            amount: amountTotal,
+            customerEmail: session.customer_email || metadata.userEmail,
+          });
+          
+          console.log(`✅ Template purchase processed: ${metadata.templateSlug} for user ${metadata.userId}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to process template purchase: ${error.message}`);
+        }
+      }
+
       // Vendor product purchase - track commission
       if (metadata.type === "product_purchase" && metadata.productId) {
         try {

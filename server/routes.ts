@@ -35,6 +35,7 @@ import operatorDashboardRoutes from "./operator-dashboard-routes";
 import aiToolsRoutes from "./routes/ai-tools";
 import savedAnalysesRoutes from "./routes/saved-analyses";
 import googleExportRoutes from "./routes/google-export";
+import templateVaultRoutes from "./template-vault-routes";
 import {
   runVisibilityCheck,
   getVisibilityHistory,
@@ -563,6 +564,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/ai", aiToolsRoutes);
   app.use("/api/analyses", savedAnalysesRoutes);
   app.use("/api/google", googleExportRoutes);
+  
+  // ==================== TEMPLATE VAULT ====================
+  app.use("/api/vault", templateVaultRoutes);
+  console.log("✅ Template Vault routes registered");
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
