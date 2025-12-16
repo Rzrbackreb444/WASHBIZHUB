@@ -1,0 +1,39 @@
+ou are absolutely right! The original request mentioned four pages (business-plan, lease-checklist, broker, operations-checklist), but your Replit environment clearly shows a comprehensive platform with dozens of high-value tools and services.
+
+To achieve your goal of maximizing revenue and leads by structuring all these tools powerfully, we must organize the entire Resource Hub into tiered revenue streams.   
+
+Here is the plan to enhance your full set of high-value resources for maximum monetization:   
+
+💰 Full Resource Hub Monetization Blueprint
+We will organize the tools into three strategic paths (Buyer, Operator, Vendor) and apply a layered paywall using your existing Stripe Configurations.   
+
+1. 🥇 Buyer & Due Diligence Path (High-Value Revenue)
+This path captures first-time buyers and those evaluating deals, driving them to premium templates and the CLEANBI subscription.
+
+Tool (Page Reference)	Monetization Tier & Strategy	Revenue Link/Upsell
+CLEANBI Explorer/Scorecard	Free: 5 location searches (email capture). Premium: Unlimited deep reports, competitor analysis, cluster mapping.	CLEANBI PRO/Enterprise
+Interactive Business Plan	Free: Executive Summary + Market Data (from CLEANBI). Premium: Full 30-page Financial Projections (using ROI Calculator data).	CLEANBI PRO subscription.
+Lease Red Flag Checklist	Free: Top 7 Red Flags (SEO bait). Premium: Larry's 50+ Trap Alerts (detailed commentary) and the editable legal document download.	Due Diligence Template purchase.
+Due Diligence Verifier	Free: Tool description. Premium: Upload seller docs (tax, utility bills) for automated AI verification and audit report.	CLEANBI Enterprise (High-Value Service).
+AI Consultation Council	Paywall: This tool should be a direct, one-time payment.	One-Time Fee ($49 - $99).
+2. 🥈 Current Owner & Operator Path (Recurring Revenue)
+This path drives current owners to operational subscriptions and equipment sales.
+
+Tool (Page Reference)	Monetization Tier & Strategy	Revenue Link/Upsell
+Daily/Weekly Checklist	Free: View-only daily checklist. Premium: Downloadable/Printable PDF and integration with the Predictive Maintenance service.	Employee Handbook Template or Academy Bundle.
+Downtime Cost Calculator	Free: Estimate cost per day. Premium: Full integration with live machine data (via API) to calculate true cost per hour/per load.	CLEANBI PRO subscription (for advanced KPIs).
+Error Code Scanner	Free: Search first 10 error codes. Premium: Access to the full 1,000+ codes and the Service Guy AI for deep diagnostics and parts matching.	Academy Bundle.
+Equipment Appraiser	Free: Estimate resale value of one machine. Premium: Portfolio appraisal, depreciation tracking, and access to new Blue Whale pricing and leads.	Blue Whale Sales Funnel (Commission-based revenue).
+
+Export to Sheets
+
+3. 🥉 Vendor & Partner Path (Affiliate Revenue)
+This path monetizes your user base for external partners.
+
+Tool (Page Reference)	Monetization Tier & Strategy	Revenue Link/Upsell
+Ad Builder	Paywall: Must be a paying vendor/broker to access the tool.	Premium Ads/Listing Fee.
+Distributor Locator	Free: View list of partners. Premium: Featured Partner Listing (like AAdvantage Laundry Systems on the homepage) for high visibility.	Affiliate/Partner Revenue (Annual fee or commission).
+Conclusion
+This blueprint ensures that every major tool in your platform is a strategic gateway, maximizing both your recurring subscription revenue (CLEANBI, Academy) and your direct one-time purchase revenue (Templates, AI Council).
+
+Would you like to focus on implementing the tiered paywall logic in the Interactive Business Plan Generator (business-plan-generator.tsx), as it is the most complex tool linking the CLEANBI data to a subscription?
