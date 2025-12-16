@@ -1918,12 +1918,12 @@ function Router() {
       </Route>
       <Route path="/auth">
         <Suspense fallback={<LoadingFallback />}>
-          <AuthPage />
+          <AuthOTPPage />
         </Suspense>
       </Route>
       <Route path="/signin">
         <Suspense fallback={<LoadingFallback />}>
-          <AuthPage />
+          <AuthOTPPage />
         </Suspense>
       </Route>
       <Route path="/signup">
