@@ -157,7 +157,7 @@ export default function Signup() {
   }, [isAuthenticated, isLoading, setLocation]);
 
   const handleGoogleSignup = useCallback(() => {
-    window.location.href = "/api/auth/cloudflare/login";
+    window.location.href = "/api/auth/google/login";
   }, []);
 
   const handleMagicLinkRequest = useCallback(async (data: MagicLinkFormData) => {
@@ -375,7 +375,7 @@ export default function Signup() {
             <CardContent className="p-6 md:p-8">
               <Button
                 className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 dark:border-gray-600 font-semibold text-base mb-4 gap-3"
-                onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                onClick={() => window.location.href = "/api/auth/google/login"}
                 data-testid="button-google-signup"
               >
                 <SiGoogle className="h-5 w-5 text-[#4285F4]" />

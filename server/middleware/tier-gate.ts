@@ -180,7 +180,7 @@ export const requireAuth: RequestHandler = async (req: Request, res: Response, n
       error: "Authentication required",
       message: "Please log in to access this feature",
       code: "AUTH_REQUIRED",
-      loginUrl: "/api/auth/cloudflare/login",
+      loginUrl: "/login",
     });
   }
   
@@ -190,7 +190,7 @@ export const requireAuth: RequestHandler = async (req: Request, res: Response, n
       error: "Authentication required",
       message: "Session expired. Please log in again.",
       code: "SESSION_EXPIRED",
-      loginUrl: "/api/auth/cloudflare/login",
+      loginUrl: "/login",
     });
   }
   
@@ -217,7 +217,7 @@ export function requireTier(minTier: SubscriptionTier): RequestHandler {
           error: "Authentication required",
           message: "Please log in to access this feature",
           code: "AUTH_REQUIRED",
-          loginUrl: "/api/auth/cloudflare/login",
+          loginUrl: "/login",
         });
       }
       

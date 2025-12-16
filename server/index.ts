@@ -10,7 +10,7 @@ import { registerPromoCodeRoutes } from "./promo-code-routes";
 import blogRoutes, { adminBlogRoutes } from "./blog-routes";
 import feedbackRoutes from "./routes/feedback";
 import referralRoutes from "./routes/referrals";
-import cloudflareAuthRoutes from "./cloudflare-auth-routes";
+// Cloudflare auth removed - using Google OAuth + Email OTP only
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -1295,8 +1295,8 @@ app.use((req, res, next) => {
   adminBlogRoutes(app);
   app.use('/api/feedback', feedbackRoutes);
   app.use('/api/referrals', referralRoutes);
-  app.use('/api/auth/cloudflare', cloudflareAuthRoutes);
-  console.log('✅ Cloudflare Access auth routes registered');
+  // Auth: Google OAuth + Email OTP (Cloudflare removed)
+  console.log('✅ Authentication: Google OAuth + Email OTP enabled');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

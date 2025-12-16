@@ -38,10 +38,14 @@ export function SignOutConfirmationProvider({ children }: SignOutConfirmationPro
     setIsOpen(true);
   }, []);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     setIsSigningOut(true);
-    // Always use Cloudflare logout endpoint (it handles session cleanup)
-    window.location.href = "/api/auth/cloudflare/logout";
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
+    window.location.href = "/";
   }, []);
 
   const handleCancel = useCallback(() => {

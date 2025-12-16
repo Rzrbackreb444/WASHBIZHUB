@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, LogIn, Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export function AuthGuard({
   description = "Please sign in to access this feature. It's free to create an account!"
 }: AuthGuardProps) {
   const { user, isLoading, authResolved } = useAuth();
+  const [location] = useLocation();
 
   if (!authResolved) {
     return (
@@ -44,7 +46,10 @@ export function AuthGuard({
             <Button 
               className="w-full" 
               size="lg"
-              onClick={() => window.location.href = '/api/auth/cloudflare/login'}
+              onClick={() => {
+                const redirectUrl = encodeURIComponent(location);
+                window.location.href = `/login?redirect=${redirectUrl}`;
+              }}
               data-testid="button-login-required"
             >
               <LogIn className="w-5 h-5 mr-2" />

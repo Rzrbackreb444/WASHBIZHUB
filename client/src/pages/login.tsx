@@ -521,7 +521,7 @@ export default function Login() {
 
                 <Button
                   className="w-full h-11 text-base font-semibold gap-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                  onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                  onClick={() => window.location.href = "/api/auth/google/login"}
                   data-testid="button-login-google"
                 >
                   <SiGoogle className="w-5 h-5 text-[#4285F4]" />

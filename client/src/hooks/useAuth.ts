@@ -1,24 +1,30 @@
 /**
  * Unified Authentication Hook for WashBizHub
- * Supports Cloudflare Access (Enterprise SSO) + Google OAuth
+ * Supports Google OAuth + Email OTP (6-digit code)
  */
 
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
-import { getQueryFn, queryClient } from "@/lib/queryClient";
+import { getQueryFn, queryClient, apiRequest } from "@/lib/queryClient";
 
 interface AuthProviders {
-  primary: 'cloudflare-access' | 'google';
+  primary: 'email-otp' | 'google';
   providers: string[];
-  cloudflareAccess: {
-    enabled: boolean;
-    loginUrl: string | null;
-    label: string;
-  };
   google: {
     enabled: boolean;
     loginUrl: string;
     label: string;
+  };
+  emailOtp: {
+    enabled: boolean;
+    requestUrl: string;
+    verifyUrl: string;
+    label: string;
+  };
+  security: {
+    rateLimiting: boolean;
+    bruteForceProtection: boolean;
+    secureSession: boolean;
   };
 }
 
@@ -34,31 +40,28 @@ export function useAuth() {
 
   // Get available auth providers
   const { data: providers } = useQuery<AuthProviders>({
-    queryKey: ["/api/auth/cloudflare/providers"],
+    queryKey: ["/api/auth/providers"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     staleTime: 300000, // Cache for 5 minutes
     retry: false,
   });
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout");
+    } catch (e) {
+      console.error("Logout error:", e);
+    }
     queryClient.setQueryData(["/api/auth/user"], null);
-    // Always use Cloudflare logout endpoint (it handles session cleanup)
-    window.location.href = "/api/auth/cloudflare/logout";
+    window.location.href = "/";
   };
 
-  const login = (redirectPath: string = '/dashboard') => {
+  const loginWithGoogle = (redirectPath: string = '/dashboard') => {
     const redirect = encodeURIComponent(redirectPath);
-    if (providers?.cloudflareAccess?.enabled) {
-      window.location.href = `/api/auth/cloudflare/login?redirect=${redirect}`;
-    } else if (providers?.google?.enabled) {
-      window.location.href = `/api/auth/google/login?redirect=${redirect}`;
-    } else {
-      window.location.href = `/login`;
-    }
+    window.location.href = `/api/auth/google/login?redirect=${redirect}`;
   };
 
   // Auth is resolved when query completes (success or error) and not currently fetching
-  // This ensures AuthGuard shows login prompt or content instead of infinite loading
   const authResolved = (status === 'success' || status === 'error') && !isFetching;
 
   return {
@@ -67,9 +70,10 @@ export function useAuth() {
     isAuthenticated: !!user,
     authResolved,
     logout,
-    login,
+    loginWithGoogle,
     providers,
-    isCloudflareAccess: providers?.cloudflareAccess?.enabled ?? false,
-    primaryProvider: providers?.primary ?? 'google',
+    primaryProvider: providers?.primary ?? 'email-otp',
+    googleEnabled: providers?.google?.enabled ?? true,
+    emailOtpEnabled: providers?.emailOtp?.enabled ?? true,
   };
 }

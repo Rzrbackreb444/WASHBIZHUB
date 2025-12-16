@@ -961,7 +961,7 @@ export function PremiumCalculatorEngine({ config, onSave }: PremiumCalculatorPro
               </ul>
             </div>
             <Button
-              onClick={() => window.location.href = '/api/auth/cloudflare/login'}
+              onClick={() => window.location.href = '/login'}
               className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-bold"
             >
               Sign In / Create Account
