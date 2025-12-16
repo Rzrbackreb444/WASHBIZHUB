@@ -39,11 +39,12 @@ const navLinks = [
 ];
 
 const calculatorItems = [
-  { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
-  { href: "/valuation-calculator", label: "Valuation Calculator", description: "What's your laundromat worth?", icon: DollarSign },
-  { href: "/roi-calculator", label: "ROI Calculator", description: "Investment returns", icon: Calculator },
-  { href: "/tpd-calculator", label: "TPD Calculator", description: "Turns per day analysis", icon: Calculator },
-  { href: "/utility-bill-auditor", label: "Utility Auditor", description: "Reduce operating costs", icon: Wrench },
+  { href: "/calculators", label: "Calculator Suite", description: "50+ professional tools in 6 categories", icon: Calculator, featured: true },
+  { href: "/valuation-calculator", label: "Valuation", description: "4 methods to value a laundromat", icon: DollarSign },
+  { href: "/roi-calculator", label: "ROI Analysis", description: "5-year investment projections", icon: Calculator },
+  { href: "/tpd-calculator", label: "TPD", description: "Turns per day & revenue", icon: Calculator },
+  { href: "/loan-calculator", label: "Loan", description: "Amortization & payments", icon: Calculator },
+  { href: "/cleanbi-calculator", label: "CLEANBI Score", description: "17-factor location analysis", icon: Calculator },
 ];
 
 const megaMenuSections = [

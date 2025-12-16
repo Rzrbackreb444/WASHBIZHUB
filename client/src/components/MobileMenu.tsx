@@ -592,6 +592,7 @@ export function MobileMenu() {
         side="right" 
         className="w-[300px] bg-background border-l border-border p-0 flex flex-col"
         data-testid="mobile-drawer-panel"
+        hideCloseButton
       >
         <div className="flex items-center justify-between px-3 py-2 border-b border-border flex-shrink-0">
           <SheetHeader className="flex-1">
