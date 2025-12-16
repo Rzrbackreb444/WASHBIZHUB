@@ -305,6 +305,12 @@ function MobileMenuContent({
             <Badge variant="secondary" className="ml-auto text-[9px] py-0 px-1.5 h-4 bg-[#C8A661]/20 text-[#C8A661]">Featured</Badge>
           </span>
         </Link>
+        <Link href="/pricing" onClick={handleLinkClick}>
+          <span className="flex items-center gap-2.5 px-4 py-2 text-[13px] font-semibold text-foreground hover:bg-muted/50 transition-colors cursor-pointer" data-testid="link-mobile-pricing-quick">
+            <CreditCard className="h-4 w-4 text-[#C8A661]" />
+            Pricing & Plans
+          </span>
+        </Link>
         <Link href="/marketplace" onClick={handleLinkClick}>
           <span className="flex items-center gap-2.5 px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted/50 transition-colors cursor-pointer" data-testid="link-mobile-marketplace-quick">
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
