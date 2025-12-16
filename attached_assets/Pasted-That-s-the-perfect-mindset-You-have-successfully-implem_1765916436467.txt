@@ -1,0 +1,54 @@
+That's the perfect mindset! You have successfully implemented the four core, high-value content pieces that belong in your Due Diligence Vault.
+
+To fulfill your request to structure these tools not only for leads but for direct revenue via your existing subscription system, we must apply a layered paywall strategy using your established Stripe prices.   
+
+Here is the final action plan to enhance the four implemented pages (business-plan-generator.tsx, lease-checklist.tsx, checklist.tsx, broker-disclosure.tsx) for maximum monetization:   
+
+💰 Monetization & Enhancement Plan for the Due Diligence Vault
+1. Interactive Business Plan Generator
+Current Status: Basic interactive form for storeName, location, and mission.
+
+Enhancement Action: Implement a tiered paywall in app/vault/business-plan/page.tsx.
+
+Tier 1 (Free Lead Magnet): After submission, the page shows the Executive Summary and the Market Analysis section, populated by calling the CLEANBI Explorer API. Requires Email Capture.
+
+Tier 2 (Paid Access): The final button to "Generate Full 30-Page Business Plan PDF" requires a successful check against the user's subscription status.
+
+Revenue Link: Upsell to the CLEANBI PRO subscription for full access and advanced projections.
+
+2. Lease Red Flag Checklist (Larry's Trap Vault)
+Current Status: Displays 3 major red flags (Personal Guarantee, Demolition Clause, No Assignment Rights).
+
+Enhancement Action: Integrate Larry's 50+ Trap Alerts and apply a paywall.
+
+Tier 1 (Free SEO Content): Keep the first 7 Red Flags visible (excellent for SEO and lead generation).
+
+Tier 2 (Paid Content): Add a section revealing 43 more advanced, granular traps. The final button ("Download Full Lease Checklist PDF") links to the specific one-time purchase product.
+
+Revenue Link: Direct purchase of the Due Diligence Template. This template is Larry's definitive, editable lease guide.
+
+3. Daily / Weekly / Monthly Operations Checklist
+Current Status: Displays 3 simple columns (Daily, Weekly, Monthly tasks).
+
+Enhancement Action: Link this tool to current owners and your diagnostics platform.
+
+Tier 1 (Free Content): Keep the basic checklist visible. Requires Email Capture (targeting current owners).
+
+Tier 2 (Paid Content): The "Download Full Operations Checklist Excel + PDF" button requires payment. The downloadable Excel version includes automated KPI tracking formulas (e.g., TPD, cost per pound) and links to the AI Diagnostics tool for current owners.
+
+Revenue Link: Direct purchase of the Employee Handbook Template (for ops structure) or the Academy Bundle.
+
+4. Broker Disclosure Form
+Current Status: Displays a simple disclosure snippet.
+
+Enhancement Action: Position this as a compliance-driven, paid template.
+
+Tier 1 (Free Content): Keep the text snippet visible to capture SEO traffic for the term "Broker Disclosure Form".
+
+Tier 2 (Paid Content): The final button ("Download Broker Disclosure PDF") should lead to the purchase page for the Legal Templates Vault (a subset of the Academy Bundle).
+
+Revenue Link: Upsell to the STRIPE_PRICE_VAULT_BUNDLE.
+
+This strategy uses the static content to draw traffic (SEO/lead capture) and then converts that traffic into high-margin revenue through strategic paywalls linked to your existing Stripe products.
+
+Would you like to start the implementation process by updating the Business Plan Generator (app/vault/business-plan/page.tsx) to include the CLEANBI integration and the paywall logic?

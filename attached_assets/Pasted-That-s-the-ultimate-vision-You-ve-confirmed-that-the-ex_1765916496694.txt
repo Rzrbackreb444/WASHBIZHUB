@@ -1,0 +1,35 @@
+That's the ultimate vision! You've confirmed that the existing four pages are just the start, and the goal is to enhance the entire WashBizHub Resource Hub for maximum recurring revenue and high-value template sales.
+
+Here is the complete, enhanced blueprint to turn your high-value tools into monetized, subscription-gated features:   
+
+💰 Resource Hub Monetization Blueprint (Revenue-First Structure)
+This plan uses a layered paywall strategy, leveraging your existing Stripe Configurations to maximize both recurring subscriptions (CLEANBI) and one-time template sales.   
+
+1. 🥇 Buyer & Due Diligence Path (Subscription & Template Sales)
+Tool (Page Reference)	Monetization Strategy	Revenue Link/Upsell
+Interactive Business Plan (business-plan-generator.tsx)	Free: Capture email for Executive Summary and Market Analysis, auto-populated by the CLEANBI Score API call. Premium: Lock the final 30-page PDF generation (with financial projections from Calculators).	CLEANBI PRO subscription (for recurring access).
+Lease Red Flag Checklist (lease-checklist.tsx)	Free (SEO/Lead Magnet): Display the 7 essential Red Flags. Premium: Lock Larry's 50+ Trap Alerts (detailed commentary) and the final, downloadable, editable lease document.	Due Diligence Template (direct template sale).
+Due Diligence Verifier (due-diligence-verifier.tsx)	Free: Describe the tool's function. Premium: Gate the core utility—uploading seller documents (Tax Returns, Utility Bills) for automated AI verification and audit report.	CLEANBI Enterprise subscription (High-value service).
+AI Consultation Council (ai-consultation-council.tsx)	Paywall: This tool should be a one-time purchase, high-value consulting product.	One-Time Fee ($49 - $99).
+2. 🥈 Current Owner & Operator Path (Recurring & Sales)
+This path targets the Current Owner? demographic with tools focused on operations and maintenance.
+
+Tool (Page Reference)	Monetization Strategy	Revenue Link/Upsell
+Daily/Weekly Checklist (checklist.tsx)	Free: View-only basic checklist. Premium: Lock the customizable, downloadable Excel version that includes integrated KPI tracking formulas and links to the Predictive Maintenance service.	Employee Handbook Template (for ops structure) or Academy Bundle.
+Downtime Cost Calculator (downtime-cost-calculator.tsx)	Free: Calculates estimated cost per day. Premium: Calculates true cost per load by pulling equipment efficiency data and requiring a subscription for unlimited usage.	CLEANBI PRO subscription (for advanced KPIs).
+Error Code Scanner (error-code-scanner.tsx)	Free: Search basic, common codes. Premium: Access to the full 1,000+ code library and the Service Guy AI for advanced diagnostics and parts matching.	Academy Bundle.
+Equipment Appraiser (equipment-appraiser.tsx)	Free: Estimate resale value of one machine. Premium: Portfolio appraisal, depreciation tracking, and access to new Blue Whale pricing and leads.	Commission-based revenue from equipment sales.
+
+Export to Sheets
+
+3. 🛠️ Technical Paywall Implementation Notes
+To ensure a successful paywall implementation in Next.js, follow these steps (relevant for all tools requiring PDF generation or subscription checks):
+
+Subscription Check: Implement a helper function that checks the user's account-subscription.tsx status before granting access to premium content.
+
+PDF Generation: The final button action (e.g., "Generate Full 30-Page Business Plan PDF") requires server-side PDF generation (e.g., using a library like Puppeteer on an API route). The API route should first verify the user's subscription or a successful one-time payment before generating the file.
+
+  
+The Business Plan Generator is the most complex and highest-value asset, as it integrates CLEANBI and the subscription paywall.
+
+Would you like to focus on implementing the tiered paywall logic in the Business Plan Generator (app/vault/business-plan/page.tsx) now?
