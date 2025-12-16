@@ -1,0 +1,176 @@
+/ app/vault/business-plan/page.tsx — FULLY INTERACTIVE
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+export default function BusinessPlan() {
+  const [form, setForm] = useState({
+    storeName: '',
+    location: '',
+    machines: 50,
+    projectedRevenue: 240000,
+    mission: '',
+  });
+
+  return (
+    <div className="min-h-screen py-20 bg-gradient-to-br from-navy via-green-900 to-navy">
+      <div className="max-w-5xl mx-auto px-6">
+        <h1 className="text-7xl font-black text-center mb-16 text-yellow-400">Interactive Business Plan</h1>
+
+        <motion.div className="bg-white/10 backdrop-blur-xl rounded-3xl p-16 border border-yellow-400/50">
+          <input
+            placeholder="Store Name"
+            value={form.storeName}
+            onChange={e => setForm({ ...form, storeName: e.target.value })}
+            className="w-full p-8 text-4xl rounded-2xl text-black mb-12"
+          />
+          <input
+            placeholder="Location (City, State)"
+            value={form.location}
+            onChange={e => setForm({ ...form, location: e.target.value })}
+            className="w-full p-8 text-4xl rounded-2xl text-black mb-12"
+          />
+          <textarea
+            placeholder="Your Mission Statement"
+            value={form.mission}
+            onChange={e => setForm({ ...form, mission: e.target.value })}
+            className="w-full h-64 p-8 text-3xl rounded-2xl text-black"
+          />
+
+          <button className="w-full bg-yellow-400 text-black py-12 rounded-3xl text-5xl font-black mt-12">
+            Generate Full 30-Page Business Plan PDF
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+You sent
+// app/vault/lease-checklist/page.tsx — FULL LEASE RED FLAG CHECKLIST + #1 SEO
+import Head from 'next/head';
+
+export default function LeaseChecklist() {
+  return (
+    <>
+      <Head>
+        <title>Laundromat Lease Negotiation Checklist 2025 — Avoid These 7 Red Flags</title>
+        <meta name="description" content="Free laundromat lease review checklist — avoid personal guarantees, demolition clauses, and triple net traps. Used by 3-store owner." />
+      </Head>
+
+      <div className="min-h-screen py-20 bg-gradient-to-br from-navy via-green-900 to-navy">
+        <div className="max-w-5xl mx-auto px-6">
+          <h1 className="text-7xl font-black text-center mb-8 text-yellow-400">
+            Laundromat Lease Negotiation Checklist
+          </h1>
+          <p className="text-4xl text-center mb-16 text-yellow-300">
+            7 Red Flags That Kill Deals (And How to Fix Them)
+          </p>
+
+          <div className="space-y-12">
+            {[
+              { flag: "Personal Guarantee > 10 Years", risk: "High", fix: "Step-down to 36 months after year 5" },
+              { flag: "Demolition Clause", risk: "Deal Killer", fix: "90-day notice + 12 months rent" },
+              { flag: "No Assignment Rights", risk: "High", fix: "Must allow sale without landlord approval" },
+            ].map((item, i) => (
+              <div key={i} className="bg-white/10 backdrop-blur-xl rounded-3xl p-16 border border-red-400/50">
+                <h3 className="text-5xl font-black mb-6 text-red-400">{item.flag}</h3>
+                <p className="text-3xl mb-6">Risk Level: <span className="text-red-400 font-black">{item.risk}</span></p>
+                <p className="text-4xl text-green-400">{item.fix}</p>
+              </div>
+            ))}
+          </div>
+
+          <button className="w-full bg-yellow-400 text-black py-20 rounded-3xl text-7xl font-black mt-20">
+            Download Full Lease Checklist PDF
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+You sent
+// app/vault/broker/page.tsx — FULL BROKER DISCLOSURE
+import Head from 'next/head';
+
+export default function BrokerDisclosure() {
+  return (
+    <>
+      <Head>
+        <title>Laundromat Broker Disclosure Form 2025 — Free Template</title>
+      </Head>
+
+      <div className="min-h-screen py-20 bg-gradient-to-br from-navy via-green-900 to-navy">
+        <div className="max-w-5xl mx-auto px-6">
+          <h1 className="text-7xl font-black text-center mb-16 text-yellow-400">Broker Disclosure Form</h1>
+
+          <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-20 border border-yellow-400/50">
+            <p className="text-3xl leading-relaxed text-center">
+              "I am a licensed broker in the state of ________ (License #__________). 
+              I represent the seller in this transaction and will receive a commission upon closing. 
+              All information provided has been verified to the best of my ability."
+            </p>
+          </div>
+
+          <button className="w-full bg-yellow-400 text-black py-20 rounded-3xl text-7xl font-black mt-20">
+            Download Broker Disclosure PDF
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+You sent
+// app/vault/checklist/page.tsx — FINAL DAILY/WEEKLY/MONTHLY OPERATIONS CHECKLIST
+import Head from 'next/head';
+
+export default function Checklist() {
+  return (
+    <>
+      <Head>
+        <title>Laundromat Daily Weekly Monthly Checklist 2025 — Free Excel</title>
+      </Head>
+
+      <div className="min-h-screen py-20 bg-gradient-to-br from-navy via-green-900 to-navy">
+        <div className="max-w-7xl mx-auto px-6">
+          <h1 className="text-7xl font-black text-center mb-16 text-yellow-400">Daily / Weekly / Monthly Checklist</h1>
+
+          <div className="grid md:grid-cols-3 gap-16">
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-16 border border-yellow-400/50">
+              <h2 className="text-5xl font-black mb-12 text-yellow-400">Daily</h2>
+              <ul className="space-y-6 text-3xl">
+                <li>Empty all coin boxes</li>
+                <li>Clean dryer lint traps</li>
+                <li>Wipe down all machines</li>
+                <li>Restock supplies</li>
+                <li>Check bathroom</li>
+              </ul>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-16 border border-green-400/50">
+              <h2 className="text-5xl font-black mb-12 text-green-400">Weekly</h2>
+              <ul className="space-y-6 text-3xl">
+                <li>Deep clean floors</li>
+                <li>Inspect belts & hoses</li>
+                <li>Run test cycles</li>
+                <li>Count inventory</li>
+              </ul>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-16 border border-blue-400/50">
+              <h2 className="text-5xl font-black mb-12 text-blue-400">Monthly</h2>
+              <ul className="space-y-6 text-3xl">
+                <li>Full PM service</li>
+                <li>Review P&L</li>
+                <li>Staff meeting</li>
+                <li>Update pricing</li>
+              </ul>
+            </div>
+          </div>
+
+          <button className="w-full bg-yellow-400 text-black py-20 rounded-3xl text-7xl font-black mt-20 hover:bg-yellow-300 transition shadow-2xl">
+            Download Full Operations Checklist Excel + PDF
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
