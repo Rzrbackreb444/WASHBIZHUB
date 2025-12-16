@@ -403,30 +403,238 @@ export const INDUSTRY_TRENDS_2024_2025 = {
 };
 
 /**
+ * LARRY LARSEN'S TRAP ALERTS & WAR STORIES
+ * 50+ Years of Due Diligence Expertise from Laundromat123.com
+ * DRE License #49460 | 2,000+ Laundromats Evaluated
+ */
+export const LARRY_LARSEN_WISDOM = {
+  bio: {
+    name: "Lawrence 'Laundromat Larry' Larsen",
+    experience: "50+ years in the laundromat industry",
+    storesEvaluated: "2,000+",
+    storesDesigned: "135+",
+    transactionsBrokered: "Hundreds",
+    website: "Laundromat123.com",
+    license: "DRE #49460"
+  },
+  
+  trapAlerts: {
+    financialTraps: [
+      {
+        trap: "Cash flow easily faked",
+        warning: "Cash flow is easily faked; water bills don't lie. Always verify revenue against water usage - 15-25 gallons per load means you can calculate actual turns.",
+        solution: "Request 12 months of water bills. Calculate: (water gallons / 20 avg) = approximate loads. Compare to claimed revenue."
+      },
+      {
+        trap: "P&L vs Tax mismatch",
+        warning: "If the P&L doesn't align with bank deposits or tax returns, walk away. In 50 years, I've seen exactly THREE sellers whose books matched reality without adjustment.",
+        solution: "Demand 3 years of tax returns AND bank statements. Compare reported income to deposits."
+      },
+      {
+        trap: "Seller's hours underestimation",
+        warning: "When a seller tells you they only spend '2 hours a week' at the store, ask them who's doing the other 18 hours of work. Someone is — they're just not counting it.",
+        solution: "Calculate all time: collections, maintenance, cleaning, customer issues, bank runs, supply runs."
+      },
+      {
+        trap: "Undocumented income",
+        warning: "Every dollar you don't document is worth $3-4 less at sale time. The biggest value killer in a sale is unverifiable income.",
+        solution: "Keep meticulous records from day one. Card systems provide automatic documentation."
+      }
+    ],
+    
+    leaseTraps: [
+      {
+        trap: "Short lease with verbal promise",
+        warning: "Buyers who accept a 5-year lease because the seller says 'the landlord will renew.' Maybe. Maybe not. Get it in writing or walk away.",
+        solution: "Require minimum 10 years with two 5-year options IN WRITING before closing."
+      },
+      {
+        trap: "Triple Net (NNN) ambiguity",
+        warning: "Triple Net means everything. Confirm you aren't stuck paying for the landlord's HVAC or roof. I've seen buyers get hit with $15K HVAC bills in year one.",
+        solution: "Get NNN breakdown in writing. Specify landlord handles structural, roof, HVAC."
+      },
+      {
+        trap: "Rent escalation without cap",
+        warning: "Some leases have 5-7% annual increases buried in the fine print. Over 10 years, that's doubling your rent.",
+        solution: "Cap increases at 3% annually maximum. Get it in the lease."
+      },
+      {
+        trap: "30-day termination clause",
+        warning: "I've seen 'standard' leases with clauses that the landlord could terminate with 30 days notice 'for any reason.'",
+        solution: "Require minimum 180-day notice for any termination. Protect your investment."
+      },
+      {
+        trap: "No assignment rights",
+        warning: "If you can't assign the lease to a buyer, you can't sell the business. Your exit strategy is dead on arrival.",
+        solution: "Ensure full assignment rights with reasonable landlord approval (can't unreasonably withhold)."
+      }
+    ],
+    
+    locationTraps: [
+      {
+        trap: "Empty competition field",
+        warning: "Buyers who pay premium for stores with 'no competition' — only to discover WHY there's no competition: the demographics don't support a laundromat.",
+        solution: "Verify demographics first. 1,500+ renter households within 1 mile is non-negotiable."
+      },
+      {
+        trap: "Trusting 'great score' claims",
+        warning: "Never trust a broker who tells you 'the numbers are great' without showing you verified financials. The score doesn't lie — emotions do.",
+        solution: "Independent verification of all numbers. Trust CLEANBI scoring over seller claims."
+      }
+    ],
+    
+    equipmentTraps: [
+      {
+        trap: "False equipment age",
+        warning: "Before buying ANY used equipment, check the serial number for the true manufacture date. I've seen sellers claim machines are '5 years old' when they're actually 15.",
+        solution: "Decode serial numbers. One letter or digit tells the whole story."
+      },
+      {
+        trap: "Old machine efficiency",
+        warning: "A 40-year-old Maytag uses 45 gallons per load. A new Speed Queen uses 12. Do the math on your water bill.",
+        solution: "Calculate utility cost per turn for each machine. Factor into valuation."
+      }
+    ],
+    
+    operationalTraps: [
+      {
+        trap: "Passive income myth",
+        warning: "I've never met a successful 'passive' laundromat owner. I've met plenty of successful SYSTEMATIZED owners. There's a difference.",
+        solution: "Build systems, hire accountable managers, track weekly metrics."
+      },
+      {
+        trap: "Weekly vs yearly tracking",
+        warning: "The operators who make the most money track their numbers weekly. The ones who struggle look at their books once a year — usually when they're selling.",
+        solution: "Weekly KPI tracking: revenue, turns, utilities, maintenance costs."
+      }
+    ],
+    
+    sellingTraps: [
+      {
+        trap: "Unverifiable books",
+        warning: "The stores that sell fastest and for the highest multiples have one thing in common: clean books and documented systems. If you can't prove your numbers, buyers will discount their offer — or walk away.",
+        solution: "3 years of clean P&L, documented SOPs, maintenance logs, utility records."
+      }
+    ]
+  },
+  
+  goldenRules: [
+    "Verify everything before signing anything",
+    "Run your numbers weekly, not yearly",
+    "Treat every machine like it prints money — because it does",
+    "The best-performing stores aren't always the ones with the newest equipment — they're the ones with the best-maintained equipment",
+    "Technology changes. The need for clean clothes doesn't.",
+    "A 10-year-old Speed Queen that's been serviced regularly will outperform a 3-year-old cheap brand that's been neglected"
+  ],
+  
+  dueDiligenceMantra: "If the seller can't produce 12 months of utility bills, walk away. Those bills don't lie — and neither do I.",
+  
+  valuationWisdom: {
+    sellerFinancing: "The best deals I've brokered had seller financing. Why? Because a seller willing to finance believes in the business. If they're demanding all cash at closing, ask yourself why they're in such a hurry to get out.",
+    premiumFactors: [
+      "Long lease with options: +15-25% value",
+      "Under-market rent: +10-20% value",
+      "New equipment (<3 years): +20-30% value",
+      "Wash-dry-fold operation: +25-40% value",
+      "Documented SOPs: +10-20% value",
+      "Strong CLEANBI score: +15-25% value"
+    ]
+  }
+};
+
+/**
+ * SASQUATCH SERVICE TIPS
+ * Nick Kremers' Field-Tested Equipment Expertise
+ */
+export const SASQUATCH_SERVICE_TIPS = {
+  philosophy: "The most expensive repair is the one you didn't see coming.",
+  
+  maintenanceTips: [
+    "Check dryer vents monthly — a 30% efficiency loss from lint buildup costs you more than the $50 vent cleaning. And a dryer fire costs you everything.",
+    "The cheapest upgrade with the biggest ROI? Clean your floors. Customers notice the floor first. It costs nothing but time to mop.",
+    "A clean bathroom with a working lock is the best marketing investment I've ever seen. Word spreads. Especially among mothers with young children — your most loyal customer base."
+  ],
+  
+  diagnosticTiers: {
+    tierA: {
+      name: "Customer Can Fix",
+      timeframe: "< 5 minutes",
+      examples: [
+        "Door not fully closed — close firmly, check latch",
+        "Water valve off — turn handle parallel to pipe",
+        "Lint trap full — clean trap, check vent",
+        "Card reader error — reinsert card, clean reader"
+      ]
+    },
+    tierB: {
+      name: "Operator Can Fix",
+      timeframe: "< 30 minutes",
+      examples: [
+        "Worn belt causing squeaking — replace belt ($15-$30)",
+        "Door seal leak — replace gasket ($45-$80)",
+        "Drum won't spin — check/replace belt ($20-$40)",
+        "Clogged drain filter — clean filter ($0)"
+      ]
+    },
+    tierC: {
+      name: "Technician Required",
+      examples: [
+        "Bad transmission — $400-$800 (replace if >15 years)",
+        "Failed igniter/gas valve — $150-$350",
+        "Control board failure — $300-$600 (replace if >12 years)",
+        "Failed bearings — $200-$400 (repair if <10 years)"
+      ]
+    }
+  }
+};
+
+/**
  * System Prompt Enhancement
  * This knowledge base is integrated into the AI consultant's system prompt
  */
 export const EXPERT_KNOWLEDGE_SUMMARY = `
-You have been trained on "The Laundromat Bible" - a three-generation playbook by the Kremers family (Jerry, Guy, and Nicholas Kremers) representing 60+ years of combined industry expertise.
+You are powered by "WASHBIZHUB: THE COMPLETE LAUNDROMAT PLAYBOOK" — the definitive industry guide combining:
+- **Nick Kremers (Stroked-Out Sasquatch)**: Third-generation laundromat expertise, service-side diagnostics, Kremers Doctrine
+- **Larry Larsen (Laundromat Larry)**: 50+ years experience, 2,000+ stores evaluated, 135+ store designs, DRE #49460
 
 **YOUR EXPERTISE INCLUDES:**
 
 1. **C.L.E.A.N. Methodology** - The definitive framework for evaluating laundromat locations
 2. **Kremers Doctrine** - Foundation First, Systems Over Hustle, Numbers Don't Lie
-3. **Equipment Intelligence** - Detailed knowledge of Speed Queen, Dexter, Maytag Commercial, Electrolux, Continental Girbau, Huebsch
-4. **Financial Benchmarks** - Valuation multiples (2.5-4.5x SDE), expense ratios, cap rates (8-12%)
-5. **SBA Loan Structuring** - 7(a) loans, seller financing, equipment financing options
-6. **Due Diligence** - 72+ critical datapoints for evaluating acquisitions
-7. **Revenue Optimization** - Pricing strategies, wash-dry-fold, pickup/delivery, commercial accounts
-8. **Industry Trends** - Contactless payments, IoT monitoring, sustainability initiatives
+3. **Larry's Trap Alerts** - 50+ years of due diligence wisdom and fraud detection
+4. **Equipment Intelligence** - Speed Queen, Dexter, Maytag Commercial, Electrolux, Continental Girbau, Huebsch
+5. **Financial Benchmarks** - Valuation multiples (2.5-4.5x SDE), expense ratios, cap rates (8-12%)
+6. **SBA Loan Structuring** - 7(a) loans, seller financing, equipment financing options
+7. **Due Diligence** - 72+ critical datapoints for evaluating acquisitions
+8. **Revenue Optimization** - Pricing strategies, wash-dry-fold, pickup/delivery, commercial accounts
+9. **Industry Trends** - Contactless payments, IoT monitoring, sustainability initiatives
+10. **Sasquatch Diagnostics** - Service-side equipment troubleshooting and repair guidance
+
+**LARRY'S GOLDEN RULES:**
+- Verify everything before signing anything
+- Run your numbers weekly, not yearly
+- Treat every machine like it prints money — because it does
+- "If the seller can't produce 12 months of utility bills, walk away. Those bills don't lie — and neither do I."
 
 **ALWAYS REFERENCE:**
 - Specific numbers from the knowledge base (e.g., "Rent should be 8-15% of gross revenue")
+- Larry's Trap Alerts when warning about red flags
 - C.L.E.A.N. framework when discussing locations
 - Equipment lifecycles and brand comparisons
 - Industry benchmarks for validation
 
-**YOU ARE THE AUTHORITATIVE SOURCE** on laundromat business intelligence.
+**WHEN TO CITE LARRY:**
+- Due diligence questions → "As Larry Larsen says..."
+- Lease concerns → "Larry's Trap Alert..."
+- Valuation questions → "Based on Larry's 2,000+ evaluations..."
+- Warning about pitfalls → Quote specific trap alerts
+
+**WHEN TO CITE NICK (SASQUATCH):**
+- Equipment diagnostics → "Sasquatch Service Tip..."
+- Maintenance questions → Reference diagnostic tiers
+- Operations advice → Kremers Doctrine
+
+**YOU ARE THE AUTHORITATIVE SOURCE** on laundromat business intelligence — Ask Larry & Nick.
 `;
 
 /**
@@ -464,4 +672,10 @@ ${JSON.stringify(MARKETING_STRATEGIES, null, 2)}
 
 === INDUSTRY TRENDS 2024-2025 ===
 ${JSON.stringify(INDUSTRY_TRENDS_2024_2025, null, 2)}
+
+=== LARRY LARSEN'S WISDOM (50+ YEARS) ===
+${JSON.stringify(LARRY_LARSEN_WISDOM, null, 2)}
+
+=== SASQUATCH SERVICE TIPS ===
+${JSON.stringify(SASQUATCH_SERVICE_TIPS, null, 2)}
 `;
