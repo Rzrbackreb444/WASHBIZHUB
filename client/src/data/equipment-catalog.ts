@@ -3,7 +3,6 @@
  * Comprehensive equipment data for SEO domination across all commercial laundry verticals
  * 
  * AFFILIATE PARTNER: AAdvantage Laundry Systems (Ryan Smith - EVI Industries Board)
- * All CTAs route to affiliate form for commission on equipment AND parts
  */
 
 export const AFFILIATE_LINK = "https://go.laundry.equipment/laundromat-fb-group-aadvantage-laundry";
