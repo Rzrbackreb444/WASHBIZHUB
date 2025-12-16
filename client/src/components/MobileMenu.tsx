@@ -8,7 +8,8 @@ import {
   TrendingUp, BarChart3, Calendar, Cpu, MapPin, Building2,
   Users, Package, Truck, BookOpen, HelpCircle, Phone, Briefcase,
   PiggyBank, ClipboardList, Smartphone, LineChart, Home, LayoutGrid, Info,
-  Landmark, Award, GraduationCap, Zap, Factory, Shield, UserPlus
+  Landmark, Award, GraduationCap, Zap, Factory, Shield, UserPlus,
+  FolderOpen, AlertTriangle, Library
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -82,6 +83,18 @@ const mobilePillars: MenuSection[] = [
       { href: "/equipment", label: "Equipment Hub", icon: Package, featured: true, description: "Dexter & CG" },
       { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Wrench, description: "Used & new" },
       { href: "/directory", label: "Vendor Directory", icon: ClipboardList, description: "Service providers" },
+    ]
+  },
+  {
+    id: "templates",
+    title: "Templates",
+    icon: FolderOpen,
+    items: [
+      { href: "/template-vault", label: "Template Vault", icon: FolderOpen, featured: true, description: "All templates" },
+      { href: "/vault/business-plan", label: "AI Business Plan", icon: FileText, featured: true, description: "Generate with AI" },
+      { href: "/vault/lease-checklist", label: "Lease Red Flags", icon: AlertTriangle, description: "50+ trap alerts" },
+      { href: "/vault/due-diligence", label: "Due Diligence", icon: ClipboardList, description: "100-point checklist" },
+      { href: "/my-library", label: "My Library", icon: Library, description: "Your assets" },
     ]
   },
   {

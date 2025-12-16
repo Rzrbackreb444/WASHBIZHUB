@@ -128,7 +128,11 @@ export default function Pricing() {
         { name: "Blog & Help Center", free: true, pro: true, business: true, enterprise: true },
         { name: "Complete Book Access", free: false, pro: false, business: true, enterprise: true },
         { name: "All Courses & Training", free: false, pro: false, business: true, enterprise: true },
-        { name: "Premium Templates", free: false, pro: false, business: true, enterprise: true },
+        { name: "Template Vault Access", free: "Preview Only", pro: "5 templates", business: "All templates", enterprise: "All templates" },
+        { name: "AI Business Plan Generator", free: false, pro: false, business: true, enterprise: true },
+        { name: "Lease Red Flag Checklist (50+)", free: "7 alerts", pro: true, business: true, enterprise: true },
+        { name: "Due Diligence Checklist", free: false, pro: false, business: true, enterprise: true },
+        { name: "LOI & Legal Templates", free: false, pro: false, business: true, enterprise: true },
       ]
     },
     { 

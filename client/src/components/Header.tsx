@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus } from "lucide-react";
+import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -76,6 +76,17 @@ const megaMenuSections = [
       { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's it worth?", icon: Calculator },
       { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
       { href: "/design-studio", label: "Design Studio", description: "2D/3D floor plans", icon: Palette },
+    ]
+  },
+  {
+    id: "templates",
+    title: "Templates",
+    icon: FolderOpen,
+    items: [
+      { href: "/template-vault", label: "Template Vault", featured: true, description: "Professional business templates", icon: FolderOpen },
+      { href: "/vault/business-plan", label: "AI Business Plan", description: "Generate with CLEANBI data", icon: FileText },
+      { href: "/vault/lease-checklist", label: "Lease Red Flags", featured: true, description: "Larry's 50+ trap alerts", icon: AlertTriangle },
+      { href: "/my-library", label: "My Library", description: "Your purchased assets", icon: Library },
     ]
   },
   {
