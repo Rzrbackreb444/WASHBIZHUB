@@ -306,7 +306,7 @@ export default function Pricing() {
     <>
       <SEO 
         title="Pricing Plans That Grow With You | WashBizHub"
-        description="Start free, then upgrade as your business grows. Free: 3 CLEANBI analyses. Pro: unlimited analyses. Business: full suite with courses, Design Studio, POS. 30-day money-back guarantee."
+        description="Start free, then upgrade as your business grows. Free: 3 CLEANBI analyses + template previews. Pro: unlimited analyses + 5 templates. Business: full Template Vault, AI Business Plan, Design Studio, POS. 30-day money-back guarantee."
         canonicalUrl="/pricing"
         ogType="website"
         keywords={[
@@ -321,7 +321,12 @@ export default function Pricing() {
           "ROI calculator laundromat",
           "laundromat valuation software",
           "laundromat consulting",
-          "laundromat design studio"
+          "laundromat design studio",
+          "laundromat business plan template",
+          "laundromat due diligence checklist",
+          "laundromat lease checklist",
+          "laundromat LOI template",
+          "laundromat template vault"
         ]}
         faqs={pricingFaqs}
         productOffers={productOffers}
@@ -494,7 +499,7 @@ export default function Pricing() {
                 
                 <CardContent className="pt-2 pb-6">
                   <ul className="space-y-2 text-sm">
-                    {["3 CLEANBI analyses", "Browse marketplace", "Read forum", "View funding hub", "Blog access"].map((f, i) => (
+                    {["3 CLEANBI analyses", "Template previews", "7 Lease Red Flags", "Browse marketplace", "Blog access"].map((f, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
                         <span className="text-foreground">{f}</span>
@@ -541,7 +546,7 @@ export default function Pricing() {
                 <CardContent className="pt-2 pb-6">
                   <p className="text-xs text-muted-foreground mb-2">Everything in Free, plus:</p>
                   <ul className="space-y-2 text-sm">
-                    {["Unlimited CLEANBI", "Full Calculator Suite", "Forum posting", "Save reports", "Export to PDF"].map((f, i) => (
+                    {["Unlimited CLEANBI", "Full Calculator Suite", "5 Template Vault items", "50+ Lease Red Flags", "Export to PDF"].map((f, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
                         <span className="text-foreground">{f}</span>
@@ -593,7 +598,7 @@ export default function Pricing() {
                 <CardContent className="pt-2 pb-6">
                   <p className="text-xs text-muted-foreground mb-2">Everything in Pro, plus:</p>
                   <ul className="space-y-2 text-sm">
-                    {["Book & All Courses", "Service Guy AI", "Design Studio", "POS System", "AI Business Plan", "Priority support"].map((f, i) => (
+                    {["Full Template Vault", "AI Business Plan", "Book & All Courses", "Service Guy AI", "Design Studio", "POS System"].map((f, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-[#C8A661] shrink-0 mt-0.5" />
                         <span className="text-foreground font-medium">{f}</span>
@@ -639,7 +644,7 @@ export default function Pricing() {
                 <CardContent className="pt-2 pb-6">
                   <p className="text-xs text-muted-foreground mb-2">Everything in Business, plus:</p>
                   <ul className="space-y-2 text-sm">
-                    {["Unlimited API", "White-label reports", "Team (10 seats)", "Custom integrations", "Dedicated manager", "Phone support"].map((f, i) => (
+                    {["Templates + White-label", "Unlimited API access", "Team (10 seats)", "Custom integrations", "Dedicated manager", "Priority phone support"].map((f, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
                         <span className="text-foreground">{f}</span>
