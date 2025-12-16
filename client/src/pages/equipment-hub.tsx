@@ -461,11 +461,11 @@ export default function EquipmentHub() {
               <Link href="/contact?subject=blue-whale-quote">
                 <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] px-8" data-testid="button-bluewhale-full-quote">
                   <MessageCircle className="h-5 w-5 mr-2" />
-                  Get Full Store Quote — $500/Machine Commission for Referrals
+                  Get Your Full Store Equipment Quote
                 </Button>
               </Link>
               <p className="text-gray-400 text-sm mt-3">
-                30-100+ machines per store = $15,000 - $50,000+ in equipment value. Contact us for bulk pricing.
+                Complete store packages available. Contact us for competitive bulk pricing.
               </p>
             </div>
           </div>
