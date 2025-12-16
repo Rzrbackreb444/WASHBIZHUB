@@ -516,6 +516,7 @@ const TemplateVault = lazy(() => import("@/pages/template-vault"));
 const UserLibrary = lazy(() => import("@/pages/user-library"));
 const VaultBusinessPlan = lazy(() => import("@/pages/vault/business-plan"));
 const VaultLeaseChecklist = lazy(() => import("@/pages/vault/lease-checklist"));
+const VaultTemplateDetail = lazy(() => import("@/pages/vault/template-detail"));
 const Resources = lazy(() => import("@/pages/resources"));
 const ResourceDetail = lazy(() => import("@/pages/resource-detail"));
 const Settings = lazy(() => import("@/pages/settings"));
@@ -1803,6 +1804,11 @@ function Router() {
       <Route path="/vault/lease-checklist">
         <Suspense fallback={<LoadingFallback />}>
           <VaultLeaseChecklist />
+        </Suspense>
+      </Route>
+      <Route path="/vault/:slug">
+        <Suspense fallback={<LoadingFallback />}>
+          <VaultTemplateDetail />
         </Suspense>
       </Route>
       <Route path="/my-library">
