@@ -504,6 +504,7 @@ const CustomerTracking = lazy(() => import("@/pages/customer-tracking"));
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
+const LaundromatBible = lazy(() => import("@/pages/laundromat-bible"));
 const Doctrine = lazy(() => import("@/pages/doctrine"));
 const Subscribe = lazy(() => import("@/pages/subscribe"));
 const SubscriptionSuccess = lazy(() => import("@/pages/subscription-success"));
@@ -1318,6 +1319,16 @@ function Router() {
       <Route path="/book">
         <Suspense fallback={<LoadingFallback />}>
           <Book />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-bible">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatBible />
+        </Suspense>
+      </Route>
+      <Route path="/playbook">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatBible />
         </Suspense>
       </Route>
       <Route path="/book-ad-preview">
