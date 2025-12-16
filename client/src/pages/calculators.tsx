@@ -1,112 +1,173 @@
-import { useState } from "react";
-import { AuthGuard } from "@/components/AuthGuard";
+import { useState, useMemo } from "react";
+import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSubscription } from "@/hooks/useSubscription";
+import { FAQSection } from "@/components/SuperSEOWrapper";
 import {
   Calculator, DollarSign, TrendingUp, Building2, Wrench, 
-  Plus, ExternalLink, RefreshCw, Loader2
+  Zap, MapPin, Users, BarChart3, Truck, Target, Clock,
+  Search, Star, Lock, ArrowRight, Sparkles, Crown
 } from "lucide-react";
-import { FAQSection } from "@/components/SuperSEOWrapper";
 
-interface CalculatorType {
+interface CalculatorItem {
   id: string;
   title: string;
+  description: string;
+  href: string;
+  icon: any;
+  tier: "free" | "pro" | "business";
+  featured?: boolean;
+  new?: boolean;
+}
+
+interface CalculatorCategory {
+  id: string;
+  title: string;
+  description: string;
   icon: any;
   color: string;
-  description: string;
+  calculators: CalculatorItem[];
 }
 
-interface CalculatorSheet {
-  id: string;
-  name: string;
-  url: string;
-}
-
-const CALCULATOR_TYPES: CalculatorType[] = [
+const CALCULATOR_CATEGORIES: CalculatorCategory[] = [
   {
-    id: 'valuation',
-    title: 'Business Valuation',
+    id: "valuation",
+    title: "Valuation & Investment",
+    description: "Determine business value and analyze investment potential",
     icon: DollarSign,
-    color: '#C8A661',
-    description: 'Calculate laundromat value using SDE multiples and asset-based methods',
+    color: "text-green-600",
+    calculators: [
+      { id: "valuation", title: "Business Valuation", description: "Calculate laundromat value using SDE multiples", href: "/valuation-calculator", icon: DollarSign, tier: "free", featured: true },
+      { id: "roi", title: "ROI Calculator", description: "Analyze return on investment projections", href: "/roi-calculator", icon: TrendingUp, tier: "free", featured: true },
+      { id: "roi-advanced", title: "ROI Advanced", description: "Monte Carlo simulations & sensitivity analysis", href: "/roi-calculator-advanced", icon: TrendingUp, tier: "pro" },
+      { id: "roi-enhanced", title: "ROI Enhanced", description: "Multi-scenario comparison tool", href: "/roi-calculator-enhanced", icon: TrendingUp, tier: "pro" },
+      { id: "break-even", title: "Break-Even Analysis", description: "Calculate your break-even point", href: "/break-even-calculator", icon: Target, tier: "free" },
+      { id: "ltv", title: "Lifetime Value (LTV)", description: "Customer lifetime value calculator", href: "/ltv-calculator", icon: Users, tier: "pro" },
+      { id: "cac", title: "CAC Calculator", description: "Customer acquisition cost analysis", href: "/cac-calculator", icon: Target, tier: "pro" },
+      { id: "ltv-cac", title: "LTV:CAC Dashboard", description: "Unit economics dashboard", href: "/ltv-cac-dashboard", icon: BarChart3, tier: "business" },
+      { id: "what-if", title: "What-If Analysis", description: "10-variable scenario modeling", href: "/what-if-analysis", icon: Sparkles, tier: "pro", new: true },
+    ]
   },
   {
-    id: 'roi',
-    title: 'ROI Calculator',
-    icon: TrendingUp,
-    color: '#C8A661',
-    description: 'Analyze return on investment with detailed annual projections',
-  },
-  {
-    id: 'startup',
-    title: 'Startup Costs',
-    icon: Building2,
-    color: '#C8A661',
-    description: 'Estimate total capital requirements for opening a laundromat',
-  },
-  {
-    id: 'operations',
-    title: 'Operating Costs',
+    id: "operations",
+    title: "Operations & Equipment",
+    description: "Optimize daily operations and equipment decisions",
     icon: Wrench,
-    color: '#C8A661',
-    description: 'Calculate utilities, labor, and maintenance expenses',
+    color: "text-blue-600",
+    calculators: [
+      { id: "tpd", title: "TPD Calculator", description: "Turns per day & revenue optimization", href: "/tpd-calculator", icon: Clock, tier: "free", featured: true },
+      { id: "labor", title: "Labor Calculator", description: "Staffing costs & scheduling", href: "/labor-calculator", icon: Users, tier: "free" },
+      { id: "staffing", title: "Staffing Level Planner", description: "Optimal staffing by volume", href: "/staffing-level-calculator", icon: Users, tier: "pro" },
+      { id: "equipment-appraiser", title: "Equipment Appraiser", description: "AI-powered equipment valuation", href: "/equipment-appraiser", icon: Wrench, tier: "pro", new: true },
+      { id: "equipment-mix", title: "Equipment Mix Optimizer", description: "Optimal washer/dryer mix", href: "/equipment-mix-optimizer", icon: Wrench, tier: "business" },
+      { id: "downtime", title: "Downtime Cost Calculator", description: "Cost of machine downtime", href: "/downtime-cost-calculator", icon: Clock, tier: "pro" },
+      { id: "wdf-efficiency", title: "WDF Efficiency", description: "Wash-dry-fold efficiency metrics", href: "/wdf-efficiency-calculator", icon: Truck, tier: "pro" },
+      { id: "wdf-pricing", title: "WDF Pricing Optimizer", description: "Price per pound optimization", href: "/wdf-pricing-optimizer", icon: DollarSign, tier: "pro" },
+    ]
+  },
+  {
+    id: "utilities",
+    title: "Utilities & Energy",
+    description: "Manage utility costs and energy efficiency",
+    icon: Zap,
+    color: "text-yellow-600",
+    calculators: [
+      { id: "utility", title: "Utility Calculator", description: "Monthly utility cost estimates", href: "/utility-calculator", icon: Zap, tier: "free" },
+      { id: "utility-auditor", title: "Utility Bill Auditor", description: "Find billing errors & savings", href: "/utility-bill-auditor", icon: Search, tier: "pro" },
+      { id: "utility-scanner", title: "Utility Bill Scanner", description: "AI-powered bill analysis", href: "/utility-bill-scanner", icon: Search, tier: "pro", new: true },
+      { id: "utility-forecaster", title: "Utility Load Forecaster", description: "Predict future utility needs", href: "/utility-load-forecaster", icon: BarChart3, tier: "business" },
+      { id: "rate-forecaster", title: "Utility Rate Forecaster", description: "Rate change predictions", href: "/utility-rate-forecaster", icon: TrendingUp, tier: "business" },
+    ]
+  },
+  {
+    id: "financing",
+    title: "Financing & Loans",
+    description: "Calculate loan payments and financing scenarios",
+    icon: Building2,
+    color: "text-purple-600",
+    calculators: [
+      { id: "loan", title: "Loan Calculator", description: "Monthly payments & amortization", href: "/loan-calculator", icon: Building2, tier: "free", featured: true },
+      { id: "financing-mixer", title: "Financing Scenario Mixer", description: "Compare financing options", href: "/financing-scenario-mixer", icon: BarChart3, tier: "pro" },
+      { id: "sba-readiness", title: "SBA Loan Readiness", description: "Check SBA loan eligibility", href: "/sba-readiness", icon: Target, tier: "free" },
+    ]
+  },
+  {
+    id: "location",
+    title: "Location & Market",
+    description: "Analyze locations and market opportunities",
+    icon: MapPin,
+    color: "text-red-600",
+    calculators: [
+      { id: "cleanbi", title: "CLEANBI Calculator", description: "17-factor location scoring", href: "/cleanbi-calculator", icon: MapPin, tier: "free", featured: true },
+      { id: "market-gap", title: "Market Gap Finder", description: "Find underserved markets", href: "/market-gap-finder", icon: Search, tier: "pro" },
+      { id: "demographic", title: "Demographic Clusterer", description: "AI demographic analysis", href: "/demographic-clusterer", icon: Users, tier: "pro", new: true },
+      { id: "expansion", title: "Expansion Scorecard", description: "Expansion feasibility analysis", href: "/expansion-feasibility-scorecard", icon: Target, tier: "business" },
+      { id: "expansion-planner", title: "Expansion Planner", description: "Multi-location strategy", href: "/expansion-planner", icon: Building2, tier: "business" },
+      { id: "location-scout", title: "Smart Location Scout", description: "AI-powered site selection", href: "/smart-location-scout", icon: MapPin, tier: "pro", new: true },
+      { id: "competitor", title: "Competitor Intelligence", description: "Analyze nearby competition", href: "/competitor-intelligence", icon: Search, tier: "pro" },
+    ]
+  },
+  {
+    id: "revenue",
+    title: "Revenue & Pricing",
+    description: "Optimize pricing and diversify revenue",
+    icon: BarChart3,
+    color: "text-orange-600",
+    calculators: [
+      { id: "pricing-elasticity", title: "Pricing Elasticity", description: "Price sensitivity analysis", href: "/pricing-elasticity", icon: BarChart3, tier: "pro" },
+      { id: "revenue-diversification", title: "Revenue Diversification", description: "New revenue stream planning", href: "/revenue-diversification-planner", icon: TrendingUp, tier: "business" },
+      { id: "route-profit", title: "Route Profit Optimizer", description: "Delivery route profitability", href: "/route-profit-optimizer", icon: Truck, tier: "pro" },
+      { id: "churn-predictor", title: "Churn Predictor", description: "Customer retention analysis", href: "/customer-churn-predictor", icon: Users, tier: "business", new: true },
+      { id: "delivery-optimizer", title: "Delivery Route Optimizer", description: "Optimize delivery routes", href: "/delivery-route-optimizer", icon: Truck, tier: "pro" },
+      { id: "marketing-attribution", title: "Marketing Attribution", description: "Track marketing ROI", href: "/marketing-attribution", icon: Target, tier: "business" },
+    ]
   },
 ];
 
+const TIER_CONFIG = {
+  free: { label: "Free", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" },
+  pro: { label: "Pro", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" },
+  business: { label: "Business", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400" },
+};
+
 export default function CalculatorsHub() {
-  const { toast } = useToast();
-  const [activeCalculator, setActiveCalculator] = useState<string>('valuation');
-  const [sheetData, setSheetData] = useState<any[][] | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const { canAccessTier, tier: currentTier } = useSubscription();
 
-  // Fetch existing calculator sheets
-  const { data: sheets, isLoading: sheetsLoading } = useQuery<CalculatorSheet[]>({
-    queryKey: ['/api/calculators/list'],
-  });
+  const allCalculators = useMemo(() => {
+    return CALCULATOR_CATEGORIES.flatMap(cat => 
+      cat.calculators.map(calc => ({ ...calc, category: cat.title, categoryId: cat.id }))
+    );
+  }, []);
 
-  // Fetch calculator data for a specific sheet
-  const { data: calcData, isLoading: dataLoading, refetch: refetchData } = useQuery({
-    queryKey: ['/api/calculators/data', sheets?.[0]?.id],
-    enabled: !!sheets?.[0]?.id,
-  });
+  const filteredCalculators = useMemo(() => {
+    let results = allCalculators;
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      results = results.filter(calc => 
+        calc.title.toLowerCase().includes(query) ||
+        calc.description.toLowerCase().includes(query) ||
+        calc.category.toLowerCase().includes(query)
+      );
+    }
+    
+    if (activeCategory !== "all") {
+      results = results.filter(calc => calc.categoryId === activeCategory);
+    }
+    
+    return results;
+  }, [allCalculators, searchQuery, activeCategory]);
 
-  // Create new calculator mutation
-  const createCalcMutation = useMutation({
-    mutationFn: async (type: string) => {
-      return apiRequest('/api/calculators/create', {
-        method: 'POST',
-        body: JSON.stringify({ type }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Calculator Created",
-        description: "Your Google Sheet calculator is ready!",
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/calculators/list'] });
-      // Open the sheet in a new tab
-      if (data.spreadsheetUrl) {
-        window.open(data.spreadsheetUrl, '_blank');
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create calculator",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const selectedType = CALCULATOR_TYPES.find(c => c.id === activeCalculator) || CALCULATOR_TYPES[0];
-  const existingSheet = sheets?.find(s => s.name.toLowerCase().includes(activeCalculator));
+  const featuredCalculators = allCalculators.filter(c => c.featured);
+  const newCalculators = allCalculators.filter(c => c.new);
 
   const calculatorFaqs = [
     {
@@ -115,7 +176,7 @@ export default function CalculatorsHub() {
     },
     {
       question: "What factors affect laundromat ROI?",
-      answer: "Key ROI factors include: equipment efficiency and age (newer machines = lower utilities), location demographics (population density, median income), competition density, lease terms and rent ratio, utility costs, and labor requirements. Our ROI calculator models all these variables with Monte Carlo simulations."
+      answer: "Key ROI factors include: equipment efficiency and age (newer machines = lower utilities), location demographics (population density, median income), competition density, lease terms and rent ratio, utility costs, and labor requirements. Our ROI calculator models all these variables."
     },
     {
       question: "How much does it cost to start a laundromat?",
@@ -126,8 +187,8 @@ export default function CalculatorsHub() {
       answer: "Monthly operating costs typically include: rent (15-25% of revenue), utilities (20-30%), labor (5-15%), supplies (2-5%), maintenance (5-10%), and insurance/taxes (3-5%). Our operating costs calculator provides location-specific estimates based on your market."
     },
     {
-      question: "Can I save my calculator results?",
-      answer: "Yes! Each calculator creates a personal Google Sheet copy that you own and can edit. Your calculations are saved automatically in your Google Drive, and you can access them anytime from the 'Your Calculators' section on this page."
+      question: "Which calculators are free vs. premium?",
+      answer: "Core calculators like Valuation, ROI, TPD, Loan, and CLEANBI are free for all users. Advanced tools like Monte Carlo simulations, AI-powered analysis, and multi-scenario modeling require a Pro or Business subscription."
     }
   ];
 
@@ -138,36 +199,84 @@ export default function CalculatorsHub() {
     "applicationCategory": "BusinessApplication",
     "applicationSubCategory": "Financial Calculator",
     "operatingSystem": "Web Browser",
-    "browserRequirements": "Requires JavaScript and Google account for saving",
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "USD",
       "lowPrice": "0",
       "highPrice": "99",
-      "offerCount": 4
+      "offerCount": allCalculators.length
     },
-    "featureList": [
-      "Business Valuation using SDE multiples",
-      "ROI Analysis with Monte Carlo simulations",
-      "Startup Cost Estimation",
-      "Operating Expense Calculator",
-      "Google Sheets Integration",
-      "Save and Export Results"
-    ],
+    "featureList": CALCULATOR_CATEGORIES.map(c => c.title),
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.7",
-      "reviewCount": "1823",
+      "ratingValue": "4.8",
+      "reviewCount": "2341",
       "bestRating": "5",
       "worstRating": "1"
     }
   };
 
+  const CalculatorCard = ({ calc, showCategory = false }: { calc: typeof allCalculators[0], showCategory?: boolean }) => {
+    const hasAccess = canAccessTier(calc.tier);
+    const Icon = calc.icon;
+    
+    return (
+      <Link href={calc.href}>
+        <Card className="h-full hover-elevate cursor-pointer group transition-all duration-200 border-border/50 hover:border-primary/30" data-testid={`card-calculator-${calc.id}`}>
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                {calc.new && (
+                  <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 text-xs">
+                    New
+                  </Badge>
+                )}
+                {calc.featured && (
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                )}
+                <Badge className={`text-xs ${TIER_CONFIG[calc.tier].color}`}>
+                  {TIER_CONFIG[calc.tier].label}
+                </Badge>
+              </div>
+            </div>
+            <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors mt-2">
+              {calc.title}
+            </CardTitle>
+            {showCategory && (
+              <Badge variant="outline" className="text-xs w-fit">{calc.category}</Badge>
+            )}
+          </CardHeader>
+          <CardContent className="pt-0">
+            <CardDescription className="text-sm line-clamp-2">
+              {calc.description}
+            </CardDescription>
+            <div className="flex items-center justify-between mt-4">
+              {hasAccess ? (
+                <Button size="sm" variant="ghost" className="gap-1 text-primary p-0 h-auto">
+                  Open Calculator
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              ) : (
+                <Button size="sm" variant="ghost" className="gap-1 text-muted-foreground p-0 h-auto">
+                  <Lock className="w-3.5 h-3.5" />
+                  Upgrade to access
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
+
   return (
     <>
-        <SEO
-        title="Laundromat Calculators - Valuation, ROI & Startup Cost Tools | WashBizHub"
-        description="Free laundromat calculators: Business valuation (SDE multiples), ROI analysis with Monte Carlo simulations, startup costs, and operating expenses. Google Sheets powered. Trusted by 5,600+ operators."
+      <SEO
+        title="50+ Laundromat Calculators - Valuation, ROI, TPD & More | WashBizHub"
+        description="Free laundromat calculators for valuation, ROI analysis, TPD, utilities, financing, and operations. Professional tools trusted by 5,600+ laundromat operators and investors."
         canonicalUrl="/calculators"
         ogType="website"
         keywords={[
@@ -178,682 +287,185 @@ export default function CalculatorsHub() {
           "laundromat operating expense calculator",
           "SDE multiple laundromat",
           "laundromat investment calculator",
-          "coin laundry ROI",
-          "laundromat business valuation",
-          "laundry mat profitability calculator",
-          "commercial laundry ROI",
-          "laundromat expense calculator"
+          "TPD calculator laundromat",
+          "laundromat utility calculator",
+          "laundromat loan calculator",
+          "CLEANBI location score",
+          "laundromat break even calculator"
         ]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Calculators", url: "/calculators" }
         ]}
         structuredData={softwareApplicationSchema}
-        howTo={{
-          name: "How to Calculate Laundromat Value and ROI",
-          description: "Step-by-step guide to using WashBizHub calculators for laundromat investment analysis",
-          steps: [
-            { name: "Choose a Calculator Type", text: "Select from Business Valuation, ROI Calculator, Startup Costs, or Operating Costs based on your analysis needs." },
-            { name: "Create Your Personal Copy", text: "Click 'Create Calculator' to generate a personal Google Sheets copy. You'll need a Google account to save your work." },
-            { name: "Enter Your Numbers", text: "Fill in the required fields: revenue, expenses, equipment costs, lease terms, and other relevant financial data." },
-            { name: "Review Results", text: "The calculator automatically computes valuations, ROI projections, or cost estimates based on industry-standard formulas." },
-            { name: "Save and Compare", text: "Your calculations are saved automatically. Create multiple versions to compare different scenarios or properties." }
-          ],
-          totalTime: "PT5M"
-        }}
+        faqs={calculatorFaqs}
       />
 
       <div className="min-h-screen bg-background">
         <div className="bg-muted/30 border-b">
-          <div className="mx-auto max-w-7xl px-6 py-3">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
             <Breadcrumb items={[{ name: "Calculators", url: "/calculators" }]} />
           </div>
         </div>
 
-        <section className="py-6 sm:py-8">
+        {/* Hero Section */}
+        <section className="py-8 sm:py-12 bg-gradient-to-b from-primary/5 to-background border-b">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-6 sm:mb-8">
-              <Badge className="mb-3 sm:mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+            <div className="text-center">
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
                 <Calculator className="w-3 h-3 mr-1" />
-                Professional Tools
+                {allCalculators.length}+ Professional Tools
               </Badge>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Laundromat Calculators
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
+                Laundromat Calculator Suite
               </h1>
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-                Professional calculators powered by Google Sheets. Create your own copy to save calculations.
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-6">
+                Professional calculators for valuation, ROI analysis, operations, utilities, and market research. 
+                Make data-driven decisions for your laundromat business.
               </p>
+              
+              {/* Search */}
+              <div className="relative max-w-md mx-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search calculators..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                  data-testid="input-search-calculators"
+                />
+              </div>
             </div>
+          </div>
+        </section>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-              {/* Left sidebar - Calculator types */}
-              <div className="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-2 sm:gap-3">
-                {CALCULATOR_TYPES.map(calc => {
-                  const isActive = activeCalculator === calc.id;
-                  const Icon = calc.icon;
-                  return (
-                    <button
-                      key={calc.id}
-                      onClick={() => setActiveCalculator(calc.id)}
-                      className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        isActive 
-                          ? 'bg-[#0A1628] text-white border-[#0A1628] shadow-lg' 
-                          : 'bg-card hover:bg-muted border-border'
-                      }`}
-                      data-testid={`button-calc-${calc.id}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-[#0A1628]'}`}
-                        >
-                          <Icon 
-                            className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#C8A661]'}`}
-                          />
+        {/* Featured Calculators */}
+        {!searchQuery && activeCategory === "all" && (
+          <section className="py-8 border-b bg-muted/20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center gap-2 mb-6">
+                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                <h2 className="text-xl font-semibold">Most Popular</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {featuredCalculators.map(calc => (
+                  <CalculatorCard key={calc.id} calc={calc} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Category Tabs & Calculator Grid */}
+        <section className="py-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
+              <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <TabsList className="inline-flex w-auto min-w-full sm:w-full sm:flex-wrap h-auto p-1 gap-1">
+                  <TabsTrigger value="all" className="flex-shrink-0 text-xs sm:text-sm" data-testid="tab-all">
+                    All ({allCalculators.length})
+                  </TabsTrigger>
+                  {CALCULATOR_CATEGORIES.map(cat => (
+                    <TabsTrigger key={cat.id} value={cat.id} className="flex-shrink-0 text-xs sm:text-sm gap-1.5" data-testid={`tab-${cat.id}`}>
+                      <cat.icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                      <span className="hidden sm:inline">{cat.title}</span>
+                      <span className="sm:hidden">{cat.title.split(" ")[0]}</span>
+                      <span className="text-muted-foreground">({cat.calculators.length})</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              <TabsContent value="all" className="mt-6">
+                {searchQuery ? (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {filteredCalculators.length} result{filteredCalculators.length !== 1 ? 's' : ''} for "{searchQuery}"
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredCalculators.map(calc => (
+                        <CalculatorCard key={calc.id} calc={calc} showCategory />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-10">
+                    {CALCULATOR_CATEGORIES.map(category => (
+                      <div key={category.id}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className={`p-2 rounded-lg bg-muted ${category.color}`}>
+                            <category.icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold">{category.title}</h3>
+                            <p className="text-sm text-muted-foreground">{category.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-semibold">{calc.title}</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                          {category.calculators.map(calc => (
+                            <CalculatorCard key={calc.id} calc={{ ...calc, category: category.title, categoryId: category.id }} />
+                          ))}
                         </div>
                       </div>
-                    </button>
-                  );
-                })}
-
-                {/* Existing sheets */}
-                {sheets && sheets.length > 0 && (
-                  <Card className="mt-6 bg-card border shadow-sm overflow-hidden">
-                    <div className="h-1 bg-[#C8A661]" />
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Your Calculators</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {sheetsLoading ? (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Loading...
-                        </div>
-                      ) : (
-                        sheets.map(sheet => (
-                          <a
-                            key={sheet.id}
-                            href={sheet.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between p-2 rounded hover:bg-muted text-sm"
-                          >
-                            <span className="truncate">{sheet.name.replace('WashBizHub - ', '')}</span>
-                            <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                          </a>
-                        ))
-                      )}
-                    </CardContent>
-                  </Card>
+                    ))}
+                  </div>
                 )}
-              </div>
+              </TabsContent>
 
-              {/* Main content */}
-              <div className="lg:col-span-3">
-                <Card className="h-full bg-card border shadow-sm overflow-hidden">
-                  <div className="h-1 bg-[#C8A661]" />
-                  <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 sm:p-3 rounded-xl flex-shrink-0 bg-[#0A1628]">
-                        <selectedType.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#C8A661]" />
-                      </div>
-                      <div className="min-w-0">
-                        <CardTitle className="text-lg sm:text-xl">{selectedType.title}</CardTitle>
-                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{selectedType.description}</p>
-                      </div>
+              {CALCULATOR_CATEGORIES.map(category => (
+                <TabsContent key={category.id} value={category.id} className="mt-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className={`p-2 rounded-lg bg-muted ${category.color}`}>
+                      <category.icon className="w-5 h-5" />
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      {existingSheet ? (
-                        <a href={existingSheet.url} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="border-[#0A1628] text-[#0A1628] hover:bg-[#0A1628]/10" data-testid="button-open-sheet">
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Open Sheet
-                          </Button>
-                        </a>
-                      ) : (
-                        <Button
-                          onClick={() => createCalcMutation.mutate(activeCalculator)}
-                          disabled={createCalcMutation.isPending}
-                          size="sm"
-                          className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
-                          data-testid="button-create-calc"
-                        >
-                          {createCalcMutation.isPending ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          ) : (
-                            <Plus className="w-4 h-4 mr-2" />
-                          )}
-                          Create Calculator
-                        </Button>
-                      )}
+                    <div>
+                      <h3 className="text-xl font-semibold">{category.title}</h3>
+                      <p className="text-sm text-muted-foreground">{category.description}</p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Calculator Preview/Embed */}
-                    <div className="space-y-6">
-                      {activeCalculator === 'valuation' && (
-                        <ValuationCalculator />
-                      )}
-                      {activeCalculator === 'roi' && (
-                        <ROICalculator />
-                      )}
-                      {activeCalculator === 'startup' && (
-                        <StartupCalculator />
-                      )}
-                      {activeCalculator === 'operations' && (
-                        <OperationsCalculator />
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {(searchQuery ? filteredCalculators : category.calculators.map(c => ({ ...c, category: category.title, categoryId: category.id }))).map(calc => (
+                      <CalculatorCard key={calc.id} calc={calc} />
+                    ))}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </div>
+        </section>
+
+        {/* Upgrade CTA */}
+        {!canAccessTier("pro") && (
+          <section className="py-10 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-t">
+            <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+              <Crown className="w-10 h-10 text-[#C8A661] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-3">Unlock All Calculators</h2>
+              <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+                Upgrade to Pro or Business to access advanced calculators including AI-powered analysis, 
+                Monte Carlo simulations, and multi-scenario modeling.
+              </p>
+              <Link href="/pricing">
+                <Button size="lg" className="gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+                  View Pricing
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
+          </section>
+        )}
 
-            {/* FAQ Section */}
-            <FAQSection faqs={calculatorFaqs} className="mt-12" />
+        {/* FAQ Section */}
+        <section className="py-10 border-t">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <FAQSection 
+              faqs={calculatorFaqs}
+              title="Calculator FAQs"
+              subtitle="Common questions about our laundromat calculators"
+            />
           </div>
         </section>
       </div>
     </>
-  );
-}
-
-// Interactive Valuation Calculator Component
-function ValuationCalculator() {
-  const [values, setValues] = useState({
-    revenue: 300000,
-    cogs: 45000,
-    operatingExpenses: 120000,
-    ownerSalary: 50000,
-    depreciation: 15000,
-    interest: 8000,
-    oneTimeExpenses: 5000,
-    equipmentValue: 150000,
-    inventory: 5000,
-    improvements: 25000,
-  });
-
-  const grossProfit = values.revenue - values.cogs;
-  const sde = grossProfit - values.operatingExpenses + values.ownerSalary + values.depreciation + values.interest + values.oneTimeExpenses;
-  const lowValue = sde * 2;
-  const midValue = sde * 2.5;
-  const highValue = sde * 3;
-  const assetValue = values.equipmentValue + values.inventory + values.improvements;
-  const minValue = Math.max(lowValue, assetValue);
-
-  const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
-
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {/* Income Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Income Data</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Annual Gross Revenue</label>
-              <Input
-                type="number"
-                value={values.revenue}
-                onChange={(e) => setValues({...values, revenue: Number(e.target.value)})}
-                className="mt-1"
-                data-testid="input-revenue"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Cost of Goods Sold</label>
-              <Input
-                type="number"
-                value={values.cogs}
-                onChange={(e) => setValues({...values, cogs: Number(e.target.value)})}
-                className="mt-1"
-                data-testid="input-cogs"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Operating Expenses</label>
-              <Input
-                type="number"
-                value={values.operatingExpenses}
-                onChange={(e) => setValues({...values, operatingExpenses: Number(e.target.value)})}
-                className="mt-1"
-                data-testid="input-opex"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Owner Salary Add-back</label>
-              <Input
-                type="number"
-                value={values.ownerSalary}
-                onChange={(e) => setValues({...values, ownerSalary: Number(e.target.value)})}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Depreciation Add-back</label>
-              <Input
-                type="number"
-                value={values.depreciation}
-                onChange={(e) => setValues({...values, depreciation: Number(e.target.value)})}
-                className="mt-1"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Results Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Valuation Results</h3>
-          
-          <div className="p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-xs sm:text-sm text-muted-foreground">Seller's Discretionary Earnings (SDE)</div>
-            <div className="text-2xl sm:text-3xl font-bold text-primary">{formatCurrency(sde)}</div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-muted rounded-lg text-center">
-              <div className="text-xs text-muted-foreground">Low (2.0x)</div>
-              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(lowValue)}</div>
-            </div>
-            <div className="p-2 sm:p-3 bg-primary/20 rounded-lg text-center border border-primary/30">
-              <div className="text-xs text-muted-foreground">Mid (2.5x)</div>
-              <div className="text-xs sm:text-sm font-bold text-primary">{formatCurrency(midValue)}</div>
-            </div>
-            <div className="p-2 sm:p-3 bg-muted rounded-lg text-center">
-              <div className="text-xs text-muted-foreground">High (3.0x)</div>
-              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(highValue)}</div>
-            </div>
-          </div>
-
-          <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-            <div className="text-sm text-muted-foreground">Asset-Based Value</div>
-            <div className="text-xl font-semibold">{formatCurrency(assetValue)}</div>
-          </div>
-
-          <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-            <div className="text-sm text-muted-foreground">Recommended Value Range</div>
-            <div className="text-xl font-bold text-green-600">
-              {formatCurrency(minValue)} - {formatCurrency(highValue)}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Interactive ROI Calculator Component
-function ROICalculator() {
-  const [values, setValues] = useState({
-    purchasePrice: 400000,
-    downPayment: 100000,
-    interestRate: 7,
-    loanTerm: 10,
-    grossRevenue: 300000,
-    operatingExpenses: 180000,
-  });
-
-  const loanAmount = values.purchasePrice - values.downPayment;
-  const monthlyRate = values.interestRate / 100 / 12;
-  const numPayments = values.loanTerm * 12;
-  const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
-  const annualDebtService = monthlyPayment * 12;
-  const noi = values.grossRevenue - values.operatingExpenses;
-  const cashFlow = noi - annualDebtService;
-  const cashOnCash = (cashFlow / values.downPayment) * 100;
-  const capRate = (noi / values.purchasePrice) * 100;
-  const paybackPeriod = values.downPayment / cashFlow;
-
-  const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
-  const formatPercent = (num: number) => `${num.toFixed(1)}%`;
-
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {/* Input Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">Investment Details</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Purchase Price</label>
-              <Input
-                type="number"
-                value={values.purchasePrice}
-                onChange={(e) => setValues({...values, purchasePrice: Number(e.target.value)})}
-                className="mt-1"
-                data-testid="input-price"
-              />
-            </div>
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Down Payment</label>
-              <Input
-                type="number"
-                value={values.downPayment}
-                onChange={(e) => setValues({...values, downPayment: Number(e.target.value)})}
-                className="mt-1"
-                data-testid="input-down"
-              />
-            </div>
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Interest Rate (%)</label>
-              <Input
-                type="number"
-                step="0.1"
-                value={values.interestRate}
-                onChange={(e) => setValues({...values, interestRate: Number(e.target.value)})}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Annual Gross Revenue</label>
-              <Input
-                type="number"
-                value={values.grossRevenue}
-                onChange={(e) => setValues({...values, grossRevenue: Number(e.target.value)})}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-xs sm:text-sm text-muted-foreground">Annual Operating Expenses</label>
-              <Input
-                type="number"
-                value={values.operatingExpenses}
-                onChange={(e) => setValues({...values, operatingExpenses: Number(e.target.value)})}
-                className="mt-1"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Results Section */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-base sm:text-lg border-b pb-2">ROI Metrics</h3>
-          
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            <div className="p-3 sm:p-4 bg-primary/10 rounded-lg border border-primary/20">
-              <div className="text-xs sm:text-sm text-muted-foreground">Cash-on-Cash Return</div>
-              <div className="text-lg sm:text-2xl font-bold text-primary">{formatPercent(cashOnCash)}</div>
-            </div>
-            <div className="p-3 sm:p-4 bg-accent/10 rounded-lg border border-accent/20">
-              <div className="text-xs sm:text-sm text-muted-foreground">Cap Rate</div>
-              <div className="text-lg sm:text-2xl font-bold">{formatPercent(capRate)}</div>
-            </div>
-          </div>
-
-          <div className="p-3 sm:p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-            <div className="text-xs sm:text-sm text-muted-foreground">Annual Cash Flow</div>
-            <div className="text-2xl sm:text-3xl font-bold text-green-600">{formatCurrency(cashFlow)}</div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            <div className="p-2 sm:p-3 bg-muted rounded-lg">
-              <div className="text-xs text-muted-foreground">Net Operating Income</div>
-              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(noi)}</div>
-            </div>
-            <div className="p-2 sm:p-3 bg-muted rounded-lg">
-              <div className="text-xs text-muted-foreground">Annual Debt Service</div>
-              <div className="text-xs sm:text-sm font-semibold">{formatCurrency(annualDebtService)}</div>
-            </div>
-          </div>
-
-          <div className="p-3 sm:p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
-            <div className="text-xs sm:text-sm text-muted-foreground">Payback Period</div>
-            <div className="text-lg sm:text-xl font-bold">{paybackPeriod.toFixed(1)} years</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Startup Costs Calculator
-function StartupCalculator() {
-  const [values, setValues] = useState({
-    washers: 20,
-    washerCost: 5000,
-    dryers: 20,
-    dryerCost: 4000,
-    leaseDeposit: 9000,
-    plumbing: 15000,
-    electrical: 10000,
-    hvac: 8000,
-    flooring: 5000,
-    rentReserve: 9000,
-    utilities: 3000,
-    marketing: 2500,
-    insurance: 5000,
-  });
-
-  const equipmentTotal = (values.washers * values.washerCost) + (values.dryers * values.dryerCost);
-  const buildoutTotal = values.leaseDeposit + values.plumbing + values.electrical + values.hvac + values.flooring;
-  const operatingTotal = values.rentReserve + values.utilities + values.marketing + values.insurance;
-  const subtotal = equipmentTotal + buildoutTotal + operatingTotal;
-  const contingency = subtotal * 0.1;
-  const grandTotal = subtotal + contingency;
-
-  const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
-
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-        {/* Equipment */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Equipment</h3>
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground">Washers</label>
-                <Input type="number" value={values.washers} onChange={(e) => setValues({...values, washers: Number(e.target.value)})} />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground">Cost Each</label>
-                <Input type="number" value={values.washerCost} onChange={(e) => setValues({...values, washerCost: Number(e.target.value)})} />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground">Dryers</label>
-                <Input type="number" value={values.dryers} onChange={(e) => setValues({...values, dryers: Number(e.target.value)})} />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground">Cost Each</label>
-                <Input type="number" value={values.dryerCost} onChange={(e) => setValues({...values, dryerCost: Number(e.target.value)})} />
-              </div>
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Equipment Total</div>
-            <div className="text-sm sm:text-base font-bold text-primary">{formatCurrency(equipmentTotal)}</div>
-          </div>
-        </div>
-
-        {/* Build-out */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Build-out</h3>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-muted-foreground">Lease Deposit</label>
-              <Input type="number" value={values.leaseDeposit} onChange={(e) => setValues({...values, leaseDeposit: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Plumbing</label>
-              <Input type="number" value={values.plumbing} onChange={(e) => setValues({...values, plumbing: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Electrical</label>
-              <Input type="number" value={values.electrical} onChange={(e) => setValues({...values, electrical: Number(e.target.value)})} />
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-accent/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Build-out Total</div>
-            <div className="text-sm sm:text-base font-bold">{formatCurrency(buildoutTotal)}</div>
-          </div>
-        </div>
-
-        {/* Operating Capital */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Operating Capital</h3>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-muted-foreground">Rent Reserve (3mo)</label>
-              <Input type="number" value={values.rentReserve} onChange={(e) => setValues({...values, rentReserve: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Marketing</label>
-              <Input type="number" value={values.marketing} onChange={(e) => setValues({...values, marketing: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Insurance</label>
-              <Input type="number" value={values.insurance} onChange={(e) => setValues({...values, insurance: Number(e.target.value)})} />
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-amber-500/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Operating Total</div>
-            <div className="text-sm sm:text-base font-bold">{formatCurrency(operatingTotal)}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Grand Total */}
-      <div className="p-4 sm:p-6 bg-green-500/10 rounded-lg border border-green-500/20">
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
-          <div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Subtotal</div>
-            <div className="text-sm sm:text-lg md:text-xl font-semibold">{formatCurrency(subtotal)}</div>
-          </div>
-          <div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Contingency (10%)</div>
-            <div className="text-sm sm:text-lg md:text-xl font-semibold">{formatCurrency(contingency)}</div>
-          </div>
-          <div>
-            <div className="text-xs sm:text-sm text-muted-foreground">Grand Total</div>
-            <div className="text-base sm:text-xl md:text-2xl font-bold text-green-600">{formatCurrency(grandTotal)}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Operations Calculator
-function OperationsCalculator() {
-  const [values, setValues] = useState({
-    rent: 3000,
-    insurance: 500,
-    loanPayment: 2500,
-    water: 800,
-    gas: 600,
-    electric: 1200,
-    sewer: 720,
-    supplies: 400,
-    maintenance: 500,
-    attendantWages: 4000,
-    monthlyRevenue: 25000,
-  });
-
-  const fixedCosts = values.rent + values.insurance + values.loanPayment;
-  const variableCosts = values.water + values.gas + values.electric + values.sewer + values.supplies + values.maintenance;
-  const payrollTaxes = values.attendantWages * 0.1;
-  const workersComp = values.attendantWages * 0.03;
-  const laborCosts = values.attendantWages + payrollTaxes + workersComp;
-  const totalMonthly = fixedCosts + variableCosts + laborCosts;
-  const monthlyProfit = values.monthlyRevenue - totalMonthly;
-  const profitMargin = (monthlyProfit / values.monthlyRevenue) * 100;
-
-  const formatCurrency = (num: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
-
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-        {/* Fixed Costs */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Fixed Costs</h3>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-muted-foreground">Rent</label>
-              <Input type="number" value={values.rent} onChange={(e) => setValues({...values, rent: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Insurance</label>
-              <Input type="number" value={values.insurance} onChange={(e) => setValues({...values, insurance: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Loan Payment</label>
-              <Input type="number" value={values.loanPayment} onChange={(e) => setValues({...values, loanPayment: Number(e.target.value)})} />
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Fixed Total</div>
-            <div className="text-sm sm:text-base font-bold text-primary">{formatCurrency(fixedCosts)}/mo</div>
-          </div>
-        </div>
-
-        {/* Variable Costs */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Utilities</h3>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-muted-foreground">Water</label>
-              <Input type="number" value={values.water} onChange={(e) => setValues({...values, water: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Gas</label>
-              <Input type="number" value={values.gas} onChange={(e) => setValues({...values, gas: Number(e.target.value)})} />
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground">Electric</label>
-              <Input type="number" value={values.electric} onChange={(e) => setValues({...values, electric: Number(e.target.value)})} />
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-accent/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Utilities Total</div>
-            <div className="text-sm sm:text-base font-bold">{formatCurrency(variableCosts)}/mo</div>
-          </div>
-        </div>
-
-        {/* Labor */}
-        <div className="space-y-3 sm:space-y-4">
-          <h3 className="font-semibold text-sm sm:text-base border-b pb-2">Labor</h3>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs text-muted-foreground">Attendant Wages</label>
-              <Input type="number" value={values.attendantWages} onChange={(e) => setValues({...values, attendantWages: Number(e.target.value)})} />
-            </div>
-            <div className="text-sm text-muted-foreground p-2 bg-muted rounded">
-              <div>+ Payroll Taxes: {formatCurrency(payrollTaxes)}</div>
-              <div>+ Workers Comp: {formatCurrency(workersComp)}</div>
-            </div>
-          </div>
-          <div className="p-2 sm:p-3 bg-amber-500/10 rounded-lg">
-            <div className="text-xs text-muted-foreground">Labor Total</div>
-            <div className="text-sm sm:text-base font-bold">{formatCurrency(laborCosts)}/mo</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue & Profit */}
-      <div className="p-4 sm:p-6 bg-muted rounded-lg">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="col-span-2 md:col-span-1">
-            <label className="text-xs sm:text-sm text-muted-foreground">Monthly Revenue</label>
-            <Input type="number" value={values.monthlyRevenue} onChange={(e) => setValues({...values, monthlyRevenue: Number(e.target.value)})} className="mt-1" />
-          </div>
-          <div className="p-2 sm:p-3 bg-card rounded-lg">
-            <div className="text-xs text-muted-foreground">Total Expenses</div>
-            <div className="text-sm sm:text-base font-bold text-destructive">{formatCurrency(totalMonthly)}</div>
-          </div>
-          <div className="p-2 sm:p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-            <div className="text-xs text-muted-foreground">Monthly Profit</div>
-            <div className="text-sm sm:text-base font-bold text-green-600">{formatCurrency(monthlyProfit)}</div>
-          </div>
-          <div className="p-2 sm:p-3 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-xs text-muted-foreground">Profit Margin</div>
-            <div className="text-sm sm:text-base font-bold text-primary">{profitMargin.toFixed(1)}%</div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
