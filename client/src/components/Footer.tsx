@@ -1,9 +1,8 @@
 import { memo } from "react";
 import { Link } from "wouter";
-import { ExternalLink, Facebook, Twitter, MapPin, Building2, Phone, Mail, MessageCircle, Shield, UserCheck, Lock, CheckCircle } from "lucide-react";
+import { ExternalLink, Facebook, Twitter, MapPin, Building2, Phone, Mail, MessageCircle, Shield, UserCheck } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
-import { SecurityBadgeRow } from "@/components/SecurityBadges";
 import logoUrl from "@assets/6_1764040628012.png";
 import nycSkyline from "@assets/City_Lights_54_1765330986805.png";
 import whatsappQR from "@assets/image_1765639493747.png";
@@ -412,23 +411,6 @@ function FooterComponent() {
                 business brokers, and appraisers) before making business decisions. WashBizHub makes no guarantees 
                 regarding accuracy, completeness, or suitability for any purpose. Use at your own risk.
               </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Security Trust Bar */}
-        <div className="border-t border-white/10 py-6 bg-gradient-to-r from-[#0f1d30] via-[#1a2e4a] to-[#0f1d30]">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-              <div className="flex items-center gap-2 text-white/50 text-xs">
-                <Lock className="h-4 w-4 text-[#C8A661]" />
-                <span>Bank-Grade Security</span>
-              </div>
-              <SecurityBadgeRow badges={["pci", "ssl", "soc2", "encrypted"]} size="sm" />
-              <div className="flex items-center gap-2 text-white/50 text-xs">
-                <CheckCircle className="h-4 w-4 text-green-400" />
-                <span>Your data is protected</span>
-              </div>
             </div>
           </div>
         </div>

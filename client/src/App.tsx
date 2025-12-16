@@ -520,9 +520,7 @@ const Signup = lazy(() => import("@/pages/signup"));
 const SignedOut = lazy(() => import("@/pages/signed-out"));
 const AuthVerify = lazy(() => import("@/pages/auth-verify"));
 const AuthPage = lazy(() => import("@/pages/auth"));
-const AuthOTPPage = lazy(() => import("@/pages/auth-otp"));
 const AuthCallback = lazy(() => import("@/pages/auth-callback"));
-const SecurityCenter = lazy(() => import("@/pages/security-center"));
 const ForgotPassword = lazy(() => import("@/pages/forgot-password"));
 const VerifyEmail = lazy(() => import("@/pages/verify-email"));
 const AffiliateBlogsPage = lazy(() => import("@/pages/affiliate-blogs"));
@@ -1918,12 +1916,12 @@ function Router() {
       </Route>
       <Route path="/auth">
         <Suspense fallback={<LoadingFallback />}>
-          <AuthOTPPage />
+          <AuthPage />
         </Suspense>
       </Route>
       <Route path="/signin">
         <Suspense fallback={<LoadingFallback />}>
-          <AuthOTPPage />
+          <AuthPage />
         </Suspense>
       </Route>
       <Route path="/signup">
@@ -1949,16 +1947,6 @@ function Router() {
       <Route path="/forgot-password">
         <Suspense fallback={<LoadingFallback />}>
           <ForgotPassword />
-        </Suspense>
-      </Route>
-      <Route path="/security">
-        <Suspense fallback={<LoadingFallback />}>
-          <SecurityCenter />
-        </Suspense>
-      </Route>
-      <Route path="/account/security">
-        <Suspense fallback={<LoadingFallback />}>
-          <SecurityCenter />
         </Suspense>
       </Route>
       <Route path="/verify-email">

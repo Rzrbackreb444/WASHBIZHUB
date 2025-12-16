@@ -15,7 +15,7 @@ import {
   Save,
   CheckCircle
 } from "lucide-react";
-import { SiGithub, SiApple, SiGoogle } from "react-icons/si";
+import { SiGoogle, SiGithub, SiApple } from "react-icons/si";
 import { MdEmail } from "react-icons/md";
 
 interface AuthModalContextType {
@@ -65,7 +65,7 @@ interface AuthModalContentProps {
 function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const handleContinueWithAuth = () => {
+  const handleContinueWithGoogle = () => {
     setIsRedirecting(true);
     
     const currentUrl = window.location.pathname + window.location.search;
@@ -73,7 +73,7 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
       ? `?redirect=${encodeURIComponent(currentUrl)}`
       : "";
     
-    window.location.href = `/auth${redirect}`;
+    window.location.href = `/api/auth/cloudflare/login${redirect}`;
   };
 
   const benefits = [
@@ -158,10 +158,10 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
           </div>
 
           <Button 
-            onClick={handleContinueWithAuth}
+            onClick={handleContinueWithGoogle}
             disabled={isRedirecting}
             className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white h-11 text-sm font-semibold mb-4"
-            data-testid="button-modal-sign-in"
+            data-testid="button-modal-continue-google"
           >
             {isRedirecting ? (
               <>
@@ -170,8 +170,8 @@ function AuthModalContent({ isOpen, onClose }: AuthModalContentProps) {
               </>
             ) : (
               <>
-                <Shield className="h-4 w-4 mr-2" />
-                Sign In Securely
+                <SiGoogle className="h-4 w-4 mr-2" />
+                Continue with Google or OTP
               </>
             )}
           </Button>

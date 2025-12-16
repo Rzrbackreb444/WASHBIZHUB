@@ -5,7 +5,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { getSession } from "./replitAuth";
-import { requireAuth, optionalAuth, requireAdmin, unifiedAuth } from "./services/unified-auth";
+import { requireAuth, optionalAuth, requireAdmin } from "./services/unified-auth";
 import { cloudflareAccess } from "./services/cloudflare-access";
 import passport from "passport";
 import cloudflareAuthRoutes from "./cloudflare-auth-routes";
@@ -643,27 +643,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  // Get available auth providers (for frontend login UI)
-  app.get('/api/auth/providers', (req, res) => {
-    res.json(unifiedAuth.getProviderInfo());
-  });
-
-  // Logout endpoint
-  app.post('/api/auth/logout', (req: any, res) => {
-    if (req.session) {
-      req.session.destroy((err: any) => {
-        if (err) {
-          console.error('Session destroy error:', err);
-          return res.status(500).json({ success: false, message: 'Logout failed' });
-        }
-        res.clearCookie('connect.sid');
-        res.json({ success: true, message: 'Logged out successfully' });
-      });
-    } else {
-      res.json({ success: true, message: 'Already logged out' });
     }
   });
 

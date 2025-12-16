@@ -1,12 +1,11 @@
 /**
  * Unified Authentication Service
- * Flexible auth supporting multiple providers
+ * Enterprise-grade auth with Cloudflare Access as primary provider
  * 
- * Priority Order (configurable via DISABLE_CLOUDFLARE_AUTH env var):
- * 1. Session-based auth (existing logged-in users - OTP, Google, etc.)
- * 2. Cloudflare Access (Zero Trust - only if enabled)
- * 3. Google OAuth (standard OAuth)
- * 4. Email OTP (passwordless)
+ * Priority Order:
+ * 1. Cloudflare Access (Zero Trust - enterprise SSO, MFA, device posture)
+ * 2. Session-based auth (existing logged-in users)
+ * 3. Google OAuth (fallback for public users)
  */
 
 import { Request, Response, NextFunction } from "express";
@@ -35,29 +34,21 @@ export interface AuthResult {
 
 class UnifiedAuthService {
   /**
-   * Check if Cloudflare Access is disabled (for Replit Deployments)
-   */
-  private isCloudflareDisabled(): boolean {
-    return process.env.DISABLE_CLOUDFLARE_AUTH === 'true' || 
-           process.env.DISABLE_CLOUDFLARE_AUTH === '1';
-  }
-
-  /**
    * Authenticate request using all available methods
    */
   async authenticate(req: Request): Promise<AuthResult> {
-    // 1. Try existing session first (OTP, Google, or prior auth)
-    const sessionResult = await this.trySession(req);
-    if (sessionResult.authenticated) {
-      return sessionResult;
-    }
-
-    // 2. Try Cloudflare Access (only if not disabled for deployments)
-    if (!this.isCloudflareDisabled() && cloudflareAccess.isConfigured()) {
+    // 1. Try Cloudflare Access first (highest priority - Zero Trust)
+    if (cloudflareAccess.isConfigured()) {
       const cfResult = await this.tryCloudflareAccess(req);
       if (cfResult.authenticated) {
         return cfResult;
       }
+    }
+
+    // 2. Try existing session
+    const sessionResult = await this.trySession(req);
+    if (sessionResult.authenticated) {
+      return sessionResult;
     }
 
     // 3. Not authenticated
@@ -149,14 +140,19 @@ class UnifiedAuthService {
    * Get the best login URL based on configuration
    */
   getLoginUrl(redirectPath: string = '/dashboard'): string {
-    // OTP is always available as primary
-    return `/login?redirect=${encodeURIComponent(redirectPath)}`;
+    if (cloudflareAccess.isConfigured()) {
+      return `/api/auth/cloudflare/login?redirect=${encodeURIComponent(redirectPath)}`;
+    }
+    return `/api/auth/google/login?redirect=${encodeURIComponent(redirectPath)}`;
   }
 
   /**
    * Get logout URL
    */
   getLogoutUrl(): string {
+    if (cloudflareAccess.isConfigured()) {
+      return '/api/auth/cloudflare/logout';
+    }
     return '/api/auth/logout';
   }
 
@@ -164,7 +160,7 @@ class UnifiedAuthService {
    * Check if Cloudflare Access is the primary auth provider
    */
   isCloudflareAccessPrimary(): boolean {
-    return !this.isCloudflareDisabled() && cloudflareAccess.isConfigured();
+    return cloudflareAccess.isConfigured();
   }
 
   /**
@@ -173,49 +169,15 @@ class UnifiedAuthService {
   getConfiguredProviders(): string[] {
     const providers: string[] = [];
     
-    // OTP is always available
-    providers.push('otp');
+    if (cloudflareAccess.isConfigured()) {
+      providers.push('cloudflare-access');
+    }
     
-    // Google OAuth if configured
     if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       providers.push('google');
     }
     
-    // Cloudflare Access if configured and not disabled
-    if (!this.isCloudflareDisabled() && cloudflareAccess.isConfigured()) {
-      providers.push('cloudflare-access');
-    }
-    
     return providers;
-  }
-
-  /**
-   * Get auth provider info for frontend
-   */
-  getProviderInfo() {
-    const googleEnabled = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-    const cloudflareEnabled = !this.isCloudflareDisabled() && cloudflareAccess.isConfigured();
-
-    return {
-      primary: 'otp',
-      providers: this.getConfiguredProviders(),
-      otp: {
-        enabled: true,
-        requestUrl: '/api/auth/otp/request',
-        verifyUrl: '/api/auth/otp/verify',
-        label: 'Sign in with Email',
-      },
-      google: {
-        enabled: googleEnabled,
-        loginUrl: googleEnabled ? '/api/auth/google/login' : null,
-        label: 'Sign in with Google',
-      },
-      cloudflareAccess: {
-        enabled: cloudflareEnabled,
-        loginUrl: cloudflareEnabled ? '/api/auth/cloudflare/login' : null,
-        label: 'Enterprise SSO',
-      },
-    };
   }
 }
 

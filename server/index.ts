@@ -11,7 +11,6 @@ import blogRoutes, { adminBlogRoutes } from "./blog-routes";
 import feedbackRoutes from "./routes/feedback";
 import referralRoutes from "./routes/referrals";
 import cloudflareAuthRoutes from "./cloudflare-auth-routes";
-import otpRoutes from "./otp-routes";
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
 import { storage } from "./storage";
@@ -1297,8 +1296,7 @@ app.use((req, res, next) => {
   app.use('/api/feedback', feedbackRoutes);
   app.use('/api/referrals', referralRoutes);
   app.use('/api/auth/cloudflare', cloudflareAuthRoutes);
-  app.use('/api/auth/otp', otpRoutes);
-  console.log('✅ Authentication routes registered (Cloudflare Access, OTP, Google)');
+  console.log('✅ Cloudflare Access auth routes registered');
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
