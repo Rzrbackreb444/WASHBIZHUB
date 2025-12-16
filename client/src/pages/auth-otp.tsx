@@ -67,8 +67,27 @@ export default function AuthOTPPage() {
     return `${local[0]}${"*".repeat(Math.min(local.length - 2, 5))}${local[local.length - 1]}@${domain}`;
   };
 
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
   const handleRequestOTP = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError("Please enter your email address");
+      return;
+    }
+    
+    if (!isValidEmail(trimmedEmail)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    
+    if (isSubmitting) return;
+    
     setError("");
     setIsSubmitting(true);
 
@@ -76,7 +95,7 @@ export default function AuthOTPPage() {
       const response = await fetch("/api/auth/otp/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: trimmedEmail }),
       });
 
       const data = await response.json();
@@ -86,7 +105,7 @@ export default function AuthOTPPage() {
         return;
       }
 
-      setMaskedEmail(maskEmail(email));
+      setMaskedEmail(maskEmail(trimmedEmail));
       setResendCooldown(RESEND_COOLDOWN);
       setStep("otp");
       
@@ -280,7 +299,7 @@ export default function AuthOTPPage() {
                       <Button
                         type="submit"
                         className="w-full h-12 text-base font-semibold bg-[#0A1628] hover:bg-[#1a3a5c] text-white"
-                        disabled={isSubmitting || !email}
+                        disabled={isSubmitting || !email.trim() || !isValidEmail(email)}
                         data-testid="button-send-code"
                       >
                         {isSubmitting ? (
