@@ -68,6 +68,8 @@ The frontend is built with Vite, TanStack Query, and PWA support. The backend us
 - **Machine Booking System:** Time-slot reservation system with customer booking flow, real-time availability, Stripe payment, and operator management.
 - **QR Code Generator:** Reusable component for loyalty cards, coupons, tracking URLs, and custom text with WashBizHub branding.
 - **POS Suite:** Complete point-of-sale system with transaction register, WDF pricing calculator, cash drawer, daily summary, customer lookup, and shift management.
+- **Template Vault:** Monetized template marketplace with tiered access (free preview, one-time purchase, subscription-included). Features AI Business Plan Generator, Lease Red Flag Checklist (Larry's 50+ trap alerts), Due Diligence Checklist, LOI Template, Financial Model, Employee Handbook, Marketing Plan, and Operational Plan. Includes lead capture for free users, Stripe checkout for purchases, and downloadable PDFs for subscribers.
+- **User Library:** Unified asset management page for purchased templates, calculator history, and course progress. Session-based storage for resuming work.
 
 ### System Design Choices
 - **Data Storage:** PostgreSQL (Neon Serverless) with Drizzle ORM.
