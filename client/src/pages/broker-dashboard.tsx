@@ -6,6 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -36,7 +40,18 @@ import {
   ShoppingCart,
   Target,
   ExternalLink,
-  Zap
+  Zap,
+  Key,
+  Copy,
+  RefreshCw,
+  Shield,
+  Palette,
+  Globe,
+  AlertTriangle,
+  Lock,
+  Unlock,
+  Activity,
+  Crown
 } from "lucide-react";
 import { Link } from "wouter";
 import type { Listing, BrokerProfile } from "@shared/schema";
@@ -102,6 +117,24 @@ const funnelData = [
   { stage: "Closed Deals", value: 4, color: "#22c55e" },
 ];
 
+// Mock API usage data for Enterprise features
+const mockApiUsageData = [
+  { date: "Dec 1", requests: 45 },
+  { date: "Dec 2", requests: 52 },
+  { date: "Dec 3", requests: 38 },
+  { date: "Dec 4", requests: 65 },
+  { date: "Dec 5", requests: 48 },
+  { date: "Dec 6", requests: 72 },
+  { date: "Dec 7", requests: 58 },
+];
+
+const mockReportTypes = [
+  { type: "CLEANBI Analysis", count: 156, color: "#C8A661" },
+  { type: "Valuation Reports", count: 89, color: "#0A1628" },
+  { type: "Due Diligence", count: 42, color: "#1a3a5c" },
+  { type: "Market Reports", count: 28, color: "#22c55e" },
+];
+
 const mockInquiries: Inquiry[] = [
   {
     id: "1",
@@ -144,6 +177,18 @@ export default function BrokerDashboard() {
     to: endOfDay(new Date()),
     preset: "30d",
   });
+  
+  // Enterprise features state
+  const [activeTab, setActiveTab] = useState("overview");
+  const [apiKeyVisible, setApiKeyVisible] = useState(false);
+  const [whiteLabelSettings, setWhiteLabelSettings] = useState({
+    companyName: "",
+    logoUrl: "",
+    primaryColor: "#C8A661",
+  });
+  
+  // Check if user has Enterprise tier (Enterprise-only features)
+  const isEnterprise = user?.subscriptionTier === "enterprise";
 
   const { data: brokerProfile, isLoading: profileLoading } = useQuery<BrokerProfile>({
     queryKey: ["/api/broker/profile"],
@@ -202,6 +247,41 @@ export default function BrokerDashboard() {
       description: "Your PDF report is being generated...",
     });
   };
+
+  // API Key management functions
+  const handleGenerateApiKey = () => {
+    toast({
+      title: "API Key Generated",
+      description: "Your new API key has been created. Keep it secure!",
+    });
+  };
+
+  const handleRevokeApiKey = () => {
+    toast({
+      title: "API Key Revoked",
+      description: "Your API key has been deactivated.",
+      variant: "destructive",
+    });
+  };
+
+  const handleCopyApiKey = () => {
+    navigator.clipboard.writeText("wbh_live_xxxxxxxxxxxxxxxxxxxxxxxxxx");
+    toast({
+      title: "Copied!",
+      description: "API key copied to clipboard.",
+    });
+  };
+
+  const handleSaveWhiteLabel = () => {
+    toast({
+      title: "Settings Saved",
+      description: "Your white-label branding has been updated.",
+    });
+  };
+
+  // Mock API key (masked for display)
+  const maskedApiKey = "wbh_live_xxxx••••••••••••••••xxxx";
+  const totalApiRequests = mockApiUsageData.reduce((sum, d) => sum + d.requests, 0);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -799,6 +879,439 @@ export default function BrokerDashboard() {
               </CardContent>
             </Card>
           )}
+
+          {/* Enterprise Features Section */}
+          <Card className="bg-card border shadow-sm overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-[#C8A661] to-[#0A1628]" />
+            <CardHeader>
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                    <Crown className="h-5 w-5 text-[#C8A661]" />
+                  </div>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      Enterprise Tools
+                      {isEnterprise ? (
+                        <Badge className="bg-[#C8A661] text-[#0A1628]">Active</Badge>
+                      ) : (
+                        <Badge variant="outline">Upgrade Required</Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>API access, white-label reports, and advanced integrations</CardDescription>
+                  </div>
+                </div>
+                {!isEnterprise && (
+                  <Link href="/subscribe?plan=enterprise">
+                    <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+                      <Zap className="w-4 h-4 mr-2" />
+                      Get Enterprise Access
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="api" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="api" data-testid="tab-api">
+                    <Key className="w-4 h-4 mr-2" />
+                    API Access
+                  </TabsTrigger>
+                  <TabsTrigger value="whitelabel" data-testid="tab-whitelabel">
+                    <Palette className="w-4 h-4 mr-2" />
+                    White-Label
+                  </TabsTrigger>
+                  <TabsTrigger value="usage" data-testid="tab-usage">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Usage Analytics
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* API Access Tab */}
+                <TabsContent value="api" className="mt-0 space-y-6">
+                  {!isEnterprise ? (
+                    <div className="py-12 text-center bg-muted/30 rounded-lg border border-dashed">
+                      <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">API Access Locked</h3>
+                      <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                        Upgrade to Enterprise to integrate CLEANBI data directly into your platform, CRM, or client reports.
+                      </p>
+                      <Link href="/subscribe?plan=enterprise">
+                        <Button className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white">
+                          Get Enterprise Access
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {/* API Key Management */}
+                        <Card className="bg-muted/30 border">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <Key className="w-4 h-4 text-[#C8A661]" />
+                              API Key Management
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div>
+                              <Label className="text-sm text-muted-foreground">Your API Key</Label>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Input 
+                                  type={apiKeyVisible ? "text" : "password"}
+                                  value={maskedApiKey}
+                                  readOnly
+                                  className="font-mono text-sm"
+                                  data-testid="input-api-key"
+                                />
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => setApiKeyVisible(!apiKeyVisible)}
+                                  data-testid="button-toggle-key"
+                                >
+                                  {apiKeyVisible ? <Eye className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={handleCopyApiKey}
+                                  data-testid="button-copy-key"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={handleGenerateApiKey}
+                                data-testid="button-generate-key"
+                              >
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                                Regenerate Key
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={handleRevokeApiKey}
+                                className="text-red-500 hover:text-red-600"
+                                data-testid="button-revoke-key"
+                              >
+                                <AlertTriangle className="w-4 h-4 mr-2" />
+                                Revoke
+                              </Button>
+                            </div>
+                            <div className="pt-2 border-t">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Key Status</span>
+                                <Badge className="bg-green-500">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  Active
+                                </Badge>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        {/* API Usage Stats */}
+                        <Card className="bg-muted/30 border">
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <Activity className="w-4 h-4 text-[#C8A661]" />
+                              This Month's Usage
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-2xl font-bold">{totalApiRequests.toLocaleString()}</span>
+                                <span className="text-muted-foreground">/ Unlimited</span>
+                              </div>
+                              <Progress value={35} className="h-2" />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                378 requests today
+                              </p>
+                            </div>
+                            <Separator />
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Avg Latency</p>
+                                <p className="font-semibold">142ms</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Success Rate</p>
+                                <p className="font-semibold text-green-500">99.8%</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Last Request</p>
+                                <p className="font-semibold">2 min ago</p>
+                              </div>
+                              <div>
+                                <p className="text-muted-foreground">Errors (24h)</p>
+                                <p className="font-semibold">3</p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* API Documentation Link */}
+                      <Card className="bg-[#0A1628] border-none text-white">
+                        <CardContent className="flex items-center justify-between p-6">
+                          <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
+                              <FileText className="h-6 w-6 text-[#C8A661]" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold">API Documentation</h4>
+                              <p className="text-sm text-white/60">
+                                Integrate CLEANBI scores, valuations, and reports into your platform
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="outline" className="border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10">
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View Docs
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </>
+                  )}
+                </TabsContent>
+
+                {/* White-Label Tab */}
+                <TabsContent value="whitelabel" className="mt-0 space-y-6">
+                  {!isEnterprise ? (
+                    <div className="py-12 text-center bg-muted/30 rounded-lg border border-dashed">
+                      <Palette className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">White-Label Reports Locked</h3>
+                      <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                        Upgrade to Enterprise to brand CLEANBI reports with your company logo and colors.
+                      </p>
+                      <Link href="/subscribe?plan=enterprise">
+                        <Button className="bg-[#0A1628] hover:bg-[#1a3a5c] text-white">
+                          Get Enterprise Access
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Branding Settings */}
+                      <Card className="bg-muted/30 border">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <Palette className="w-4 h-4 text-[#C8A661]" />
+                            Branding Settings
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <Label htmlFor="company-name">Company Name</Label>
+                            <Input 
+                              id="company-name"
+                              placeholder="Your Brokerage Name"
+                              value={whiteLabelSettings.companyName}
+                              onChange={(e) => setWhiteLabelSettings({...whiteLabelSettings, companyName: e.target.value})}
+                              className="mt-1"
+                              data-testid="input-company-name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="logo-url">Logo URL</Label>
+                            <Input 
+                              id="logo-url"
+                              placeholder="https://yourdomain.com/logo.png"
+                              value={whiteLabelSettings.logoUrl}
+                              onChange={(e) => setWhiteLabelSettings({...whiteLabelSettings, logoUrl: e.target.value})}
+                              className="mt-1"
+                              data-testid="input-logo-url"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="primary-color">Primary Brand Color</Label>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Input 
+                                id="primary-color"
+                                type="color"
+                                value={whiteLabelSettings.primaryColor}
+                                onChange={(e) => setWhiteLabelSettings({...whiteLabelSettings, primaryColor: e.target.value})}
+                                className="w-12 h-10 p-1 cursor-pointer"
+                                data-testid="input-primary-color"
+                              />
+                              <Input 
+                                value={whiteLabelSettings.primaryColor}
+                                onChange={(e) => setWhiteLabelSettings({...whiteLabelSettings, primaryColor: e.target.value})}
+                                className="flex-1 font-mono"
+                                data-testid="input-color-hex"
+                              />
+                            </div>
+                          </div>
+                          <Button 
+                            className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+                            onClick={handleSaveWhiteLabel}
+                            data-testid="button-save-whitelabel"
+                          >
+                            Save Branding Settings
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      {/* Preview */}
+                      <Card className="bg-muted/30 border">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            <Eye className="w-4 h-4 text-[#C8A661]" />
+                            Report Preview
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div 
+                            className="rounded-lg border bg-white p-4 space-y-3"
+                            style={{ borderTopColor: whiteLabelSettings.primaryColor, borderTopWidth: '4px' }}
+                          >
+                            <div className="flex items-center justify-between">
+                              {whiteLabelSettings.logoUrl ? (
+                                <img src={whiteLabelSettings.logoUrl} alt="Logo" className="h-8 object-contain" />
+                              ) : (
+                                <div className="h-8 w-24 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                                  Your Logo
+                                </div>
+                              )}
+                              <span className="text-xs text-muted-foreground">CLEANBI Report</span>
+                            </div>
+                            <Separator />
+                            <div className="space-y-2">
+                              <div className="h-3 bg-muted rounded w-3/4" />
+                              <div className="h-3 bg-muted rounded w-1/2" />
+                              <div 
+                                className="h-8 rounded flex items-center justify-center text-white text-sm font-semibold"
+                                style={{ backgroundColor: whiteLabelSettings.primaryColor }}
+                              >
+                                Grade: A
+                              </div>
+                            </div>
+                            <div className="text-center text-xs text-muted-foreground pt-2 border-t">
+                              {whiteLabelSettings.companyName || "Your Company"} | Powered by WashBizHub
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* Usage Analytics Tab */}
+                <TabsContent value="usage" className="mt-0 space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <ChartCard
+                      title="API Requests (7 Days)"
+                      subtitle="Daily request volume"
+                      minHeight="240px"
+                    >
+                      <ResponsiveContainer width="100%" height={240}>
+                        <LineChart data={mockApiUsageData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                          <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#0A1628",
+                              border: "none",
+                              borderRadius: "8px",
+                              color: "#fff",
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="requests"
+                            stroke="#C8A661"
+                            strokeWidth={2}
+                            dot={{ fill: "#C8A661", strokeWidth: 2 }}
+                            name="Requests"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartCard>
+
+                    <ChartCard
+                      title="Report Types Generated"
+                      subtitle="Distribution by report type"
+                      minHeight="240px"
+                    >
+                      <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={mockReportTypes} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+                          <XAxis type="number" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+                          <YAxis type="category" dataKey="type" tick={{ fontSize: 11 }} stroke="#9ca3af" width={100} />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#0A1628",
+                              border: "none",
+                              borderRadius: "8px",
+                              color: "#fff",
+                            }}
+                          />
+                          <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                            {mockReportTypes.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartCard>
+                  </div>
+
+                  {/* Recent API Calls Table */}
+                  <Card className="bg-muted/30 border">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">Recent API Calls</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Endpoint</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Latency</TableHead>
+                            <TableHead>Time</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-mono text-sm">/api/broker/cleanbi</TableCell>
+                            <TableCell><Badge className="bg-green-500">200</Badge></TableCell>
+                            <TableCell>142ms</TableCell>
+                            <TableCell className="text-muted-foreground">2 min ago</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-mono text-sm">/api/broker/valuation</TableCell>
+                            <TableCell><Badge className="bg-green-500">200</Badge></TableCell>
+                            <TableCell>238ms</TableCell>
+                            <TableCell className="text-muted-foreground">15 min ago</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-mono text-sm">/api/broker/cleanbi</TableCell>
+                            <TableCell><Badge className="bg-red-500">429</Badge></TableCell>
+                            <TableCell>12ms</TableCell>
+                            <TableCell className="text-muted-foreground">1 hr ago</TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-mono text-sm">/api/broker/report</TableCell>
+                            <TableCell><Badge className="bg-green-500">200</Badge></TableCell>
+                            <TableCell>1.2s</TableCell>
+                            <TableCell className="text-muted-foreground">2 hr ago</TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </DashboardShell>
     </AuthGuard>

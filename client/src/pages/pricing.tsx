@@ -636,7 +636,7 @@ export default function Pricing() {
                       className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                       data-testid="button-cta-enterprise"
                     >
-                      Contact Sales
+                      Get Enterprise Access
                     </Button>
                   </Link>
                 </CardHeader>
