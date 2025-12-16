@@ -223,7 +223,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       savedReports: 'unlimited',
       teamMembers: 10,
     },
-    cta: 'Contact Sales',
+    cta: 'Get Enterprise Access',
     ctaVariant: 'default',
     badge: 'ENTERPRISE',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library } from "lucide-react";
+import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library, Target, BarChart3, Footprints, Eye, Brain, Map, Award, Layers } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -46,6 +46,31 @@ const calculatorItems = [
   { href: "/loan-calculator", label: "Loan", description: "Amortization & payments", icon: Calculator },
   { href: "/cleanbi-calculator", label: "CLEANBI Score", description: "17-factor location analysis", icon: Calculator },
 ];
+
+// CLEANBI Explorer feature showcase for header dropdown
+const cleanbiFeatures = {
+  analysis: [
+    { label: "17-Factor Scoring", description: "Proprietary weighted algorithm", icon: Target },
+    { label: "Competition Intel", description: "Nearby competitor mapping", icon: Users },
+    { label: "Demographics", description: "Census & population data", icon: BarChart3 },
+    { label: "Walk Score", description: "Walkability & transit scores", icon: Footprints },
+  ],
+  views: [
+    { label: "Street View", description: "Google Street View integration", icon: Eye },
+    { label: "3D Aerial Flyover", description: "Satellite & aerial imagery", icon: Globe },
+    { label: "Interactive Map", description: "Competitor radius overlay", icon: Map },
+  ],
+  tools: [
+    { label: "AI Investment Memo", description: "GPT-powered insights", icon: Brain },
+    { label: "PDF Reports", description: "Export & share analysis", icon: FileText },
+    { label: "Saved Locations", description: "Track multiple addresses", icon: Bookmark },
+  ],
+  enterprise: [
+    { label: "Broker API", description: "Integrate into your platform", icon: Zap },
+    { label: "White-Label Reports", description: "Your branding, our data", icon: Award },
+    { label: "Bulk Analysis", description: "Analyze 100+ locations", icon: Layers },
+  ],
+};
 
 const megaMenuSections = [
   {
@@ -548,7 +573,84 @@ export function Header() {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
-              {navLinks.map((link) => (
+              {/* CLEANBI Explorer Mega Dropdown */}
+              <div className="relative group">
+                <Link href="/cleanbi-explorer">
+                  <span 
+                    className="flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-md transition-colors cursor-pointer text-[#C8A661] hover:text-[#d4a030] group-hover:text-[#d4a030]"
+                    data-testid="link-nav-cleanbi-explorer"
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                    CLEANBI Explorer
+                    <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                  </span>
+                </Link>
+                <div className="absolute top-full left-0 pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="bg-popover border border-border rounded-lg shadow-xl py-3 min-w-[520px]">
+                    <div className="px-4 pb-3 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground">Location Intelligence Platform</p>
+                      <p className="text-xs text-muted-foreground">17-factor AI analysis for any laundromat location</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 p-4">
+                      {/* Analysis Features */}
+                      <div>
+                        <p className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider mb-2">Analysis</p>
+                        {cleanbiFeatures.analysis.map((feature) => (
+                          <div key={feature.label} className="flex items-center gap-2 py-1.5 text-sm">
+                            <feature.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-foreground">{feature.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Views */}
+                      <div>
+                        <p className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider mb-2">Views</p>
+                        {cleanbiFeatures.views.map((feature) => (
+                          <div key={feature.label} className="flex items-center gap-2 py-1.5 text-sm">
+                            <feature.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-foreground">{feature.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Tools */}
+                      <div>
+                        <p className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider mb-2">Tools</p>
+                        {cleanbiFeatures.tools.map((feature) => (
+                          <div key={feature.label} className="flex items-center gap-2 py-1.5 text-sm">
+                            <feature.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-foreground">{feature.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Enterprise */}
+                      <div>
+                        <p className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider mb-2">Enterprise</p>
+                        {cleanbiFeatures.enterprise.map((feature) => (
+                          <div key={feature.label} className="flex items-center gap-2 py-1.5 text-sm">
+                            <feature.icon className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-foreground">{feature.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="px-4 pt-3 border-t border-border flex items-center justify-between">
+                      <Link href="/cleanbi-explorer">
+                        <Button size="sm" className="bg-[#C8A661] hover:bg-[#d4a030] text-white" data-testid="button-try-cleanbi">
+                          Try Free Analysis
+                        </Button>
+                      </Link>
+                      <Link href="/blog/cleanbi-guide">
+                        <span className="text-xs text-muted-foreground hover:text-foreground cursor-pointer">
+                          Learn more about CLEANBI
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Other nav links (excluding CLEANBI which is now a dropdown) */}
+              {navLinks.filter(link => link.href !== '/cleanbi-explorer').map((link) => (
                 <Link href={link.href} key={link.href}>
                   <span 
                     className={`px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
