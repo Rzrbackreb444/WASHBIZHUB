@@ -6,9 +6,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { getSession } from "./replitAuth";
 import { requireAuth, optionalAuth, requireAdmin } from "./services/unified-auth";
-import { cloudflareAccess } from "./services/cloudflare-access";
 import passport from "passport";
-import cloudflareAuthRoutes from "./cloudflare-auth-routes";
+import { setupAuth as setupReplitAuth, registerAuthRoutes as registerReplitAuthRoutes } from "./replit_integrations/auth";
 import { setupGoogleAuth, verifyGoogleToken } from "./googleAuth";
 import { ObjectStorageService, objectStorageClient, parseObjectPath } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
@@ -574,50 +573,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
   
-  // ==================== CLOUDFLARE AUTO-AUTH MIDDLEWARE ====================
-  // Automatically validate CF_Authorization JWT on EVERY request
-  // This ensures users authenticated via Cloudflare Access are auto-logged in
-  // without seeing a redundant login page
-  app.use(async (req: any, res, next) => {
-    try {
-      // Skip if already authenticated via session
-      if (req.session?.userId) {
-        return next();
-      }
-      
-      // Skip if Cloudflare Access is not configured
-      if (!cloudflareAccess.isConfigured()) {
-        return next();
-      }
-      
-      // Try to authenticate via Cloudflare Access token
-      const claims = await cloudflareAccess.authenticateRequest(req);
-      
-      if (claims) {
-        // Provision or get user from Cloudflare claims
-        const user = await cloudflareAccess.provisionUser(claims);
-        
-        // Set session so subsequent requests don't need re-validation
-        req.session.userId = user.id;
-        req.session.cloudflareAuth = true;
-        req.session.email = user.email;
-        req.session.authProvider = 'cloudflare-access';
-        
-        console.log(`[CF AUTO-AUTH] Auto-authenticated user: ${user.email}`);
-      }
-    } catch (error) {
-      // Non-blocking - just log and continue
-      console.error('[CF AUTO-AUTH] Error during auto-auth:', error);
-    }
-    
-    next();
-  });
+  // ==================== AUTHENTICATION SETUP ====================
+  // Primary: Google OAuth (direct integration)
+  // Fallback: Replit Auth (if Google fails)
   
-  // Mount Cloudflare Access auth routes (Zero Trust authentication)
-  app.use("/api/auth/cloudflare", cloudflareAuthRoutes);
-  
-  // Setup Google OAuth (if configured)
+  // Setup Google OAuth (primary auth method)
   await setupGoogleAuth(app);
+  
+  // Setup Replit Auth as fallback (supports Google, GitHub, X, Apple, email)
+  await setupReplitAuth(app);
+  registerReplitAuthRoutes(app);
+  
+  // Fallback auth route - redirects to Replit Auth with transparency
+  app.get("/api/auth/fallback", (req, res) => {
+    const reason = req.query.reason || "primary_auth_unavailable";
+    console.log(`🔄 Auth fallback triggered: ${reason}`);
+    // Redirect to Replit Auth with message parameter for transparency
+    res.redirect(`/api/login?fallback=true&reason=${encodeURIComponent(String(reason))}`);
+  });
   
   // ==================== EMAIL/PASSWORD AUTH ====================
   // Mounted after session middleware is initialized
