@@ -246,7 +246,7 @@ export default function UtilityBillAuditor() {
               </p>
               <Button 
                 className="bg-gold-500 hover:bg-gold-600 text-black font-bold px-8"
-                onClick={() => window.location.href = "/api/auth/cloudflare/login"}
+                onClick={() => window.location.href = "/login"}
                 data-testid="button-login-utility"
               >
                 Sign In to Continue

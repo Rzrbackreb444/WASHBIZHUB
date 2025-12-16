@@ -51,7 +51,7 @@ export default function AuthPage() {
       ? `?redirect=${encodeURIComponent(redirectUrl)}`
       : "";
     
-    window.location.href = `/api/auth/cloudflare/login${redirect}`;
+    window.location.href = `/api/auth/google/login${redirect}`;
   };
 
   if (isLoading || !authResolved) {

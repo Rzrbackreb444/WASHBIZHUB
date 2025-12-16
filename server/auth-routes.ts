@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { db } from "./db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import { randomBytes } from "crypto";
+import { randomBytes, randomInt } from "crypto";
 import { Resend } from "resend";
 import { sendFreeWelcomeEmail } from "./subscription-emails";
 
@@ -43,28 +43,355 @@ function generateToken(): string {
   return randomBytes(32).toString("hex");
 }
 
-// Rate limiting for magic links (in-memory, simple)
-const magicLinkAttempts = new Map<string, { count: number; lastAttempt: number }>();
-const MAGIC_LINK_RATE_LIMIT = 3; // max attempts per email
-const MAGIC_LINK_WINDOW = 15 * 60 * 1000; // 15 minutes
+// Generate a 6-digit OTP code (cryptographically secure)
+function generateOTPCode(): string {
+  return randomInt(100000, 999999).toString();
+}
 
-function checkRateLimit(email: string): boolean {
+// ==================== RATE LIMITING ====================
+// Multi-tier rate limiting for security
+
+// OTP/Magic link rate limiting
+const otpAttempts = new Map<string, { count: number; lastAttempt: number; blocked: boolean }>();
+const OTP_RATE_LIMIT = 5; // max OTP requests per email
+const OTP_WINDOW = 15 * 60 * 1000; // 15 minutes
+const OTP_BLOCK_DURATION = 60 * 60 * 1000; // 1 hour block after too many attempts
+
+// OTP verification attempts (brute force protection)
+const verifyAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const VERIFY_RATE_LIMIT = 5; // max verification attempts
+const VERIFY_WINDOW = 5 * 60 * 1000; // 5 minutes
+
+// IP-based rate limiting for additional security
+const ipAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const IP_RATE_LIMIT = 20; // max requests per IP
+const IP_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+function checkOTPRateLimit(email: string): { allowed: boolean; message?: string } {
   const now = Date.now();
-  const attempts = magicLinkAttempts.get(email);
+  const attempts = otpAttempts.get(email);
   
-  if (!attempts || now - attempts.lastAttempt > MAGIC_LINK_WINDOW) {
-    magicLinkAttempts.set(email, { count: 1, lastAttempt: now });
-    return true;
+  if (!attempts || now - attempts.lastAttempt > OTP_WINDOW) {
+    otpAttempts.set(email, { count: 1, lastAttempt: now, blocked: false });
+    return { allowed: true };
   }
   
-  if (attempts.count >= MAGIC_LINK_RATE_LIMIT) {
-    return false;
+  if (attempts.blocked && now - attempts.lastAttempt < OTP_BLOCK_DURATION) {
+    const minutesLeft = Math.ceil((OTP_BLOCK_DURATION - (now - attempts.lastAttempt)) / 60000);
+    return { allowed: false, message: `Too many attempts. Please try again in ${minutesLeft} minutes.` };
+  }
+  
+  if (attempts.count >= OTP_RATE_LIMIT) {
+    attempts.blocked = true;
+    attempts.lastAttempt = now;
+    return { allowed: false, message: "Too many attempts. Please try again in 1 hour." };
   }
   
   attempts.count++;
   attempts.lastAttempt = now;
+  return { allowed: true };
+}
+
+function checkVerifyRateLimit(email: string): boolean {
+  const now = Date.now();
+  const attempts = verifyAttempts.get(email);
+  
+  if (!attempts || now - attempts.lastAttempt > VERIFY_WINDOW) {
+    verifyAttempts.set(email, { count: 1, lastAttempt: now });
+    return true;
+  }
+  
+  if (attempts.count >= VERIFY_RATE_LIMIT) {
+    return false;
+  }
+  
+  attempts.count++;
   return true;
 }
+
+function getClientIP(req: Request): string {
+  return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+         req.socket.remoteAddress || 
+         'unknown';
+}
+
+function checkIPRateLimit(req: Request): boolean {
+  const ip = getClientIP(req);
+  const now = Date.now();
+  const attempts = ipAttempts.get(ip);
+  
+  if (!attempts || now - attempts.lastAttempt > IP_WINDOW) {
+    ipAttempts.set(ip, { count: 1, lastAttempt: now });
+    return true;
+  }
+  
+  if (attempts.count >= IP_RATE_LIMIT) {
+    return false;
+  }
+  
+  attempts.count++;
+  return true;
+}
+
+// Cleanup old entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of otpAttempts.entries()) {
+    if (now - value.lastAttempt > OTP_BLOCK_DURATION) {
+      otpAttempts.delete(key);
+    }
+  }
+  for (const [key, value] of verifyAttempts.entries()) {
+    if (now - value.lastAttempt > VERIFY_WINDOW) {
+      verifyAttempts.delete(key);
+    }
+  }
+  for (const [key, value] of ipAttempts.entries()) {
+    if (now - value.lastAttempt > IP_WINDOW) {
+      ipAttempts.delete(key);
+    }
+  }
+}, 5 * 60 * 1000); // Cleanup every 5 minutes
+
+// Legacy rate limit function (kept for backward compatibility)
+const magicLinkAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAGIC_LINK_RATE_LIMIT = 3;
+const MAGIC_LINK_WINDOW = 15 * 60 * 1000;
+
+function checkRateLimit(email: string): boolean {
+  const result = checkOTPRateLimit(email);
+  return result.allowed;
+}
+
+// ==================== AUTH PROVIDERS ENDPOINT ====================
+
+// GET /api/auth/providers - Available authentication methods
+router.get("/providers", (req: Request, res: Response) => {
+  res.json({
+    primary: 'email-otp',
+    providers: ['google', 'email-otp'],
+    google: {
+      enabled: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      loginUrl: '/api/auth/google/login',
+      label: 'Continue with Google',
+    },
+    emailOtp: {
+      enabled: !!process.env.RESEND_API_KEY,
+      requestUrl: '/api/auth/otp/request',
+      verifyUrl: '/api/auth/otp/verify',
+      label: 'Continue with Email',
+    },
+    security: {
+      rateLimiting: true,
+      bruteForceProtection: true,
+      secureSession: true,
+    }
+  });
+});
+
+// ==================== 6-DIGIT OTP AUTHENTICATION ====================
+
+// POST /api/auth/otp/request - Request a 6-digit OTP code
+router.post("/otp/request", async (req: Request, res: Response) => {
+  try {
+    // IP rate limiting
+    if (!checkIPRateLimit(req)) {
+      return res.status(429).json({ 
+        error: "Too many requests from this IP. Please try again later." 
+      });
+    }
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return res.status(400).json({ error: "Please enter a valid email address" });
+    }
+
+    // Rate limiting per email
+    const rateLimitResult = checkOTPRateLimit(normalizedEmail);
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({ error: rateLimitResult.message });
+    }
+
+    // Generate 6-digit OTP
+    const otpCode = generateOTPCode();
+    const otpHash = await bcrypt.hash(otpCode, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Check if user exists or create new
+    let [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      // Create new user with OTP
+      [user] = await db.insert(users).values({
+        email: normalizedEmail,
+        emailVerificationToken: otpHash,
+        emailVerificationExpires: expiresAt,
+        emailVerified: false,
+      }).returning();
+    } else {
+      // Update existing user with OTP
+      await db.update(users)
+        .set({
+          emailVerificationToken: otpHash,
+          emailVerificationExpires: expiresAt,
+        })
+        .where(eq(users.id, user.id));
+    }
+
+    // Send beautiful OTP email
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f5f5f5;">
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
+          <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px 30px; text-align: center;">
+            
+            <!-- Logo -->
+            <div style="margin-bottom: 24px;">
+              <h1 style="color: #C8A661; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">WashBizHub</h1>
+              <p style="color: #888; margin: 8px 0 0 0; font-size: 13px;">Secure Login Verification</p>
+            </div>
+            
+            <!-- OTP Code -->
+            <div style="background: rgba(200, 166, 97, 0.1); border: 2px dashed #C8A661; border-radius: 12px; padding: 24px; margin: 24px 0;">
+              <p style="color: #aaa; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your verification code</p>
+              <div style="font-size: 42px; font-weight: 700; color: #ffffff; letter-spacing: 8px; font-family: 'SF Mono', 'Courier New', monospace;">
+                ${otpCode}
+              </div>
+              <p style="color: #888; margin: 12px 0 0 0; font-size: 13px;">
+                Expires in 10 minutes
+              </p>
+            </div>
+            
+            <!-- Security Notice -->
+            <div style="background: rgba(34, 197, 94, 0.1); border-radius: 8px; padding: 16px; margin-top: 24px;">
+              <p style="color: #22c55e; margin: 0; font-size: 13px;">
+                🔒 Never share this code with anyone. WashBizHub will never ask for it.
+              </p>
+            </div>
+            
+          </div>
+          
+          <!-- Footer -->
+          <p style="color: #666; font-size: 12px; text-align: center; margin-top: 24px;">
+            If you didn't request this code, please ignore this email.<br>
+            &copy; ${new Date().getFullYear()} WashBizHub. All rights reserved.
+          </p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await sendEmail(normalizedEmail, `${otpCode} is your WashBizHub verification code`, emailHtml);
+
+    res.json({ 
+      success: true, 
+      message: "Verification code sent! Check your email.",
+      // Don't expose if user existed or was created (security)
+    });
+  } catch (error: any) {
+    console.error("OTP request error:", error);
+    res.status(500).json({ error: "Failed to send verification code. Please try again." });
+  }
+});
+
+// POST /api/auth/otp/verify - Verify OTP and log in
+router.post("/otp/verify", async (req: Request, res: Response) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({ error: "Email and verification code are required" });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedCode = code.toString().trim();
+
+    // Brute force protection
+    if (!checkVerifyRateLimit(normalizedEmail)) {
+      return res.status(429).json({ 
+        error: "Too many verification attempts. Please request a new code." 
+      });
+    }
+
+    // Find user
+    const [user] = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or code" });
+    }
+
+    // Check if OTP is expired
+    if (!user.emailVerificationExpires || new Date() > new Date(user.emailVerificationExpires)) {
+      return res.status(401).json({ error: "Code has expired. Please request a new one." });
+    }
+
+    // Verify OTP
+    if (!user.emailVerificationToken) {
+      return res.status(401).json({ error: "No pending verification. Please request a new code." });
+    }
+
+    const isValid = await bcrypt.compare(normalizedCode, user.emailVerificationToken);
+    
+    if (!isValid) {
+      return res.status(401).json({ error: "Invalid verification code" });
+    }
+
+    // Clear OTP and mark email as verified
+    await db.update(users)
+      .set({
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        emailVerified: true,
+      })
+      .where(eq(users.id, user.id));
+
+    // Clear rate limit for this email
+    verifyAttempts.delete(normalizedEmail);
+    otpAttempts.delete(normalizedEmail);
+
+    // Set session
+    (req as any).session.userId = user.id;
+
+    // If new user, send welcome email
+    if (!user.emailVerified) {
+      try {
+        await sendFreeWelcomeEmail(user.email, user.firstName || 'there');
+      } catch (e) {
+        console.error("Failed to send welcome email:", e);
+      }
+    }
+
+    res.json({ 
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isPro: user.isPro,
+        isAdmin: user.isAdmin,
+        subscriptionTier: user.subscriptionTier,
+      }
+    });
+  } catch (error: any) {
+    console.error("OTP verification error:", error);
+    res.status(500).json({ error: "Verification failed. Please try again." });
+  }
+});
 
 // ==================== EMAIL/PASSWORD AUTHENTICATION ====================
 
