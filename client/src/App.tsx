@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { LocationDesignProvider } from "@/contexts/LocationDesignContext";
+import { PersonaProvider } from "@/contexts/PersonaContext";
 import { AuthModalProvider } from "@/components/AuthModal";
 import { SignOutConfirmationProvider } from "@/components/SignOutConfirmation";
 import { NavigationMenu } from "@/components/NavigationMenu";
@@ -2266,6 +2267,26 @@ function App() {
             <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
               <TenantProvider>
                 <ThemeProvider>
+                  <PersonaProvider>
+                    <LocationDesignProvider>
+                      <TooltipProvider>
+                        <SignOutConfirmationProvider>
+                          <AuthModalProvider>
+                            <AppContent />
+                            <Toaster />
+                            <ExitIntentModal />
+                          </AuthModalProvider>
+                        </SignOutConfirmationProvider>
+                      </TooltipProvider>
+                    </LocationDesignProvider>
+                  </PersonaProvider>
+                </ThemeProvider>
+              </TenantProvider>
+            </GoogleOAuthProvider>
+          ) : (
+            <TenantProvider>
+              <ThemeProvider>
+                <PersonaProvider>
                   <LocationDesignProvider>
                     <TooltipProvider>
                       <SignOutConfirmationProvider>
@@ -2277,23 +2298,7 @@ function App() {
                       </SignOutConfirmationProvider>
                     </TooltipProvider>
                   </LocationDesignProvider>
-                </ThemeProvider>
-              </TenantProvider>
-            </GoogleOAuthProvider>
-          ) : (
-            <TenantProvider>
-              <ThemeProvider>
-                <LocationDesignProvider>
-                  <TooltipProvider>
-                    <SignOutConfirmationProvider>
-                      <AuthModalProvider>
-                        <AppContent />
-                        <Toaster />
-                        <ExitIntentModal />
-                      </AuthModalProvider>
-                    </SignOutConfirmationProvider>
-                  </TooltipProvider>
-                </LocationDesignProvider>
+                </PersonaProvider>
               </ThemeProvider>
             </TenantProvider>
           )}
