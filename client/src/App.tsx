@@ -402,6 +402,7 @@ const ServiceTechAcademy = lazy(() => import("@/pages/service-tech-academy"));
 const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
 const FundingWizard = lazy(() => import("@/pages/funding-wizard"));
 const Funding = lazy(() => import("@/pages/funding"));
+const Investors = lazy(() => import("@/pages/investors"));
 const RealEstateFinancing = lazy(() => import("@/pages/real-estate-financing"));
 const GoKapital = lazy(() => import("@/pages/gokapital"));
 const WorkingCapitalFinancing = lazy(() => import("@/pages/working-capital-financing"));
@@ -1275,6 +1276,11 @@ function Router() {
       <Route path="/insurance-partners">
         <Suspense fallback={<LoadingFallback />}>
           <InsurancePartners />
+        </Suspense>
+      </Route>
+      <Route path="/investors">
+        <Suspense fallback={<LoadingFallback />}>
+          <Investors />
         </Suspense>
       </Route>
 
