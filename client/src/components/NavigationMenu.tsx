@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import logoUrl from "@assets/6_1764040628012.png";
 import { MobileMenu } from "@/components/MobileMenu";
+import { PersonaSwitcher, PersonaCTA, PersonaNavBanner } from "@/components/PersonaNav";
+import { usePersona, PERSONA_CONFIG } from "@/contexts/PersonaContext";
 
 const PLATFORM_LAUNCH_ONLINE = {
   title: "Launch Online",
@@ -207,6 +209,8 @@ export function NavigationMenu() {
               </div>
 
               <div className="flex items-center gap-3">
+                <PersonaSwitcher />
+                <span className="text-white/20 hidden sm:inline">|</span>
                 <ThemeToggle />
                 
                 {isLoading ? (
@@ -669,15 +673,8 @@ export function NavigationMenu() {
                   <Search className="w-4 h-4" />
                 </Button>
 
-                {/* Primary CTA - Gold CLEANBI button */}
-                <Button 
-                  onClick={() => window.location.href = '/cleanbi-explorer'}
-                  className="hidden sm:flex h-10 px-5 font-semibold bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] border-0 shadow-lg shadow-[#C8A661]/25 transition-all duration-300"
-                  data-testid="button-cleanbi-cta"
-                >
-                  <Zap className="w-4 h-4 mr-2" />
-                  Try CLEANBI Free
-                </Button>
+                {/* Primary CTA - Persona-aware */}
+                <PersonaCTA />
 
                 {/* Mobile menu */}
                 <MobileMenu />
@@ -711,6 +708,9 @@ export function NavigationMenu() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Persona journey banner */}
+          <PersonaNavBanner />
         </div>
       </header>
     </>
