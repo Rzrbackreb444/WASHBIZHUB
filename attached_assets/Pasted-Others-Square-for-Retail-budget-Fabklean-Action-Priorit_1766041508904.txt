@@ -1,0 +1,76 @@
+Others: Square for Retail (budget), Fabklean.
+Action: Prioritize APIs from Cents, CleanCloud, CCI FasCard, LaundryCard for Operator/POS Suite. Aim for real-time revenue alerts, payroll sync.
+3. Marketplaces & Brokers for Laundromats
+Niche and general sites for listings (inspire verified packets, CLEANBI badges).
+•  Niche Brokers/Marketplaces:
+	•  LaundromatsForSale.com, TheLaundryBroker.com (dedicated listings).
+	•  Cents Blog: Guides on finding listings via brokers/networking.
+•  General Platforms:
+	•  BizBuySell.com: 394+ laundromat listings (2025), strong in NY.
+	•  LoopNet.com: 368+ businesses for sale.
+	•  BizQuest.com: NY-focused coin laundry sales.
+	•  BusinessesForSale.com: 67+ in NY alone.
+	•  BusinessBroker.net: Broad marketplace.
+Features to Emulate: Verified financials uploads, broker tools, filters (card/coin, revenue).
+Action: Add verified P&L/tax uploads, CLEANBI scoring badges, buyer alerts. Partner with brokers for listings feed.
+4. Specialized Lenders & SBA Financing
+Transactional Funding Hub targets.
+•  Specialized Lenders:
+	•  Eastern Funding: Top for acquisitions, equipment; nationwide laundromat focus.
+	•  Celtic Bank: SBA preferred, low rates/long terms.
+	•  Biz2Credit: SBA for laundromats/dry cleaners.
+	•  SBG Funding: Equipment/small business loans.
+	•  Lendio: Marketplace model (one app → multiple lenders).
+•  SBA 7(a) Loans (up to $5M):
+	•  Requirements: Operating for-profit US business, meet size standards, sound purpose, repayment ability. For laundromats: Often need owner-operation, strong plan.
+	•  Uses: Acquisition, equipment, expansion.
+	•  Tips: Detailed business plan essential; personal credit >650 often checked.
+Action: Build intake wizard → soft-pull prequal → partner APIs (e.g., Lendio-style matching). Display success rates (e.g., 85% approvals).
+5. Valuation Methods & 2025 Benchmarks
+Lender-ready calculators.
+•  Common Methods:
+	•  SDE/EBITDA Multiples: 3-5x (avg 3.44x-4.85x).
+	•  Revenue Multiples: 0.5-1x gross.
+	•  NOI Multiples: 3.5-5x net operating income.
+	•  Factors: Equipment age, location, card vs. coin.
+•  2025 Benchmarks:
+	•  Avg Revenue: $200K-$400K/store.
+	•  Market Size: $6.8-7.1B (IBISWorld/others).
+	•  Profit Margins: Healthy (15-30% higher with modern equipment).
+	•  Success Rate: 94-95% five-year survival.
+Sources: BizBuySell benchmarks, Peak Business Valuation, Cents guides.
+Action: Add scenario/sensitivity tools, PDF exports with assumptions. Presets for buyer types.
+6. Data Sources for Site Selection (CLEANBI Enhancements)
+Institutional-grade location analysis.
+•  Demographics: US Census Bureau (ACS data, NAICS 812310).
+•  Foot Traffic/Mobility: Placer.ai, Unacast, SafeGraph proxies.
+•  Competition: Google Maps API scrapes.
+•  Industry Guides: CLA White Paper on Demographic Analysis (density, income, housing types key).
+•  Paid Reports: IBISWorld (state-level), ProjectionHub custom heatmaps.
+Key Factors: Population density, household size, low-income/renter areas.
+Action: Add provenance badges (e.g., “US Census 2023”), percentiles (e.g., “Top 22% density”), confidence scores.
+7. Equipment Suppliers & Distributors
+For Design Studio SKUs.
+•  Top Brands: Dexter (durable, best warranties), Continental Girbau, Maytag Commercial, LG.
+•  Distributors:
+	•  AAdvantage Laundry (TX/LA, Dexter/Continental).
+	•  Western State Design (Dexter lines).
+	•  Scott Equipment (Dexter primary).
+	•  Laundry South (Dexter, Maytag, Continental).
+	•  Parts King (parts/supplies).
+Action: Integrate real SKUs (Dexter/Continental APIs if available), ADA-compliant templates, contractor exports.
+8. SBA Business Plan & Templates
+For AI Biz Plan vault.
+•  Requirements: Detailed projections (2+ years), management experience, market analysis, use of funds.
+•  Templates/Resources:
+	•  SBA.gov: General guides.
+	•  ProjectionHub/ThinkSBA: Laundromat-specific.
+	•  Growth-Grid.ai: 2025 step-by-step template.
+Action: Auto-grade vs. SBA criteria, cite CLEANBI data, collaborative editing.
+9. Industry Reports & Surveys (2025)
+For benchmarks/credibility.
+•  IBISWorld: $7.1B market, 18,711 businesses.
+•  CLA Survey: Annual (purchase for profits/ops data).
+•  Other: TheLaundryBoss ($6.8B market), PlanetLaundry trends.
+Action: License CLA/IBIS data for CLEANBI provenance.
+This directory gives you partnerships (CLA, Eastern Funding, Cents), integrations (POS APIs), data feeds (Census/Unacast), and features to emulate. Start with CLEANBI badges/benchmarks and Funding wizard for quickest wins – these drive traffic and revenue. If you need deeper dives (e.g., specific APIs browsed), let me know!
