@@ -32,6 +32,8 @@ import { HomepageNewsletter } from "@/components/HomepageNewsletter";
 import { TrustSignals } from "@/components/TrustSignals";
 import { CombinedPartnershipSection } from "@/components/PartnershipBanners";
 import { FAQSection } from "@/components/SuperSEOWrapper";
+import { PersonaSelector } from "@/components/PersonaSelector";
+import { IndustryBenchmarks } from "@/components/IndustryBenchmarks";
 import { 
   Lightbulb, Target, Settings, Users, ArrowRight, 
   Sparkles, CheckCircle, Star, Quote,
@@ -756,8 +758,14 @@ export default function Home() {
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
         
+        {/* PERSONA SELECTOR - Tailored journey paths for buyers, owners, sellers */}
+        <PersonaSelector />
+        
+        {/* INDUSTRY BENCHMARKS - Real-time data with provenance */}
+        <IndustryBenchmarks />
+        
         {/* CHOOSE YOUR PATH - Journey tiles for different user types */}
-        <section className="py-16 md:py-20 bg-white" data-testid="section-journey-paths">
+        <section className="py-16 md:py-20 bg-white hidden" data-testid="section-journey-paths">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-[#1e3a5f] mb-3">

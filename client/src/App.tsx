@@ -399,6 +399,7 @@ const ServiceTechAcademy = lazy(() => import("@/pages/service-tech-academy"));
 
 // Funding Pages
 const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
+const FundingWizard = lazy(() => import("@/pages/funding-wizard"));
 const Funding = lazy(() => import("@/pages/funding"));
 const RealEstateFinancing = lazy(() => import("@/pages/real-estate-financing"));
 const GoKapital = lazy(() => import("@/pages/gokapital"));
@@ -1178,6 +1179,11 @@ function Router() {
       <Route path="/funding-matcher">
         <Suspense fallback={<LoadingFallback />}>
           <FundingMatcher />
+        </Suspense>
+      </Route>
+      <Route path="/funding-wizard">
+        <Suspense fallback={<LoadingFallback />}>
+          <FundingWizard />
         </Suspense>
       </Route>
       <Route path="/funding">

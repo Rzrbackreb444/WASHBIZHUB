@@ -55,6 +55,9 @@ The frontend is built with Vite, TanStack Query, and PWA support. The backend us
 - **SEO & Marketing:** Includes an AI-generated blog, global email capture, and SEO/AEO tracking.
 - **Regional Pricing System:** PPP-adjusted pricing for 220+ countries with multi-currency support.
 - **Deal Flow & Funding:** Features a "Deal Flow Dashboard" and a "Funding Marketplace."
+- **Persona-Based Navigation:** Homepage PersonaSelector component with 3 tailored paths (Buyer/Investor, Owner/Operator, Seller/Broker). Each persona shows relevant tools, stats, and feature links.
+- **Industry Benchmarks:** IndustryBenchmarks component displaying real-time market data with data provenance badges (2025 data from IBISWorld, CLA, BizBuySell). Shows $6.8-7.1B market size, $200K-$400K avg revenue, 3-5x SDE multiple, 94% survival rate.
+- **Funding Wizard:** 5-step multi-step intake wizard (/funding-wizard) that matches users with 7 pre-vetted funding partners based on their profile (funding type, amount, timeline, business stage, credit score, state). Partners include Preferred Funding Group, GoKapital, South End Capital, ROK Financial, AAdvantage Laundry Systems, and National Business Capital.
 - **Laundromat Marketplace:** Enhanced US marketplace with advanced search features, faceted filters, geo-radius search, and CLEANBI integration.
 - **Broker Directory & Seller Assistance:** Features a directory of verified brokers and a dedicated page for selling laundromats.
 - **Business Directory:** A "Verified Directory" for service providers.
