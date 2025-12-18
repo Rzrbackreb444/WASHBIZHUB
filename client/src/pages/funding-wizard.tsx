@@ -18,6 +18,7 @@ import {
   Shield, Zap, Clock, Star, User, MapPin, CreditCard, FileText,
   Loader2, Sparkles, TrendingUp, AlertCircle, Briefcase, PiggyBank
 } from "lucide-react";
+import { RoadshowCard } from "@/components/RoadshowPromo";
 
 const STATES = [
   "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
@@ -610,6 +611,8 @@ export default function FundingWizard() {
                 </CardContent>
               </Card>
             </div>
+
+            <RoadshowCard className="mb-8" />
 
             <div className="text-center">
               <p className="text-muted-foreground mb-4">
