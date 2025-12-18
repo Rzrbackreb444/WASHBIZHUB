@@ -40,6 +40,7 @@ import {
   X, DollarSign, AlertTriangle, Calculator, Flame, TrendingUp,
   MapPin, Shield, Zap, FileText
 } from "lucide-react";
+import { RoadshowBanner } from "@/components/RoadshowPromo";
 
 // Testimonials data
 const testimonials = [
@@ -757,6 +758,9 @@ export default function Home() {
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
+        
+        {/* HOUSTON ROADSHOW ANNOUNCEMENT - Live event promotion */}
+        <RoadshowBanner />
         
         {/* PERSONA SELECTOR - Tailored journey paths for buyers, owners, sellers */}
         <PersonaSelector />

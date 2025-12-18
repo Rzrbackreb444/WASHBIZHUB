@@ -70,6 +70,44 @@ export const eventImages = {
 
 export const industryEvents: IndustryEvent[] = [
   // ============================================================================
+  // FEATURED: HOUSTON ROADSHOW - AADVANTAGE LAUNDRY SYSTEMS
+  // ============================================================================
+  {
+    slug: "houston-roadshow-2025",
+    name: "Houston Roadshow",
+    tagline: "Network with Lenders, See Equipment Live, and Connect with Industry Professionals",
+    city: "Houston",
+    state: "Texas",
+    venue: "TBA",
+    startDate: "2025-06-01",
+    endDate: "2025-06-01",
+    year: 2025,
+    organizer: "AAdvantage Laundry Systems",
+    website: "https://www.eventzilla.net/e/houston-roadshow-2138678638",
+    featuredImage: dallasImg,
+    isHighlight: true,
+    description: `Join AAdvantage Laundry Systems for the Houston Roadshow - an exclusive networking event for laundromat buyers, owners, and investors in the Houston metropolitan area.
+
+This intimate roadshow brings together funding partners, equipment experts, and industry professionals for a day of deal-making and relationship building. Whether you're looking to acquire your first laundromat, expand your portfolio, or explore equipment upgrades, the Houston Roadshow connects you with the right people.
+
+Highlights include live equipment demonstrations, one-on-one meetings with lenders, exclusive show pricing, and networking opportunities with successful operators in the Texas market. This is the premier regional event for serious laundromat investors in the Gulf Coast region.`,
+    highlights: [
+      "Meet pre-vetted funding partners face-to-face",
+      "Live equipment demonstrations from AAdvantage Laundry Systems",
+      "Exclusive show pricing and equipment discounts",
+      "Networking with Houston-area laundromat owners and investors",
+      "One-on-one consultations with industry experts",
+      "Market insights for the Texas laundromat industry"
+    ],
+    audienceType: ["Laundromat Buyers", "Investors", "Current Owners", "First-Time Buyers"],
+    expectedAttendance: "100+",
+    focusKeyphrases: ["Houston laundromat event", "Texas laundromat roadshow", "AAdvantage Laundry Systems", "laundromat networking Houston"],
+    metaTitle: "Houston Roadshow 2025 | AAdvantage Laundry Systems | WashBizHub",
+    metaDescription: "Join the Houston Roadshow by AAdvantage Laundry Systems. Meet lenders, see equipment live, and network with laundromat professionals in the Houston area.",
+    equipmentBrands: ["Dexter", "Continental Girbau", "Speed Queen"]
+  },
+
+  // ============================================================================
   // FLAGSHIP EVENT: CLEAN SHOW 2025
   // ============================================================================
   {

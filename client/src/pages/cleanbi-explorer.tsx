@@ -123,6 +123,7 @@ import { UpgradeModal } from "@/components/monetization/UpgradeModal";
 import { UsageLimitBanner } from "@/components/monetization/UpgradePrompt";
 import { trackEvent, trackConversion } from "@/lib/user-journey";
 import { PLATFORM_TIERS } from "@/lib/tier-config";
+import { RoadshowCompact } from "@/components/RoadshowPromo";
 import { useAuth } from "@/hooks/useAuth";
 import { CLEANBIHelpChat } from "@/components/CLEANBIHelpChat";
 import { CLEANBICrossSellCompact } from "@/components/CLEANBICrossSell";
@@ -7311,6 +7312,11 @@ function CleanBIExplorerContent() {
                   
                   {/* Equipment Partner Cross-Sell - Compact */}
                   <CLEANBICrossSellCompact />
+                  
+                  {/* Houston Roadshow Promo */}
+                  <div className="mt-2">
+                    <RoadshowCompact />
+                  </div>
                 </motion.div>
               </motion.div>
             )}
