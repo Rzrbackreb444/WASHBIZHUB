@@ -1,0 +1,51 @@
+Funding Wizard for WashBizHub.com (Using Your Active Partners)
+Your current funding setup on WashBizHub.com features 7 trusted, pre-vetted lending partners specializing in laundromat deals. These focus on SBA 7(a) & 504 loans, equipment financing (tied to AAdvantage Laundry Systems), acquisitions, and flexible options like personal/business credit lines (up to $750K combined, no business history needed for some). Key highlights from the site:
+•  Rates: As low as 0.5-2%
+•  Minimum credit: 500+
+•  Funding range: $10K - $50M
+•  Fast approvals: 24-48 hours for some
+•  Exclusive offers via your intelligence subscription
+No individual lender names are publicly listed yet (keeps it exclusive/pre-vetted), but the hub promotes pre-qualification in minutes and startup-friendly options.
+Here’s a transactional Funding Wizard upgrade plan and implementation guide — built exclusively around your active 7 partners + AAdvantage integration. This turns the passive directory into an active funnel: Guided intake → Auto-matching to your partners → Prequal prompt → Tracking. (We can code this as a multi-step form on /funding or a new /funding-wizard page.)
+Wizard Structure & Flow (5-7 Minute Guided Experience)
+1.  Welcome/Intro Screen
+	•  Headline: “Get Matched with WashBizHub’s 7 Pre-Vetted Laundromat Lenders”
+	•  Sub: “Up to $50M available | Rates from 0.5-2% | Min Credit 500+ | Pre-qualify in minutes”
+	•  Options teaser: SBA loans, equipment financing via AAdvantage, personal/business credit, acquisitions.
+2.  Step 1: Funding Needs
+	•  Questions:
+		•  What are you funding? (Multi-select: New build/Startup, Acquisition, Equipment upgrade, Refinance, Working capital)
+		•  Amount needed? (Slider: $10K - $50M+)
+		•  Timeline? (ASAP, 30-60 days, 90+ days)
+3.  Step 2: Business Profile
+	•  Business stage: (Startup/No revenue yet, Operating <2 years, Established 2+ years)
+	•  Current/Projected annual revenue: (Dropdown ranges, e.g., <$100K, $100K-$500K, etc.)
+	•  For startups: Emphasize “No business history required for personal credit options (up to $500K)”
+4.  Step 3: Personal Qualifications
+	•  Personal credit score estimate: (500-600, 601-700, 701+)
+	•  Time in business (if applicable)
+	•  Location (State – highlight AAdvantage coverage in TX/OK/LA/AR for equipment deals)
+5.  Step 4: Contact Info
+	•  Name, Email, Phone
+	•  Optional: Upload quick docs (e.g., credit report snapshot – secure upload)
+6.  Results/Matching Screen
+	•  Auto-Match Logic (Simple JS rules based on your partners’ strengths):
+		•  Startups/No history + Credit 500+: Prioritize personal credit lines ($500K, 5-7 year terms) + business credit ($250K, 24-48hr)
+		•  Equipment/New build + TX/OK/LA/AR: Flag AAdvantage Laundry Systems as primary (turnkey $500K-$1M+ deals)
+		•  Acquisitions/Established: SBA 7(a)/504 focus
+		•  High amounts ($1M+): Commercial real estate/SBA specialists
+	•  Display: “You’re a strong match for 4-6 of our 7 partners!” + Success metrics (e.g., “87% approval rate for similar profiles | Avg. funding in 14 days” – pull from your data)
+	•  Badges: “Pre-Vetted WashBizHub Partners” | “Exclusive Rates”
+	•  CTA: “Submit for Instant Prequal” (Form submit → Email/CRM handoff to you for partner routing)
+7.  Post-Submission Dashboard
+	•  User account: Track status (Applied → Reviewing → Funded)
+	•  Email updates: “Your application has been sent to matching partners”
+Key Upgrades for Transactional ROI
+•  Intake Wizard: Multi-step form (use tools like Typeform embed, Gravity Forms in WP, or custom HTML/JS for low cost)
+•  Soft-Pull Prequal: Start with self-reported (no API yet), later integrate partner prequal forms
+•  Partner Handoff: On submit, auto-email you (or future CRM) with lead details for manual routing to the 7 partners
+•  Success Metrics: Add site-wide banners like “300+ laundromats funded via our partners” (update as you grow)
+•  AAdvantage Integration: Auto-recommend for equipment questions + direct link to their turnkey deals
+•  Monetization: Lead fees from partners, or affiliate commissions
+This stays 100% true to your active setup — no external “crap” like Lendio/Biz2Credit. It elevates your 7 anonymous-but-trusted partners into a premium, exclusive funnel while highlighting startup flexibility and AAdvantage.
+If you want the full HTML/JS code for the wizard page (ready to drop into WashBizHub), exact form fields, or a mockup dashboard, just say the word! This should drive leads immediately through your group and site traffic.
