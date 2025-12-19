@@ -398,6 +398,17 @@ const LearningPage = lazy(() => import("@/pages/learning"));
 const CoursesLanding = lazy(() => import("@/pages/landing/courses-landing"));
 const ServiceTechAcademy = lazy(() => import("@/pages/service-tech-academy"));
 
+// Journey Landing Pages
+const LearnLanding = lazy(() => import("@/pages/landing/learn"));
+const BuyLanding = lazy(() => import("@/pages/landing/buy"));
+const SellLanding = lazy(() => import("@/pages/landing/sell"));
+const OperateLanding = lazy(() => import("@/pages/landing/operate"));
+const StartLanding = lazy(() => import("@/pages/landing/start"));
+const FundLanding = lazy(() => import("@/pages/landing/fund"));
+const PartnerLanding = lazy(() => import("@/pages/landing/partner"));
+const ServiceLanding = lazy(() => import("@/pages/landing/service"));
+const DistributorsLanding = lazy(() => import("@/pages/landing/distributors"));
+
 // Funding Pages
 const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
 const FundingWizard = lazy(() => import("@/pages/funding-wizard"));
@@ -1281,6 +1292,53 @@ function Router() {
       <Route path="/investors">
         <Suspense fallback={<LoadingFallback />}>
           <Investors />
+        </Suspense>
+      </Route>
+
+      {/* Journey Landing Pages */}
+      <Route path="/learn">
+        <Suspense fallback={<LoadingFallback />}>
+          <LearnLanding />
+        </Suspense>
+      </Route>
+      <Route path="/buy">
+        <Suspense fallback={<LoadingFallback />}>
+          <BuyLanding />
+        </Suspense>
+      </Route>
+      <Route path="/sell">
+        <Suspense fallback={<LoadingFallback />}>
+          <SellLanding />
+        </Suspense>
+      </Route>
+      <Route path="/operate">
+        <Suspense fallback={<LoadingFallback />}>
+          <OperateLanding />
+        </Suspense>
+      </Route>
+      <Route path="/start">
+        <Suspense fallback={<LoadingFallback />}>
+          <StartLanding />
+        </Suspense>
+      </Route>
+      <Route path="/fund">
+        <Suspense fallback={<LoadingFallback />}>
+          <FundLanding />
+        </Suspense>
+      </Route>
+      <Route path="/partner">
+        <Suspense fallback={<LoadingFallback />}>
+          <PartnerLanding />
+        </Suspense>
+      </Route>
+      <Route path="/service">
+        <Suspense fallback={<LoadingFallback />}>
+          <ServiceLanding />
+        </Suspense>
+      </Route>
+      <Route path="/distributors">
+        <Suspense fallback={<LoadingFallback />}>
+          <DistributorsLanding />
         </Suspense>
       </Route>
 
