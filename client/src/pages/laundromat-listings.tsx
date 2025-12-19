@@ -14,11 +14,16 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { 
   Store, MapPin, DollarSign, TrendingUp, Search, Plus, Building2, BarChart3, 
   MessageSquare, Settings, Zap, Filter, Home, Target, CheckCircle2, 
-  ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2
+  ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2, Star
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import FeaturedListingsCarousel from "@/components/FeaturedListingsCarousel";
+import { ArtDecoDivider, GlassmorphismCard } from "@/components/premium-components";
+
+import dexterLaundromatImage from "@assets/Dexter_Laundromat_1765740800732.jpg";
+import bigDexterLaundromatImage from "@assets/big_dexter_laundromat_1765733391377.jpg";
+import darkLaundromatImage from "@assets/dark_laundromat_1764814080285.jpg";
 
 const listingsStructuredData = {
   "@context": "https://schema.org",
