@@ -1,6 +1,13 @@
 import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  EnterprisePageWrapper,
+  PremiumWatermark,
+  DemoBanner,
+  PremiumMetricCard,
+  PremiumStatusIndicator,
+} from "@/components/premium-components";
 import { 
   Wrench, 
   Search, 

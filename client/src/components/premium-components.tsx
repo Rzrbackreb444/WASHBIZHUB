@@ -468,3 +468,430 @@ export function PremiumWatermark({ visible = true }: { visible?: boolean }) {
     </div>
   );
 }
+
+interface PremiumDashboardHeaderProps {
+  title: string;
+  subtitle?: string;
+  isLive?: boolean;
+  lastUpdate?: Date;
+  actions?: React.ReactNode;
+  badge?: string;
+  className?: string;
+}
+
+export function PremiumDashboardHeader({
+  title,
+  subtitle,
+  isLive = false,
+  lastUpdate,
+  actions,
+  badge,
+  className
+}: PremiumDashboardHeaderProps) {
+  return (
+    <div className={cn("flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6", className)} data-testid="dashboard-header">
+      <div className="flex items-center gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">{title}</h1>
+            {badge && (
+              <Badge className="bg-[#C8A661] text-[#0A1628]">
+                <Crown className="w-3 h-3 mr-1" />
+                {badge}
+              </Badge>
+            )}
+          </div>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        {isLive && (
+          <Badge variant="outline" className="border-green-500/40 text-green-600 animate-pulse" data-testid="status-live">
+            <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+            Live
+          </Badge>
+        )}
+        {lastUpdate && (
+          <span className="text-xs text-muted-foreground">
+            Updated: {lastUpdate.toLocaleTimeString()}
+          </span>
+        )}
+        {actions}
+      </div>
+    </div>
+  );
+}
+
+interface PremiumKPIProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  change?: number;
+  changeLabel?: string;
+  format?: "currency" | "number" | "percent";
+  size?: "sm" | "md" | "lg";
+}
+
+export function PremiumKPI({
+  icon,
+  label,
+  value,
+  change,
+  changeLabel,
+  format = "number",
+  size = "md"
+}: PremiumKPIProps) {
+  const formatValue = (val: string | number) => {
+    if (typeof val === "string") return val;
+    if (format === "currency") return `$${val.toLocaleString()}`;
+    if (format === "percent") return `${val}%`;
+    return val.toLocaleString();
+  };
+
+  const sizes = {
+    sm: { value: "text-xl", icon: "h-8 w-8" },
+    md: { value: "text-2xl md:text-3xl", icon: "h-10 w-10" },
+    lg: { value: "text-3xl md:text-4xl", icon: "h-12 w-12" }
+  };
+
+  return (
+    <div className="flex items-center gap-4" data-testid={`kpi-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+      <div className={cn("rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0", sizes[size].icon)}>
+        {icon}
+      </div>
+      <div>
+        <div className={cn("font-bold text-[#C8A661]", sizes[size].value)}>
+          {formatValue(value)}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{label}</span>
+          {change !== undefined && (
+            <Badge variant="outline" className={cn(
+              "text-xs",
+              change >= 0 ? "border-green-500/40 text-green-600" : "border-red-500/40 text-red-600"
+            )}>
+              <TrendingUp className={cn("w-3 h-3 mr-1", change < 0 && "rotate-180")} />
+              {change >= 0 ? "+" : ""}{change}%
+            </Badge>
+          )}
+        </div>
+        {changeLabel && <div className="text-xs text-muted-foreground">{changeLabel}</div>}
+      </div>
+    </div>
+  );
+}
+
+interface PremiumAlertCardProps {
+  type: "critical" | "warning" | "info" | "success";
+  title: string;
+  message: string;
+  time?: string;
+  action?: { label: string; onClick: () => void };
+  className?: string;
+}
+
+export function PremiumAlertCard({
+  type,
+  title,
+  message,
+  time,
+  action,
+  className
+}: PremiumAlertCardProps) {
+  const styles = {
+    critical: { bg: "bg-red-500/10 border-red-500/30", icon: "text-red-500", badge: "bg-red-500" },
+    warning: { bg: "bg-amber-500/10 border-amber-500/30", icon: "text-amber-500", badge: "bg-amber-500" },
+    info: { bg: "bg-blue-500/10 border-blue-500/30", icon: "text-blue-500", badge: "bg-blue-500" },
+    success: { bg: "bg-green-500/10 border-green-500/30", icon: "text-green-500", badge: "bg-green-500" }
+  };
+
+  return (
+    <div className={cn("rounded-lg border p-4", styles[type].bg, className)} data-testid={`alert-${type}`}>
+      <div className="flex items-start gap-3">
+        <div className={cn("w-2 h-2 rounded-full mt-2 flex-shrink-0", styles[type].badge)} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-medium text-foreground truncate">{title}</span>
+            {time && <span className="text-xs text-muted-foreground flex-shrink-0">{time}</span>}
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">{message}</p>
+          {action && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="mt-2"
+              onClick={action.onClick}
+            >
+              {action.label}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface PremiumStatusIndicatorProps {
+  status: "online" | "offline" | "warning" | "maintenance";
+  label?: string;
+  showPulse?: boolean;
+}
+
+export function PremiumStatusIndicator({
+  status,
+  label,
+  showPulse = true
+}: PremiumStatusIndicatorProps) {
+  const styles = {
+    online: { color: "bg-green-500", text: "text-green-600", label: "Online" },
+    offline: { color: "bg-red-500", text: "text-red-600", label: "Offline" },
+    warning: { color: "bg-amber-500", text: "text-amber-600", label: "Warning" },
+    maintenance: { color: "bg-blue-500", text: "text-blue-600", label: "Maintenance" }
+  };
+
+  return (
+    <div className="flex items-center gap-2" data-testid={`status-${status}`}>
+      <div className={cn(
+        "w-2 h-2 rounded-full",
+        styles[status].color,
+        showPulse && status === "online" && "animate-pulse"
+      )} />
+      <span className={cn("text-sm font-medium", styles[status].text)}>
+        {label || styles[status].label}
+      </span>
+    </div>
+  );
+}
+
+interface DemoBannerProps {
+  companyName?: string;
+  onRequestAccess?: () => void;
+}
+
+export function DemoBanner({ companyName = "Enterprise", onRequestAccess }: DemoBannerProps) {
+  return (
+    <div className="bg-gradient-to-r from-[#0A1628] to-[#1a3a5c] text-white px-4 py-3" data-testid="demo-banner">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <Badge className="bg-[#C8A661] text-[#0A1628]">
+            <Sparkles className="w-3 h-3 mr-1" />
+            Demo Mode
+          </Badge>
+          <span className="text-sm">
+            Experiencing {companyName} Command Center - <strong>Full access available with subscription</strong>
+          </span>
+        </div>
+        {onRequestAccess && (
+          <Button 
+            size="sm" 
+            className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]"
+            onClick={onRequestAccess}
+          >
+            <Crown className="w-4 h-4 mr-1" />
+            Request Full Access
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface EnterprisePageWrapperProps {
+  children: React.ReactNode;
+  showDemoBanner?: boolean;
+  companyName?: string;
+  showWatermark?: boolean;
+  className?: string;
+}
+
+export function EnterprisePageWrapper({
+  children,
+  showDemoBanner = true,
+  companyName,
+  showWatermark = true,
+  className
+}: EnterprisePageWrapperProps) {
+  return (
+    <div className={cn("min-h-screen bg-background", className)}>
+      {showDemoBanner && <DemoBanner companyName={companyName} />}
+      {children}
+      {showWatermark && <PremiumWatermark />}
+    </div>
+  );
+}
+
+interface PremiumTableRowProps {
+  data: Array<{ label: string; value: React.ReactNode; highlight?: boolean }>;
+  onClick?: () => void;
+  className?: string;
+}
+
+export function PremiumTableRow({ data, onClick, className }: PremiumTableRowProps) {
+  return (
+    <div 
+      className={cn(
+        "flex items-center justify-between py-3 px-4 border-b border-border/50 last:border-0",
+        onClick && "cursor-pointer hover:bg-muted/50 transition-colors",
+        className
+      )}
+      onClick={onClick}
+      data-testid="table-row"
+    >
+      {data.map((item, idx) => (
+        <div key={idx} className={cn("text-sm", item.highlight ? "font-semibold text-[#C8A661]" : "text-foreground")}>
+          {item.value}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface PremiumMetricCardProps {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  trend?: { value: number; period: string };
+  status?: "positive" | "negative" | "neutral";
+  footer?: React.ReactNode;
+  className?: string;
+}
+
+export function PremiumMetricCard({
+  title,
+  value,
+  subtitle,
+  icon,
+  trend,
+  status = "neutral",
+  footer,
+  className
+}: PremiumMetricCardProps) {
+  const statusColors = {
+    positive: "text-green-600",
+    negative: "text-red-600",
+    neutral: "text-[#C8A661]"
+  };
+
+  return (
+    <Card className={cn("bg-card border shadow-sm overflow-hidden", className)} data-testid={`metric-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+      <div className="h-1 bg-[#C8A661]" />
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          {icon && (
+            <div className="h-9 w-9 rounded-lg bg-[#0A1628] flex items-center justify-center">
+              {icon}
+            </div>
+          )}
+        </div>
+        <div className={cn("text-2xl font-bold", statusColors[status])}>
+          {value}
+        </div>
+        {subtitle && <div className="text-xs text-muted-foreground mt-1">{subtitle}</div>}
+        {trend && (
+          <div className="flex items-center gap-1 mt-2">
+            <TrendingUp className={cn("w-3 h-3", trend.value >= 0 ? "text-green-600" : "text-red-600 rotate-180")} />
+            <span className={cn("text-xs font-medium", trend.value >= 0 ? "text-green-600" : "text-red-600")}>
+              {trend.value >= 0 ? "+" : ""}{trend.value}%
+            </span>
+            <span className="text-xs text-muted-foreground">{trend.period}</span>
+          </div>
+        )}
+        {footer && <div className="mt-3 pt-3 border-t border-border/50">{footer}</div>}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface PremiumProgressBarProps {
+  value: number;
+  max?: number;
+  label?: string;
+  showValue?: boolean;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "gold" | "success" | "warning" | "danger";
+}
+
+export function PremiumProgressBar({
+  value,
+  max = 100,
+  label,
+  showValue = true,
+  size = "md",
+  variant = "default"
+}: PremiumProgressBarProps) {
+  const percentage = Math.min((value / max) * 100, 100);
+  
+  const heights = { sm: "h-1.5", md: "h-2", lg: "h-3" };
+  const colors = {
+    default: "bg-[#0A1628]",
+    gold: "bg-[#C8A661]",
+    success: "bg-green-500",
+    warning: "bg-amber-500",
+    danger: "bg-red-500"
+  };
+
+  return (
+    <div className="w-full" data-testid="progress-bar">
+      {(label || showValue) && (
+        <div className="flex items-center justify-between mb-1.5">
+          {label && <span className="text-sm text-muted-foreground">{label}</span>}
+          {showValue && <span className="text-sm font-medium text-foreground">{value}/{max}</span>}
+        </div>
+      )}
+      <div className={cn("w-full rounded-full bg-muted/50", heights[size])}>
+        <div 
+          className={cn("rounded-full transition-all duration-500", colors[variant], heights[size])}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function DashboardSkeleton() {
+  return (
+    <div className="space-y-6" data-testid="dashboard-skeleton">
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map(i => (
+          <Card key={i} className="overflow-hidden">
+            <div className="h-1 bg-muted animate-pulse" />
+            <CardContent className="p-6 space-y-3">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-3 w-20" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="overflow-hidden">
+          <div className="h-1 bg-muted animate-pulse" />
+          <CardContent className="p-6">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <div className="space-y-3">
+              {[1, 2, 3, 4].map(i => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="overflow-hidden">
+          <div className="h-1 bg-muted animate-pulse" />
+          <CardContent className="p-6">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

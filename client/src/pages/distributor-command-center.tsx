@@ -2,6 +2,13 @@ import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "wouter";
+import {
+  EnterprisePageWrapper,
+  PremiumWatermark,
+  PremiumMetricCard,
+  PremiumAlertCard,
+  PremiumStatusIndicator,
+} from "@/components/premium-components";
 import { 
   Building2, 
   Cpu, 

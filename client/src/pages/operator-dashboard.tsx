@@ -3,6 +3,13 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { OperatorLayout } from "@/components/OperatorLayout";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumAlertCard,
+  PremiumProgressBar,
+  PremiumWatermark,
+} from "@/components/premium-components";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
