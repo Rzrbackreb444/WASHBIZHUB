@@ -1584,7 +1584,7 @@ export default function ServiceGuyAI() {
         <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
       <SEO 
         title="Service Guy AI - Free Washer & Dryer Error Code Lookup | Laundromat Equipment Diagnostics"
-        description="Free AI-powered laundromat equipment troubleshooting. 2,200+ error codes for Speed Queen, Dexter, Maytag, Huebsch & 35+ brands. Get repair guides, part numbers & fix times."
+        description="AI-powered diagnostics for commercial laundry equipment. Get instant troubleshooting steps, repair guides, and part numbers for Speed Queen, Dexter, Maytag, and 35+ manufacturers."
         keywords={[
           "laundromat error codes",
           "washer error codes",
@@ -1647,7 +1647,7 @@ export default function ServiceGuyAI() {
         aggregateRating={{
           itemName: "Service Guy AI",
           itemType: "SoftwareApplication",
-          itemDescription: "AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes for Speed Queen, Dexter, Maytag, and 35+ manufacturers",
+          itemDescription: "AI-powered diagnostics for commercial laundry equipment. Get instant troubleshooting steps, repair guides, and part numbers for Speed Queen, Dexter, Maytag, and 35+ manufacturers.",
           ratingValue: 4.9,
           reviewCount: 847,
           bestRating: 5,
@@ -1702,7 +1702,7 @@ export default function ServiceGuyAI() {
         }}
         speakableContent={[
           "Service Guy AI helps laundromat technicians diagnose equipment problems",
-          "Search over 2,200 error codes from 35 manufacturers"
+          "Search error codes from 35+ manufacturers instantly"
         ]}
         faqs={[
           {
@@ -1838,7 +1838,7 @@ export default function ServiceGuyAI() {
           "@type": "SoftwareApplication",
           "name": "Service Guy AI - Laundromat Equipment Diagnostics",
           "alternateName": "Service Guy AI",
-          "description": "Free AI-powered commercial laundry equipment diagnostic tool with 2,200+ error codes for Speed Queen, Dexter, Maytag, and 35+ manufacturers",
+          "description": "AI-powered diagnostics for commercial laundry equipment. Get instant troubleshooting steps, repair guides, and part numbers for Speed Queen, Dexter, Maytag, and 35+ manufacturers.",
           "applicationCategory": "BusinessApplication",
           "applicationSubCategory": "Equipment Diagnostics",
           "operatingSystem": "Web Browser",
@@ -1855,14 +1855,14 @@ export default function ServiceGuyAI() {
             "bestRating": "5"
           },
           "featureList": [
-            "2,200+ error code database",
+            "Search error codes instantly",
+            "AI-powered symptom diagnosis",
             "35+ manufacturer support",
-            "AI-powered symptom analysis",
             "OEM part number lookup",
-            "Repair time estimates",
+            "Step-by-step repair guides",
             "Skill level ratings",
-            "Preventive maintenance guides",
-            "24/7 availability"
+            "24/7 availability",
+            "Free to use"
           ],
           "screenshot": "https://washbizhub.com/service-guy-ai-screenshot.png",
           "softwareVersion": "2.0",
@@ -1889,8 +1889,8 @@ export default function ServiceGuyAI() {
               className="mb-6 bg-[#C8A661] text-[#0A1628] border-none text-sm px-4 py-1.5"
               data-testid="badge-error-codes"
             >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              15,867+ Error Codes in Database
+              <Zap className="w-4 h-4 mr-2" />
+              AI-Powered Equipment Diagnostics
             </Badge>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -1962,20 +1962,32 @@ export default function ServiceGuyAI() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">2,200+</div>
-            <div className="text-sm text-muted-foreground">Error Codes</div>
+            <div className="flex justify-center mb-2">
+              <Search className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">Search Error Codes</div>
+            <div className="text-xs text-muted-foreground mt-1">Instant lookup</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">{manufacturers.length || '35'}+</div>
-            <div className="text-sm text-muted-foreground">Manufacturers</div>
+            <div className="flex justify-center mb-2">
+              <Zap className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">AI Diagnose Symptoms</div>
+            <div className="text-xs text-muted-foreground mt-1">Describe the problem</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">5,000+</div>
-            <div className="text-sm text-muted-foreground">Part Numbers</div>
+            <div className="flex justify-center mb-2">
+              <Settings className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">35+ Manufacturers</div>
+            <div className="text-xs text-muted-foreground mt-1">All major brands</div>
           </Card>
           <Card className="text-center p-4 hover-elevate">
-            <div className="text-3xl font-bold text-primary">24/7</div>
-            <div className="text-sm text-muted-foreground">AI Support</div>
+            <div className="flex justify-center mb-2">
+              <Clock className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">24/7 Available</div>
+            <div className="text-xs text-muted-foreground mt-1">Always ready to help</div>
           </Card>
         </div>
 
