@@ -829,6 +829,196 @@ export const CalculatorHighlight = memo(function CalculatorHighlight() {
 
 CalculatorHighlight.displayName = 'CalculatorHighlight';
 
+// Premium Analytics Demo Section with Chart Visualizations
+export const PremiumAnalyticsDemo = memo(function PremiumAnalyticsDemo() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
+  // Demo data for income/expense bars
+  const revenueData = [
+    { month: "Jan", revenue: 32, expense: 24 },
+    { month: "Feb", revenue: 38, expense: 28 },
+    { month: "Mar", revenue: 45, expense: 30 },
+    { month: "Apr", revenue: 52, expense: 35 },
+    { month: "May", revenue: 58, expense: 38 },
+    { month: "Jun", revenue: 72, expense: 42 },
+  ];
+  
+  const kpiData = [
+    { label: "Revenue Growth", value: "+24%", color: "#22C55E" },
+    { label: "Customer Retention", value: "94%", color: "#3B82F6" },
+    { label: "ROI Score", value: "A+", color: "#C8A661" },
+    { label: "Market Position", value: "Top 5%", color: "#8B5CF6" },
+  ];
+  
+  const maxValue = 80;
+  
+  return (
+    <>
+      <section className="py-24 bg-gradient-to-br from-[#0A1628] via-[#101D32] to-[#16213e] relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#C8A661]/5 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#C8A661]/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-16"
+          >
+            <PremiumBadge variant="gold" size="md" animated className="mb-4">
+              Enterprise Analytics
+            </PremiumBadge>
+            <h2 
+              className="text-4xl md:text-5xl font-bold tracking-tight text-white uppercase mb-4"
+              style={{ fontFamily: 'var(--font-bebas)' }}
+            >
+              Data-Driven Decision Making
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Visualize performance metrics, track revenue growth, and optimize operations with premium analytics dashboards.
+            </p>
+            <ArtDecoDivider variant="diamond" color="gold" className="mt-8" />
+          </motion.div>
+          
+          <motion.div 
+            ref={ref}
+            variants={staggerContainer}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          >
+            {/* Revenue Chart Card */}
+            <motion.div variants={cardItem}>
+              <div className="relative overflow-hidden rounded-xl border border-[#C8A661]/20 bg-gradient-to-br from-[#0A1628] via-[#101D32] to-[#16213e] p-6 shadow-xl" data-testid="premium-revenue-chart">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C8A661]/10 to-transparent pointer-events-none" />
+                
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-bebas)' }}>
+                      Revenue vs Expenses
+                    </h3>
+                    <p className="text-sm text-gray-400">Monthly Performance Tracking</p>
+                  </div>
+                  <span className="px-2 py-1 text-xs font-semibold bg-[#C8A661]/20 text-[#C8A661] rounded-full border border-[#C8A661]/30">
+                    LIVE
+                  </span>
+                </div>
+                
+                {/* Legend */}
+                <div className="flex items-center gap-6 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-sm bg-gradient-to-t from-[#1D4ED8] to-[#60A5FA]" />
+                    <span className="text-xs text-gray-400">Revenue</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-sm bg-gradient-to-t from-[#EA580C] to-[#FB923C]" />
+                    <span className="text-xs text-gray-400">Expenses</span>
+                  </div>
+                </div>
+                
+                {/* Chart */}
+                <div className="relative h-48">
+                  {[0, 25, 50, 75, 100].map((tick) => (
+                    <div key={tick} className="absolute left-8 right-0 border-t border-dashed border-gray-700/30" style={{ bottom: `${tick}%` }}>
+                      <span className="absolute -left-8 -top-2 text-[10px] text-gray-500">{Math.round(maxValue * tick / 100)}k</span>
+                    </div>
+                  ))}
+                  
+                  <div className="absolute inset-0 left-8 flex items-end justify-around">
+                    {revenueData.map((item, index) => (
+                      <motion.div 
+                        key={index} 
+                        className="flex gap-1.5 items-end"
+                        initial={{ scaleY: 0 }}
+                        animate={isInView ? { scaleY: 1 } : {}}
+                        transition={{ duration: 0.5, delay: 0.1 * index }}
+                        style={{ transformOrigin: "bottom" }}
+                      >
+                        <div
+                          className="w-5 rounded-t-sm bg-gradient-to-t from-[#1D4ED8] to-[#60A5FA] shadow-lg shadow-blue-500/20"
+                          style={{ height: `${(item.revenue / maxValue) * 100}%` }}
+                        />
+                        <div
+                          className="w-5 rounded-t-sm bg-gradient-to-t from-[#EA580C] to-[#FB923C] shadow-lg shadow-orange-500/20"
+                          style={{ height: `${(item.expense / maxValue) * 100}%` }}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                  
+                  {/* Trend arrow */}
+                  <motion.div 
+                    className="absolute top-2 right-2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.5, delay: 0.8 }}
+                  >
+                    <svg width="60" height="30" viewBox="0 0 60 30" fill="none">
+                      <path d="M4 26C12 20 28 14 44 8" stroke="#C8A661" strokeWidth="2.5" strokeLinecap="round" />
+                      <polygon points="50,4 42,10 48,12" fill="#C8A661" />
+                    </svg>
+                  </motion.div>
+                </div>
+                
+                <div className="flex justify-around mt-2 ml-8">
+                  {revenueData.map((item, index) => (
+                    <span key={index} className="text-xs text-gray-500">{item.month}</span>
+                  ))}
+                </div>
+                
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/3 h-0.5 bg-gradient-to-r from-transparent via-[#C8A661]/50 to-transparent" />
+              </div>
+            </motion.div>
+            
+            {/* KPI Cards Grid */}
+            <motion.div variants={cardItem} className="grid grid-cols-2 gap-4">
+              {kpiData.map((kpi, index) => (
+                <motion.div
+                  key={kpi.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                  className="relative overflow-hidden rounded-lg border border-white/10 bg-gradient-to-br from-[#0A1628] to-[#16213e] p-5"
+                  style={{ borderTopColor: kpi.color, borderTopWidth: 2 }}
+                  data-testid={`kpi-card-${kpi.label.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">{kpi.label}</p>
+                  <p 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'var(--font-bebas)', color: kpi.color }}
+                  >
+                    {kpi.value}
+                  </p>
+                  <div className="absolute -bottom-4 -right-4 w-16 h-16 rounded-full" style={{ backgroundColor: kpi.color, opacity: 0.1 }} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+          
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="text-center mt-12"
+          >
+            <Link href="/cleanbi-explorer">
+              <PremiumButton variant="gold-outline" size="lg" icon={<ArrowRight className="w-5 h-5" />}>
+                Explore CLEANBI Analytics
+              </PremiumButton>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+      <GoldDivider />
+    </>
+  );
+});
+
+PremiumAnalyticsDemo.displayName = 'PremiumAnalyticsDemo';
+
 export function AnalyzeLocationSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
