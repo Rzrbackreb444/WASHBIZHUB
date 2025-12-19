@@ -195,14 +195,14 @@ export default function DistributorsPage() {
                   <Phone className="w-4 h-4 mr-2" />
                   Schedule a Demo
                 </Button>
-                <Link href="/service">
+                <Link href="/distributor-command-center">
                   <Button 
                     size="lg"
                     variant="outline"
                     className="border-white/30 text-white hover:bg-white/10"
                   >
-                    <Wrench className="w-4 h-4 mr-2" />
-                    See Service Guy AI
+                    <Cpu className="w-4 h-4 mr-2" />
+                    Try Command Center
                   </Button>
                 </Link>
               </div>

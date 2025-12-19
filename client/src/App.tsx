@@ -408,6 +408,7 @@ const FundLanding = lazy(() => import("@/pages/landing/fund"));
 const PartnerLanding = lazy(() => import("@/pages/landing/partner"));
 const ServiceLanding = lazy(() => import("@/pages/landing/service"));
 const DistributorsLanding = lazy(() => import("@/pages/landing/distributors"));
+const DistributorCommandCenter = lazy(() => import("@/pages/distributor-command-center"));
 
 // Funding Pages
 const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
@@ -1339,6 +1340,11 @@ function Router() {
       <Route path="/distributors">
         <Suspense fallback={<LoadingFallback />}>
           <DistributorsLanding />
+        </Suspense>
+      </Route>
+      <Route path="/distributor-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <DistributorCommandCenter />
         </Suspense>
       </Route>
 
