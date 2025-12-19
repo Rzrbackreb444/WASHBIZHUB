@@ -1016,6 +1016,98 @@
   }
 }
 
+/* ============================================
+   PREMIUM GOLD/NAVY ANIMATIONS
+   Luxury effects for enterprise styling
+   ============================================ */
+
+/* Gold shimmer effect for buttons and badges */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Gradient rotation for animated borders */
+@keyframes gradient-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-rotate {
+  animation: gradient-rotate 3s ease infinite;
+}
+
+/* Shine sweep effect */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shine {
+  animation: shine 2s ease-in-out infinite;
+}
+
+/* Subtle pulse for premium elements */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Gold glow pulse */
+@keyframes gold-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(200, 166, 97, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(200, 166, 97, 0.5);
+  }
+}
+
+.animate-gold-glow {
+  animation: gold-glow 2s ease-in-out infinite;
+}
+
+/* Floating animation for premium elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
 .spinner-premium {
   width: 40px;
   height: 40px;

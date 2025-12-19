@@ -1593,3 +1593,403 @@ export function DashboardSkeleton() {
     </div>
   );
 }
+
+// ============================================
+// PREMIUM GOLD BUTTON VARIANTS
+// Based on luxury navy/gold design reference
+// ============================================
+
+interface PremiumButtonProps {
+  children: React.ReactNode;
+  variant?: "gold-solid" | "gold-outline" | "navy-gold-border" | "gradient";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: "left" | "right";
+}
+
+export function PremiumButton({
+  children,
+  variant = "gold-solid",
+  size = "md",
+  className,
+  onClick,
+  disabled = false,
+  icon,
+  iconPosition = "right"
+}: PremiumButtonProps) {
+  const sizeStyles = {
+    sm: "px-4 py-2 text-sm",
+    md: "px-6 py-3 text-base",
+    lg: "px-8 py-4 text-lg"
+  };
+
+  const variantStyles = {
+    "gold-solid": "bg-gradient-to-r from-[#C8A661] to-[#D4B878] text-[#0A1628] font-bold border-2 border-[#C8A661] hover:from-[#D4B878] hover:to-[#E5C98A] shadow-lg shadow-[#C8A661]/30 hover:shadow-[#C8A661]/50",
+    "gold-outline": "bg-transparent text-[#C8A661] font-semibold border-2 border-[#C8A661] hover:bg-[#C8A661]/10 hover:shadow-lg hover:shadow-[#C8A661]/20",
+    "navy-gold-border": "bg-gradient-to-r from-[#0A1628] to-[#16213e] text-[#C8A661] font-semibold border-2 border-[#C8A661] hover:border-[#D4B878] hover:text-[#D4B878] shadow-lg shadow-[#C8A661]/20 hover:shadow-[#C8A661]/40",
+    "gradient": "bg-gradient-to-r from-[#C8A661] via-[#D4B878] to-[#C8A661] text-[#0A1628] font-bold border-0 hover:from-[#D4B878] hover:via-[#E5C98A] hover:to-[#D4B878] shadow-xl shadow-[#C8A661]/40 animate-shimmer bg-[length:200%_100%]"
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "relative rounded-lg transition-all duration-300 flex items-center justify-center gap-2 tracking-wide uppercase",
+        sizeStyles[size],
+        variantStyles[variant],
+        disabled && "opacity-50 cursor-not-allowed",
+        className
+      )}
+      data-testid="premium-button"
+    >
+      {icon && iconPosition === "left" && <span className="flex-shrink-0">{icon}</span>}
+      {children}
+      {icon && iconPosition === "right" && <span className="flex-shrink-0">{icon}</span>}
+    </button>
+  );
+}
+
+// ============================================
+// ART DECO DIVIDER
+// Ornate gold decorative separators
+// ============================================
+
+interface ArtDecoDividerProps {
+  variant?: "simple" | "ornate" | "diamond" | "dots";
+  color?: "gold" | "white" | "cyan";
+  className?: string;
+}
+
+export function ArtDecoDivider({ 
+  variant = "simple", 
+  color = "gold",
+  className 
+}: ArtDecoDividerProps) {
+  const colorStyles = {
+    gold: "border-[#C8A661]",
+    white: "border-white/20",
+    cyan: "border-cyan-400/50"
+  };
+
+  const bgColors = {
+    gold: "bg-[#C8A661]",
+    white: "bg-white/20",
+    cyan: "bg-cyan-400/50"
+  };
+
+  if (variant === "simple") {
+    return (
+      <div className={cn("flex items-center gap-4", className)} data-testid="art-deco-divider">
+        <div className={cn("flex-1 h-px", bgColors[color])} />
+        <div className={cn("w-2 h-2 rotate-45 border-2", colorStyles[color])} />
+        <div className={cn("flex-1 h-px", bgColors[color])} />
+      </div>
+    );
+  }
+
+  if (variant === "ornate") {
+    return (
+      <div className={cn("flex items-center justify-center gap-2", className)} data-testid="art-deco-divider">
+        <div className={cn("w-16 h-px", bgColors[color])} />
+        <div className={cn("w-1.5 h-1.5 rotate-45", bgColors[color])} />
+        <div className={cn("w-2 h-2 rotate-45 border-2", colorStyles[color])} />
+        <div className={cn("w-3 h-3 rotate-45 border-2", colorStyles[color])} />
+        <div className={cn("w-2 h-2 rotate-45 border-2", colorStyles[color])} />
+        <div className={cn("w-1.5 h-1.5 rotate-45", bgColors[color])} />
+        <div className={cn("w-16 h-px", bgColors[color])} />
+      </div>
+    );
+  }
+
+  if (variant === "diamond") {
+    return (
+      <div className={cn("flex items-center justify-center gap-3", className)} data-testid="art-deco-divider">
+        <div className={cn("flex-1 h-px max-w-24", bgColors[color])} />
+        <div className={cn("w-4 h-4 rotate-45 border-2", colorStyles[color], "flex items-center justify-center")}>
+          <div className={cn("w-1.5 h-1.5 rotate-45", bgColors[color])} />
+        </div>
+        <div className={cn("flex-1 h-px max-w-24", bgColors[color])} />
+      </div>
+    );
+  }
+
+  // dots variant
+  return (
+    <div className={cn("flex items-center justify-center gap-2", className)} data-testid="art-deco-divider">
+      <div className={cn("w-20 h-px", bgColors[color])} />
+      <div className={cn("w-1.5 h-1.5 rounded-full", bgColors[color])} />
+      <div className={cn("w-2 h-2 rounded-full", bgColors[color])} />
+      <div className={cn("w-1.5 h-1.5 rounded-full", bgColors[color])} />
+      <div className={cn("w-20 h-px", bgColors[color])} />
+    </div>
+  );
+}
+
+// ============================================
+// GLASSMORPHISM CARD
+// Frosted glass effect with backdrop blur
+// ============================================
+
+interface GlassmorphismCardProps {
+  children: React.ReactNode;
+  className?: string;
+  intensity?: "light" | "medium" | "strong";
+  borderGlow?: boolean;
+  glowColor?: "gold" | "cyan" | "white";
+}
+
+export function GlassmorphismCard({
+  children,
+  className,
+  intensity = "medium",
+  borderGlow = true,
+  glowColor = "gold"
+}: GlassmorphismCardProps) {
+  const intensityStyles = {
+    light: "bg-white/5 backdrop-blur-sm",
+    medium: "bg-white/10 backdrop-blur-md",
+    strong: "bg-white/15 backdrop-blur-lg"
+  };
+
+  const borderGlowStyles = {
+    gold: "border-[#C8A661]/30 shadow-[0_0_20px_rgba(200,166,97,0.1)]",
+    cyan: "border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.1)]",
+    white: "border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+  };
+
+  return (
+    <div 
+      className={cn(
+        "rounded-xl border transition-all duration-300",
+        intensityStyles[intensity],
+        borderGlow && borderGlowStyles[glowColor],
+        "hover:bg-white/15",
+        className
+      )}
+      data-testid="glassmorphism-card"
+    >
+      {children}
+    </div>
+  );
+}
+
+// ============================================
+// GOLD BORDER CARD
+// Premium cards with animated gold gradient borders
+// ============================================
+
+interface GoldBorderCardProps {
+  children: React.ReactNode;
+  className?: string;
+  animated?: boolean;
+  variant?: "default" | "thick" | "double";
+}
+
+export function GoldBorderCard({
+  children,
+  className,
+  animated = false,
+  variant = "default"
+}: GoldBorderCardProps) {
+  const borderWidth = {
+    default: "p-[1px]",
+    thick: "p-[2px]",
+    double: "p-[3px]"
+  };
+
+  return (
+    <div 
+      className={cn(
+        "rounded-xl bg-gradient-to-br from-[#C8A661] via-[#D4B878] to-[#B8964F]",
+        borderWidth[variant],
+        animated && "animate-gradient-rotate bg-[length:200%_200%]"
+      )}
+      data-testid="gold-border-card"
+    >
+      <div className={cn(
+        "rounded-[10px] bg-gradient-to-br from-[#0A1628] to-[#16213e] h-full",
+        className
+      )}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// PREMIUM BADGE
+// Enhanced badges with gold styling
+// ============================================
+
+interface PremiumBadgeProps {
+  children: React.ReactNode;
+  variant?: "gold" | "gold-outline" | "elite" | "live" | "new";
+  size?: "sm" | "md" | "lg";
+  animated?: boolean;
+  className?: string;
+}
+
+export function PremiumBadge({
+  children,
+  variant = "gold",
+  size = "md",
+  animated = false,
+  className
+}: PremiumBadgeProps) {
+  const sizeStyles = {
+    sm: "text-[10px] px-2 py-0.5",
+    md: "text-xs px-3 py-1",
+    lg: "text-sm px-4 py-1.5"
+  };
+
+  const variantStyles = {
+    gold: "bg-gradient-to-r from-[#C8A661] to-[#D4B878] text-[#0A1628] font-bold",
+    "gold-outline": "bg-transparent border-2 border-[#C8A661] text-[#C8A661] font-semibold",
+    elite: "bg-gradient-to-r from-[#C8A661] via-[#E5C98A] to-[#C8A661] text-[#0A1628] font-bold shadow-lg shadow-[#C8A661]/40",
+    live: "bg-red-500/90 text-white font-bold animate-pulse",
+    new: "bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold"
+  };
+
+  return (
+    <span 
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full uppercase tracking-wider",
+        sizeStyles[size],
+        variantStyles[variant],
+        animated && variant !== "live" && "animate-shimmer bg-[length:200%_100%]",
+        className
+      )}
+      data-testid="premium-badge"
+    >
+      {variant === "elite" && <Crown className="w-3 h-3" />}
+      {variant === "live" && <Radio className="w-3 h-3" />}
+      {variant === "new" && <Sparkles className="w-3 h-3" />}
+      {children}
+    </span>
+  );
+}
+
+// ============================================
+// PREMIUM SECTION HEADER
+// Luxurious section headers with Art Deco styling
+// ============================================
+
+interface PremiumSectionHeaderProps {
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  centered?: boolean;
+  divider?: boolean;
+  dividerVariant?: "simple" | "ornate" | "diamond";
+  className?: string;
+}
+
+export function PremiumSectionHeader({
+  title,
+  subtitle,
+  badge,
+  centered = true,
+  divider = true,
+  dividerVariant = "diamond",
+  className
+}: PremiumSectionHeaderProps) {
+  return (
+    <div className={cn("mb-12", centered && "text-center", className)} data-testid="premium-section-header">
+      {badge && (
+        <PremiumBadge variant="gold-outline" size="sm" className="mb-4">
+          {badge}
+        </PremiumBadge>
+      )}
+      <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+          {subtitle}
+        </p>
+      )}
+      {divider && (
+        <ArtDecoDivider variant={dividerVariant} color="gold" className="mt-6" />
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// ANIMATED SHINE EFFECT
+// Gold shimmer animation for premium elements
+// ============================================
+
+interface ShineEffectProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function ShineEffect({ children, className }: ShineEffectProps) {
+  return (
+    <div className={cn("relative overflow-hidden", className)} data-testid="shine-effect">
+      {children}
+      <div className="absolute inset-0 -translate-x-full animate-shine bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+    </div>
+  );
+}
+
+// ============================================
+// PREMIUM STAT CARD
+// Luxurious stat display with gold accents
+// ============================================
+
+interface PremiumStatCardProps {
+  value: string | number;
+  label: string;
+  icon?: React.ReactNode;
+  trend?: { value: number; direction: "up" | "down" };
+  accentColor?: "gold" | "cyan" | "green";
+  className?: string;
+}
+
+export function PremiumStatCardV2({
+  value,
+  label,
+  icon,
+  trend,
+  accentColor = "gold",
+  className
+}: PremiumStatCardProps) {
+  const accentStyles = {
+    gold: "border-t-[#C8A661] text-[#C8A661]",
+    cyan: "border-t-cyan-400 text-cyan-400",
+    green: "border-t-green-400 text-green-400"
+  };
+
+  return (
+    <GoldBorderCard className={cn("p-6", className)}>
+      <div className="flex items-start justify-between mb-4">
+        {icon && (
+          <div className={cn("p-2 rounded-lg bg-white/5", accentStyles[accentColor])}>
+            {icon}
+          </div>
+        )}
+        {trend && (
+          <div className={cn(
+            "flex items-center gap-1 text-sm font-medium",
+            trend.direction === "up" ? "text-green-400" : "text-red-400"
+          )}>
+            <TrendingUp className={cn("w-4 h-4", trend.direction === "down" && "rotate-180")} />
+            {trend.value}%
+          </div>
+        )}
+      </div>
+      <div className={cn("text-3xl md:text-4xl font-bold mb-1", accentStyles[accentColor].split(" ")[1])}>
+        {value}
+      </div>
+      <div className="text-gray-400 text-sm uppercase tracking-wider">
+        {label}
+      </div>
+    </GoldBorderCard>
+  );
+}
