@@ -107,14 +107,16 @@ const MARKETPLACE_SELL_LINKS = [
 ];
 
 const RESOURCES_LINKS = [
+  { href: "/platform-directory", label: "All Features", icon: LayoutGrid, desc: "Explore 100+ platform tools", featured: true },
   { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 73K+ owners", featured: true },
-  { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice", featured: true },
+  { href: "/network", label: "Member Network", icon: Users, desc: "Find & connect with professionals" },
+  { href: "/courses", label: "Courses & Training", icon: GraduationCap, desc: "Learn from industry experts" },
+  { href: "/laundromat-bible", label: "Laundromat Bible", icon: BookOpen, desc: "The complete owner's guide" },
+  { href: "/distributor-locator", label: "Distributor Locator", icon: MapPin, desc: "Find equipment dealers" },
+  { href: "/laundromat-locator", label: "Laundromat Locator", icon: MapPin, desc: "Find laundromats near you" },
+  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "AI equipment diagnostics" },
+  { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice" },
   { href: "/blog", label: "Blog", icon: BookOpen, desc: "News & insights" },
-  { href: "/events", label: "Events", icon: Calendar, desc: "Trade shows & conferences" },
-  { href: "/courses", label: "Courses", icon: GraduationCap, desc: "Courses & training" },
-  { href: "/help-center", label: "Help Center", icon: HelpCircle, desc: "FAQs & support" },
-  { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, desc: "50+ years experience" },
-  { href: "/insurance-partners", label: "Insurance", icon: Shield, desc: "Laundromat insurance services" },
   { href: "/about-us", label: "About Us", icon: Info, desc: "Our mission & team" },
 ];
 

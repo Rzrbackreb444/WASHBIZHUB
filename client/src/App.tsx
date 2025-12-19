@@ -305,6 +305,9 @@ const CustomerChurnPredictor = lazy(() => import("@/pages/customer-churn-predict
 const RevenueDiversificationPlanner = lazy(() => import("@/pages/revenue-diversification-planner"));
 const ExpansionFeasibilityScorecard = lazy(() => import("@/pages/expansion-feasibility-scorecard"));
 
+// Platform Directory
+const PlatformDirectory = lazy(() => import("@/pages/platform-directory"));
+
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
 const CleanBIReports = lazy(() => import("@/pages/cleanbi-reports"));
@@ -682,6 +685,9 @@ function Router() {
       <Route path="/academy" component={Academy} />
       <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
+      <Route path="/platform-directory" component={PlatformDirectory} />
+      <Route path="/features" component={PlatformDirectory} />
+      <Route path="/all-features" component={PlatformDirectory} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
 
       {/* SEO Landing Pages (Multi-keyword optimization) */}
