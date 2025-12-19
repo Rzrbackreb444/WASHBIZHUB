@@ -61,6 +61,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import serviceGuyAiLogoUrl from "@assets/service_guy_ai_logo_transparent_1766168656313.png";
 
 const DEMO_DISTRIBUTOR_ID = "demo-distributor-001";
 
@@ -133,12 +134,20 @@ export default function ServiceGuyAdmin() {
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#16213e]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Shield className="w-8 h-8 text-[#C8A661]" />
-              Service Guy AI Enterprise Admin
-            </h1>
-            <p className="text-gray-400 mt-1">Manage white-labeling, API keys, messaging, and security</p>
+          <div className="flex items-center gap-4">
+            <img 
+              src={serviceGuyAiLogoUrl} 
+              alt="Service Guy AI" 
+              className="h-16 md:h-20"
+              data-testid="img-service-guy-ai-logo"
+            />
+            <div>
+              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                <Shield className="w-8 h-8 text-[#C8A661]" />
+                Service Guy AI Enterprise Admin
+              </h1>
+              <p className="text-gray-400 mt-1">Manage white-labeling, API keys, messaging, and security</p>
+            </div>
           </div>
           <Badge className="bg-[#C8A661] text-[#0A1628]">
             ENTERPRISE

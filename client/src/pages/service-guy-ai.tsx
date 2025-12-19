@@ -73,7 +73,7 @@ const PartsOrderWidget = lazy(() => import("@/components/PartsOrderWidget").then
 const InvoiceGenerator = lazy(() => import("@/components/InvoiceGenerator").then(m => ({ default: m.InvoiceGenerator })));
 import { FixOutcomeFeedback } from "@/components/FixOutcomeFeedback";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import serviceGuyAiLogoUrl from "@assets/SERVICE GUY_1764436998885.png";
+import serviceGuyAiLogoUrl from "@assets/service_guy_ai_logo_transparent_1766168656313.png";
 import waterOverflowImage from "@assets/AdobeStock_824530835_1765330793538.jpeg";
 import steelDrumImage from "@assets/AdobeStock_561067303_1765330620231.jpeg";
 import heroImage from "@assets/AdobeStock_561067303_1765733854072.jpeg";

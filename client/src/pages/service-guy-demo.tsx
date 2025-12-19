@@ -26,6 +26,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
+import serviceGuyAiLogoUrl from "@assets/service_guy_ai_logo_transparent_1766168656313.png";
 
 interface BrandCoverage {
   name: string;
@@ -65,6 +66,12 @@ export default function ServiceGuyDemo() {
       <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#16213e]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center mb-12">
+            <img 
+              src={serviceGuyAiLogoUrl} 
+              alt="Service Guy AI" 
+              className="h-24 md:h-32 mx-auto mb-4"
+              data-testid="img-service-guy-ai-logo"
+            />
             <Badge className="bg-[#C8A661] text-[#0A1628] mb-4">
               ENTERPRISE DEMO
             </Badge>
