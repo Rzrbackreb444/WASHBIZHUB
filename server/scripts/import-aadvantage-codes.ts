@@ -5,6 +5,7 @@
 
 import { db } from "../db";
 import { diagnosticCodes, parts } from "@shared/schema";
+import { count } from "drizzle-orm";
 
 // Complete brand data from research
 const AADVANTAGE_BRAND_DATA = {
@@ -422,8 +423,11 @@ const AADVANTAGE_BRAND_DATA = {
 export async function importAAdvantageData() {
   console.log("🚀 Starting AAdvantage brand data import...");
   
-  let totalCodesAdded = 0;
-  let totalPartsAdded = 0;
+  // Get initial counts for comparison
+  const [initialCodes] = await db.select({ count: count() }).from(diagnosticCodes);
+  const [initialParts] = await db.select({ count: count() }).from(parts);
+  
+  let totalCodesProcessed = 0;
   const errors: string[] = [];
 
   for (const [brandName, brand] of Object.entries(AADVANTAGE_BRAND_DATA.brands)) {
@@ -453,7 +457,7 @@ export async function importAAdvantageData() {
           slug,
         }).onConflictDoNothing();
         
-        totalCodesAdded++;
+        totalCodesProcessed++;
       } catch (e) {
         errors.push(`${brandName} ${code.code}: ${e}`);
       }
@@ -476,7 +480,6 @@ export async function importAAdvantageData() {
           }).onConflictDoNothing();
           
           addedParts.add(part.part_number);
-          totalPartsAdded++;
         } catch (e) {
         }
       }
@@ -485,12 +488,32 @@ export async function importAAdvantageData() {
     console.log(`✅ ${brandName}: ${brand.error_codes.length} codes processed`);
   }
   
+  // Get final counts and calculate actual inserts
+  const [finalCodes] = await db.select({ count: count() }).from(diagnosticCodes);
+  const [finalParts] = await db.select({ count: count() }).from(parts);
+  
+  const codesInserted = finalCodes.count - initialCodes.count;
+  const partsInserted = finalParts.count - initialParts.count;
+  const skipped = totalCodesProcessed - codesInserted;
+  
   console.log(`\n🎉 Import complete!`);
-  console.log(`   Error codes added: ${totalCodesAdded}`);
-  console.log(`   Parts added: ${totalPartsAdded}`);
+  console.log(`   Codes processed: ${totalCodesProcessed}`);
+  console.log(`   New codes inserted: ${codesInserted}`);
+  console.log(`   Skipped (already exist): ${skipped}`);
+  console.log(`   New parts inserted: ${partsInserted}`);
+  console.log(`   Total codes in DB: ${finalCodes.count}`);
+  console.log(`   Total parts in DB: ${finalParts.count}`);
   console.log(`   Errors: ${errors.length}`);
   
-  return { totalCodesAdded, totalPartsAdded, errors };
+  return { 
+    totalCodesProcessed, 
+    codesInserted,
+    partsInserted,
+    skipped,
+    totalCodes: finalCodes.count,
+    totalParts: finalParts.count,
+    errors 
+  };
 }
 
 // Export only - run via API endpoint

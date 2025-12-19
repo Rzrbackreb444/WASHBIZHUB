@@ -79,9 +79,18 @@ const ALL_MANUFACTURERS = [
   "Yamamoto", "Domus", "Lavatec", "Sea-Lion", "Cissell", "American Dryer",
 ];
 
+interface BrandCoverage {
+  name: string;
+  codes: number;
+  target: number;
+}
+
 interface PlatformAudit {
   timestamp: Date;
   overallScore: number;
+  totalErrorCodes: number;
+  totalParts: number;
+  aadvantageBrands: BrandCoverage[];
   categories: {
     serviceGuyAI: { score: number; gaps: string[]; recommendations: string[] };
     errorCodeCoverage: { score: number; gaps: string[]; recommendations: string[] };
@@ -155,9 +164,19 @@ class WashBizHubPerfectionEngine {
 
     const overallScore = (codeScore + partScore + aadvantageScore + serviceGuyScore + uxScore) / 5;
 
+    // Build structured brand coverage data
+    const aadvantageBrands: BrandCoverage[] = AADVANTAGE_BRANDS.map(brand => ({
+      name: brand,
+      codes: coverageMap[brand] || 0,
+      target: aadvantageCodesNeeded,
+    }));
+
     const audit: PlatformAudit = {
       timestamp: new Date(),
       overallScore: Math.round(overallScore * 10) / 10,
+      totalErrorCodes: totalCodes,
+      totalParts: totalParts,
+      aadvantageBrands,
       categories: {
         serviceGuyAI: {
           score: serviceGuyScore,
