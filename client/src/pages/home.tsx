@@ -18,6 +18,12 @@ import {
   GlowOrb,
   AnimatedCounter,
   ENTERPRISE_COLORS,
+  PremiumButton,
+  ArtDecoDivider,
+  GlassmorphismCard,
+  GoldBorderCard,
+  PremiumBadge,
+  PremiumSectionHeader,
 } from "@/components/premium-components";
 import {
   FeaturesSection,
