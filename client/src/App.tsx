@@ -204,6 +204,9 @@ import NotFound from "@/pages/not-found";
 const CleanBI = lazy(() => import("@/pages/cleanbi"));
 const CLEANBIMethodology = lazy(() => import("@/pages/cleanbi-methodology"));
 const Pricing = lazy(() => import("@/pages/pricing"));
+const EnterprisePricing = lazy(() => import("@/pages/enterprise-pricing"));
+const EnterpriseBranding = lazy(() => import("@/pages/enterprise-branding"));
+const EnterpriseOnboarding = lazy(() => import("@/pages/enterprise-onboarding"));
 const SingleAnalysis = lazy(() => import("@/pages/single-analysis"));
 const Blog = lazy(() => import("@/pages/blog"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
@@ -637,6 +640,26 @@ function Router() {
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
+      <Route path="/enterprise-pricing">
+        <Suspense fallback={<LoadingFallback />}>
+          <EnterprisePricing />
+        </Suspense>
+      </Route>
+      <Route path="/enterprise-branding">
+        <Suspense fallback={<LoadingFallback />}>
+          <EnterpriseBranding />
+        </Suspense>
+      </Route>
+      <Route path="/enterprise-branding/:distributorId">
+        <Suspense fallback={<LoadingFallback />}>
+          <EnterpriseBranding />
+        </Suspense>
+      </Route>
+      <Route path="/enterprise-onboarding">
+        <Suspense fallback={<LoadingFallback />}>
+          <EnterpriseOnboarding />
+        </Suspense>
+      </Route>
       <Route path="/single-analysis">
         <Suspense fallback={<LoadingFallback />}>
           <SingleAnalysis />
