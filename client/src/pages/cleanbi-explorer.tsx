@@ -24,6 +24,12 @@ import {
   HexGrid,
   GlowOrb,
   ENTERPRISE_COLORS,
+  PremiumButton,
+  ArtDecoDivider,
+  GlassmorphismCard,
+  GoldBorderCard,
+  PremiumBadge,
+  PremiumSectionHeader,
 } from "@/components/premium-components";
 import { 
   Map, 
