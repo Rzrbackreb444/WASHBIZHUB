@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import {
   Wrench,
@@ -22,26 +23,37 @@ import {
   Image,
   Bot,
   MessageCircle,
+  Loader2,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 
-const AADVANTAGE_BRANDS = [
-  { name: "Dexter", codes: 66, target: 500, color: "#22C55E" },
-  { name: "Continental Girbau", codes: 53, target: 500, color: "#3B82F6" },
-  { name: "Maytag", codes: 74, target: 500, color: "#F59E0B" },
-  { name: "Whirlpool", codes: 52, target: 500, color: "#8B5CF6" },
-  { name: "LG", codes: 63, target: 500, color: "#EC4899" },
-  { name: "B&C Technologies", codes: 15, target: 500, color: "#14B8A6" },
-  { name: "Econ-O", codes: 14, target: 500, color: "#F97316" },
-];
+interface BrandCoverage {
+  name: string;
+  codes: number;
+  target: number;
+}
+
+interface AuditData {
+  totalErrorCodes: number;
+  totalParts: number;
+  aadvantageBrands: BrandCoverage[];
+  categories: {
+    aadvantageReadiness: {
+      score: number;
+    };
+  };
+}
 
 export default function ServiceGuyDemo() {
-  const { data: auditData } = useQuery({
+  const { data: auditData, isLoading } = useQuery<AuditData>({
     queryKey: ["/api/ai-research/full-audit"],
   });
 
-  const totalBrandCodes = AADVANTAGE_BRANDS.reduce((sum, b) => sum + b.codes, 0);
-  const overallReadiness = Math.round((totalBrandCodes / 3500) * 100);
+  const brandData = auditData?.aadvantageBrands || [];
+  const totalBrandCodes = brandData.reduce((sum, b) => sum + b.codes, 0);
+  const overallReadiness = auditData?.categories?.aadvantageReadiness?.score || 0;
+  const totalCodes = auditData?.totalErrorCodes || 0;
+  const partsCount = auditData?.totalParts || 0;
 
   return (
     <>
@@ -69,15 +81,23 @@ export default function ServiceGuyDemo() {
             <Card className="bg-[#16213e]/80 border-[#C8A661]/20">
               <CardContent className="pt-6 text-center">
                 <Database className="w-8 h-8 text-[#C8A661] mx-auto mb-2" />
-                <div className="text-3xl font-bold text-[#C8A661]">2,388</div>
-                <div className="text-sm text-gray-400">Error Codes</div>
-                <div className="text-xs text-gray-500 mt-1">Target: 20,000+</div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-20 mx-auto mb-1 bg-[#C8A661]/20" />
+                ) : (
+                  <div className="text-3xl font-bold text-[#C8A661]">{totalBrandCodes.toLocaleString()}</div>
+                )}
+                <div className="text-sm text-gray-400">AAdvantage Codes</div>
+                <div className="text-xs text-gray-500 mt-1">Target: 3,500</div>
               </CardContent>
             </Card>
             <Card className="bg-[#16213e]/80 border-[#C8A661]/20">
               <CardContent className="pt-6 text-center">
                 <Wrench className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-green-500">373</div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-16 mx-auto mb-1 bg-green-500/20" />
+                ) : (
+                  <div className="text-3xl font-bold text-green-500">{partsCount}</div>
+                )}
                 <div className="text-sm text-gray-400">Parts Catalog</div>
                 <div className="text-xs text-gray-500 mt-1">Target: 10,000+</div>
               </CardContent>
@@ -93,7 +113,11 @@ export default function ServiceGuyDemo() {
             <Card className="bg-[#16213e]/80 border-[#C8A661]/20">
               <CardContent className="pt-6 text-center">
                 <TrendingUp className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-purple-500">{overallReadiness}%</div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-16 mx-auto mb-1 bg-purple-500/20" />
+                ) : (
+                  <div className="text-3xl font-bold text-purple-500">{overallReadiness}%</div>
+                )}
                 <div className="text-sm text-gray-400">AAdvantage Ready</div>
                 <div className="text-xs text-gray-500 mt-1">Growing daily</div>
               </CardContent>
@@ -109,25 +133,32 @@ export default function ServiceGuyDemo() {
               <CardDescription>Error code database progress for AAdvantage-distributed equipment brands</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {AADVANTAGE_BRANDS.map((brand) => (
-                  <div key={brand.name} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white font-medium">{brand.name}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="border-[#C8A661] text-[#C8A661]">
-                          {brand.codes} codes
-                        </Badge>
-                        <span className="text-xs text-gray-500">/ {brand.target} target</span>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#C8A661]" />
+                  <span className="ml-2 text-gray-400">Loading live data...</span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {brandData.map((brand) => (
+                    <div key={brand.name} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium">{brand.name}</span>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="border-[#C8A661] text-[#C8A661]">
+                            {brand.codes} codes
+                          </Badge>
+                          <span className="text-xs text-gray-500">/ {brand.target} target</span>
+                        </div>
                       </div>
+                      <Progress 
+                        value={(brand.codes / brand.target) * 100} 
+                        className="h-2 bg-[#0A1628]"
+                      />
                     </div>
-                    <Progress 
-                      value={(brand.codes / brand.target) * 100} 
-                      className="h-2 bg-[#0A1628]"
-                    />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
