@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Lock, LogIn, AlertCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Lock, LogIn, AlertCircle, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Load remembered email on mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("adminRememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +36,7 @@ export default function AdminLogin() {
       const response = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       if (!response.ok) {
@@ -36,13 +47,20 @@ export default function AdminLogin() {
 
       const data = await response.json();
       
+      // Handle Remember Me - save email for next time
+      if (rememberMe) {
+        localStorage.setItem("adminRememberedEmail", email);
+      } else {
+        localStorage.removeItem("adminRememberedEmail");
+      }
+      
       // Store admin session
       localStorage.setItem("adminToken", data.token);
       localStorage.setItem("adminUser", JSON.stringify(data.user));
 
       toast({
-        title: "Success",
-        description: "Welcome to Admin Dashboard",
+        title: "Welcome Back",
+        description: "Successfully logged into Admin Dashboard",
       });
 
       setLocation("/admin/dashboard");
@@ -112,6 +130,21 @@ export default function AdminLogin() {
                   data-testid="input-admin-password"
                   required
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  data-testid="checkbox-remember-me"
+                />
+                <Label 
+                  htmlFor="rememberMe" 
+                  className="text-sm font-normal cursor-pointer text-muted-foreground"
+                >
+                  Remember me for 30 days
+                </Label>
               </div>
 
               <Button

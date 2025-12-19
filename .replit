@@ -98,6 +98,7 @@ CLOUDFLARE_ACCESS_TEAM_DOMAIN = "washbizhub.cloudflareaccess.com"
 CLOUDFLARE_EMAIL = "thelaundromatfb@gmail.com"
 CLOUDFLARE_ACCESS_AUDIENCE = "c13f547be4b815b3790a3b7157aa4883673f9c7e85f18ba1beac6c422eda1eb0"
 CLOUDFLARE_ACCOUNT_ID = "c0f755a936fb4e3ca2c39f88f2dbade9"
+ADMIN_EMAILS = "nick@washbizhub.com,larry@washbizhub.com"
 
 [userenv.production]
 APP_URL = "https://washbizhub.com"
