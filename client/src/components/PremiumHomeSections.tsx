@@ -10,8 +10,14 @@ import {
   ArrowRight, Sparkles, Shield, TrendingUp, Users, 
   Download, Lock, MapPin, DollarSign, Calendar, Building2,
   Calculator, Target, BookOpen, GraduationCap, Phone,
-  Search, MessageSquare, QrCode, Star, ExternalLink, Plus, Package, Loader2
+  Search, MessageSquare, QrCode, Star, ExternalLink, Plus, Package, Loader2, Crown
 } from "lucide-react";
+import { 
+  PremiumButton, 
+  ArtDecoDivider, 
+  GlassmorphismCard,
+  PremiumBadge 
+} from "@/components/premium-components";
 
 import equipmentImage from "@assets/AdobeStock_507641449_1764704943942.jpeg";
 import washerDetailImage from "@assets/AdobeStock_711286802_1764704943943.jpeg";
@@ -1169,10 +1175,9 @@ export const CTASection = memo(function CTASection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Badge className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 hover:bg-[#C8A661]/30">
-              <Sparkles className="w-3 h-3 mr-1" />
+            <PremiumBadge variant="elite" size="lg" animated className="mb-6">
               Join 73,000+ Professionals
-            </Badge>
+            </PremiumBadge>
           </motion.div>
           
           <h2 
@@ -1182,9 +1187,11 @@ export const CTASection = memo(function CTASection() {
             Ready to Transform Your Laundromat Business?
           </h2>
           
-          <p className="text-lg text-white/80 mb-10 leading-relaxed max-w-xl">
+          <p className="text-lg text-white/80 mb-8 leading-relaxed max-w-xl">
             Access premium tools, verified listings, and expert resources trusted by laundromat owners across the nation.
           </p>
+          
+          <ArtDecoDivider variant="ornate" color="gold" className="mb-10 max-w-md" />
           
           <motion.div 
             variants={staggerContainer}
@@ -1194,17 +1201,27 @@ export const CTASection = memo(function CTASection() {
           >
             <motion.div variants={cardItem}>
               <Link href="/login">
-                <Button size="lg" className="h-14 px-10 bg-[#C8A661] hover:bg-[#B8963F] text-white shadow-xl shadow-[#C8A661]/25 text-lg font-semibold" data-testid="button-cta-get-started">
+                <PremiumButton 
+                  variant="gradient" 
+                  size="lg" 
+                  icon={<ArrowRight className="w-5 h-5" />}
+                  className="shadow-xl shadow-[#C8A661]/40"
+                  data-testid="button-cta-get-started"
+                >
                   Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                </PremiumButton>
               </Link>
             </motion.div>
             <motion.div variants={cardItem}>
               <Link href="/pricing">
-                <Button variant="outline" size="lg" className="h-14 px-10 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm text-lg" data-testid="button-cta-see-pricing">
+                <PremiumButton 
+                  variant="gold-outline" 
+                  size="lg"
+                  className="backdrop-blur-sm"
+                  data-testid="button-cta-see-pricing"
+                >
                   See Pricing
-                </Button>
+                </PremiumButton>
               </Link>
             </motion.div>
           </motion.div>

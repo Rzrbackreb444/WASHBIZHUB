@@ -1874,52 +1874,6 @@ export function PremiumBadge({
 }
 
 // ============================================
-// PREMIUM SECTION HEADER
-// Luxurious section headers with Art Deco styling
-// ============================================
-
-interface PremiumSectionHeaderProps {
-  title: string;
-  subtitle?: string;
-  badge?: string;
-  centered?: boolean;
-  divider?: boolean;
-  dividerVariant?: "simple" | "ornate" | "diamond";
-  className?: string;
-}
-
-export function PremiumSectionHeader({
-  title,
-  subtitle,
-  badge,
-  centered = true,
-  divider = true,
-  dividerVariant = "diamond",
-  className
-}: PremiumSectionHeaderProps) {
-  return (
-    <div className={cn("mb-12", centered && "text-center", className)} data-testid="premium-section-header">
-      {badge && (
-        <PremiumBadge variant="gold-outline" size="sm" className="mb-4">
-          {badge}
-        </PremiumBadge>
-      )}
-      <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 tracking-tight">
-        {title}
-      </h2>
-      {subtitle && (
-        <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-          {subtitle}
-        </p>
-      )}
-      {divider && (
-        <ArtDecoDivider variant={dividerVariant} color="gold" className="mt-6" />
-      )}
-    </div>
-  );
-}
-
-// ============================================
 // ANIMATED SHINE EFFECT
 // Gold shimmer animation for premium elements
 // ============================================
