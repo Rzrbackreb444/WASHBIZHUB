@@ -414,6 +414,7 @@ const DistributorsLanding = lazy(() => import("@/pages/landing/distributors"));
 const DistributorCommandCenter = lazy(() => import("@/pages/distributor-command-center"));
 const ServiceAIEnterpriseDemo = lazy(() => import("@/pages/service-ai-enterprise-demo"));
 const ServiceGuyAdmin = lazy(() => import("@/pages/service-guy-admin"));
+const ServiceGuyDemo = lazy(() => import("@/pages/service-guy-demo"));
 
 // Funding Pages
 const FundingMatcher = lazy(() => import("@/pages/funding-matcher"));
@@ -1488,6 +1489,11 @@ function Router() {
       <Route path="/service-guy-admin">
         <Suspense fallback={<LoadingFallback />}>
           <ServiceGuyAdmin />
+        </Suspense>
+      </Route>
+      <Route path="/service-guy-demo">
+        <Suspense fallback={<LoadingFallback />}>
+          <ServiceGuyDemo />
         </Suspense>
       </Route>
       <Route path="/fault-classifier">
