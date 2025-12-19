@@ -9,6 +9,17 @@ import { CredibilityBar } from "@/components/CredibilityBar";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
 import { EquipmentCarousel } from "@/components/EquipmentCarousel";
 import {
+  FuturisticCard,
+  HUDStat,
+  DataPanel,
+  LiveIndicator,
+  TechLabel,
+  HexGrid,
+  GlowOrb,
+  AnimatedCounter,
+  ENTERPRISE_COLORS,
+} from "@/components/premium-components";
+import {
   FeaturesSection,
   TrustSignalsSection,
   TemplatesSection,

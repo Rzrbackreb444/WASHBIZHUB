@@ -7,6 +7,18 @@ import {
   DemoBanner,
   PremiumMetricCard,
   PremiumStatusIndicator,
+  FuturisticPageWrapper,
+  FuturisticCard,
+  HUDStat,
+  DataPanel,
+  LiveIndicator,
+  TechLabel,
+  MiniGauge,
+  AnimatedCounter,
+  HexGrid,
+  ScanLine,
+  GlowOrb,
+  ENTERPRISE_COLORS,
 } from "@/components/premium-components";
 import { 
   Wrench, 
@@ -356,31 +368,36 @@ export default function ServiceAIEnterpriseDemo() {
         <meta name="description" content="Enterprise-grade AI diagnostics, preventative maintenance, parts ordering, and service management for commercial laundry equipment." />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0f1a]">
-        {/* Premium Header */}
-        <div className="border-b border-white/10 bg-gradient-to-r from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a]">
+      <FuturisticPageWrapper showHexGrid={true} showScanLine={false} showGlowOrbs={true}>
+        {/* Premium Header with HUD Effects */}
+        <div className="border-b border-[#C8A661]/20 bg-gradient-to-r from-[#0a0f1a]/95 via-[#0f172a]/95 to-[#0a0f1a]/95 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-[1800px] mx-auto px-6 py-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                  <Wrench className="w-6 h-6 text-white" />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/30 border border-orange-400/30">
+                    <Wrench className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1">
+                    <LiveIndicator status="online" pulseIntensity="strong" />
+                  </div>
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-bold text-white">Service AI Enterprise</h1>
-                    <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">DEMO</Badge>
+                    <h1 className="text-xl font-bold text-white tracking-wide">SERVICE AI ENTERPRISE</h1>
+                    <TechLabel variant="warning" animated>DEMO</TechLabel>
                   </div>
-                  <p className="text-sm text-gray-400">Complete Equipment Intelligence Platform</p>
+                  <p className="text-sm text-gray-400 mt-0.5">Complete Equipment Intelligence Platform</p>
                 </div>
               </div>
 
-              {/* View Toggle */}
+              {/* View Toggle with Futuristic Styling */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center bg-white/5 rounded-lg p-1 border border-white/10">
+                <div className="flex items-center bg-[#0A1628]/80 rounded-lg p-1 border border-[#C8A661]/20 backdrop-blur-sm">
                   <Button
                     size="sm"
                     variant={activeView === "operator" ? "default" : "ghost"}
-                    className={activeView === "operator" ? "bg-[#C8A661] text-[#0a0f1a]" : "text-gray-400 hover:text-white"}
+                    className={activeView === "operator" ? "bg-gradient-to-r from-[#C8A661] to-[#B8964F] text-[#0a0f1a] shadow-lg shadow-[#C8A661]/20" : "text-gray-400 hover:text-white hover:bg-white/5"}
                     onClick={() => setActiveView("operator")}
                     data-testid="button-operator-view"
                   >
@@ -390,7 +407,7 @@ export default function ServiceAIEnterpriseDemo() {
                   <Button
                     size="sm"
                     variant={activeView === "technician" ? "default" : "ghost"}
-                    className={activeView === "technician" ? "bg-orange-500 text-white" : "text-gray-400 hover:text-white"}
+                    className={activeView === "technician" ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/20" : "text-gray-400 hover:text-white hover:bg-white/5"}
                     onClick={() => setActiveView("technician")}
                     data-testid="button-tech-view"
                   >
@@ -1386,27 +1403,39 @@ export default function ServiceAIEnterpriseDemo() {
           </Tabs>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-white/5 bg-[#0a0f1a] mt-12">
-          <div className="max-w-[1800px] mx-auto px-6 py-4">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center gap-4">
-                <span>Powered by WashBizHub Service AI</span>
-                <Separator orientation="vertical" className="h-3 bg-gray-700" />
-                <span>{TOTAL_CODES.toLocaleString()} Error Codes</span>
-                <span>•</span>
-                <span>{TOTAL_MANUALS} Service Manuals</span>
-                <span>•</span>
-                <span>{EQUIPMENT_BRANDS.length} Brands</span>
+        {/* Footer with Futuristic Styling */}
+        <div className="border-t border-[#C8A661]/10 bg-gradient-to-r from-[#050a14] via-[#0a1020] to-[#050a14] mt-12">
+          <div className="max-w-[1800px] mx-auto px-6 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500">
+              <div className="flex flex-wrap items-center gap-4">
+                <span className="text-[#C8A661]">Powered by WashBizHub Service AI</span>
+                <Separator orientation="vertical" className="h-3 bg-[#C8A661]/30" />
+                <div className="flex items-center gap-2">
+                  <Database className="w-3 h-3 text-cyan-400" />
+                  <span className="text-cyan-400">{TOTAL_CODES.toLocaleString()}</span>
+                  <span>Error Codes</span>
+                </div>
+                <span className="text-[#C8A661]/50">•</span>
+                <div className="flex items-center gap-2">
+                  <FileText className="w-3 h-3 text-orange-400" />
+                  <span className="text-orange-400">{TOTAL_MANUALS}</span>
+                  <span>Service Manuals</span>
+                </div>
+                <span className="text-[#C8A661]/50">•</span>
+                <div className="flex items-center gap-2">
+                  <Layers className="w-3 h-3 text-[#C8A661]" />
+                  <span className="text-[#C8A661]">{EQUIPMENT_BRANDS.length}</span>
+                  <span>Brands</span>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <Shield className="w-3 h-3 text-green-400" />
-                <span>Enterprise Security</span>
+                <Shield className="w-4 h-4 text-green-400" />
+                <span className="text-green-400 font-medium">Enterprise Security</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </FuturisticPageWrapper>
     </>
   );
 }

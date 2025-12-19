@@ -8,6 +8,19 @@ import {
   PremiumMetricCard,
   PremiumAlertCard,
   PremiumStatusIndicator,
+  FuturisticPageWrapper,
+  FuturisticCard,
+  HUDStat,
+  DataPanel,
+  LiveIndicator,
+  TechLabel,
+  MiniGauge,
+  AnimatedCounter,
+  HexGrid,
+  ScanLine,
+  GlowOrb,
+  ProgressRing,
+  ENTERPRISE_COLORS,
 } from "@/components/premium-components";
 import { 
   Building2, 
@@ -180,41 +193,35 @@ export default function DistributorCommandCenter() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0f1a]">
-        {/* Premium Header */}
-        <div className="border-b border-white/10 bg-gradient-to-r from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a]">
+      <FuturisticPageWrapper showHexGrid={true} showScanLine={false} showGlowOrbs={true}>
+        {/* Premium Futuristic Header with HUD Effects */}
+        <div className="border-b border-[#C8A661]/20 bg-gradient-to-r from-[#0a0f1a]/95 via-[#0f172a]/95 to-[#0a0f1a]/95 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-[1800px] mx-auto px-6 py-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg shadow-[#C8A661]/20">
-                  <Building2 className="w-6 h-6 text-white" />
+                <div className="relative">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg shadow-[#C8A661]/30 border border-[#C8A661]/30">
+                    <Building2 className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1">
+                    <LiveIndicator status={isLive ? "online" : "offline"} pulseIntensity="strong" />
+                  </div>
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
-                    <h1 className="text-xl font-bold text-white">{COMPANY_NAME}</h1>
+                    <h1 className="text-xl font-bold text-white tracking-wide">{COMPANY_NAME}</h1>
                     {DEMO_MODE && (
-                      <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
-                        DEMO MODE
-                      </Badge>
+                      <TechLabel variant="warning" animated>DEMO MODE</TechLabel>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-sm">
+                  <div className="flex items-center gap-3 text-sm mt-0.5">
                     <span className="text-gray-400">Fleet Command Center</span>
-                    <Separator orientation="vertical" className="h-3 bg-gray-700" />
+                    <Separator orientation="vertical" className="h-3 bg-[#C8A661]/30" />
                     <div className="flex items-center gap-1.5">
                       {isLive ? (
-                        <>
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                          </span>
-                          <span className="text-green-400 text-xs">LIVE</span>
-                        </>
+                        <TechLabel variant="success">LIVE</TechLabel>
                       ) : (
-                        <>
-                          <span className="h-2 w-2 rounded-full bg-gray-500"></span>
-                          <span className="text-gray-500 text-xs">PAUSED</span>
-                        </>
+                        <TechLabel variant="default">PAUSED</TechLabel>
                       )}
                     </div>
                     <span className="text-gray-500 text-xs">Last update: {formatTime(liveUpdateTime)}</span>
@@ -1024,31 +1031,31 @@ export default function DistributorCommandCenter() {
           </Tabs>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-white/5 bg-[#0a0f1a] mt-12">
-          <div className="max-w-[1800px] mx-auto px-6 py-4">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center gap-4">
-                <span>Powered by WashBizHub Fleet AI</span>
-                <Separator orientation="vertical" className="h-3 bg-gray-700" />
+        {/* Footer with Futuristic Styling */}
+        <div className="border-t border-[#C8A661]/10 bg-gradient-to-r from-[#050a14] via-[#0a1020] to-[#050a14] mt-12">
+          <div className="max-w-[1800px] mx-auto px-6 py-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500">
+              <div className="flex flex-wrap items-center gap-4">
+                <span className="text-[#C8A661]">Powered by WashBizHub Fleet AI</span>
+                <Separator orientation="vertical" className="h-3 bg-[#C8A661]/30" />
                 <div className="flex items-center gap-2">
-                  <Shield className="w-3 h-3 text-green-400" />
-                  <span>Enterprise Security</span>
+                  <Shield className="w-4 h-4 text-green-400" />
+                  <span className="text-green-400 font-medium">Enterprise Security</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Lock className="w-3 h-3 text-blue-400" />
-                  <span>End-to-End Encrypted</span>
+                  <Lock className="w-4 h-4 text-cyan-400" />
+                  <span className="text-cyan-400 font-medium">End-to-End Encrypted</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span>v3.0.0</span>
-                <Separator orientation="vertical" className="h-3 bg-gray-700" />
-                <span>{new Date().toLocaleDateString()}</span>
+              <div className="flex items-center gap-3">
+                <TechLabel variant="info">v3.0.0</TechLabel>
+                <Separator orientation="vertical" className="h-3 bg-[#C8A661]/30" />
+                <span className="text-gray-400">{new Date().toLocaleDateString()}</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </FuturisticPageWrapper>
     </>
   );
 }
