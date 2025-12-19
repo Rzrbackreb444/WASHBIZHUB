@@ -54,9 +54,9 @@ export function PremiumCard({
           className={cn(
             "absolute top-3 right-3 z-5",
             tier === "enterprise" && "bg-[#C8A661] text-[#0A1628]",
-            tier === "professional" && "bg-blue-500 text-white",
-            tier === "starter" && "bg-green-500 text-white",
-            tier === "free" && "bg-gray-500 text-white"
+            tier === "professional" && "bg-[#0A1628] text-[#C8A661] border border-[#C8A661]/40",
+            tier === "starter" && "bg-[#1a3a5c] text-white border border-[#C8A661]/20",
+            tier === "free" && "bg-muted text-muted-foreground"
           )}
         >
           {tier === "enterprise" && <Crown className="w-3 h-3 mr-1" />}
@@ -102,7 +102,7 @@ export function PremiumStatCard({
               variant="outline" 
               className={cn(
                 "text-xs",
-                trend.value >= 0 ? "border-green-500/40 text-green-600" : "border-red-500/40 text-red-600"
+                trend.value >= 0 ? "border-[#C8A661]/40 text-[#C8A661]" : "border-red-500/40 text-red-600"
               )}
             >
               <TrendingUp className={cn("w-3 h-3 mr-1", trend.value < 0 && "rotate-180")} />
@@ -568,7 +568,7 @@ export function PremiumKPI({
           {change !== undefined && (
             <Badge variant="outline" className={cn(
               "text-xs",
-              change >= 0 ? "border-green-500/40 text-green-600" : "border-red-500/40 text-red-600"
+              change >= 0 ? "border-[#C8A661]/40 text-[#C8A661]" : "border-red-500/40 text-red-600"
             )}>
               <TrendingUp className={cn("w-3 h-3 mr-1", change < 0 && "rotate-180")} />
               {change >= 0 ? "+" : ""}{change}%
@@ -600,9 +600,9 @@ export function PremiumAlertCard({
 }: PremiumAlertCardProps) {
   const styles = {
     critical: { bg: "bg-red-500/10 border-red-500/30", icon: "text-red-500", badge: "bg-red-500" },
-    warning: { bg: "bg-amber-500/10 border-amber-500/30", icon: "text-amber-500", badge: "bg-amber-500" },
-    info: { bg: "bg-blue-500/10 border-blue-500/30", icon: "text-blue-500", badge: "bg-blue-500" },
-    success: { bg: "bg-green-500/10 border-green-500/30", icon: "text-green-500", badge: "bg-green-500" }
+    warning: { bg: "bg-[#C8A661]/10 border-[#C8A661]/30", icon: "text-[#C8A661]", badge: "bg-[#C8A661]" },
+    info: { bg: "bg-[#0A1628]/10 border-[#0A1628]/30", icon: "text-[#0A1628]", badge: "bg-[#0A1628]" },
+    success: { bg: "bg-[#22C55E]/10 border-[#22C55E]/30", icon: "text-[#22C55E]", badge: "bg-[#22C55E]" }
   };
 
   return (
