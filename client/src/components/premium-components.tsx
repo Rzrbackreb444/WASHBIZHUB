@@ -1,10 +1,708 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Lock, Crown, TrendingUp, Shield, Sparkles, ArrowUpRight, ChevronRight } from "lucide-react";
+import { Lock, Crown, TrendingUp, Shield, Sparkles, ArrowUpRight, ChevronRight, Zap, Activity, Radio } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
+
+// Enterprise Design Tokens
+export const ENTERPRISE_COLORS = {
+  navy: "#0A1628",
+  navyLight: "#0f172a",
+  navyDark: "#050a14",
+  gold: "#C8A661",
+  goldLight: "#D4B878",
+  goldDark: "#B8964F",
+  cyan: "#22D3EE",
+  orange: "#F97316",
+  surface: "#1a1f2e",
+  surfaceLight: "#252b3d",
+};
+
+// Futuristic Glow Card with animated border
+interface FuturisticCardProps {
+  children: React.ReactNode;
+  className?: string;
+  glowColor?: "gold" | "cyan" | "orange";
+  animated?: boolean;
+}
+
+export function FuturisticCard({ 
+  children, 
+  className, 
+  glowColor = "gold",
+  animated = false 
+}: FuturisticCardProps) {
+  const glowStyles = {
+    gold: "shadow-[0_0_30px_rgba(200,166,97,0.15)] hover:shadow-[0_0_40px_rgba(200,166,97,0.25)]",
+    cyan: "shadow-[0_0_30px_rgba(34,211,238,0.15)] hover:shadow-[0_0_40px_rgba(34,211,238,0.25)]",
+    orange: "shadow-[0_0_30px_rgba(249,115,22,0.15)] hover:shadow-[0_0_40px_rgba(249,115,22,0.25)]"
+  };
+
+  const borderStyles = {
+    gold: "border-[#C8A661]/30 hover:border-[#C8A661]/50",
+    cyan: "border-cyan-500/30 hover:border-cyan-500/50",
+    orange: "border-orange-500/30 hover:border-orange-500/50"
+  };
+
+  return (
+    <div className={cn(
+      "relative rounded-xl bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border transition-all duration-300",
+      glowStyles[glowColor],
+      borderStyles[glowColor],
+      animated && "animate-pulse-subtle",
+      className
+    )} data-testid="futuristic-card">
+      {children}
+    </div>
+  );
+}
+
+// Premium HUD-style stat display
+interface HUDStatProps {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: number;
+  live?: boolean;
+  format?: "currency" | "number" | "percent";
+  size?: "sm" | "md" | "lg";
+  glowColor?: "gold" | "cyan" | "orange";
+}
+
+export function HUDStat({
+  label,
+  value,
+  icon,
+  trend,
+  live = false,
+  format = "number",
+  size = "md",
+  glowColor = "gold"
+}: HUDStatProps) {
+  const formatValue = (val: string | number) => {
+    if (typeof val === "string") return val;
+    if (format === "currency") return `$${val.toLocaleString()}`;
+    if (format === "percent") return `${val}%`;
+    return val.toLocaleString();
+  };
+
+  const sizes = {
+    sm: { value: "text-lg", label: "text-xs", icon: "w-8 h-8" },
+    md: { value: "text-2xl", label: "text-sm", icon: "w-10 h-10" },
+    lg: { value: "text-3xl", label: "text-base", icon: "w-12 h-12" }
+  };
+
+  const glowTextColors = {
+    gold: "text-[#C8A661]",
+    cyan: "text-cyan-400",
+    orange: "text-orange-400"
+  };
+
+  return (
+    <div className="relative p-4" data-testid={`hud-stat-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+      <div className="flex items-start gap-3">
+        <div className={cn(
+          "rounded-lg bg-gradient-to-br from-[#0A1628] to-[#1a2a4a] flex items-center justify-center border border-white/10",
+          sizes[size].icon
+        )}>
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={cn("font-medium text-gray-400", sizes[size].label)}>{label}</span>
+            {live && (
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+            )}
+          </div>
+          <div className={cn("font-bold", sizes[size].value, glowTextColors[glowColor])}>
+            {formatValue(value)}
+          </div>
+          {trend !== undefined && (
+            <div className={cn(
+              "flex items-center gap-1 mt-1 text-xs font-medium",
+              trend >= 0 ? "text-[#C8A661]" : "text-red-400"
+            )}>
+              <TrendingUp className={cn("w-3 h-3", trend < 0 && "rotate-180")} />
+              {trend >= 0 ? "+" : ""}{trend}%
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Enterprise Dashboard Header with live status
+interface EnterpriseDashboardHeaderProps {
+  title: string;
+  subtitle?: string;
+  logo?: React.ReactNode;
+  isLive?: boolean;
+  lastUpdate?: Date;
+  badges?: Array<{ label: string; variant?: "gold" | "cyan" | "security" }>;
+  actions?: React.ReactNode;
+}
+
+export function EnterpriseDashboardHeader({
+  title,
+  subtitle,
+  logo,
+  isLive = false,
+  lastUpdate,
+  badges = [],
+  actions
+}: EnterpriseDashboardHeaderProps) {
+  return (
+    <div className="border-b border-white/10 bg-gradient-to-r from-[#0a0f1a] via-[#0f172a] to-[#0a0f1a]" data-testid="enterprise-header">
+      <div className="max-w-[1800px] mx-auto px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {logo && (
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#8B7355] flex items-center justify-center shadow-lg shadow-[#C8A661]/20">
+                {logo}
+              </div>
+            )}
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-white">{title}</h1>
+                {badges.map((badge, i) => (
+                  <Badge 
+                    key={i}
+                    className={cn(
+                      badge.variant === "gold" && "bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30",
+                      badge.variant === "cyan" && "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+                      badge.variant === "security" && "bg-green-500/10 text-green-400 border-green-500/20"
+                    )}
+                  >
+                    {badge.label}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex items-center gap-3 text-sm mt-1">
+                {subtitle && <span className="text-gray-400">{subtitle}</span>}
+                {isLive && (
+                  <>
+                    <span className="text-gray-700">|</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                      <span className="text-green-400 text-xs font-medium">LIVE</span>
+                    </div>
+                  </>
+                )}
+                {lastUpdate && (
+                  <span className="text-gray-500 text-xs">
+                    Updated: {lastUpdate.toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          {actions && <div className="flex items-center gap-3">{actions}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Futuristic KPI Grid with glow effects
+interface FuturisticKPIGridProps {
+  kpis: Array<{
+    label: string;
+    value: string | number;
+    icon: React.ReactNode;
+    trend?: number;
+    live?: boolean;
+    format?: "currency" | "number" | "percent";
+  }>;
+  columns?: 2 | 3 | 4 | 6 | 8;
+}
+
+export function FuturisticKPIGrid({ kpis, columns = 4 }: FuturisticKPIGridProps) {
+  const gridCols = {
+    2: "grid-cols-2",
+    3: "grid-cols-2 md:grid-cols-3",
+    4: "grid-cols-2 md:grid-cols-4",
+    6: "grid-cols-2 md:grid-cols-3 lg:grid-cols-6",
+    8: "grid-cols-2 md:grid-cols-4 lg:grid-cols-8"
+  };
+
+  return (
+    <div className={cn("grid gap-4", gridCols[columns])} data-testid="kpi-grid">
+      {kpis.map((kpi, i) => (
+        <FuturisticCard key={i} glowColor="gold">
+          <HUDStat {...kpi} size="sm" />
+        </FuturisticCard>
+      ))}
+    </div>
+  );
+}
+
+// Enterprise Section with title bar
+interface EnterpriseSectionProps {
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  badge?: string;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function EnterpriseSection({
+  title,
+  subtitle,
+  icon,
+  badge,
+  actions,
+  children,
+  className
+}: EnterpriseSectionProps) {
+  return (
+    <div className={cn("rounded-xl bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border border-white/5 overflow-hidden", className)} data-testid="enterprise-section">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-[#0f1420]/50">
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="w-8 h-8 rounded-lg bg-[#0A1628] flex items-center justify-center border border-white/10">
+              {icon}
+            </div>
+          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-white">{title}</h3>
+              {badge && (
+                <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 text-[10px]">
+                  {badge}
+                </Badge>
+              )}
+            </div>
+            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          </div>
+        </div>
+        {actions}
+      </div>
+      <div className="p-5">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Animated Progress Ring (circular gauge)
+interface ProgressRingProps {
+  value: number;
+  max?: number;
+  size?: "sm" | "md" | "lg";
+  color?: "gold" | "cyan" | "orange";
+  label?: string;
+  showValue?: boolean;
+}
+
+export function ProgressRing({
+  value,
+  max = 100,
+  size = "md",
+  color = "gold",
+  label,
+  showValue = true
+}: ProgressRingProps) {
+  const percentage = Math.min((value / max) * 100, 100);
+  const sizes = {
+    sm: { ring: 60, stroke: 6 },
+    md: { ring: 80, stroke: 8 },
+    lg: { ring: 120, stroke: 10 }
+  };
+  
+  const colors = {
+    gold: "#C8A661",
+    cyan: "#22D3EE",
+    orange: "#F97316"
+  };
+
+  const { ring, stroke } = sizes[size];
+  const radius = (ring - stroke) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative flex flex-col items-center" data-testid="progress-ring">
+      <svg width={ring} height={ring} className="transform -rotate-90">
+        <circle
+          cx={ring / 2}
+          cy={ring / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth={stroke}
+        />
+        <circle
+          cx={ring / 2}
+          cy={ring / 2}
+          r={radius}
+          fill="none"
+          stroke={colors[color]}
+          strokeWidth={stroke}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-500"
+          style={{ filter: `drop-shadow(0 0 6px ${colors[color]})` }}
+        />
+      </svg>
+      {showValue && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-lg font-bold text-white">{Math.round(percentage)}%</span>
+        </div>
+      )}
+      {label && <span className="text-xs text-gray-400 mt-2">{label}</span>}
+    </div>
+  );
+}
+
+// Live Activity Indicator
+interface LiveIndicatorProps {
+  status: "online" | "offline" | "warning" | "processing";
+  label?: string;
+  pulseIntensity?: "subtle" | "normal" | "strong";
+}
+
+export function LiveIndicator({ status, label, pulseIntensity = "normal" }: LiveIndicatorProps) {
+  const statusStyles = {
+    online: { color: "bg-green-500", glow: "shadow-green-500/50", text: "text-green-400" },
+    offline: { color: "bg-red-500", glow: "shadow-red-500/50", text: "text-red-400" },
+    warning: { color: "bg-[#C8A661]", glow: "shadow-[#C8A661]/50", text: "text-[#C8A661]" },
+    processing: { color: "bg-cyan-500", glow: "shadow-cyan-500/50", text: "text-cyan-400" }
+  };
+
+  const pulseStyles = {
+    subtle: "animate-pulse",
+    normal: "animate-ping",
+    strong: "animate-ping scale-150"
+  };
+
+  return (
+    <div className="flex items-center gap-2" data-testid={`live-indicator-${status}`}>
+      <span className="relative flex h-2.5 w-2.5">
+        {status !== "offline" && (
+          <span className={cn(
+            "absolute inline-flex h-full w-full rounded-full opacity-75",
+            statusStyles[status].color,
+            pulseStyles[pulseIntensity]
+          )}></span>
+        )}
+        <span className={cn(
+          "relative inline-flex rounded-full h-2.5 w-2.5 shadow-lg",
+          statusStyles[status].color,
+          statusStyles[status].glow
+        )}></span>
+      </span>
+      {label && (
+        <span className={cn("text-xs font-medium", statusStyles[status].text)}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Futuristic Scan Line Effect
+export function ScanLine({ color = "cyan" }: { color?: "cyan" | "gold" | "orange" }) {
+  const colors = {
+    cyan: "from-transparent via-cyan-400/30 to-transparent",
+    gold: "from-transparent via-[#C8A661]/30 to-transparent",
+    orange: "from-transparent via-orange-500/30 to-transparent"
+  };
+  
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div 
+        className={cn(
+          "absolute inset-x-0 h-[2px] bg-gradient-to-r animate-scan",
+          colors[color]
+        )}
+        style={{
+          animation: "scan 3s linear infinite"
+        }}
+      />
+      <style>{`
+        @keyframes scan {
+          0% { top: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Hexagon Grid Background
+export function HexGrid({ opacity = 0.05 }: { opacity?: number }) {
+  return (
+    <div 
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        opacity,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23C8A661' fill-opacity='0.4'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      }}
+    />
+  );
+}
+
+// Animated Glow Orb
+export function GlowOrb({ 
+  size = "md", 
+  color = "gold",
+  className 
+}: { 
+  size?: "sm" | "md" | "lg"; 
+  color?: "gold" | "cyan" | "orange";
+  className?: string;
+}) {
+  const sizes = { sm: "w-16 h-16", md: "w-24 h-24", lg: "w-32 h-32" };
+  const colors = {
+    gold: "from-[#C8A661]/40 via-[#C8A661]/20 to-transparent shadow-[#C8A661]/30",
+    cyan: "from-cyan-400/40 via-cyan-400/20 to-transparent shadow-cyan-400/30",
+    orange: "from-orange-500/40 via-orange-500/20 to-transparent shadow-orange-500/30"
+  };
+
+  return (
+    <div 
+      className={cn(
+        "rounded-full bg-gradient-radial animate-pulse shadow-2xl",
+        sizes[size],
+        colors[color],
+        className
+      )} 
+    />
+  );
+}
+
+// Futuristic Page Wrapper with ambient effects
+interface FuturisticPageWrapperProps {
+  children: React.ReactNode;
+  showHexGrid?: boolean;
+  showScanLine?: boolean;
+  showGlowOrbs?: boolean;
+  className?: string;
+}
+
+export function FuturisticPageWrapper({
+  children,
+  showHexGrid = true,
+  showScanLine = false,
+  showGlowOrbs = true,
+  className
+}: FuturisticPageWrapperProps) {
+  return (
+    <div className={cn("relative min-h-screen bg-gradient-to-br from-[#050a14] via-[#0a1020] to-[#0f172a]", className)}>
+      {showHexGrid && <HexGrid opacity={0.03} />}
+      {showScanLine && <ScanLine color="gold" />}
+      {showGlowOrbs && (
+        <>
+          <div className="fixed top-20 right-10 opacity-30 pointer-events-none">
+            <GlowOrb size="lg" color="gold" />
+          </div>
+          <div className="fixed bottom-40 left-10 opacity-20 pointer-events-none">
+            <GlowOrb size="md" color="cyan" />
+          </div>
+        </>
+      )}
+      <div className="relative z-10">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Futuristic Data Panel with animated border
+interface DataPanelProps {
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  glowColor?: "gold" | "cyan" | "orange";
+  live?: boolean;
+  className?: string;
+}
+
+export function DataPanel({
+  title,
+  subtitle,
+  icon,
+  children,
+  glowColor = "gold",
+  live = false,
+  className
+}: DataPanelProps) {
+  const borderColors = {
+    gold: "border-[#C8A661]/30",
+    cyan: "border-cyan-500/30",
+    orange: "border-orange-500/30"
+  };
+
+  const glowStyles = {
+    gold: "shadow-[inset_0_1px_0_0_rgba(200,166,97,0.2)]",
+    cyan: "shadow-[inset_0_1px_0_0_rgba(34,211,238,0.2)]",
+    orange: "shadow-[inset_0_1px_0_0_rgba(249,115,22,0.2)]"
+  };
+
+  return (
+    <div className={cn(
+      "rounded-xl border bg-gradient-to-br from-[#1a1f2e]/90 to-[#0f1420]/90 backdrop-blur-sm overflow-hidden",
+      borderColors[glowColor],
+      glowStyles[glowColor],
+      className
+    )} data-testid="data-panel">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0A1628] to-[#1a2a4a] flex items-center justify-center border border-white/10">
+              {icon}
+            </div>
+          )}
+          <div>
+            <h3 className="font-semibold text-white flex items-center gap-2">
+              {title}
+              {live && <LiveIndicator status="online" />}
+            </h3>
+            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          </div>
+        </div>
+      </div>
+      <div className="p-5">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Animated Stat Counter
+interface AnimatedCounterProps {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+  className?: string;
+}
+
+export function AnimatedCounter({
+  value,
+  prefix = "",
+  suffix = "",
+  duration = 2000,
+  className
+}: AnimatedCounterProps) {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      setDisplayValue(Math.floor(progress * value));
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value, duration]);
+
+  return (
+    <span className={className}>
+      {prefix}{displayValue.toLocaleString()}{suffix}
+    </span>
+  );
+}
+
+// Tech Label Badge
+interface TechLabelProps {
+  children: React.ReactNode;
+  variant?: "default" | "success" | "warning" | "critical" | "info";
+  animated?: boolean;
+}
+
+export function TechLabel({ children, variant = "default", animated = false }: TechLabelProps) {
+  const variants = {
+    default: "bg-[#0A1628] text-gray-300 border-white/10",
+    success: "bg-green-500/10 text-green-400 border-green-500/30",
+    warning: "bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/30",
+    critical: "bg-red-500/10 text-red-400 border-red-500/30",
+    info: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
+  };
+
+  return (
+    <span className={cn(
+      "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider border",
+      variants[variant],
+      animated && "animate-pulse"
+    )}>
+      {children}
+    </span>
+  );
+}
+
+// Circular Gauge (smaller version)
+interface MiniGaugeProps {
+  value: number;
+  max?: number;
+  color?: "gold" | "cyan" | "orange" | "green";
+  size?: number;
+}
+
+export function MiniGauge({ value, max = 100, color = "gold", size = 32 }: MiniGaugeProps) {
+  const percentage = Math.min((value / max) * 100, 100);
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  const colors = {
+    gold: "#C8A661",
+    cyan: "#22D3EE",
+    orange: "#F97316",
+    green: "#22C55E"
+  };
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="rgba(255,255,255,0.1)"
+        strokeWidth={strokeWidth}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke={colors[color]}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        className="transition-all duration-500"
+      />
+    </svg>
+  );
+}
 
 interface PremiumCardProps {
   children: React.ReactNode;
