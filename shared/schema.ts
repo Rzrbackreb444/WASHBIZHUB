@@ -17578,6 +17578,651 @@ export type InsertBacklinkOutreach = z.infer<typeof insertBacklinkOutreachSchema
 export type BacklinkOutreach = typeof backlinkOutreach.$inferSelect;
 
 // ============================================================================
+// ENTERPRISE DISTRIBUTOR TENANT SYSTEM - White-Label SaaS Platform
+// ============================================================================
+
+// Enterprise Distributors (Multi-tenant accounts)
+export const enterpriseDistributors = pgTable("enterprise_distributors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Company Info
+  companyName: text("company_name").notNull(),
+  slug: varchar("slug").unique().notNull(), // URL-friendly: "aadvantage-dallas"
+  website: text("website"),
+  
+  // Contact
+  primaryContactName: text("primary_contact_name").notNull(),
+  primaryContactEmail: text("primary_contact_email").notNull(),
+  primaryContactPhone: text("primary_contact_phone"),
+  
+  // Address
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  country: text("country").default("US"),
+  
+  // Service Coverage
+  serviceRegions: text("service_regions").array(), // ["DFW", "Houston", "Austin"]
+  serviceStates: text("service_states").array(), // ["TX", "OK", "AR"]
+  
+  // Equipment Brands Supported
+  supportedBrands: text("supported_brands").array(), // ["Dexter", "Speed Queen", "Continental"]
+  primaryBrand: text("primary_brand"), // Main brand they distribute
+  
+  // Subscription & Pricing
+  pricingTier: text("pricing_tier").default("enterprise"), // "starter", "professional", "enterprise"
+  monthlyFee: decimal("monthly_fee", { precision: 10, scale: 2 }),
+  perMachineFee: decimal("per_machine_fee", { precision: 6, scale: 2 }),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  subscriptionStatus: text("subscription_status").default("active"), // "active", "past_due", "cancelled", "trialing"
+  trialEndsAt: timestamp("trial_ends_at"),
+  
+  // Feature Flags (JSONB for flexibility)
+  featureFlags: jsonb("feature_flags").$type<{
+    fleetMonitoring: boolean;
+    partsOrdering: boolean;
+    aiDiagnostics: boolean;
+    dispatchSystem: boolean;
+    aiReceptionist: boolean;
+    customReports: boolean;
+    apiAccess: boolean;
+    whiteLabel: boolean;
+  }>().default({
+    fleetMonitoring: true,
+    partsOrdering: true,
+    aiDiagnostics: true,
+    dispatchSystem: true,
+    aiReceptionist: false,
+    customReports: false,
+    apiAccess: false,
+    whiteLabel: false,
+  }),
+  
+  // API Access
+  apiKey: varchar("api_key").unique(),
+  apiSecret: varchar("api_secret"),
+  webhookUrl: text("webhook_url"),
+  
+  // Status
+  status: text("status").default("active"), // "active", "suspended", "pending"
+  onboardedAt: timestamp("onboarded_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  slugIdx: uniqueIndex("enterprise_distributors_slug_idx").on(table.slug),
+  statusIdx: index("enterprise_distributors_status_idx").on(table.status),
+}));
+
+export const insertEnterpriseDistributorSchema = createInsertSchema(enterpriseDistributors).omit({
+  id: true,
+  apiKey: true,
+  apiSecret: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterpriseDistributor = z.infer<typeof insertEnterpriseDistributorSchema>;
+export type EnterpriseDistributor = typeof enterpriseDistributors.$inferSelect;
+
+// White-Label Branding Configuration
+export const distributorBranding = pgTable("distributor_branding", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // Logo & Visual Identity
+  logoUrl: text("logo_url"),
+  logoLightUrl: text("logo_light_url"), // For dark backgrounds
+  faviconUrl: text("favicon_url"),
+  
+  // Colors (hex values)
+  primaryColor: varchar("primary_color", { length: 7 }).default("#C8A661"),
+  secondaryColor: varchar("secondary_color", { length: 7 }).default("#0A1628"),
+  accentColor: varchar("accent_color", { length: 7 }).default("#F59E0B"),
+  backgroundColor: varchar("background_color", { length: 7 }).default("#0A0F1A"),
+  textColor: varchar("text_color", { length: 7 }).default("#FFFFFF"),
+  
+  // Typography
+  headingFont: text("heading_font").default("Inter"),
+  bodyFont: text("body_font").default("Inter"),
+  
+  // Custom Domain
+  customDomain: text("custom_domain"), // fleet.aadvantage.com
+  domainVerified: boolean("domain_verified").default(false),
+  sslCertificateId: text("ssl_certificate_id"),
+  
+  // Email Branding
+  emailFromName: text("email_from_name"),
+  emailFromAddress: text("email_from_address"),
+  emailFooterHtml: text("email_footer_html"),
+  
+  // Custom Content
+  loginPageTitle: text("login_page_title"),
+  loginPageSubtitle: text("login_page_subtitle"),
+  dashboardWelcomeMessage: text("dashboard_welcome_message"),
+  supportEmail: text("support_email"),
+  supportPhone: text("support_phone"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: uniqueIndex("distributor_branding_distributor_idx").on(table.distributorId),
+}));
+
+export const insertDistributorBrandingSchema = createInsertSchema(distributorBranding).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDistributorBranding = z.infer<typeof insertDistributorBrandingSchema>;
+export type DistributorBranding = typeof distributorBranding.$inferSelect;
+
+// Distributor Settings (SLA, Notifications, Rules)
+export const distributorSettings = pgTable("distributor_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // SLA Settings
+  targetResponseTimeHours: decimal("target_response_time_hours", { precision: 4, scale: 2 }).default("4"),
+  targetResolutionTimeHours: decimal("target_resolution_time_hours", { precision: 4, scale: 2 }).default("24"),
+  criticalAlertEscalationMinutes: integer("critical_alert_escalation_minutes").default(30),
+  
+  // Notification Settings
+  alertEmailRecipients: text("alert_email_recipients").array(),
+  alertSmsRecipients: text("alert_sms_recipients").array(),
+  dailyReportEnabled: boolean("daily_report_enabled").default(true),
+  weeklyReportEnabled: boolean("weekly_report_enabled").default(true),
+  
+  // Dispatch Rules
+  autoDispatchEnabled: boolean("auto_dispatch_enabled").default(false),
+  dispatchPriorityRules: jsonb("dispatch_priority_rules"),
+  technicianCapacityPerDay: integer("technician_capacity_per_day").default(6),
+  
+  // Parts Ordering
+  autoReorderEnabled: boolean("auto_reorder_enabled").default(false),
+  lowStockThreshold: integer("low_stock_threshold").default(5),
+  preferredSupplierId: varchar("preferred_supplier_id"),
+  
+  // Pricing Rules
+  laborRatePerHour: decimal("labor_rate_per_hour", { precision: 8, scale: 2 }).default("150"),
+  partsMarkupPercent: decimal("parts_markup_percent", { precision: 5, scale: 2 }).default("35"),
+  emergencyCallFee: decimal("emergency_call_fee", { precision: 8, scale: 2 }).default("75"),
+  
+  // Business Hours
+  businessHours: jsonb("business_hours").$type<{
+    monday: { open: string; close: string } | null;
+    tuesday: { open: string; close: string } | null;
+    wednesday: { open: string; close: string } | null;
+    thursday: { open: string; close: string } | null;
+    friday: { open: string; close: string } | null;
+    saturday: { open: string; close: string } | null;
+    sunday: { open: string; close: string } | null;
+  }>(),
+  timezone: text("timezone").default("America/Chicago"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: uniqueIndex("distributor_settings_distributor_idx").on(table.distributorId),
+}));
+
+export const insertDistributorSettingsSchema = createInsertSchema(distributorSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDistributorSettings = z.infer<typeof insertDistributorSettingsSchema>;
+export type DistributorSettings = typeof distributorSettings.$inferSelect;
+
+// Distributor Users (Multi-user per tenant)
+export const distributorUsers = pgTable("distributor_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // User Info (if not linked to main users table)
+  email: text("email").notNull(),
+  name: text("name").notNull(),
+  phone: text("phone"),
+  
+  // Role & Permissions
+  role: text("role").notNull().default("operator"), // "owner", "admin", "dispatcher", "technician", "operator", "viewer"
+  permissions: jsonb("permissions").$type<{
+    viewFleet: boolean;
+    manageFleet: boolean;
+    viewTickets: boolean;
+    createTickets: boolean;
+    manageTickets: boolean;
+    dispatch: boolean;
+    orderParts: boolean;
+    viewReports: boolean;
+    manageUsers: boolean;
+    manageSettings: boolean;
+    manageBranding: boolean;
+    viewFinancials: boolean;
+  }>(),
+  
+  // Technician-specific
+  technicianSkills: text("technician_skills").array(), // ["Dexter", "Speed Queen", "electrical"]
+  technicianCertifications: text("technician_certifications").array(),
+  serviceRadius: integer("service_radius"), // miles
+  
+  // Status
+  status: text("status").default("active"), // "active", "inactive", "invited"
+  invitedAt: timestamp("invited_at"),
+  lastLoginAt: timestamp("last_login_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("distributor_users_distributor_idx").on(table.distributorId),
+  emailIdx: index("distributor_users_email_idx").on(table.email),
+  roleIdx: index("distributor_users_role_idx").on(table.role),
+}));
+
+export const insertDistributorUserSchema = createInsertSchema(distributorUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDistributorUser = z.infer<typeof insertDistributorUserSchema>;
+export type DistributorUser = typeof distributorUsers.$inferSelect;
+
+// Customer Locations (laundromats served by distributor)
+export const distributorCustomers = pgTable("distributor_customers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // Customer Info
+  businessName: text("business_name").notNull(),
+  contactName: text("contact_name"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  
+  // Location
+  address: text("address").notNull(),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
+  
+  // Contract
+  contractStartDate: timestamp("contract_start_date"),
+  contractEndDate: timestamp("contract_end_date"),
+  serviceLevel: text("service_level").default("standard"), // "basic", "standard", "premium", "enterprise"
+  monthlyServiceFee: decimal("monthly_service_fee", { precision: 10, scale: 2 }),
+  
+  // Stats
+  totalMachines: integer("total_machines").default(0),
+  totalServiceCalls: integer("total_service_calls").default(0),
+  avgResponseTime: decimal("avg_response_time", { precision: 6, scale: 2 }),
+  
+  status: text("status").default("active"), // "active", "inactive", "pending"
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("distributor_customers_distributor_idx").on(table.distributorId),
+  statusIdx: index("distributor_customers_status_idx").on(table.status),
+}));
+
+export const insertDistributorCustomerSchema = createInsertSchema(distributorCustomers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDistributorCustomer = z.infer<typeof insertDistributorCustomerSchema>;
+export type DistributorCustomer = typeof distributorCustomers.$inferSelect;
+
+// Enterprise Fleet Assets (equipment tracked per distributor customer)
+export const enterpriseFleetAssets = pgTable("enterprise_fleet_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id").references(() => distributorCustomers.id),
+  
+  // Machine Identification
+  machineId: varchar("machine_id").notNull(), // Customer-facing ID: "W-001"
+  serialNumber: varchar("serial_number"),
+  brand: text("brand").notNull(), // "Dexter", "Speed Queen", etc.
+  model: text("model").notNull(),
+  machineType: text("machine_type").notNull(), // "washer", "dryer", "folder", "ironer"
+  
+  // Installation Info
+  installDate: timestamp("install_date"),
+  warrantyExpiration: timestamp("warranty_expiration"),
+  location: text("location"), // "Front row", "Back corner", etc.
+  
+  // Telemetry
+  telemetryEnabled: boolean("telemetry_enabled").default(false),
+  telemetryEndpoint: text("telemetry_endpoint"),
+  lastTelemetryAt: timestamp("last_telemetry_at"),
+  
+  // Health & Status
+  status: text("status").default("online"), // "online", "offline", "warning", "error", "maintenance"
+  healthScore: integer("health_score").default(100), // 0-100
+  currentTemp: decimal("current_temp", { precision: 5, scale: 1 }),
+  totalCycles: integer("total_cycles").default(0),
+  cyclesSinceService: integer("cycles_since_service").default(0),
+  
+  // Maintenance
+  lastServiceDate: timestamp("last_service_date"),
+  nextServiceDue: timestamp("next_service_due"),
+  maintenanceNotes: text("maintenance_notes"),
+  
+  // Revenue (if tracked)
+  revenueToday: decimal("revenue_today", { precision: 10, scale: 2 }),
+  revenueMtd: decimal("revenue_mtd", { precision: 10, scale: 2 }),
+  revenueYtd: decimal("revenue_ytd", { precision: 10, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("ent_fleet_assets_distributor_idx").on(table.distributorId),
+  customerIdx: index("ent_fleet_assets_customer_idx").on(table.customerId),
+  serialIdx: index("ent_fleet_assets_serial_idx").on(table.serialNumber),
+  statusIdx: index("ent_fleet_assets_status_idx").on(table.status),
+  brandIdx: index("ent_fleet_assets_brand_idx").on(table.brand),
+}));
+
+export const insertEnterpriseFleetAssetSchema = createInsertSchema(enterpriseFleetAssets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterpriseFleetAsset = z.infer<typeof insertEnterpriseFleetAssetSchema>;
+export type EnterpriseFleetAsset = typeof enterpriseFleetAssets.$inferSelect;
+
+// Enterprise Service Tickets
+export const enterpriseServiceTickets = pgTable("enterprise_service_tickets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id").references(() => distributorCustomers.id),
+  fleetAssetId: varchar("fleet_asset_id").references(() => enterpriseFleetAssets.id),
+  
+  // Ticket Info
+  ticketNumber: varchar("ticket_number").notNull(), // "TKT-2024-001247"
+  priority: text("priority").default("medium"), // "critical", "high", "medium", "low"
+  status: text("status").default("open"), // "open", "assigned", "in_progress", "on_hold", "resolved", "closed"
+  
+  // Issue Details
+  issueType: text("issue_type"), // "breakdown", "maintenance", "installation", "inspection"
+  diagnosticCodeId: varchar("diagnostic_code_id"),
+  errorCode: text("error_code"),
+  issueDescription: text("issue_description").notNull(),
+  symptomsTags: text("symptoms_tags").array(),
+  
+  // Source
+  source: text("source").default("manual"), // "manual", "ai_receptionist", "telemetry", "customer_portal"
+  callerName: text("caller_name"),
+  callerPhone: text("caller_phone"),
+  
+  // Assignment
+  assignedTechId: varchar("assigned_tech_id").references(() => distributorUsers.id),
+  scheduledDate: timestamp("scheduled_date"),
+  scheduledTimeSlot: text("scheduled_time_slot"), // "morning", "afternoon", "specific:10:00"
+  
+  // Resolution
+  rootCause: text("root_cause"),
+  resolution: text("resolution"),
+  partsUsed: jsonb("parts_used").$type<Array<{partId: string; partNumber: string; quantity: number; cost: number}>>(),
+  
+  // Time Tracking
+  reportedAt: timestamp("reported_at").defaultNow(),
+  respondedAt: timestamp("responded_at"),
+  arrivedAt: timestamp("arrived_at"),
+  completedAt: timestamp("completed_at"),
+  closedAt: timestamp("closed_at"),
+  
+  // Financials
+  laborHours: decimal("labor_hours", { precision: 6, scale: 2 }),
+  laborCost: decimal("labor_cost", { precision: 10, scale: 2 }),
+  partsCost: decimal("parts_cost", { precision: 10, scale: 2 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  invoiced: boolean("invoiced").default(false),
+  invoiceId: varchar("invoice_id"),
+  
+  // Feedback
+  customerRating: integer("customer_rating"), // 1-5
+  customerFeedback: text("customer_feedback"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("ent_service_tickets_distributor_idx").on(table.distributorId),
+  ticketNumberIdx: uniqueIndex("ent_service_tickets_number_idx").on(table.ticketNumber),
+  statusIdx: index("ent_service_tickets_status_idx").on(table.status),
+  priorityIdx: index("ent_service_tickets_priority_idx").on(table.priority),
+  techIdx: index("ent_service_tickets_tech_idx").on(table.assignedTechId),
+}));
+
+export const insertEnterpriseServiceTicketSchema = createInsertSchema(enterpriseServiceTickets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterpriseServiceTicket = z.infer<typeof insertEnterpriseServiceTicketSchema>;
+export type EnterpriseServiceTicket = typeof enterpriseServiceTickets.$inferSelect;
+
+// Parts Catalog (per distributor pricing)
+export const distributorParts = pgTable("distributor_parts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // Part Info
+  partNumber: varchar("part_number").notNull(),
+  oem: text("oem"), // Original Equipment Manufacturer
+  name: text("name").notNull(),
+  description: text("description"),
+  brand: text("brand"), // Which equipment brand this fits
+  compatibleModels: text("compatible_models").array(),
+  category: text("category"), // "belts", "valves", "pumps", "electronics", "seals"
+  
+  // Pricing
+  costPrice: decimal("cost_price", { precision: 10, scale: 2 }),
+  listPrice: decimal("list_price", { precision: 10, scale: 2 }),
+  customerPrice: decimal("customer_price", { precision: 10, scale: 2 }),
+  
+  // Inventory
+  inStock: integer("in_stock").default(0),
+  reorderPoint: integer("reorder_point").default(5),
+  reorderQuantity: integer("reorder_quantity").default(10),
+  warehouseLocation: text("warehouse_location"),
+  
+  // Supplier
+  supplierId: varchar("supplier_id"),
+  supplierPartNumber: varchar("supplier_part_number"),
+  leadTimeDays: integer("lead_time_days").default(3),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("distributor_parts_distributor_idx").on(table.distributorId),
+  partNumberIdx: index("distributor_parts_number_idx").on(table.partNumber),
+  brandIdx: index("distributor_parts_brand_idx").on(table.brand),
+  categoryIdx: index("distributor_parts_category_idx").on(table.category),
+}));
+
+export const insertDistributorPartSchema = createInsertSchema(distributorParts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertDistributorPart = z.infer<typeof insertDistributorPartSchema>;
+export type DistributorPart = typeof distributorParts.$inferSelect;
+
+// Parts Orders
+export const partsOrders = pgTable("parts_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  ticketId: varchar("ticket_id").references(() => enterpriseServiceTickets.id),
+  
+  // Order Info
+  orderNumber: varchar("order_number").notNull(),
+  status: text("status").default("pending"), // "pending", "processing", "shipped", "delivered", "cancelled"
+  
+  // Items
+  items: jsonb("items").$type<Array<{
+    partId: string;
+    partNumber: string;
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>>(),
+  
+  // Totals
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }),
+  shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
+  
+  // Shipping
+  shippingAddress: text("shipping_address"),
+  trackingNumber: varchar("tracking_number"),
+  carrier: text("carrier"),
+  estimatedDelivery: timestamp("estimated_delivery"),
+  deliveredAt: timestamp("delivered_at"),
+  
+  // Payment
+  paymentMethod: text("payment_method"),
+  paymentStatus: text("payment_status").default("pending"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id"),
+  
+  orderedBy: varchar("ordered_by").references(() => distributorUsers.id),
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("parts_orders_distributor_idx").on(table.distributorId),
+  orderNumberIdx: uniqueIndex("parts_orders_number_idx").on(table.orderNumber),
+  statusIdx: index("parts_orders_status_idx").on(table.status),
+}));
+
+export const insertPartsOrderSchema = createInsertSchema(partsOrders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPartsOrder = z.infer<typeof insertPartsOrderSchema>;
+export type PartsOrder = typeof partsOrders.$inferSelect;
+
+// Enterprise Service Manuals Library (distributor-specific)
+export const enterpriseServiceManuals = pgTable("enterprise_service_manuals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").references(() => enterpriseDistributors.id), // null = global
+  
+  // Manual Info
+  title: text("title").notNull(),
+  brand: text("brand").notNull(),
+  model: text("model"),
+  modelSeries: text("model_series"),
+  machineType: text("machine_type"),
+  manualType: text("manual_type").default("service"), // "service", "parts", "installation", "user"
+  version: text("version"),
+  
+  // File
+  fileUrl: text("file_url").notNull(),
+  fileSize: integer("file_size"), // bytes
+  pageCount: integer("page_count"),
+  
+  // Metadata
+  language: text("language").default("en"),
+  publishedDate: timestamp("published_date"),
+  tags: text("tags").array(),
+  
+  // Access
+  isPublic: boolean("is_public").default(false),
+  downloadCount: integer("download_count").default(0),
+  lastAccessedAt: timestamp("last_accessed_at"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  brandIdx: index("ent_service_manuals_brand_idx").on(table.brand),
+  modelIdx: index("ent_service_manuals_model_idx").on(table.model),
+  typeIdx: index("ent_service_manuals_type_idx").on(table.manualType),
+}));
+
+export const insertEnterpriseServiceManualSchema = createInsertSchema(enterpriseServiceManuals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterpriseServiceManual = z.infer<typeof insertEnterpriseServiceManualSchema>;
+export type EnterpriseServiceManual = typeof enterpriseServiceManuals.$inferSelect;
+
+// Pricing Plans (SaaS tiers)
+export const enterprisePricingPlans = pgTable("enterprise_pricing_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  name: text("name").notNull(), // "Starter", "Professional", "Enterprise"
+  slug: varchar("slug").unique().notNull(),
+  description: text("description"),
+  
+  // Pricing
+  monthlyPriceCents: integer("monthly_price_cents").notNull(),
+  annualPriceCents: integer("annual_price_cents"), // Annual discount
+  perMachinePriceCents: integer("per_machine_price_cents").default(0),
+  setupFeeCents: integer("setup_fee_cents").default(0),
+  
+  // Stripe
+  stripeMonthlyPriceId: varchar("stripe_monthly_price_id"),
+  stripeAnnualPriceId: varchar("stripe_annual_price_id"),
+  
+  // Limits
+  maxMachines: integer("max_machines"),
+  maxUsers: integer("max_users"),
+  maxCustomers: integer("max_customers"),
+  
+  // Features
+  features: jsonb("features").$type<{
+    fleetMonitoring: boolean;
+    partsOrdering: boolean;
+    aiDiagnostics: boolean;
+    dispatchSystem: boolean;
+    aiReceptionist: boolean;
+    customReports: boolean;
+    apiAccess: boolean;
+    whiteLabel: boolean;
+    prioritySupport: boolean;
+    dedicatedSuccess: boolean;
+  }>(),
+  
+  // Display
+  isPopular: boolean("is_popular").default(false),
+  sortOrder: integer("sort_order").default(0),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertEnterprisePricingPlanSchema = createInsertSchema(enterprisePricingPlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterprisePricingPlan = z.infer<typeof insertEnterprisePricingPlanSchema>;
+export type EnterprisePricingPlan = typeof enterprisePricingPlans.$inferSelect;
+
+// ============================================================================
 // TEMPLATE VAULT - Premium Templates & Due Diligence Tools
 // ============================================================================
 
