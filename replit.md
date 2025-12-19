@@ -67,6 +67,7 @@ The frontend is built with Vite, TanStack Query, and PWA support. The backend us
 - **Revenue Funnel Tools:** "SBA Loan Readiness Checker" and an "AI Business Plan Generator."
 - **Calculator & Formula Ecosystem:** Over 80 unique formulas and algorithms for valuation, financial analysis, and operations.
 - **Service Guy AI:** A protected diagnostic field tool for laundromat equipment repair with tiered subscriptions, voice input, photo diagnosis via Gemini Vision AI, job tracking, parts ordering, and invoice/quote generation.
+- **Distributor Command Center:** Enterprise AI hub for equipment distributors featuring Fleet Health Dashboard (real-time multi-brand equipment monitoring), Parts Intelligence (predictive ordering and recommendations), AI Receptionist Console (24/7 call handling and scheduling), and Technician Dispatch (route optimization). Designed for enterprise deals with distributors like EVI Industries.
 - **Unified Operator Dashboard:** Command center for laundromat operations with KPI cards, revenue charts, machine status, quick actions, activity feed, and schedule.
 - **Machine Booking System:** Time-slot reservation system with customer booking flow, real-time availability, Stripe payment, and operator management.
 - **QR Code Generator:** Reusable component for loyalty cards, coupons, tracking URLs, and custom text with WashBizHub branding.
