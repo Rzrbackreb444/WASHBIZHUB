@@ -6,6 +6,14 @@ import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import { COMMON_FAQS } from "@/lib/seo-config";
 import { AuthGuard } from "@/components/AuthGuard";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumDashboardHeader,
+  CLEANBIGradeBadge,
+  PremiumWatermark,
+  SubscriptionGate,
+} from "@/components/premium-components";
 import { 
   Map, 
   Layers, 

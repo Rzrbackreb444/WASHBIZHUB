@@ -1,6 +1,12 @@
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumWatermark,
+  SubscriptionGate,
+} from "@/components/premium-components";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

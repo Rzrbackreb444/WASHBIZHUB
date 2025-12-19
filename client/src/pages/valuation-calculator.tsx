@@ -7,6 +7,13 @@ import { ValuationDisclaimer } from "@/components/LegalDisclaimer";
 import { FAQDisplay } from "@/components/FAQDisplay";
 import { DatasetSchema } from "@/components/AEOSchemas";
 import { getFAQs, getAuthor } from "@/lib/seo-content-registry";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumProgressBar,
+  PremiumWatermark,
+  SubscriptionGate,
+} from "@/components/premium-components";
 import type { PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
 
 const valuationFaqs = getFAQs("valuationCalculator");

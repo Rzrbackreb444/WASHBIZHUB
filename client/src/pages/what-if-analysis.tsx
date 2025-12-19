@@ -1,5 +1,12 @@
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumProgressBar,
+  PremiumWatermark,
+  SubscriptionGate,
+} from "@/components/premium-components";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

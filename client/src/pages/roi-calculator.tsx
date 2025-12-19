@@ -7,6 +7,13 @@ import { InvestmentDisclaimer } from "@/components/LegalDisclaimer";
 import { TrendingUp, HelpCircle, Lightbulb, Target, Shield, DollarSign, Clock, BarChart3 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PremiumCalculatorEngine, type PremiumCalculatorConfig } from "@/components/PremiumCalculatorEngine";
+import {
+  PremiumStatCard,
+  PremiumMetricCard,
+  PremiumProgressBar,
+  PremiumWatermark,
+  SubscriptionGate,
+} from "@/components/premium-components";
 
 const roiStructuredData = {
   "@context": "https://schema.org",
