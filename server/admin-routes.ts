@@ -10,20 +10,32 @@ import { eq, sql, desc, count, sum, gte, and } from "drizzle-orm";
 import multer from "multer";
 import { ObjectStorageService } from "./objectStorage";
 
+import * as bcrypt from "bcrypt";
+
 const router = Router();
 
-// Admin credentials - hardcoded for simplicity
-const ADMIN_CREDENTIALS = {
-  email: "nick@washbizhub.com",
-  password: "admin2025"
-};
+// Admin password hash from environment variable (secure storage)
+// Generate hash: node -e "require('bcrypt').hash('your-secure-password', 12).then(console.log)"
+function getAdminPasswordHash(): string | null {
+  return process.env.ADMIN_PASSWORD_HASH || null;
+}
+
+// Check if email is in admin allowlist from environment variable
+// Format: comma-separated emails in ADMIN_EMAILS env var
+function isAdminEmail(email: string): boolean {
+  const adminEmails = process.env.ADMIN_EMAILS || "nick@washbizhub.com";
+  return adminEmails.split(",").map(e => e.trim().toLowerCase()).includes(email.toLowerCase());
+}
 
 // Simple session storage (in production, use Redis)
-const adminSessions = new Map<string, { email: string; expiresAt: Date }>();
+const adminSessions = new Map<string, { email: string; expiresAt: Date; rememberMe: boolean }>();
 
-// Generate session token
+// Generate secure session token
 function generateToken(): string {
-  return `admin_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  const randomBytes = Array.from({ length: 32 }, () => 
+    Math.random().toString(36).substring(2)
+  ).join('').substring(0, 64);
+  return `admin_${Date.now()}_${randomBytes}`;
 }
 
 // Middleware to check admin auth
@@ -32,39 +44,69 @@ export function requireAdmin(req: Request, res: Response, next: Function) {
                 req.cookies?.adminToken;
   
   if (!token) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return res.status(401).json({ error: "Unauthorized - no token provided" });
   }
   
   const session = adminSessions.get(token);
   if (!session || session.expiresAt < new Date()) {
     adminSessions.delete(token);
-    return res.status(401).json({ error: "Session expired" });
+    return res.status(401).json({ error: "Session expired - please login again" });
+  }
+  
+  // Verify the session email is still an authorized admin
+  if (!isAdminEmail(session.email)) {
+    adminSessions.delete(token);
+    return res.status(403).json({ error: "Admin access revoked" });
   }
   
   next();
 }
 
-// Admin login
-router.post("/login", (req: Request, res: Response) => {
-  const { email, password } = req.body;
+// Admin login with secure password verification
+router.post("/login", async (req: Request, res: Response) => {
+  const { email, password, rememberMe } = req.body;
   
-  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-    const token = generateToken();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    
-    adminSessions.set(token, { email, expiresAt });
-    
-    res.cookie("adminToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000
-    });
-    
-    return res.json({ success: true, token });
+  // Verify email is in admin allowlist
+  if (!isAdminEmail(email)) {
+    console.log(`[Admin] Login attempt from non-admin email: ${email}`);
+    return res.status(401).json({ error: "Invalid credentials" });
   }
   
-  return res.status(401).json({ error: "Invalid credentials" });
+  // Get password hash from environment
+  const passwordHash = getAdminPasswordHash();
+  if (!passwordHash) {
+    console.error("[Admin] ADMIN_PASSWORD_HASH environment variable not set!");
+    return res.status(500).json({ error: "Admin authentication not configured" });
+  }
+  
+  // Verify password with bcrypt
+  try {
+    const isValid = await bcrypt.compare(password, passwordHash);
+    if (!isValid) {
+      console.log(`[Admin] Invalid password for: ${email}`);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("[Admin] Password verification error:", error);
+    return res.status(500).json({ error: "Authentication error" });
+  }
+  
+  // Create session
+  const token = generateToken();
+  const sessionDuration = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000; // 30 days or 24 hours
+  const expiresAt = new Date(Date.now() + sessionDuration);
+  
+  adminSessions.set(token, { email, expiresAt, rememberMe: !!rememberMe });
+  
+  res.cookie("adminToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: sessionDuration
+  });
+  
+  console.log(`[Admin] Successful login: ${email} (remember: ${!!rememberMe})`);
+  return res.json({ success: true, token, user: { email } });
 });
 
 // Admin logout
