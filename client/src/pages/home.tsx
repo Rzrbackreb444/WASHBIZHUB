@@ -33,6 +33,7 @@ import {
   FeaturedVendorBanner,
   FinancingSection,
   CalculatorHighlight,
+  PremiumAnalyticsDemo,
   AnalyzeLocationSection,
   EducationSection,
   ShopSection,
@@ -1001,6 +1002,9 @@ export default function Home() {
         
         {/* PARTNERSHIP SECTION - Funding & Equipment Partners */}
         <CombinedPartnershipSection />
+        
+        {/* PREMIUM ANALYTICS DEMO - Enterprise data visualization */}
+        <PremiumAnalyticsDemo />
         
         {/* CTA SECTION - Final conversion */}
         <CTASection />
