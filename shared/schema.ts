@@ -18346,5 +18346,217 @@ export type InsertTemplateLead = z.infer<typeof insertTemplateLeadSchema>;
 export type TemplateLead = typeof templateLeads.$inferSelect;
 
 // ============================================================================
+// SERVICE GUY AI - ENTERPRISE SECURITY & MESSAGING
+// ============================================================================
+
+// Enterprise API Keys - Scoped access with rate limiting
+export const enterpriseApiKeys = pgTable("enterprise_api_keys", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").notNull().references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // Key Info
+  name: text("name").notNull(), // "Production API", "Testing Key"
+  keyPrefix: varchar("key_prefix", { length: 8 }).notNull(), // "sgai_liv_" visible part
+  keyHash: text("key_hash").notNull(), // bcrypt hash of full key
+  lastFourChars: varchar("last_four", { length: 4 }), // For display: "...a1b2"
+  
+  // Scopes & Permissions
+  scopes: jsonb("scopes").$type<{
+    diagnostics: boolean;
+    jobs: boolean;
+    parts: boolean;
+    invoices: boolean;
+    fleet: boolean;
+    users: boolean;
+    reports: boolean;
+    webhooks: boolean;
+  }>().default({
+    diagnostics: true,
+    jobs: true,
+    parts: false,
+    invoices: false,
+    fleet: false,
+    users: false,
+    reports: false,
+    webhooks: false,
+  }),
+  
+  // Rate Limiting
+  rateLimit: integer("rate_limit").default(1000), // requests per hour
+  rateLimitWindow: integer("rate_limit_window").default(3600), // seconds
+  currentUsage: integer("current_usage").default(0),
+  usageResetAt: timestamp("usage_reset_at"),
+  
+  // Restrictions
+  allowedIps: text("allowed_ips").array(), // IP whitelist
+  allowedOrigins: text("allowed_origins").array(), // CORS origins
+  
+  // Status
+  status: text("status").default("active"), // "active", "revoked", "expired"
+  expiresAt: timestamp("expires_at"),
+  lastUsedAt: timestamp("last_used_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  createdBy: varchar("created_by").references(() => distributorUsers.id),
+  revokedAt: timestamp("revoked_at"),
+  revokedBy: varchar("revoked_by").references(() => distributorUsers.id),
+}, (table) => ({
+  distributorIdx: index("enterprise_api_keys_distributor_idx").on(table.distributorId),
+  statusIdx: index("enterprise_api_keys_status_idx").on(table.status),
+  prefixIdx: index("enterprise_api_keys_prefix_idx").on(table.keyPrefix),
+}));
+
+export const insertEnterpriseApiKeySchema = createInsertSchema(enterpriseApiKeys).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertEnterpriseApiKey = z.infer<typeof insertEnterpriseApiKeySchema>;
+export type EnterpriseApiKey = typeof enterpriseApiKeys.$inferSelect;
+
+// Enterprise Audit Logs - Complete security trail
+export const enterpriseAuditLogs = pgTable("enterprise_audit_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").references(() => enterpriseDistributors.id, { onDelete: "set null" }),
+  
+  // Actor
+  actorType: text("actor_type").notNull(), // "user", "api_key", "system", "admin"
+  actorId: varchar("actor_id"), // User ID or API Key ID
+  actorEmail: text("actor_email"),
+  actorIp: text("actor_ip"),
+  actorUserAgent: text("actor_user_agent"),
+  
+  // Action
+  action: text("action").notNull(), // "create", "read", "update", "delete", "login", "logout", "api_call"
+  resource: text("resource").notNull(), // "job", "invoice", "user", "settings", "api_key"
+  resourceId: varchar("resource_id"),
+  
+  // Details
+  description: text("description"),
+  previousValue: jsonb("previous_value"),
+  newValue: jsonb("new_value"),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  
+  // Result
+  success: boolean("success").default(true),
+  errorMessage: text("error_message"),
+  
+  // Timing
+  durationMs: integer("duration_ms"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  distributorIdx: index("enterprise_audit_logs_distributor_idx").on(table.distributorId),
+  actorIdx: index("enterprise_audit_logs_actor_idx").on(table.actorId),
+  actionIdx: index("enterprise_audit_logs_action_idx").on(table.action),
+  resourceIdx: index("enterprise_audit_logs_resource_idx").on(table.resource),
+  timestampIdx: index("enterprise_audit_logs_timestamp_idx").on(table.timestamp),
+}));
+
+export const insertEnterpriseAuditLogSchema = createInsertSchema(enterpriseAuditLogs).omit({
+  id: true,
+});
+
+export type InsertEnterpriseAuditLog = z.infer<typeof insertEnterpriseAuditLogSchema>;
+export type EnterpriseAuditLog = typeof enterpriseAuditLogs.$inferSelect;
+
+// Messaging Templates - White-label email/SMS
+export const enterpriseMessagingTemplates = pgTable("enterprise_messaging_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").references(() => enterpriseDistributors.id, { onDelete: "cascade" }),
+  
+  // Template Info
+  name: text("name").notNull(),
+  slug: varchar("slug").notNull(), // "job_created", "job_assigned", "invoice_sent"
+  channel: text("channel").notNull(), // "email", "sms", "both"
+  category: text("category").default("transactional"), // "transactional", "marketing", "notification"
+  
+  // Email Template
+  emailSubject: text("email_subject"),
+  emailHtml: text("email_html"),
+  emailText: text("email_text"),
+  
+  // SMS Template
+  smsBody: text("sms_body"),
+  
+  // Personalization Variables
+  availableVariables: jsonb("available_variables").$type<Array<{
+    key: string;
+    description: string;
+    example: string;
+  }>>(),
+  
+  // Sender Override (white-label)
+  fromName: text("from_name"), // Override distributor's default
+  fromEmail: text("from_email"),
+  replyTo: text("reply_to"),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  isDefault: boolean("is_default").default(false), // System default template
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("enterprise_msg_templates_distributor_idx").on(table.distributorId),
+  slugIdx: index("enterprise_msg_templates_slug_idx").on(table.slug),
+  channelIdx: index("enterprise_msg_templates_channel_idx").on(table.channel),
+}));
+
+export const insertEnterpriseMessagingTemplateSchema = createInsertSchema(enterpriseMessagingTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnterpriseMessagingTemplate = z.infer<typeof insertEnterpriseMessagingTemplateSchema>;
+export type EnterpriseMessagingTemplate = typeof enterpriseMessagingTemplates.$inferSelect;
+
+// Message Send Logs - Track all outbound communications
+export const enterpriseMessageLogs = pgTable("enterprise_message_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  distributorId: varchar("distributor_id").references(() => enterpriseDistributors.id, { onDelete: "set null" }),
+  templateId: varchar("template_id").references(() => enterpriseMessagingTemplates.id),
+  
+  // Message Details
+  channel: text("channel").notNull(), // "email", "sms"
+  recipient: text("recipient").notNull(), // email or phone
+  recipientName: text("recipient_name"),
+  
+  // Content (stored for audit)
+  subject: text("subject"),
+  body: text("body"),
+  
+  // Related Entity
+  relatedType: text("related_type"), // "job", "invoice", "customer"
+  relatedId: varchar("related_id"),
+  
+  // Delivery Status
+  status: text("status").default("pending"), // "pending", "sent", "delivered", "failed", "bounced"
+  externalId: text("external_id"), // Resend message ID or Twilio SID
+  errorMessage: text("error_message"),
+  
+  // Tracking
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  openedAt: timestamp("opened_at"),
+  clickedAt: timestamp("clicked_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  distributorIdx: index("enterprise_msg_logs_distributor_idx").on(table.distributorId),
+  recipientIdx: index("enterprise_msg_logs_recipient_idx").on(table.recipient),
+  statusIdx: index("enterprise_msg_logs_status_idx").on(table.status),
+  createdAtIdx: index("enterprise_msg_logs_created_idx").on(table.createdAt),
+}));
+
+export const insertEnterpriseMessageLogSchema = createInsertSchema(enterpriseMessageLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertEnterpriseMessageLog = z.infer<typeof insertEnterpriseMessageLogSchema>;
+export type EnterpriseMessageLog = typeof enterpriseMessageLogs.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

@@ -36,6 +36,7 @@ import aiToolsRoutes from "./routes/ai-tools";
 import savedAnalysesRoutes from "./routes/saved-analyses";
 import googleExportRoutes from "./routes/google-export";
 import templateVaultRoutes from "./template-vault-routes";
+import serviceGuyAdminRoutes from "./routes/service-guy-admin";
 import {
   runVisibilityCheck,
   getVisibilityHistory,
@@ -568,6 +569,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== TEMPLATE VAULT ====================
   app.use("/api/vault", templateVaultRoutes);
   console.log("✅ Template Vault routes registered");
+  
+  // ==================== SERVICE GUY AI ENTERPRISE ====================
+  app.use("/api/service-guy-admin", serviceGuyAdminRoutes);
+  console.log("✅ Service Guy AI Enterprise routes registered");
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
