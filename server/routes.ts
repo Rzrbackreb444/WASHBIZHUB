@@ -99,7 +99,7 @@ import {
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "./db";
-import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema, websiteAssets, savedSearches, repairTickets, insertRepairTicketSchema, maintenancePlans, insertMaintenancePlanSchema, machineAssets, insertMachineAssetSchema, laundromats, partsCatalog, inventoryItems, inventoryUsage, purchaseOrders, insertPartsCatalogSchema, insertInventoryItemSchema, insertInventoryUsageSchema, insertPurchaseOrderSchema } from "@shared/schema";
+import { listings, listingFinancials, diagnosticCodes, courses, lessons, users, emailSubscribers, promoCodes, cleanbiUsage, adminActivityLog, vendors, visibilityAddOns, visibilityOrders, visibilityJobs, blogPosts, serviceGuyUsage, diagnosticIssueReports, insertDiagnosticIssueReportSchema, fixOutcomeFeedback, insertFixOutcomeFeedbackSchema, conversations, conversationParticipants, directMessages, memberProfiles, userConnections, activityEvents, insertMemberProfileSchema, websiteAssets, savedSearches, repairTickets, insertRepairTicketSchema, maintenancePlans, insertMaintenancePlanSchema, machineAssets, insertMachineAssetSchema, laundromats, partsCatalog, inventoryItems, inventoryUsage, purchaseOrders, insertPartsCatalogSchema, insertInventoryItemSchema, insertInventoryUsageSchema, insertPurchaseOrderSchema, enterpriseDistributors, distributorBranding, distributorSettings, distributorUsers, distributorCustomers, enterpriseFleetAssets, enterpriseServiceTickets, distributorParts, partsOrders, enterpriseServiceManuals, enterprisePricingPlans } from "@shared/schema";
 import { eq, or, isNull, sql, desc, and, asc, inArray, ilike, gte } from "drizzle-orm";
 
 // Type definition for AI providers
@@ -21948,6 +21948,494 @@ ${pdfData.text.substring(0, 15000)}`;
     } catch (error: any) {
       console.error("Error deleting dashboard layout:", error);
       res.status(500).json({ error: "Failed to delete dashboard layout" });
+    }
+  });
+
+  // ============================================================================
+  // ENTERPRISE DISTRIBUTOR SYSTEM - White-Label SaaS Platform
+  // ============================================================================
+
+  // GET /api/enterprise/distributors - List all enterprise distributors (admin only)
+  app.get("/api/enterprise/distributors", requireAuth, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const distributors = await db.select().from(enterpriseDistributors).orderBy(enterpriseDistributors.companyName);
+      res.json(distributors);
+    } catch (error: any) {
+      console.error("Error fetching enterprise distributors:", error);
+      res.status(500).json({ error: "Failed to fetch distributors" });
+    }
+  });
+
+  // GET /api/enterprise/distributors/:slug - Get distributor by slug (for white-label)
+  app.get("/api/enterprise/distributors/:slug", async (req: any, res) => {
+    try {
+      const [distributor] = await db
+        .select()
+        .from(enterpriseDistributors)
+        .where(eq(enterpriseDistributors.slug, req.params.slug))
+        .limit(1);
+
+      if (!distributor) {
+        return res.status(404).json({ error: "Distributor not found" });
+      }
+
+      // Get branding
+      const [branding] = await db
+        .select()
+        .from(distributorBranding)
+        .where(eq(distributorBranding.distributorId, distributor.id))
+        .limit(1);
+
+      res.json({ ...distributor, branding });
+    } catch (error: any) {
+      console.error("Error fetching distributor:", error);
+      res.status(500).json({ error: "Failed to fetch distributor" });
+    }
+  });
+
+  // POST /api/enterprise/distributors - Create new enterprise distributor
+  app.post("/api/enterprise/distributors", requireAuth, async (req: any, res) => {
+    try {
+      const user = await getCurrentUser(req);
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { companyName, slug, primaryContactName, primaryContactEmail, primaryContactPhone, ...rest } = req.body;
+
+      if (!companyName || !slug || !primaryContactName || !primaryContactEmail) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Generate API key
+      const apiKey = `wbh_${crypto.randomUUID().replace(/-/g, '')}`;
+      const apiSecret = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+
+      const [distributor] = await db
+        .insert(enterpriseDistributors)
+        .values({
+          companyName,
+          slug,
+          primaryContactName,
+          primaryContactEmail,
+          primaryContactPhone,
+          apiKey,
+          apiSecret,
+          ...rest,
+        })
+        .returning();
+
+      // Create default branding
+      await db.insert(distributorBranding).values({
+        distributorId: distributor.id,
+      });
+
+      // Create default settings
+      await db.insert(distributorSettings).values({
+        distributorId: distributor.id,
+      });
+
+      res.status(201).json(distributor);
+    } catch (error: any) {
+      console.error("Error creating distributor:", error);
+      if (error.code === '23505') {
+        return res.status(400).json({ error: "Slug already exists" });
+      }
+      res.status(500).json({ error: "Failed to create distributor" });
+    }
+  });
+
+  // GET /api/enterprise/dashboard/:distributorId - Get dashboard data
+  app.get("/api/enterprise/dashboard/:distributorId", async (req: any, res) => {
+    try {
+      const distributorId = req.params.distributorId;
+
+      // Verify distributor exists
+      const [distributor] = await db
+        .select()
+        .from(enterpriseDistributors)
+        .where(eq(enterpriseDistributors.id, distributorId))
+        .limit(1);
+
+      if (!distributor) {
+        return res.status(404).json({ error: "Distributor not found" });
+      }
+
+      // Get fleet stats
+      const fleetAssets = await db
+        .select()
+        .from(enterpriseFleetAssets)
+        .where(eq(enterpriseFleetAssets.distributorId, distributorId));
+
+      const customers = await db
+        .select()
+        .from(distributorCustomers)
+        .where(eq(distributorCustomers.distributorId, distributorId));
+
+      const technicians = await db
+        .select()
+        .from(distributorUsers)
+        .where(and(
+          eq(distributorUsers.distributorId, distributorId),
+          eq(distributorUsers.role, "technician")
+        ));
+
+      const openTickets = await db
+        .select()
+        .from(enterpriseServiceTickets)
+        .where(and(
+          eq(enterpriseServiceTickets.distributorId, distributorId),
+          inArray(enterpriseServiceTickets.status, ["open", "assigned", "in_progress"])
+        ));
+
+      // Calculate stats
+      const onlineMachines = fleetAssets.filter(m => m.status === "online").length;
+      const offlineMachines = fleetAssets.filter(m => m.status === "offline").length;
+      const maintenanceMachines = fleetAssets.filter(m => m.status === "maintenance").length;
+      const warningMachines = fleetAssets.filter(m => m.status === "warning").length;
+
+      // Group by brand
+      const brandStats = fleetAssets.reduce((acc: any, m) => {
+        if (!acc[m.brand]) {
+          acc[m.brand] = { name: m.brand, count: 0, online: 0 };
+        }
+        acc[m.brand].count++;
+        if (m.status === "online") acc[m.brand].online++;
+        return acc;
+      }, {});
+
+      const dashboard = {
+        distributor: {
+          id: distributor.id,
+          companyName: distributor.companyName,
+          status: distributor.status,
+        },
+        fleet: {
+          totalMachines: fleetAssets.length,
+          online: onlineMachines,
+          offline: offlineMachines,
+          maintenance: maintenanceMachines,
+          warning: warningMachines,
+          uptime: fleetAssets.length > 0 ? ((onlineMachines / fleetAssets.length) * 100).toFixed(1) : 0,
+          brands: Object.values(brandStats),
+        },
+        customers: {
+          total: customers.length,
+          active: customers.filter(c => c.status === "active").length,
+        },
+        technicians: {
+          total: technicians.length,
+          active: technicians.filter(t => t.status === "active").length,
+        },
+        tickets: {
+          open: openTickets.length,
+          critical: openTickets.filter(t => t.priority === "critical").length,
+          high: openTickets.filter(t => t.priority === "high").length,
+        },
+      };
+
+      res.json(dashboard);
+    } catch (error: any) {
+      console.error("Error fetching enterprise dashboard:", error);
+      res.status(500).json({ error: "Failed to fetch dashboard data" });
+    }
+  });
+
+  // GET /api/enterprise/fleet/:distributorId - Get fleet assets
+  app.get("/api/enterprise/fleet/:distributorId", async (req: any, res) => {
+    try {
+      const distributorId = req.params.distributorId;
+      const { brand, status, customerId, limit = 100 } = req.query;
+
+      let query = db
+        .select({
+          asset: enterpriseFleetAssets,
+          customer: distributorCustomers,
+        })
+        .from(enterpriseFleetAssets)
+        .leftJoin(distributorCustomers, eq(enterpriseFleetAssets.customerId, distributorCustomers.id))
+        .where(eq(enterpriseFleetAssets.distributorId, distributorId))
+        .limit(Number(limit));
+
+      const results = await query;
+
+      // Map results
+      const assets = results.map(r => ({
+        ...r.asset,
+        customerName: r.customer?.businessName,
+        customerAddress: r.customer?.address,
+      }));
+
+      res.json(assets);
+    } catch (error: any) {
+      console.error("Error fetching fleet assets:", error);
+      res.status(500).json({ error: "Failed to fetch fleet assets" });
+    }
+  });
+
+  // POST /api/enterprise/fleet/:distributorId - Create fleet asset
+  app.post("/api/enterprise/fleet/:distributorId", async (req: any, res) => {
+    try {
+      const distributorId = req.params.distributorId;
+      const { machineId, serialNumber, brand, model, machineType, customerId, ...rest } = req.body;
+
+      if (!machineId || !brand || !model || !machineType) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const [asset] = await db
+        .insert(enterpriseFleetAssets)
+        .values({
+          distributorId,
+          machineId,
+          serialNumber,
+          brand,
+          model,
+          machineType,
+          customerId,
+          ...rest,
+        })
+        .returning();
+
+      res.status(201).json(asset);
+    } catch (error: any) {
+      console.error("Error creating fleet asset:", error);
+      res.status(500).json({ error: "Failed to create fleet asset" });
+    }
+  });
+
+  // GET /api/enterprise/tickets/:distributorId - Get service tickets
+  app.get("/api/enterprise/tickets/:distributorId", async (req: any, res) => {
+    try {
+      const distributorId = req.params.distributorId;
+      const { status, priority, limit = 50 } = req.query;
+
+      let query = db
+        .select({
+          ticket: enterpriseServiceTickets,
+          customer: distributorCustomers,
+          asset: enterpriseFleetAssets,
+          technician: distributorUsers,
+        })
+        .from(enterpriseServiceTickets)
+        .leftJoin(distributorCustomers, eq(enterpriseServiceTickets.customerId, distributorCustomers.id))
+        .leftJoin(enterpriseFleetAssets, eq(enterpriseServiceTickets.fleetAssetId, enterpriseFleetAssets.id))
+        .leftJoin(distributorUsers, eq(enterpriseServiceTickets.assignedTechId, distributorUsers.id))
+        .where(eq(enterpriseServiceTickets.distributorId, distributorId))
+        .orderBy(desc(enterpriseServiceTickets.createdAt))
+        .limit(Number(limit));
+
+      const results = await query;
+
+      const tickets = results.map(r => ({
+        ...r.ticket,
+        customerName: r.customer?.businessName,
+        machineInfo: r.asset ? `${r.asset.brand} ${r.asset.model}` : null,
+        technicianName: r.technician?.name,
+      }));
+
+      res.json(tickets);
+    } catch (error: any) {
+      console.error("Error fetching service tickets:", error);
+      res.status(500).json({ error: "Failed to fetch tickets" });
+    }
+  });
+
+  // POST /api/enterprise/tickets/:distributorId - Create service ticket
+  app.post("/api/enterprise/tickets/:distributorId", async (req: any, res) => {
+    try {
+      const distributorId = req.params.distributorId;
+      const { issueDescription, customerId, fleetAssetId, priority, source, callerName, callerPhone, ...rest } = req.body;
+
+      if (!issueDescription) {
+        return res.status(400).json({ error: "Issue description required" });
+      }
+
+      // Generate ticket number
+      const count = await db.select({ count: sql<number>`count(*)` })
+        .from(enterpriseServiceTickets)
+        .where(eq(enterpriseServiceTickets.distributorId, distributorId));
+      
+      const ticketNumber = `TKT-${new Date().getFullYear()}-${String(Number(count[0]?.count || 0) + 1).padStart(6, '0')}`;
+
+      const [ticket] = await db
+        .insert(enterpriseServiceTickets)
+        .values({
+          distributorId,
+          ticketNumber,
+          issueDescription,
+          customerId,
+          fleetAssetId,
+          priority: priority || "medium",
+          source: source || "manual",
+          callerName,
+          callerPhone,
+          ...rest,
+        })
+        .returning();
+
+      res.status(201).json(ticket);
+    } catch (error: any) {
+      console.error("Error creating service ticket:", error);
+      res.status(500).json({ error: "Failed to create ticket" });
+    }
+  });
+
+  // PATCH /api/enterprise/tickets/:ticketId - Update ticket
+  app.patch("/api/enterprise/tickets/:ticketId", async (req: any, res) => {
+    try {
+      const { ticketId } = req.params;
+      const updates = req.body;
+
+      const [ticket] = await db
+        .update(enterpriseServiceTickets)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(enterpriseServiceTickets.id, ticketId))
+        .returning();
+
+      if (!ticket) {
+        return res.status(404).json({ error: "Ticket not found" });
+      }
+
+      res.json(ticket);
+    } catch (error: any) {
+      console.error("Error updating ticket:", error);
+      res.status(500).json({ error: "Failed to update ticket" });
+    }
+  });
+
+  // GET /api/enterprise/customers/:distributorId - Get customers
+  app.get("/api/enterprise/customers/:distributorId", async (req: any, res) => {
+    try {
+      const customers = await db
+        .select()
+        .from(distributorCustomers)
+        .where(eq(distributorCustomers.distributorId, req.params.distributorId))
+        .orderBy(distributorCustomers.businessName);
+
+      res.json(customers);
+    } catch (error: any) {
+      console.error("Error fetching customers:", error);
+      res.status(500).json({ error: "Failed to fetch customers" });
+    }
+  });
+
+  // POST /api/enterprise/customers/:distributorId - Create customer
+  app.post("/api/enterprise/customers/:distributorId", async (req: any, res) => {
+    try {
+      const { businessName, address, ...rest } = req.body;
+
+      if (!businessName || !address) {
+        return res.status(400).json({ error: "Business name and address required" });
+      }
+
+      const [customer] = await db
+        .insert(distributorCustomers)
+        .values({
+          distributorId: req.params.distributorId,
+          businessName,
+          address,
+          ...rest,
+        })
+        .returning();
+
+      res.status(201).json(customer);
+    } catch (error: any) {
+      console.error("Error creating customer:", error);
+      res.status(500).json({ error: "Failed to create customer" });
+    }
+  });
+
+  // GET /api/enterprise/technicians/:distributorId - Get technicians
+  app.get("/api/enterprise/technicians/:distributorId", async (req: any, res) => {
+    try {
+      const technicians = await db
+        .select()
+        .from(distributorUsers)
+        .where(and(
+          eq(distributorUsers.distributorId, req.params.distributorId),
+          eq(distributorUsers.role, "technician")
+        ))
+        .orderBy(distributorUsers.name);
+
+      res.json(technicians);
+    } catch (error: any) {
+      console.error("Error fetching technicians:", error);
+      res.status(500).json({ error: "Failed to fetch technicians" });
+    }
+  });
+
+  // GET /api/enterprise/parts/:distributorId - Get parts catalog
+  app.get("/api/enterprise/parts/:distributorId", async (req: any, res) => {
+    try {
+      const { brand, category, search, limit = 100 } = req.query;
+
+      let query = db
+        .select()
+        .from(distributorParts)
+        .where(eq(distributorParts.distributorId, req.params.distributorId))
+        .limit(Number(limit));
+
+      const parts = await query;
+      res.json(parts);
+    } catch (error: any) {
+      console.error("Error fetching parts:", error);
+      res.status(500).json({ error: "Failed to fetch parts" });
+    }
+  });
+
+  // GET /api/enterprise/branding/:distributorId - Get branding
+  app.get("/api/enterprise/branding/:distributorId", async (req: any, res) => {
+    try {
+      const [branding] = await db
+        .select()
+        .from(distributorBranding)
+        .where(eq(distributorBranding.distributorId, req.params.distributorId))
+        .limit(1);
+
+      res.json(branding || {});
+    } catch (error: any) {
+      console.error("Error fetching branding:", error);
+      res.status(500).json({ error: "Failed to fetch branding" });
+    }
+  });
+
+  // PATCH /api/enterprise/branding/:distributorId - Update branding
+  app.patch("/api/enterprise/branding/:distributorId", async (req: any, res) => {
+    try {
+      const updates = req.body;
+
+      const [branding] = await db
+        .update(distributorBranding)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(distributorBranding.distributorId, req.params.distributorId))
+        .returning();
+
+      res.json(branding);
+    } catch (error: any) {
+      console.error("Error updating branding:", error);
+      res.status(500).json({ error: "Failed to update branding" });
+    }
+  });
+
+  // GET /api/enterprise/pricing-plans - Get all pricing plans
+  app.get("/api/enterprise/pricing-plans", async (_req: any, res) => {
+    try {
+      const plans = await db
+        .select()
+        .from(enterprisePricingPlans)
+        .where(eq(enterprisePricingPlans.isActive, true))
+        .orderBy(enterprisePricingPlans.sortOrder);
+
+      res.json(plans);
+    } catch (error: any) {
+      console.error("Error fetching pricing plans:", error);
+      res.status(500).json({ error: "Failed to fetch pricing plans" });
     }
   });
 
