@@ -13,6 +13,17 @@ import {
   CLEANBIGradeBadge,
   PremiumWatermark,
   SubscriptionGate,
+  FuturisticPageWrapper,
+  FuturisticCard,
+  HUDStat,
+  DataPanel,
+  LiveIndicator,
+  TechLabel,
+  MiniGauge,
+  AnimatedCounter,
+  HexGrid,
+  GlowOrb,
+  ENTERPRISE_COLORS,
 } from "@/components/premium-components";
 import { 
   Map, 
@@ -2900,8 +2911,20 @@ function CleanBIExplorerContent() {
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="fixed inset-0 bg-[#0a0a14]" data-testid="cleanbi-explorer">
+      {/* Main Content with Futuristic Effects */}
+      <div className="fixed inset-0 bg-gradient-to-br from-[#050a12] via-[#0a0f1a] to-[#0f1420]" data-testid="cleanbi-explorer">
+        {/* Ambient HexGrid effect - subtle background */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
+          <HexGrid color={ENTERPRISE_COLORS.gold} />
+        </div>
+        
+        {/* Subtle corner glow effects */}
+        <div className="absolute top-0 right-0 w-96 h-96 pointer-events-none">
+          <GlowOrb color={ENTERPRISE_COLORS.cyan} size="lg" position={{ top: '-25%', right: '-25%' }} />
+        </div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 pointer-events-none">
+          <GlowOrb color={ENTERPRISE_COLORS.gold} size="md" position={{ bottom: '-25%', left: '-25%' }} />
+        </div>
         {/* Ternary Layout - Only ONE layout is mounted at a time */}
         {showMobile ? (
           // Mobile layout - ONLY renders on mobile
