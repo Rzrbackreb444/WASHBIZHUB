@@ -640,6 +640,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/forensic-academy", forensicAcademyRoutes);
   console.log("✅ Forensic Investor Academy routes registered");
   
+  // ==================== AI BOOK WRITING SUITE ====================
+  const aiBookSuiteRoutes = (await import("./routes/ai-book-suite")).default;
+  app.use("/api/ai-book", aiBookSuiteRoutes);
+  console.log("✅ AI Book Writing Suite routes registered");
+  
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
   
