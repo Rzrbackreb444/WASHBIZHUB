@@ -484,7 +484,7 @@ export default function Pricing() {
                 </span>
                 {isAnnual && (
                   <Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661]">
-                    Save {getSavingsPercent()}%
+                    Save {getSavingsPercent(businessTier.price, businessTier.priceAnnual)}%
                   </Badge>
                 )}
               </div>
