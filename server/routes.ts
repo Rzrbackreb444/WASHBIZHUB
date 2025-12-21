@@ -568,15 +568,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   ];
   
   app.use((req, res, next) => {
-    const path = req.path.toLowerCase();
+    const pathLower = req.path.toLowerCase();
+    const originalPath = req.path;
     
     // Check for exact matches or paths starting with WordPress directories
-    if (wordpressRedirectPaths.includes(path) ||
-        path.startsWith('/wp-admin') ||
-        path.startsWith('/wp-content') ||
-        path.startsWith('/wp-includes') ||
-        path.startsWith('/wp-json')) {
-      console.log(`🔄 301 Redirect: ${path} → /`);
+    if (wordpressRedirectPaths.includes(pathLower) ||
+        pathLower.startsWith('/wp-admin') ||
+        pathLower.startsWith('/wp-content') ||
+        pathLower.startsWith('/wp-includes') ||
+        pathLower.startsWith('/wp-json')) {
+      console.log(`🔄 301 Redirect: ${originalPath} → /`);
       return res.redirect(301, '/');
     }
     
@@ -587,10 +588,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     // Handle trailing slash normalization (canonical URLs should not have trailing slashes)
-    if (path !== '/' && path.endsWith('/')) {
-      const cleanPath = path.slice(0, -1);
+    // Preserve original path casing for proper canonical handling
+    if (originalPath !== '/' && originalPath.endsWith('/')) {
+      const cleanPath = originalPath.slice(0, -1);
       const queryString = Object.keys(req.query).length > 0 ? '?' + new URLSearchParams(req.query as any).toString() : '';
-      console.log(`🔄 301 Redirect: ${path} → ${cleanPath}${queryString}`);
+      console.log(`🔄 301 Redirect: ${originalPath} → ${cleanPath}${queryString}`);
       return res.redirect(301, cleanPath + queryString);
     }
     
