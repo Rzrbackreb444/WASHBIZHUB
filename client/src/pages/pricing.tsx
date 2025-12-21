@@ -79,7 +79,11 @@ export default function Pricing() {
 
   const handleCheckout = (tierId: string) => {
     if (tierId === 'free') {
-      window.location.href = '/sign-up';
+      window.location.href = '/signup';
+      return;
+    }
+    if (tierId === 'enterprise') {
+      window.location.href = '/consultation';
       return;
     }
     checkoutMutation.mutate(tierId);
@@ -642,7 +646,7 @@ export default function Pricing() {
                 </CardContent>
               </Card>
 
-              {/* Enterprise Tier */}
+              {/* Enterprise Tier - Contact Sales */}
               <Card 
                 className="relative bg-card border shadow-sm"
                 data-testid="card-plan-enterprise"
@@ -657,28 +661,25 @@ export default function Pricing() {
                   
                   <div className="my-4">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className="text-4xl font-bold text-purple-600">${getDisplayPrice(enterpriseTier)}</span>
-                      <span className="text-muted-foreground text-sm">/mo</span>
+                      <span className="text-4xl font-bold text-purple-600">Custom</span>
                     </div>
-                    {isAnnual && (
-                      <p className="text-xs text-muted-foreground mt-1">Billed ${enterpriseTier.priceAnnual.toLocaleString()}/year</p>
-                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Tailored to your needs</p>
                   </div>
                   
                   <Button 
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    variant="outline"
+                    className="w-full border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white"
                     data-testid="button-cta-enterprise"
                     onClick={() => handleCheckout('enterprise')}
-                    disabled={checkoutMutation.isPending}
                   >
-                    {checkoutMutation.isPending ? 'Loading...' : 'Get Enterprise Access'}
+                    Contact Sales
                   </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2 pb-6">
                   <p className="text-xs text-muted-foreground mb-2">Everything in Business, plus:</p>
                   <ul className="space-y-2 text-sm">
-                    {["Templates + White-label", "Unlimited API access", "Team (10 seats)", "Custom integrations", "Dedicated manager", "Priority phone support"].map((f, i) => (
+                    {["White-label branding", "Unlimited API access", "Team (10+ seats)", "Custom integrations", "Dedicated manager", "Priority phone support"].map((f, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
                         <span className="text-foreground">{f}</span>
