@@ -46,6 +46,7 @@ import { ValuationEstimatesPanel } from "@/components/design-studio/ValuationEst
 import { MapIntegrationPanel } from "@/components/design-studio/MapIntegrationPanel";
 import { PropertyDataPanel } from "@/components/design-studio/PropertyDataPanel";
 import { SavedLayoutsPanel } from "@/components/design-studio/SavedLayoutsPanel";
+import { WhatIfSimulatorPanel } from "@/components/design-studio/WhatIfSimulatorPanel";
 
 const Canvas = lazy(() => import("@react-three/fiber").then(m => ({ default: m.Canvas })));
 const ThreeScene = lazy(() => import("./design-studio-3d-scene"));
@@ -1334,7 +1335,7 @@ export default function DesignStudio() {
   const [isSendingToConsultant, setIsSendingToConsultant] = useState(false);
   const [consultantNotes, setConsultantNotes] = useState("");
   
-  const [rightPanelTab, setRightPanelTab] = useState<"metrics" | "map" | "property" | "saved">("metrics");
+  const [rightPanelTab, setRightPanelTab] = useState<"metrics" | "whatif" | "map" | "property" | "saved">("metrics");
   const [parcelData, setParcelData] = useState<{
     address: string;
     coordinates: { lat: number; lng: number };
@@ -3720,38 +3721,46 @@ export default function DesignStudio() {
 
             {!isMobile && (
               <div className="lg:col-span-1 space-y-3">
-                <Tabs value={rightPanelTab} onValueChange={(v) => setRightPanelTab(v as "metrics" | "map" | "property" | "saved")} className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 bg-white/10 h-9">
+                <Tabs value={rightPanelTab} onValueChange={(v) => setRightPanelTab(v as "metrics" | "whatif" | "map" | "property" | "saved")} className="w-full">
+                  <TabsList className="grid w-full grid-cols-5 bg-white/10 h-9">
                     <TabsTrigger 
                       value="metrics" 
-                      className="text-[10px] data-[state=active]:bg-[#39CCCC] data-[state=active]:text-[#001F3F]"
+                      className="text-[9px] data-[state=active]:bg-[#39CCCC] data-[state=active]:text-[#001F3F]"
                       data-testid="tab-metrics"
                     >
-                      <Calculator className="w-3 h-3 mr-1" />
+                      <Calculator className="w-3 h-3 mr-0.5" />
                       Metrics
                     </TabsTrigger>
                     <TabsTrigger 
+                      value="whatif" 
+                      className="text-[9px] data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+                      data-testid="tab-whatif"
+                    >
+                      <Sparkles className="w-3 h-3 mr-0.5" />
+                      What-If
+                    </TabsTrigger>
+                    <TabsTrigger 
                       value="map" 
-                      className="text-[10px] data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                      className="text-[9px] data-[state=active]:bg-blue-500 data-[state=active]:text-white"
                       data-testid="tab-map"
                     >
-                      <MapPin className="w-3 h-3 mr-1" />
+                      <MapPin className="w-3 h-3 mr-0.5" />
                       Map
                     </TabsTrigger>
                     <TabsTrigger 
                       value="property" 
-                      className="text-[10px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                      className="text-[9px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
                       data-testid="tab-property"
                     >
-                      <Building2 className="w-3 h-3 mr-1" />
+                      <Building2 className="w-3 h-3 mr-0.5" />
                       Property
                     </TabsTrigger>
                     <TabsTrigger 
                       value="saved" 
-                      className="text-[10px] data-[state=active]:bg-amber-500 data-[state=active]:text-black"
+                      className="text-[9px] data-[state=active]:bg-amber-500 data-[state=active]:text-black"
                       data-testid="tab-saved"
                     >
-                      <Save className="w-3 h-3 mr-1" />
+                      <Save className="w-3 h-3 mr-0.5" />
                       Saved
                     </TabsTrigger>
                   </TabsList>
@@ -3786,6 +3795,26 @@ export default function DesignStudio() {
                           generateShareLink={generateShareLink}
                           onOpenConsultation={() => setSendToConsultantDialogOpen(true)}
                           locationContext={locationContext}
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="whatif" className="mt-3">
+                    <Card className="bg-white/5 backdrop-blur border-white/10">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-white text-sm flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-purple-400" />
+                          What-If Simulator
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <WhatIfSimulatorPanel
+                          equipmentMonthlyRevenue={monthlyRevenue}
+                          equipmentCost={totalCost}
+                          washerCount={washerCount}
+                          dryerCount={dryerCount}
+                          sqft={sqft}
                         />
                       </CardContent>
                     </Card>
