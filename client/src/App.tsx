@@ -212,6 +212,7 @@ const Blog = lazy(() => import("@/pages/blog"));
 const BlogPost = lazy(() => import("@/pages/blog-post"));
 const CoursesHub = lazy(() => import("@/pages/courses-hub"));
 const Academy = lazy(() => import("@/pages/academy"));
+const ForensicAcademy = lazy(() => import("@/pages/forensic-academy"));
 const AboutUs = lazy(() => import("@/pages/about-us"));
 const WhyWashBizHub = lazy(() => import("@/pages/why-washbizhub"));
 
@@ -683,6 +684,11 @@ function Router() {
       </Route>
       <Route path="/courses" component={CoursesHub} />
       <Route path="/academy" component={Academy} />
+      <Route path="/forensic-academy">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForensicAcademy />
+        </Suspense>
+      </Route>
       <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
       <Route path="/platform-directory" component={PlatformDirectory} />
