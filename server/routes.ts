@@ -543,6 +543,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // This attaches req.tenant based on domain (washbizhub.com, strokerecoveryacademy.com, strokelyfe.app)
   app.use(resolveTenant);
   
+  // ==================== WORDPRESS LEGACY 301 REDIRECTS ====================
+  // 301 redirect old WordPress paths to homepage for SEO cleanup
+  const wordpressRedirectPaths = [
+    '/wp-admin',
+    '/wp-login',
+    '/wp-login.php',
+    '/wp-content',
+    '/wp-includes',
+    '/wp-json',
+    '/xmlrpc.php',
+    '/wp-cron.php',
+    '/wp-config.php',
+    '/wp-settings.php',
+    '/wp-blog-header.php',
+    '/wp-load.php',
+    '/wp-links-opml.php',
+    '/wp-trackback.php',
+    '/wp-activate.php',
+    '/wp-signup.php',
+    '/wp-comments-post.php',
+    '/readme.html',
+    '/license.txt',
+  ];
+  
+  app.use((req, res, next) => {
+    const path = req.path.toLowerCase();
+    
+    // Check for exact matches or paths starting with WordPress directories
+    if (wordpressRedirectPaths.includes(path) ||
+        path.startsWith('/wp-admin') ||
+        path.startsWith('/wp-content') ||
+        path.startsWith('/wp-includes') ||
+        path.startsWith('/wp-json')) {
+      console.log(`🔄 301 Redirect: ${path} → /`);
+      return res.redirect(301, '/');
+    }
+    
+    // Handle WordPress query parameters (?p=ID, ?page_id=ID, etc.)
+    if (req.query.p || req.query.page_id || req.query.preview_id) {
+      console.log(`🔄 301 Redirect: WordPress query param → /`);
+      return res.redirect(301, '/');
+    }
+    
+    // Handle trailing slash normalization (canonical URLs should not have trailing slashes)
+    if (path !== '/' && path.endsWith('/')) {
+      const cleanPath = path.slice(0, -1);
+      const queryString = Object.keys(req.query).length > 0 ? '?' + new URLSearchParams(req.query as any).toString() : '';
+      console.log(`🔄 301 Redirect: ${path} → ${cleanPath}${queryString}`);
+      return res.redirect(301, cleanPath + queryString);
+    }
+    
+    next();
+  });
+  
   // ==================== SEO & ENGAGEMENT ROUTES ====================
   registerSitemapRoutes(app);
   registerEngagementRoutes(app);

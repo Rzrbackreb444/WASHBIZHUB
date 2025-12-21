@@ -921,6 +921,25 @@ Disallow: /private/
 Disallow: /settings
 Disallow: /vault
 
+# ============================================================================
+# DISALLOW - Legacy WordPress paths (site migrated from WordPress)
+# ============================================================================
+Disallow: /wp-admin
+Disallow: /wp-admin/
+Disallow: /wp-content
+Disallow: /wp-content/
+Disallow: /wp-includes
+Disallow: /wp-includes/
+Disallow: /wp-json
+Disallow: /wp-json/
+Disallow: /wp-login
+Disallow: /wp-login.php
+Disallow: /xmlrpc.php
+Disallow: /?p=
+Disallow: /?page_id=
+Disallow: /?cat=
+Disallow: /?tag=
+
 # Prevent duplicate content from query parameters
 Disallow: /*?*sort=
 Disallow: /*?*filter=
