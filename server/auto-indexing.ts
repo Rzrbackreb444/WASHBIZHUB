@@ -83,6 +83,9 @@ async function getGoogleAccessToken(): Promise<{ token: string | null; error: st
       return { token: null, error };
     }
 
+    // Log which service account is being used (for debugging 403 errors)
+    console.log(`🔑 Google Indexing API using service account: ${client_email}`);
+
     // Normalize private key: replace literal \n with actual newlines
     // This is required when pasting JSON into Replit secrets
     private_key = private_key.replace(/\\n/g, '\n');
