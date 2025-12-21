@@ -22548,6 +22548,188 @@ ${pdfData.text.substring(0, 15000)}`;
     }
   });
 
+  // ==================== VIDEO GENERATION (VEO API) ====================
+
+  // POST /api/video/generate - Generate promotional video using Veo 3.1
+  app.post("/api/video/generate", requireAuth, async (req: any, res) => {
+    try {
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      // Premium feature - check subscription
+      const user = await storage.getUser(currentUser.userId);
+      if (!user?.isPro && !user?.isAdmin) {
+        return res.status(403).json({ 
+          error: "Premium feature",
+          message: "Video generation requires a Pro or Enterprise subscription"
+        });
+      }
+
+      const { prompt, duration = 8, aspectRatio = "16:9" } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(503).json({ error: "Video generation service unavailable" });
+      }
+
+      // Import Gemini SDK
+      const { GoogleGenAI } = await import("@google/genai");
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+      console.log(`🎬 Starting video generation for user ${user.email}: "${prompt.substring(0, 50)}..."`);
+
+      // Start video generation
+      const operation = await ai.models.generateVideos({
+        model: "veo-3.1-generate-preview",
+        prompt: prompt,
+        config: {
+          numberOfVideos: 1,
+          durationSeconds: Math.min(8, Math.max(4, duration)), // 4-8 seconds
+          aspectRatio: aspectRatio === "9:16" ? "9:16" : "16:9",
+        },
+      });
+
+      // Return operation ID for polling
+      res.json({
+        operationId: operation.name,
+        status: "processing",
+        message: "Video generation started. This may take 1-2 minutes.",
+        estimatedTime: "60-120 seconds"
+      });
+
+    } catch (error: any) {
+      console.error("Video generation error:", error);
+      res.status(500).json({ error: error.message || "Failed to start video generation" });
+    }
+  });
+
+  // GET /api/video/status/:operationId - Check video generation status
+  app.get("/api/video/status/:operationId", requireAuth, async (req: any, res) => {
+    try {
+      const { operationId } = req.params;
+
+      if (!operationId) {
+        return res.status(400).json({ error: "Operation ID is required" });
+      }
+
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(503).json({ error: "Video generation service unavailable" });
+      }
+
+      const { GoogleGenAI } = await import("@google/genai");
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+      // Check operation status - pass operation name directly as string
+      const videoOp = await ai.operations.getVideosOperation(operationId);
+
+      if (!videoOp.done) {
+        return res.json({
+          status: "processing",
+          done: false,
+          message: "Video is still being generated..."
+        });
+      }
+
+      // Video is ready
+      const video = videoOp.response?.generatedVideos?.[0];
+      if (!video?.video?.videoBytes) {
+        return res.status(500).json({ error: "Video generation failed - no video data" });
+      }
+
+      // Save video to object storage
+      const objectStorageService = new ObjectStorageService();
+      const filename = `videos/generated_${Date.now()}.mp4`;
+      
+      try {
+        // Convert video bytes to buffer if needed
+        const videoBuffer = Buffer.isBuffer(video.video.videoBytes) 
+          ? video.video.videoBytes 
+          : Buffer.from(video.video.videoBytes, 'base64');
+          
+        await objectStorageService.uploadObject(filename, videoBuffer, {
+          contentType: "video/mp4",
+          visibility: "public",
+        });
+        
+        const videoUrl = objectStorageService.getPublicUrl(filename);
+        
+        console.log(`🎬 Video generation complete: ${videoUrl}`);
+        
+        res.json({
+          status: "complete",
+          done: true,
+          videoUrl: videoUrl,
+          duration: video.duration || 8,
+        });
+      } catch (uploadError: any) {
+        // Return base64 if upload fails
+        const base64Video = Buffer.isBuffer(video.video.videoBytes)
+          ? video.video.videoBytes.toString('base64')
+          : video.video.videoBytes;
+          
+        res.json({
+          status: "complete",
+          done: true,
+          videoData: `data:video/mp4;base64,${base64Video}`,
+          duration: video.duration || 8,
+        });
+      }
+
+    } catch (error: any) {
+      console.error("Video status check error:", error);
+      res.status(500).json({ error: error.message || "Failed to check video status" });
+    }
+  });
+
+  // GET /api/video/presets - Get video generation presets for laundromat marketing
+  app.get("/api/video/presets", (_req: any, res) => {
+    const presets = [
+      {
+        id: "grand-opening",
+        name: "Grand Opening",
+        prompt: "A bright, modern laundromat grand opening scene with red ribbon cutting, balloons, excited customers entering through glass doors, Speed Queen and Dexter washing machines gleaming in rows, professional lighting, celebratory atmosphere, 4K quality",
+        category: "marketing"
+      },
+      {
+        id: "equipment-showcase",
+        name: "Equipment Showcase",
+        prompt: "Slow cinematic pan across rows of commercial laundry equipment in a modern laundromat, Speed Queen washers spinning, Dexter dryers tumbling, clean white interior, blue LED accent lighting, professional product photography style",
+        category: "marketing"
+      },
+      {
+        id: "customer-experience",
+        name: "Customer Experience",
+        prompt: "Happy diverse customers using a clean, modern laundromat, folding fresh laundry, using smartphone app for payment, bright natural lighting, contemporary interior design, warm and welcoming atmosphere",
+        category: "marketing"
+      },
+      {
+        id: "before-after",
+        name: "Before & After",
+        prompt: "Split screen transformation of an old rundown laundromat into a bright modern facility, time-lapse renovation effect, new equipment installation, fresh paint and lighting, dramatic before and after comparison",
+        category: "renovation"
+      },
+      {
+        id: "investment-opportunity",
+        name: "Investment Opportunity",
+        prompt: "Sleek financial presentation style video showing a thriving laundromat business, cash flow visualization, professional business graphs overlaid on footage of busy laundromat, coins depositing into machines, success and growth theme",
+        category: "investment"
+      },
+      {
+        id: "eco-friendly",
+        name: "Eco-Friendly Operations",
+        prompt: "Environmentally conscious laundromat operations, water-efficient machines, solar panels on roof, green plants in interior, recycling station, customers using eco-friendly detergents, sustainable business message",
+        category: "sustainability"
+      }
+    ];
+    
+    res.json(presets);
+  });
+
   const httpServer = createServer(app);
   
   initializeSearchIndex().catch(err => {
