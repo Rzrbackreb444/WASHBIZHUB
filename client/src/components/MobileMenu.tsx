@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
-import logoUrl from "@assets/6_1764040628012.png";
+import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 import type { LucideIcon } from "lucide-react";
 
 interface MenuItem {
