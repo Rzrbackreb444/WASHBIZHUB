@@ -8,7 +8,7 @@ import { getSession } from "./replitAuth";
 import { requireAuth, optionalAuth, requireAdmin } from "./services/unified-auth";
 import passport from "passport";
 import { setupAuth as setupReplitAuth, registerAuthRoutes as registerReplitAuthRoutes } from "./replit_integrations/auth";
-import { setupGoogleAuth, verifyGoogleToken } from "./googleAuth";
+import { setupGoogleAuth, verifyGoogleToken, setupRISCEventReceiver } from "./googleAuth";
 import { ObjectStorageService, objectStorageClient, parseObjectPath } from "./objectStorage";
 import { resolveTenant } from "./tenant-middleware";
 import adminRoutes from "./admin-routes";
@@ -600,6 +600,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup Google OAuth (primary auth method)
   await setupGoogleAuth(app);
+  
+  // Setup RISC (Cross-Account Protection) event receiver
+  setupRISCEventReceiver(app);
   
   // Setup Replit Auth as fallback (supports Google, GitHub, X, Apple, email)
   await setupReplitAuth(app);

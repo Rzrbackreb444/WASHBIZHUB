@@ -789,6 +789,113 @@ export function generateLocalBusinessSchema(options: LocalBusinessSchemaOptions)
   });
 }
 
+// VideoObject Schema for dedicated video watch pages
+export interface VideoObjectSchemaOptions {
+  name: string;
+  description: string;
+  thumbnailUrl: string | string[];
+  uploadDate: string;
+  duration?: string; // ISO 8601 format: PT1H2M3S
+  contentUrl?: string;
+  embedUrl?: string;
+  interactionStatistic?: {
+    watchCount?: number;
+    likeCount?: number;
+    commentCount?: number;
+  };
+  publication?: {
+    isLiveBroadcast?: boolean;
+    startDate?: string;
+    endDate?: string;
+  };
+  transcript?: string;
+  inLanguage?: string;
+  keywords?: string[];
+  genre?: string;
+  author?: {
+    name: string;
+    url?: string;
+  };
+}
+
+export function generateVideoObjectSchema(options: VideoObjectSchemaOptions): object {
+  const {
+    name,
+    description,
+    thumbnailUrl,
+    uploadDate,
+    duration,
+    contentUrl,
+    embedUrl,
+    interactionStatistic,
+    publication,
+    transcript,
+    inLanguage = 'en',
+    keywords,
+    genre,
+    author
+  } = options;
+
+  return sanitizeSchemaObject({
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": name,
+    "description": description,
+    "thumbnailUrl": Array.isArray(thumbnailUrl) ? thumbnailUrl : [thumbnailUrl],
+    "uploadDate": uploadDate,
+    ...(duration && { "duration": duration }),
+    ...(contentUrl && { "contentUrl": contentUrl }),
+    ...(embedUrl && { "embedUrl": embedUrl }),
+    ...(interactionStatistic && {
+      "interactionStatistic": [
+        ...(interactionStatistic.watchCount !== undefined ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "WatchAction" },
+          "userInteractionCount": interactionStatistic.watchCount
+        }] : []),
+        ...(interactionStatistic.likeCount !== undefined ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "LikeAction" },
+          "userInteractionCount": interactionStatistic.likeCount
+        }] : []),
+        ...(interactionStatistic.commentCount !== undefined ? [{
+          "@type": "InteractionCounter",
+          "interactionType": { "@type": "CommentAction" },
+          "userInteractionCount": interactionStatistic.commentCount
+        }] : [])
+      ]
+    }),
+    ...(publication && {
+      "publication": {
+        "@type": "BroadcastEvent",
+        ...(publication.isLiveBroadcast !== undefined && { "isLiveBroadcast": publication.isLiveBroadcast }),
+        ...(publication.startDate && { "startDate": publication.startDate }),
+        ...(publication.endDate && { "endDate": publication.endDate })
+      }
+    }),
+    ...(transcript && { "transcript": transcript }),
+    "inLanguage": inLanguage,
+    ...(keywords && keywords.length > 0 && { "keywords": keywords.join(", ") }),
+    ...(genre && { "genre": genre }),
+    ...(author && {
+      "author": {
+        "@type": author.name === "WashBizHub" ? "Organization" : "Person",
+        "name": author.name,
+        ...(author.url && { "url": author.url })
+      }
+    }),
+    "publisher": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": BASE_URL,
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${BASE_URL}/washbizhub-logo.png`
+      }
+    }
+  });
+}
+
 export const WashBizHubOrganization = generateOrganizationSchema({
   name: "WashBizHub",
   alternateName: ["The #1 Laundromat Resource & Educational Hub", "The Laundromat Bible"],
