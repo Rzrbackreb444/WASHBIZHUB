@@ -1,15 +1,21 @@
 # WashBizHub.com Design Guidelines
 
-## Design Approach: Clean Professional Premium
+## Design Approach: Professional & Clean
 
-**Core Identity:** Pure professionalism with navy (#0A1628) and gold (#C8A661) brand colors
-**Philosophy:** Clean, readable, and trustworthy - every element serves a purpose
+**Core Identity:** Professional business platform with navy (#0A1628) and gold (#C8A661) brand colors
+**Philosophy:** Clean, readable, and trustworthy - less is more
 
 **Core Principles:**
-- **Clean & Professional:** White cards on muted backgrounds, no distracting gradients
-- **Easy to Read:** High contrast text, spacious layouts, clear hierarchy
-- **Trust Through Simplicity:** Subtle shadows and borders, not flashy effects
+- **Professional, Not Flashy:** Avoid sparkles, excessive animations, urgency language
+- **Clean & Readable:** White cards on muted backgrounds, high contrast text
+- **Trust Through Simplicity:** Subtle shadows and borders, minimal gold accents
 - **Mobile-First:** All designs optimized for desktop, tablet, and mobile
+
+**Language Guidelines:**
+- Use professional CTAs: "Get Started", "Learn More", "Contact Sales"
+- Avoid hype words: "Exclusive!", "Premium!", "Unlock!", "Limited Time!"
+- Replace "POPULAR" with "Most Chosen" or remove entirely
+- Remove unnecessary exclamation marks
 
 ---
 

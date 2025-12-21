@@ -35,7 +35,6 @@ import {
   Check,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
   Shield,
   Clock,
   Users,
@@ -257,7 +256,7 @@ export default function EnterpriseOnboarding() {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-green-500 mt-0.5" />
-                    <span>White-label portal setup within 48 hours of signing</span>
+                    <span>Portal setup after agreement is finalized</span>
                   </li>
                 </ul>
               </div>
@@ -281,19 +280,19 @@ export default function EnterpriseOnboarding() {
       <SEO 
         title="Enterprise Onboarding | Distributor Command Center | WashBizHub"
         description="Set up your white-label distributor command center. Get started with fleet monitoring, AI diagnostics, and service dispatch."
-        keywords="equipment distributor onboarding, laundry fleet management setup, white label platform"
+        keywords={["equipment distributor onboarding", "laundry fleet management setup", "white label platform"]}
       />
 
       <div className="min-h-screen bg-background">
-        <div className="bg-gradient-to-br from-primary/5 via-background to-accent/5 border-b">
+        <div className="bg-muted/30 border-b">
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-lg bg-[#0A1628] flex items-center justify-center">
+                <Building2 className="w-6 h-6 text-[#C8A661]" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold" data-testid="text-onboarding-title">Enterprise Onboarding</h1>
-                <p className="text-muted-foreground">Set up your distributor command center</p>
+                <p className="text-muted-foreground">Get a custom quote for your organization</p>
               </div>
             </div>
 
@@ -736,13 +735,12 @@ export default function EnterpriseOnboarding() {
                     />
 
                     {/* Auto-Generated Quote */}
-                    <div className="bg-gradient-to-br from-[#0A1628] to-[#16213e] rounded-xl p-6 text-white" data-testid="quote-summary">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-bold flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-[#C8A661]" />
-                          Your Enterprise Quote
+                    <div className="bg-[#0A1628] rounded-xl p-6 text-white" data-testid="quote-summary">
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <h3 className="text-lg font-bold">
+                          Your Quote
                         </h3>
-                        <Badge className="bg-[#C8A661] text-[#0A1628]">Instant Quote</Badge>
+                        <Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661]">Auto-calculated</Badge>
                       </div>
                       
                       {(() => {
@@ -788,23 +786,22 @@ export default function EnterpriseOnboarding() {
                       })()}
                     </div>
 
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                      <h4 className="font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
-                        <Shield className="w-4 h-4" />
-                        What Happens Next
+                    <div className="bg-muted/50 border rounded-lg p-4">
+                      <h4 className="font-medium text-foreground">
+                        Next Steps
                       </h4>
-                      <ul className="mt-2 space-y-1 text-sm text-green-700 dark:text-green-300">
+                      <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
                           <Check className="w-3 h-3" />
-                          We'll email your detailed quote within minutes
+                          We'll email you a detailed quote
                         </li>
                         <li className="flex items-center gap-2">
                           <Users className="w-3 h-3" />
-                          Schedule a quick demo (optional)
+                          Optional demo call with our team
                         </li>
                         <li className="flex items-center gap-2">
                           <Clock className="w-3 h-3" />
-                          Portal setup within 48 hours of signing
+                          Onboarding begins after agreement
                         </li>
                       </ul>
                     </div>
