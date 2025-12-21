@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { SEO } from "@/components/SEO";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   PLATFORM_TIERS, 
   PLATFORM_TIER_ORDER, 
@@ -44,12 +47,43 @@ import {
 export default function Pricing() {
   const [isAnnual, setIsAnnual] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const tiers = PLATFORM_TIER_ORDER.map(id => PLATFORM_TIERS[id]);
   const freeTier = PLATFORM_TIERS.free;
   const proTier = PLATFORM_TIERS.pro;
   const businessTier = PLATFORM_TIERS.business;
   const enterpriseTier = PLATFORM_TIERS.enterprise;
+
+  const checkoutMutation = useMutation({
+    mutationFn: async (tierId: string) => {
+      const res = await apiRequest("POST", "/api/create-subscription", {
+        tierId,
+        interval: isAnnual ? 'year' : 'month',
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Checkout Error",
+        description: error.message || "Unable to start checkout. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCheckout = (tierId: string) => {
+    if (tierId === 'free') {
+      window.location.href = '/sign-up';
+      return;
+    }
+    checkoutMutation.mutate(tierId);
+  };
 
   const getDisplayPrice = (tier: PlatformTierConfig) => {
     if (tier.price === 0) return 0;
@@ -532,15 +566,15 @@ export default function Pricing() {
                     )}
                   </div>
                   
-                  <Link href="/subscribe?plan=pro">
-                    <Button 
-                      variant="outline"
-                      className="w-full border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
-                      data-testid="button-cta-pro"
-                    >
-                      Go Pro
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="outline"
+                    className="w-full border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
+                    data-testid="button-cta-pro"
+                    onClick={() => handleCheckout('pro')}
+                    disabled={checkoutMutation.isPending}
+                  >
+                    {checkoutMutation.isPending ? 'Loading...' : 'Go Pro'}
+                  </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2 pb-6">
@@ -585,14 +619,14 @@ export default function Pricing() {
                     )}
                   </div>
                   
-                  <Link href="/subscribe?plan=business">
-                    <Button 
-                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold"
-                      data-testid="button-cta-business"
-                    >
-                      Get Business
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold"
+                    data-testid="button-cta-business"
+                    onClick={() => handleCheckout('business')}
+                    disabled={checkoutMutation.isPending}
+                  >
+                    {checkoutMutation.isPending ? 'Loading...' : 'Get Business'}
+                  </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2 pb-6">
@@ -631,14 +665,14 @@ export default function Pricing() {
                     )}
                   </div>
                   
-                  <Link href="/subscribe?plan=enterprise">
-                    <Button 
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                      data-testid="button-cta-enterprise"
-                    >
-                      Get Enterprise Access
-                    </Button>
-                  </Link>
+                  <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                    data-testid="button-cta-enterprise"
+                    onClick={() => handleCheckout('enterprise')}
+                    disabled={checkoutMutation.isPending}
+                  >
+                    {checkoutMutation.isPending ? 'Loading...' : 'Get Enterprise Access'}
+                  </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2 pb-6">
@@ -855,25 +889,19 @@ export default function Pricing() {
                   </Link>
                 </div>
                 <div className="flex justify-center">
-                  <Link href="/subscribe?plan=pro">
-                    <Button size="sm" variant="outline" className="text-xs px-2 border-blue-500 text-blue-600" data-testid="button-compare-pro">
-                      Pro
-                    </Button>
-                  </Link>
+                  <Button size="sm" variant="outline" className="text-xs px-2 border-blue-500 text-blue-600" data-testid="button-compare-pro" onClick={() => handleCheckout('pro')} disabled={checkoutMutation.isPending}>
+                    Pro
+                  </Button>
                 </div>
                 <div className="flex justify-center">
-                  <Link href="/subscribe?plan=business">
-                    <Button size="sm" className="text-xs px-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-compare-business">
-                      Business
-                    </Button>
-                  </Link>
+                  <Button size="sm" className="text-xs px-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-compare-business" onClick={() => handleCheckout('business')} disabled={checkoutMutation.isPending}>
+                    Business
+                  </Button>
                 </div>
                 <div className="flex justify-center">
-                  <Link href="/subscribe?plan=enterprise">
-                    <Button size="sm" className="text-xs px-2 bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-compare-enterprise">
-                      Enterprise
-                    </Button>
-                  </Link>
+                  <Button size="sm" className="text-xs px-2 bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-compare-enterprise" onClick={() => handleCheckout('enterprise')} disabled={checkoutMutation.isPending}>
+                    Enterprise
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -1003,16 +1031,16 @@ export default function Pricing() {
                   Start Free
                 </Button>
               </Link>
-              <Link href="/subscribe?plan=business">
-                <Button 
-                  size="lg"
-                  className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold min-w-[180px]"
-                  data-testid="button-cta-final-business"
-                >
-                  Get Business Plan
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
+              <Button 
+                size="lg"
+                className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold min-w-[180px]"
+                data-testid="button-cta-final-business"
+                onClick={() => handleCheckout('business')}
+                disabled={checkoutMutation.isPending}
+              >
+                {checkoutMutation.isPending ? 'Loading...' : 'Get Business Plan'}
+                {!checkoutMutation.isPending && <ArrowRight className="h-4 w-4 ml-2" />}
+              </Button>
             </div>
             
             <p className="text-sm text-white/60 mt-6">
