@@ -83,7 +83,7 @@ export default function Pricing() {
       return;
     }
     if (tierId === 'enterprise') {
-      window.location.href = '/consultation';
+      window.location.href = '/enterprise-onboarding';
       return;
     }
     checkoutMutation.mutate(tierId);
