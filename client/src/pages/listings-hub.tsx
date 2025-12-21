@@ -17,6 +17,11 @@ import type { Listing } from '@shared/schema';
 function generateListingsStructuredData(listings: Listing[], baseUrl: string) {
   if (!listings || listings.length === 0) return null;
 
+  // Calculate price valid until date (6 months from now for listings)
+  const priceValidUntil = new Date();
+  priceValidUntil.setMonth(priceValidUntil.getMonth() + 6);
+  const priceValidUntilISO = priceValidUntil.toISOString().split('T')[0];
+
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -67,11 +72,16 @@ function generateListingsStructuredData(listings: Listing[], baseUrl: string) {
               "@type": "Offer",
               "price": price,
               "priceCurrency": listing.currency || "USD",
+              "priceValidUntil": priceValidUntilISO,
               "availability": listing.status === 'active' ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
               "itemOffered": {
                 "@type": "Product",
                 "name": listing.title,
-                "category": listing.businessType
+                "category": listing.businessType,
+                "brand": {
+                  "@type": "Brand",
+                  "name": "WashBizHub Verified Listing"
+                }
               }
             }
           } : {})

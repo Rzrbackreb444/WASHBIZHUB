@@ -135,6 +135,11 @@ export default function FeaturedListings() {
   
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com';
 
+  // Calculate price valid until date (6 months from now for listings)
+  const priceValidUntil = new Date();
+  priceValidUntil.setMonth(priceValidUntil.getMonth() + 6);
+  const priceValidUntilISO = priceValidUntil.toISOString().split('T')[0];
+
   const listingsItemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -149,10 +154,15 @@ export default function FeaturedListings() {
         "@type": "Product",
         "name": listing.title,
         "description": listing.description,
+        "brand": {
+          "@type": "Brand",
+          "name": "WashBizHub Verified Listing"
+        },
         "offers": {
           "@type": "Offer",
           "price": listing.price,
           "priceCurrency": "USD",
+          "priceValidUntil": priceValidUntilISO,
           "availability": "https://schema.org/InStock",
           "seller": {
             "@type": "Organization",
