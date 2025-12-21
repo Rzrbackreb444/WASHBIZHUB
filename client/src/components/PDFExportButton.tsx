@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import jsPDF from "jspdf";
-import logoUrl from "@assets/Untitled design (24)_1763778677287.png";
+import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 
 interface PDFExportButtonProps {
   contentRef: React.RefObject<HTMLElement>;

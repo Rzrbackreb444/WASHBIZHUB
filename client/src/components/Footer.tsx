@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { ExternalLink, Facebook, Twitter, MapPin, Building2, Phone, Mail, MessageCircle, Shield, UserCheck } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { LazyImage } from "@/components/LazyImage";
-import logoUrl from "@assets/6_1764040628012.png";
+import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 import nycSkyline from "@assets/City_Lights_54_1765330986805.png";
 import whatsappQR from "@assets/image_1765639493747.png";
 

@@ -21,7 +21,7 @@ import {
   Briefcase, TrendingUp, PiggyBank, Receipt, Users,
   LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag, LayoutGrid, Info
 } from "lucide-react";
-import logoUrl from "@assets/6_1764040628012.png";
+import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 import { MobileMenu } from "@/components/MobileMenu";
 import { PersonaSwitcher, PersonaCTA, PersonaNavBanner } from "@/components/PersonaNav";
 import { usePersona, PERSONA_CONFIG } from "@/contexts/PersonaContext";

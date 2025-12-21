@@ -28,7 +28,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import logoUrl from "@assets/6_1764040628012.png";
+import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 
 const navLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, icon: Search },
