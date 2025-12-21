@@ -84,13 +84,58 @@ const equipmentBrands = [
 ];
 
 const availableModules = [
-  { id: "fleet", name: "Fleet Health Dashboard", icon: Cpu, description: "Real-time multi-brand equipment monitoring", included: true },
-  { id: "service", name: "Service AI Engine", icon: Wrench, description: "AI-powered diagnostics and repair guidance", included: true },
-  { id: "parts", name: "Parts Intelligence", icon: Package, description: "Predictive parts ordering and inventory" },
-  { id: "dispatch", name: "Technician Dispatch", icon: MapPin, description: "Smart routing and job management" },
-  { id: "receptionist", name: "AI Receptionist", icon: Headphones, description: "24/7 call handling and scheduling" },
-  { id: "analytics", name: "Advanced Analytics", icon: LineChart, description: "Business intelligence and reporting" },
+  { id: "fleet", name: "Fleet Health Dashboard", icon: Cpu, description: "Real-time multi-brand equipment monitoring", included: true, price: 0 },
+  { id: "service", name: "Service AI Engine", icon: Wrench, description: "AI-powered diagnostics and repair guidance", included: true, price: 0 },
+  { id: "parts", name: "Parts Intelligence", icon: Package, description: "Predictive parts ordering and inventory", price: 99 },
+  { id: "dispatch", name: "Technician Dispatch", icon: MapPin, description: "Smart routing and job management", price: 149 },
+  { id: "receptionist", name: "AI Receptionist", icon: Headphones, description: "24/7 call handling and scheduling", price: 199 },
+  { id: "analytics", name: "Advanced Analytics", icon: LineChart, description: "Business intelligence and reporting", price: 79 },
 ];
+
+// Auto-quote pricing calculator
+const calculateQuote = (data: Partial<OnboardingFormData>) => {
+  // Base price by fleet size
+  const fleetPricing: Record<string, number> = {
+    "50-100": 299,
+    "100-250": 449,
+    "250-500": 699,
+    "500-1000": 999,
+    "1000-2500": 1499,
+    "2500+": 2499,
+  };
+  
+  const basePrice = fleetPricing[data.estimatedFleetSize || "50-100"] || 299;
+  
+  // Add module pricing
+  const modulesCost = (data.selectedModules || []).reduce((sum, modId) => {
+    const mod = availableModules.find(m => m.id === modId);
+    return sum + (mod?.price || 0);
+  }, 0);
+  
+  // Location multiplier
+  const locationMultipliers: Record<string, number> = {
+    "1": 1,
+    "2-5": 1.15,
+    "5-10": 1.25,
+    "10-25": 1.35,
+    "25+": 1.5,
+  };
+  const locationMultiplier = locationMultipliers[data.serviceLocations || "1"] || 1;
+  
+  const monthlyTotal = Math.round((basePrice + modulesCost) * locationMultiplier);
+  const annualTotal = Math.round(monthlyTotal * 12 * 0.85); // 15% discount
+  const isAnnual = data.billingCycle === "annual";
+  
+  return {
+    basePrice,
+    modulesCost,
+    monthlyTotal,
+    annualTotal,
+    effectiveMonthly: isAnnual ? Math.round(annualTotal / 12) : monthlyTotal,
+    savings: isAnnual ? (monthlyTotal * 12) - annualTotal : 0,
+    isAnnual,
+  };
+};
 
 export default function EnterpriseOnboarding() {
   const { toast } = useToast();
@@ -690,6 +735,59 @@ export default function EnterpriseOnboarding() {
                       )}
                     />
 
+                    {/* Auto-Generated Quote */}
+                    <div className="bg-gradient-to-br from-[#0A1628] to-[#16213e] rounded-xl p-6 text-white" data-testid="quote-summary">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-[#C8A661]" />
+                          Your Enterprise Quote
+                        </h3>
+                        <Badge className="bg-[#C8A661] text-[#0A1628]">Instant Quote</Badge>
+                      </div>
+                      
+                      {(() => {
+                        const quote = calculateQuote(form.getValues());
+                        return (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-gray-400">Base (Fleet Size):</span>
+                                <span className="ml-2 font-medium">${quote.basePrice}/mo</span>
+                              </div>
+                              <div>
+                                <span className="text-gray-400">Add-on Modules:</span>
+                                <span className="ml-2 font-medium">+${quote.modulesCost}/mo</span>
+                              </div>
+                            </div>
+                            
+                            <div className="border-t border-white/20 pt-4">
+                              <div className="flex items-baseline justify-between">
+                                <span className="text-xl font-bold">
+                                  ${quote.effectiveMonthly}
+                                  <span className="text-sm font-normal text-gray-300">/month</span>
+                                </span>
+                                {quote.isAnnual && (
+                                  <span className="text-[#C8A661] text-sm">
+                                    Save ${quote.savings}/year
+                                  </span>
+                                )}
+                              </div>
+                              {quote.isAnnual && (
+                                <p className="text-xs text-gray-400 mt-1">
+                                  Billed annually at ${quote.annualTotal.toLocaleString()}
+                                </p>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                              <Shield className="w-3 h-3" />
+                              30-day money-back guarantee
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+
                     <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                       <h4 className="font-medium text-green-800 dark:text-green-200 flex items-center gap-2">
                         <Shield className="w-4 h-4" />
@@ -697,16 +795,16 @@ export default function EnterpriseOnboarding() {
                       </h4>
                       <ul className="mt-2 space-y-1 text-sm text-green-700 dark:text-green-300">
                         <li className="flex items-center gap-2">
-                          <Clock className="w-3 h-3" />
-                          Response within 24 business hours
+                          <Check className="w-3 h-3" />
+                          We'll email your detailed quote within minutes
                         </li>
                         <li className="flex items-center gap-2">
                           <Users className="w-3 h-3" />
-                          Personalized demo with solutions engineer
+                          Schedule a quick demo (optional)
                         </li>
                         <li className="flex items-center gap-2">
-                          <Lock className="w-3 h-3" />
-                          Custom pricing proposal for your fleet
+                          <Clock className="w-3 h-3" />
+                          Portal setup within 48 hours of signing
                         </li>
                       </ul>
                     </div>
