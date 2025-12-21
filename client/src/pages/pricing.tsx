@@ -31,7 +31,6 @@ import {
   Clock,
   Users,
   TrendingUp,
-  Sparkles,
   ArrowRight,
   ChevronDown,
   Quote,
@@ -417,19 +416,18 @@ export default function Pricing() {
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section 
-          className="relative py-16 sm:py-20 lg:py-28 overflow-hidden bg-[#0A1628]"
+          className="relative py-16 sm:py-20 lg:py-24 bg-[#0A1628]"
           aria-labelledby="pricing-hero-title"
         >
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
           
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <Badge 
-                className="mb-6 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/40"
+                variant="outline"
+                className="mb-6 border-[#C8A661]/40 text-[#C8A661]"
                 data-testid="badge-pricing-header"
               >
-                <Sparkles className="h-3 w-3 mr-1.5" aria-hidden="true" />
-                Simple, Transparent Pricing
+                Pricing
               </Badge>
               
               <h1 
@@ -451,17 +449,12 @@ export default function Pricing() {
 
               {/* Social proof stats */}
               <div 
-                className="flex flex-wrap justify-center gap-6 sm:gap-10 text-sm sm:text-base text-white/70 mb-10"
+                className="flex flex-wrap justify-center gap-6 text-sm text-white/60 mb-8"
                 aria-label="Platform statistics"
               >
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
-                  <span>73K+ members</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-[#C8A661]" aria-hidden="true" />
-                  <span>2M+ analyses run</span>
-                </div>
+                <span>73,000+ members</span>
+                <span className="hidden sm:inline">|</span>
+                <span>2M+ analyses</span>
               </div>
 
               {/* Annual/Monthly Toggle */}
@@ -490,8 +483,8 @@ export default function Pricing() {
                   Annual
                 </span>
                 {isAnnual && (
-                  <Badge className="bg-[#C8A661] text-[#0A1628] font-semibold">
-                    {monthsFree} Months FREE
+                  <Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661]">
+                    Save {getSavingsPercent()}%
                   </Badge>
                 )}
               </div>
@@ -555,7 +548,7 @@ export default function Pricing() {
                 <div className="h-1 bg-blue-500" />
                 <CardHeader className="text-center pb-4 pt-6">
                   <div className="mx-auto mb-3 p-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/30 w-fit">
-                    <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    <Target className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
                   <CardTitle className="text-xl font-bold text-foreground">Pro</CardTitle>
                   <CardDescription className="text-muted-foreground text-xs">For serious buyers</CardDescription>
@@ -601,8 +594,8 @@ export default function Pricing() {
               >
                 <div className="h-2 bg-[#C8A661]" />
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
-                  <Badge className="bg-[#C8A661] text-[#0A1628] shadow-lg px-3 py-0.5 text-xs font-semibold">
-                    MOST POPULAR
+                  <Badge variant="outline" className="border-[#C8A661] text-[#C8A661] bg-background px-3 py-0.5 text-xs">
+                    Most Popular
                   </Badge>
                 </div>
                 
@@ -744,8 +737,8 @@ export default function Pricing() {
                     <div className={`h-1 ${addon.popular ? 'bg-[#C8A661]' : 'bg-muted'}`} />
                     {addon.popular && (
                       <div className="absolute top-2 right-4 z-10">
-                        <Badge className="bg-[#C8A661] text-[#0A1628] text-xs font-semibold">
-                          POPULAR
+                        <Badge variant="outline" className="border-[#C8A661]/40 text-[#C8A661] text-xs">
+                          Most Chosen
                         </Badge>
                       </div>
                     )}
