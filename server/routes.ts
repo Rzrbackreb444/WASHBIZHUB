@@ -3195,24 +3195,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Define subscription tiers with Stripe price IDs
-      // Pricing must match client/src/lib/tier-config.ts
-      // NEW SIMPLIFIED STRUCTURE: Free + All-Access ($129/mo or $1,290/yr)
+      // Pricing matches client/src/lib/tier-config.ts (canonical source)
+      // Tiers: Free (no checkout), Pro $49/mo, Business $149/mo, Enterprise $299/mo
       const subscriptionTiers: Record<string, { name: string; amount: number; amountAnnual?: number; priceId?: string; priceIdAnnual?: string; trialDays: number }> = {
-        // PRIMARY TIER: All-Access at $129/mo or $1,290/yr (2 months free)
-        'all_access': { 
-          name: 'WashBizHub All-Access', 
-          amount: 12900, 
-          amountAnnual: 129000,
-          priceId: process.env.STRIPE_ALL_ACCESS_MONTHLY_PRICE_ID || getPrice('ALL_ACCESS'),
-          priceIdAnnual: process.env.STRIPE_ALL_ACCESS_ANNUAL_PRICE_ID,
+        // Pro tier: $49/mo or $490/yr
+        'pro': { 
+          name: 'WashBizHub Pro', 
+          amount: 4900, 
+          amountAnnual: 49000,
+          priceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || getPrice('PRO'),
+          priceIdAnnual: process.env.STRIPE_PRO_ANNUAL_PRICE_ID,
           trialDays: 7 
         },
-        // Legacy tiers - map to all_access for backward compatibility
-        'starter': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
-        'pro': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
-        'enterprise': { name: 'WashBizHub All-Access', amount: 12900, priceId: getPrice('ALL_ACCESS'), trialDays: 7 },
+        // Business tier: $149/mo or $1,490/yr (MOST POPULAR)
+        'business': { 
+          name: 'WashBizHub Business', 
+          amount: 14900, 
+          amountAnnual: 149000,
+          priceId: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || getPrice('BUSINESS'),
+          priceIdAnnual: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID,
+          trialDays: 7 
+        },
+        // Enterprise tier: $299/mo or $2,990/yr
+        'enterprise': { 
+          name: 'WashBizHub Enterprise', 
+          amount: 29900, 
+          amountAnnual: 299000,
+          priceId: process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || getPrice('ENTERPRISE'),
+          priceIdAnnual: process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID,
+          trialDays: 7 
+        },
+        // Legacy all_access maps to business tier
+        'all_access': { 
+          name: 'WashBizHub Business', 
+          amount: 14900, 
+          amountAnnual: 149000,
+          priceId: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || getPrice('BUSINESS'),
+          priceIdAnnual: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID,
+          trialDays: 7 
+        },
+        // Legacy starter maps to pro tier
+        'starter': { 
+          name: 'WashBizHub Pro', 
+          amount: 4900, 
+          priceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || getPrice('PRO'), 
+          trialDays: 7 
+        },
         // POS add-ons (future)
-        'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 9900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID, trialDays: 7 },
+        'pos_flat': { name: 'WashBizPOS Pro Flat', amount: 14900, priceId: process.env.STRIPE_POS_FLAT_PRICE_ID, trialDays: 7 },
         'pos_transaction': { name: 'WashBizPOS Pro Transaction', amount: 0, priceId: process.env.STRIPE_POS_TRANSACTION_PRICE_ID, trialDays: 7 },
       };
       
@@ -3247,8 +3277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success_url: `${baseUrl}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/pricing`,
         metadata: {
-          tierId: tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise' ? 'all_access' : tierId,
-          tier: tierId === 'starter' || tierId === 'pro' || tierId === 'enterprise' ? 'all_access' : tierId,
+          tierId: tierId,
+          tier: tierId,
           tierName: tier.name,
           userId: userId || '',
           type: 'subscription',
