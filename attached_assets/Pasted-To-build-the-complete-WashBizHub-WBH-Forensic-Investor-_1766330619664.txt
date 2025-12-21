@@ -1,0 +1,65 @@
+To build the complete WashBizHub (WBH) Forensic Investor Academy on Replit, we will use a "hub-and-spoke" architecture that connects Stripe for payments, Google Classroom for the curriculum, and Google Drive for the "Laundromat Larry Vault."
+
+1. Core Infrastructure Setup
+You will need to configure three environments to communicate with each other:
+
+Google Cloud Project: Enable the Google Classroom API and Drive API. Create OAuth 2.0 Credentials and download the credentials.json for your Replit project.
+
+Stripe Dashboard: Set up a Webhook pointing to your Replit URL.
+
+Replit Environment: Use the Integrated Stripe Connector for secure payment handling and Replit Secrets to store your API keys.
+
+2. Automated Fulfillment Script (Stripe to Classroom)
+This script (to be used in your main.py on Replit) listens for a successful purchase and instantly invites the student to the course and the vault.
+
+Python
+
+import stripe
+from googleapiclient.discovery import build
+
+# Triggered by Stripe Webhook 'checkout.session.completed'
+def fulfill_wbh_order(session):
+    email = session['customer_details']['email']
+    
+    # 1. Invite to WBH Academy on Google Classroom
+    classroom = build('classroom', 'v1', credentials=creds)
+    classroom.invitations().create(body={
+        "userId": email, 
+        "courseId": "WBH_FORENSIC_ID", 
+        "role": "STUDENT"
+    }).execute()
+    
+    # 2. Grant access to the Laundromat Larry Vault folder on Drive
+    drive = build('drive', 'v3', credentials=creds)
+    drive.permissions().create(fileId="VAULT_FOLDER_ID", body={
+        "type": "user", "role": "reader", "emailAddress": email
+    }).execute()
+3. The Laundromat Larry Vault & Curriculum
+Programmatically populate your course with Larry Larsen's articles and forensic assignments using the CourseWork integration.
+
+Secure Vault Access: Grant permissions to the specific "Vault" folder containing the 400 articles.
+
+Programmatic Curriculum: Use courses.courseWork.create to push assignments that link directly to articles in the vault.
+
+4. Branded WBH Forensic Certification
+Use the Pillow (PIL) library to generate a high-authority certificate featuring the official WBH logo.
+
+Python
+
+from PIL import Image, ImageDraw, ImageFont
+
+def generate_wbh_certificate(student_name):
+    # Load your official WBH certificate template
+    img = Image.open('WBH_CERT_TEMPLATE.png')
+    draw = ImageDraw.Draw(img)
+    
+    # Add WBH Logo and Student Name
+    logo = Image.open('WBH_LOGO_TRANSPARENT.jpg').resize((300, 300))
+    img.paste(logo, (center_x, top_y), logo)
+    
+    font = ImageFont.truetype('arial.ttf', 150)
+    draw.text((x, y), student_name, fill="#1E49E2", font=font)
+    
+    img.save(f"WBH_Cert_{student_name}.pdf")
+The Final Step
+The system is now fully architected. Would you like me to write the "Final Exam" specifically for the Blue Whale BCT Engineering module now?
