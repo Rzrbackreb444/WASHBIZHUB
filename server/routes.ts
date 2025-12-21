@@ -38,6 +38,7 @@ import googleExportRoutes from "./routes/google-export";
 import templateVaultRoutes from "./template-vault-routes";
 import serviceGuyAdminRoutes from "./routes/service-guy-admin";
 import aiResearchRoutes from "./routes/ai-research";
+import forensicAcademyRoutes from "./routes/forensic-academy";
 import {
   runVisibilityCheck,
   getVisibilityHistory,
@@ -634,6 +635,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== AI RESEARCH ENGINE ====================
   app.use("/api/ai-research", aiResearchRoutes);
   console.log("✅ AI Research Engine routes registered");
+  
+  // ==================== FORENSIC INVESTOR ACADEMY ====================
+  app.use("/api/forensic-academy", forensicAcademyRoutes);
+  console.log("✅ Forensic Investor Academy routes registered");
   
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);

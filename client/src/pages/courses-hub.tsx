@@ -154,6 +154,54 @@ export default function CoursesHub() {
           </div>
         </section>
 
+        {/* Featured: Forensic Investor Academy */}
+        <section className="py-8 bg-gradient-to-r from-[#1a2e4a] to-[#0f1d30]">
+          <div className="mx-auto max-w-7xl px-6">
+            <Card className="bg-white/5 backdrop-blur-sm border-[#C8A661]/30 overflow-hidden">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+                  <div className="p-4 bg-[#C8A661]/20 rounded-xl shrink-0">
+                    <Award className="w-10 h-10 text-[#C8A661]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#C8A661] text-white text-xs px-2 py-1 rounded font-medium">FEATURED</span>
+                      <span className="text-white/60 text-sm">Professional Certification</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">
+                      WBH Forensic Investor Academy
+                    </h2>
+                    <p className="text-white/70 mb-4 max-w-2xl">
+                      Master Larry Larsen's proven forensic due diligence framework. 15+ hours of training, 
+                      access to 400+ exclusive articles in the Laundromat Larry Vault, and earn your WBH certification.
+                    </p>
+                    <div className="flex flex-wrap gap-4 text-sm text-white/60 mb-4">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" /> 15+ Hours
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="w-4 h-4" /> 6 Modules
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Award className="w-4 h-4" /> Certification
+                      </span>
+                    </div>
+                  </div>
+                  <Link href="/forensic-academy">
+                    <Button 
+                      size="lg" 
+                      className="bg-[#C8A661] hover:bg-[#b89551] text-white shrink-0"
+                      data-testid="button-forensic-academy"
+                    >
+                      Learn More
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         <section className="py-8">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid lg:grid-cols-4 gap-8">

@@ -419,6 +419,33 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
         }
       }
 
+      // Forensic Investor Academy purchase
+      if (metadata.productType === "forensic_academy") {
+        try {
+          const { fulfillForensicAcademyOrder } = await import("./routes/forensic-academy");
+          await fulfillForensicAcademyOrder(session);
+          
+          // Log activity
+          await logActivity('purchase', 'Forensic Investor Academy enrolled', session.customer_email || metadata.userEmail || undefined, {
+            type: 'forensic_academy',
+            courseId: metadata.courseId,
+            amount: amountTotal / 100,
+          });
+          
+          // Send purchase notification
+          await notifyPurchase({
+            type: 'course',
+            productName: 'WBH Forensic Investor Academy',
+            amount: amountTotal,
+            customerEmail: session.customer_email || metadata.userEmail,
+          });
+          
+          console.log(`✅ Forensic Academy enrollment processed for user ${metadata.userId}`);
+        } catch (error: any) {
+          console.error(`❌ Failed to process Forensic Academy enrollment: ${error.message}`);
+        }
+      }
+
       // Vendor product purchase - track commission
       if (metadata.type === "product_purchase" && metadata.productId) {
         try {
