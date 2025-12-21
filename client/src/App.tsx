@@ -271,6 +271,8 @@ const UtilityLoadForecaster = lazy(() => import("@/pages/utility-load-forecaster
 const PricingElasticity = lazy(() => import("@/pages/pricing-elasticity"));
 const DeliveryRouteOptimizer = lazy(() => import("@/pages/delivery-route-optimizer"));
 const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"));
+const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
+const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
 
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
@@ -687,6 +689,16 @@ function Router() {
       <Route path="/forensic-academy">
         <Suspense fallback={<LoadingFallback />}>
           <ForensicAcademy />
+        </Suspense>
+      </Route>
+      <Route path="/ai-book-suite">
+        <Suspense fallback={<LoadingFallback />}>
+          <AIBookSuite />
+        </Suspense>
+      </Route>
+      <Route path="/ai-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <AICommandCenter />
         </Suspense>
       </Route>
       <Route path="/about-us" component={AboutUs} />
