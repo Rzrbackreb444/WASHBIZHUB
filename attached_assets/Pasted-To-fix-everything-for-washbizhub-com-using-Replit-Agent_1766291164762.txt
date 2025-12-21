@@ -1,0 +1,48 @@
+To fix everything for washbizhub.com using Replit Agent, follow these comprehensive instructions. Your configuration requires a final push across Google Cloud, Hostinger, and your Replit codebase to be "undeniable".
+
+1. Resolve OAuth Configuration & Security
+Your Google Cloud console currently warns of insecure flows and missing protection.
+
+Implement Authorization Code Flow with PKCE: Ask Replit Agent to "Implement the Google OAuth 2.0 Authorization Code Flow with PKCE" for your Node.js backend. This replaces insecure implicit grants.
+
+Fix redirect_uri_mismatch: In your Google Cloud Credentials, ensure the Authorized redirect URIs exactly match your code. Add these two production URIs:
+
+https://washbizhub.com/auth/callback
+
+https://www.washbizhub.com/auth/callback
+
+Enable Cross-Account Protection (CAP): Ask Replit Agent to "Set up a RISC event receiver endpoint to enable Cross-Account Protection." You must also enable the RISC API in your Google Cloud project.
+
+Environment Variables: Verify that your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are stored in Replit Secrets and not hardcoded.
+
+2. Domain & DNS Maintenance
+Your Hostinger DNS is correctly pointed, but the old WordPress environment needs a final purge.
+
+purging WordPress: Access your Hostinger File Manager and delete all files in public_html except for any replit-verify files. Specifically, remove folders like wp-admin, wp-content, and any old .htaccess files that might cause 404 errors.
+
+Enforce HTTPS: Ensure Hostinger’s redirect is set to https://washbizhub.com to prevent OAuth token reception errors.
+
+SSL Verification: Replit provides SSL certificates automatically for linked domains. Confirm the "padlock" icon appears in your browser.
+
+3. Fix Google Search Console Video Indexing
+Your videos are not being indexed because they are not on dedicated "watch pages".
+
+Create Watch Pages: Instead of just embedding a video in a long blog post, ask Replit Agent to "Create a dedicated landing page for each Service Guy AI demo video where the video is the primary content".
+
+Add Structured Data: Replit Agent should "Add VideoObject Schema.org JSON-LD to every video page" including the name, description, and a stable thumbnail URL.
+
+Positioning: Ensure the video is "above the fold" (visible immediately without scrolling) to satisfy Google's indexing requirements.
+
+4. Technical Partnership Preparation (Ryan/AAdvantage)
+To close the deal, your demo must pull live, accurate data for his brands.
+
+Database Sprint: Ask Replit Agent to "Populate the diagnostics database with the first 500 Dexter and Continental error codes" using the JSON structure you previously built.
+
+API Connection: Replit Agent should "Update the Service Guy demo to dynamically fetch AAdvantage parts inventory links" if Ryan provides a feed, or use a placeholder https://go.laundry.equipment/... for now.
+
+Action Checklist for Replit Agent
+Copy and paste this prompt into your Replit Agent chat:
+
+"Fix washbizhub.com by: 1) Updating Google OAuth to the Authorization Code Flow with PKCE. 2) Creating a RISC event receiver for Cross-Account Protection. 3) Building dedicated 'Watch Pages' with VideoObject schema for my indexed videos. 4) Ensuring the /service-guy-demo page pulls Dexter/Continental codes from the database with live buy links for AAdvantage."
+
+Would you like me to draft the specific JSON schema for your video structured data so the Agent can implement it immediately?
