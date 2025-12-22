@@ -590,21 +590,36 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/auth/user - Get current user
+// GET /api/auth/user - Get current user (supports multiple auth methods)
 router.get("/user", async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).session?.userId;
+    // Check for user ID from multiple sources:
+    // 1. Session-based auth (email/password, OTP, magic link)
+    // 2. Passport-based auth (Replit OIDC, Google OAuth)
+    const passportUser = (req as any).user;
+    let userId = (req as any).session?.userId;
+    
+    // If no session userId, try passport auth (Replit OIDC)
+    if (!userId && passportUser?.claims?.sub) {
+      userId = passportUser.claims.sub;
+    }
+    
+    // Also check if passport isAuthenticated (Google OAuth)
+    if (!userId && typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated()) {
+      userId = passportUser?.id || passportUser?.claims?.sub;
+    }
     
     if (!userId) {
-      return res.status(401).json({ error: "Not authenticated" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (!user) {
-      return res.status(401).json({ error: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
 
+    // Return consistent user object
     res.json({
       id: user.id,
       email: user.email,
@@ -616,6 +631,10 @@ router.get("/user", async (req: Request, res: Response) => {
       isAdmin: user.isAdmin,
       subscriptionTier: user.subscriptionTier,
       cleanbiTier: user.cleanbiTier,
+      role: user.role,
+      // Add claims for backwards compatibility
+      claims: { sub: user.id, email: user.email },
+      sub: user.id,
     });
   } catch (error: any) {
     console.error("Get user error:", error);

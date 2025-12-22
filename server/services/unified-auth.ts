@@ -1,11 +1,11 @@
 /**
  * Unified Authentication Service
- * Enterprise-grade auth with Google OAuth and Email OTP as providers
+ * Enterprise-grade auth supporting multiple providers:
  * 
  * Priority Order:
- * 1. Session-based auth (existing logged-in users)
- * 2. Google OAuth (primary public auth)
- * 3. Email OTP (passwordless alternative)
+ * 1. Passport-based auth (Replit OIDC, Google OAuth via passport)
+ * 2. Session-based auth (session.userId from email OTP, etc.)
+ * 3. Future: API keys, etc.
  */
 
 import { Request, Response, NextFunction } from "express";
@@ -21,7 +21,7 @@ export interface AuthenticatedUser {
   profileImageUrl?: string;
   subscriptionTier: string;
   role?: string;
-  authProvider: 'cloudflare-access' | 'google' | 'replit' | 'session';
+  authProvider: 'cloudflare-access' | 'google' | 'replit' | 'session' | 'email-otp';
 }
 
 export interface AuthResult {
@@ -36,7 +36,13 @@ class UnifiedAuthService {
    * Authenticate request using all available methods
    */
   async authenticate(req: Request): Promise<AuthResult> {
-    // Try existing session (includes Google OAuth and Email OTP sessions)
+    // 1. Try passport-based auth (Replit OIDC, Google OAuth)
+    const passportResult = await this.tryPassportAuth(req);
+    if (passportResult.authenticated) {
+      return passportResult;
+    }
+
+    // 2. Try session-based auth (session.userId from email OTP, etc.)
     const sessionResult = await this.trySession(req);
     if (sessionResult.authenticated) {
       return sessionResult;
@@ -46,6 +52,82 @@ class UnifiedAuthService {
     return { authenticated: false };
   }
 
+  /**
+   * Check for passport-based authentication (Replit OIDC, Google OAuth)
+   */
+  private async tryPassportAuth(req: Request): Promise<AuthResult> {
+    try {
+      const passportUser = (req as any).user;
+      
+      // Check if passport session exists with claims (Replit OIDC)
+      if (passportUser?.claims?.sub) {
+        const userId = passportUser.claims.sub;
+        const email = passportUser.claims.email;
+        
+        // Fetch full user from database
+        const [user] = await db.select()
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+
+        if (user) {
+          return {
+            authenticated: true,
+            user: {
+              id: user.id,
+              email: user.email || email,
+              firstName: user.firstName || passportUser.claims.first_name || undefined,
+              lastName: user.lastName || passportUser.claims.last_name || undefined,
+              profileImageUrl: user.profileImageUrl || passportUser.claims.profile_image_url || undefined,
+              subscriptionTier: user.subscriptionTier || 'free',
+              role: user.role || undefined,
+              authProvider: 'replit',
+            },
+            provider: 'replit',
+          };
+        }
+      }
+
+      // Check for passport isAuthenticated function (Google OAuth via passport)
+      if (typeof (req as any).isAuthenticated === 'function' && (req as any).isAuthenticated()) {
+        const user = passportUser;
+        if (user?.id || user?.claims?.sub) {
+          const userId = user.id || user.claims?.sub;
+          
+          const [dbUser] = await db.select()
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1);
+
+          if (dbUser) {
+            return {
+              authenticated: true,
+              user: {
+                id: dbUser.id,
+                email: dbUser.email,
+                firstName: dbUser.firstName || undefined,
+                lastName: dbUser.lastName || undefined,
+                profileImageUrl: dbUser.profileImageUrl || undefined,
+                subscriptionTier: dbUser.subscriptionTier || 'free',
+                role: dbUser.role || undefined,
+                authProvider: 'google',
+              },
+              provider: 'google',
+            };
+          }
+        }
+      }
+
+      return { authenticated: false };
+    } catch (error) {
+      console.error('Passport auth error:', error);
+      return { authenticated: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Check for session-based authentication (session.userId)
+   */
   private async trySession(req: Request): Promise<AuthResult> {
     try {
       const session = (req as any).session;
@@ -99,14 +181,14 @@ class UnifiedAuthService {
    * Get logout URL
    */
   getLogoutUrl(): string {
-    return '/api/auth/logout';
+    return '/api/logout';
   }
 
   /**
    * Get all configured auth providers
    */
   getConfiguredProviders(): string[] {
-    const providers: string[] = ['email-otp'];
+    const providers: string[] = ['replit', 'email-otp'];
     
     if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       providers.push('google');
@@ -136,7 +218,11 @@ export async function requireAuth(
     return;
   }
   
+  // Set unified user object on request
   (req as any).user = result.user;
+  // Also set claims for backwards compatibility with code expecting req.user.claims.sub
+  (req as any).user.claims = { sub: result.user!.id, email: result.user!.email };
+  (req as any).user.sub = result.user!.id;
   (req as any).authProvider = result.provider;
   next();
 }
@@ -153,6 +239,9 @@ export async function optionalAuth(
   
   if (result.authenticated && result.user) {
     (req as any).user = result.user;
+    // Also set claims for backwards compatibility
+    (req as any).user.claims = { sub: result.user.id, email: result.user.email };
+    (req as any).user.sub = result.user.id;
     (req as any).authProvider = result.provider;
   }
   
@@ -174,12 +263,20 @@ export async function requireAdmin(
     return;
   }
   
-  if (result.user?.role !== 'admin' && result.user?.role !== 'superadmin') {
+  // Check admin by role or email
+  const adminEmails = ['nick@washbizhub.com', 'rzrbackreb444@gmail.com', 'thelaundromatfb@gmail.com'];
+  const isAdmin = result.user?.role === 'admin' || 
+                  result.user?.role === 'superadmin' ||
+                  adminEmails.includes(result.user?.email?.toLowerCase() || '');
+  
+  if (!isAdmin) {
     res.status(403).json({ error: "Admin access required" });
     return;
   }
   
   (req as any).user = result.user;
+  (req as any).user.claims = { sub: result.user!.id, email: result.user!.email };
+  (req as any).user.sub = result.user!.id;
   (req as any).authProvider = result.provider;
   next();
 }
