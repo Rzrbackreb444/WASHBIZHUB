@@ -19,50 +19,20 @@ import { getNavItemsForRole } from "@/lib/dashboard-nav-config";
 import {
   DollarSign,
   TrendingUp,
-  MousePointerClick,
   ShoppingCart,
   Copy,
   Check,
-  Share2,
-  FileText,
-  Video,
   AlertCircle,
-  Clock,
   Sparkles,
   LinkIcon,
   Wallet,
   Users,
-  Gift,
   ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
 import type { Affiliate, AffiliateContent, AffiliateSale } from "@shared/schema";
 
 
-const mockReferralData = [
-  { month: "Jan", referrals: 12, conversions: 3, commission: 450 },
-  { month: "Feb", referrals: 18, conversions: 5, commission: 750 },
-  { month: "Mar", referrals: 25, conversions: 8, commission: 1200 },
-  { month: "Apr", referrals: 22, conversions: 6, commission: 900 },
-  { month: "May", referrals: 35, conversions: 12, commission: 1800 },
-  { month: "Jun", referrals: 42, conversions: 15, commission: 2250 },
-];
-
-const recentActivity = [
-  { id: 1, type: "conversion", message: "New sale from referral link - $75 commission", time: "2 hours ago", icon: DollarSign },
-  { id: 2, type: "click", message: "Referral link clicked 15 times today", time: "5 hours ago", icon: MousePointerClick },
-  { id: 3, type: "payout", message: "Payout of $450 processed", time: "2 days ago", icon: Wallet },
-  { id: 4, type: "milestone", message: "Reached 100 total referrals", time: "1 week ago", icon: Gift },
-];
 
 const promoMaterials = [
   { name: "Website Templates", url: "/website-templates", description: "Custom templates for laundromat owners" },
@@ -125,11 +95,12 @@ export default function AffiliateDashboard() {
     }
   };
 
-  const mockStats = {
-    totalReferrals: stats?.clicks || affiliate?.totalClicks || 154,
-    conversions: stats?.sales || affiliate?.totalSales || 49,
-    commissionEarned: stats?.commission || affiliate?.totalCommission || "7,350",
-    pendingPayout: "1,250",
+  const realStats = {
+    totalReferrals: stats?.clicks || affiliate?.totalClicks || 0,
+    conversions: stats?.sales || affiliate?.totalSales || 0,
+    commissionEarned: stats?.commission || affiliate?.totalCommission || "0",
+    pendingPayout: affiliate?.pendingPayout || "0",
+    conversionRate: stats?.conversionRate || 0,
   };
 
   const affiliateTag = affiliate?.affiliateTag || affiliate?.affiliateCode || "PARTNER2024";
@@ -242,32 +213,30 @@ export default function AffiliateDashboard() {
         <DashboardSection className="mb-8">
           <KPIGroup>
             <KPICard
-              value={mockStats.totalReferrals}
+              value={realStats.totalReferrals}
               label="Total Referrals"
               icon={Users}
               variant="default"
-              trend={{ value: 23.5, direction: "up", label: "vs last month" }}
             />
             <KPICard
-              value={mockStats.conversions}
+              value={realStats.conversions}
               label="Conversions"
               icon={ShoppingCart}
               variant="default"
-              subtitle={`${((mockStats.conversions / mockStats.totalReferrals) * 100).toFixed(1)}% rate`}
+              subtitle={realStats.totalReferrals > 0 ? `${realStats.conversionRate.toFixed(1)}% rate` : "No referrals yet"}
             />
             <KPICard
-              value={`$${mockStats.commissionEarned}`}
+              value={`$${realStats.commissionEarned}`}
               label="Commission Earned"
               icon={DollarSign}
               variant="gold"
-              trend={{ value: 15.2, direction: "up", label: "vs last month" }}
             />
             <KPICard
-              value={`$${mockStats.pendingPayout}`}
+              value={`$${realStats.pendingPayout}`}
               label="Pending Payout"
               icon={Wallet}
               variant="success"
-              subtitle="Next payout: Jan 1"
+              subtitle="Payouts processed monthly"
             />
           </KPIGroup>
         </DashboardSection>
@@ -351,87 +320,82 @@ export default function AffiliateDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
             <ChartCard
-              title="Referral Trends"
-              subtitle="Monthly referrals and conversions"
+              title="Performance Summary"
+              subtitle="Your affiliate performance overview"
               minHeight="280px"
             >
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={mockReferralData}>
-                  <defs>
-                    <linearGradient id="referralsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0A1628" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#0A1628" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="commissionsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#C8A661" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#C8A661" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="referrals"
-                    stroke="#0A1628"
-                    fill="url(#referralsGradient)"
-                    strokeWidth={2}
-                    name="Referrals"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="commission"
-                    stroke="#C8A661"
-                    fill="url(#commissionsGradient)"
-                    strokeWidth={2}
-                    name="Commission ($)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {realStats.totalReferrals > 0 ? (
+                <div className="flex items-center justify-center h-[280px]">
+                  <div className="text-center">
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-[#0A1628] dark:text-[#C8A661]">{realStats.totalReferrals}</div>
+                        <div className="text-sm text-muted-foreground mt-1">Total Clicks</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-4xl font-bold text-[#C8A661]">{realStats.conversions}</div>
+                        <div className="text-sm text-muted-foreground mt-1">Conversions</div>
+                      </div>
+                    </div>
+                    <div className="mt-6 text-sm text-muted-foreground">
+                      Monthly trend charts coming soon as you build activity
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-[280px] text-center">
+                  <TrendingUp className="w-12 h-12 text-muted-foreground/30 mb-4" />
+                  <p className="text-lg font-medium text-muted-foreground">No Activity Yet</p>
+                  <p className="text-sm text-muted-foreground/70 max-w-sm mt-2">
+                    Start sharing your affiliate links to see your performance data here. 
+                    Copy your tag above and add it to any WashBizHub URL.
+                  </p>
+                </div>
+              )}
             </ChartCard>
           </div>
 
           <div className="lg:col-span-1">
-            <DashboardSection title="Recent Activity">
+            <DashboardSection title="Getting Started">
               <Card className="bg-card border shadow-sm">
                 <CardContent className="p-4">
                   <div className="space-y-4">
-                    {recentActivity.map((activity, index) => (
-                      <div key={activity.id} className="flex gap-3" data-testid={`activity-item-${activity.id}`}>
-                        <div className="relative">
-                          <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            activity.type === "conversion" ? "bg-green-500/10" :
-                            activity.type === "payout" ? "bg-blue-500/10" :
-                            activity.type === "milestone" ? "bg-purple-500/10" :
-                            "bg-[#C8A661]/10"
-                          }`}>
-                            <activity.icon className={`h-4 w-4 ${
-                              activity.type === "conversion" ? "text-green-600" :
-                              activity.type === "payout" ? "text-blue-600" :
-                              activity.type === "milestone" ? "text-purple-600" :
-                              "text-[#C8A661]"
-                            }`} />
-                          </div>
-                          {index < recentActivity.length - 1 && (
-                            <div className="absolute top-8 left-4 w-px h-full bg-border -translate-x-1/2" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0 pb-4">
-                          <p className="text-sm text-foreground line-clamp-2">{activity.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {activity.time}
-                          </p>
-                        </div>
+                    <div className="flex gap-3">
+                      <div className="h-8 w-8 rounded-full bg-[#C8A661]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-[#C8A661]">1</span>
                       </div>
-                    ))}
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Copy Your Affiliate Tag</p>
+                        <p className="text-xs text-muted-foreground mt-1">Use the tag above in all your links</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="h-8 w-8 rounded-full bg-[#C8A661]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-[#C8A661]">2</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Share Links on Social Media</p>
+                        <p className="text-xs text-muted-foreground mt-1">Post to Facebook groups, Twitter, etc.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="h-8 w-8 rounded-full bg-[#C8A661]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-[#C8A661]">3</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Earn {commissionRate}% Commission</p>
+                        <p className="text-xs text-muted-foreground mt-1">On every sale from your referrals</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Get Paid Monthly</p>
+                        <p className="text-xs text-muted-foreground mt-1">Payouts processed on the 1st</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
