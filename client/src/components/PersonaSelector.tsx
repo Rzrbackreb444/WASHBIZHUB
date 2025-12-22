@@ -32,13 +32,13 @@ const personas: PersonaPath[] = [
     gradient: "from-[#22C55E]/20 to-[#22C55E]/5",
     features: [
       { name: "CLEANBI Location Scores", link: "/cleanbi-explorer", icon: MapPin },
-      { name: "Deal Marketplace", link: "/laundromat-listings", icon: Target },
+      { name: "Deal Marketplace", link: "/marketplace", icon: Target },
       { name: "Instant Valuations", link: "/calculators", icon: Calculator },
       { name: "Funding Wizard", link: "/funding-wizard", icon: DollarSign },
       { name: "AI Business Plan", link: "/business-plan-generator", icon: FileText },
-      { name: "Due Diligence Guides", link: "/resources", icon: CheckCircle }
+      { name: "Due Diligence Guides", link: "/template-vault", icon: CheckCircle }
     ],
-    cta: { text: "Start Your Search", link: "/cleanbi-explorer" },
+    cta: { text: "Start Your Search", link: "/for-buyers" },
     stats: [
       { value: "$180K", label: "Avg saved on bad deals" },
       { value: "48hrs", label: "Funding approval" },
@@ -53,14 +53,14 @@ const personas: PersonaPath[] = [
     color: "#C8A661",
     gradient: "from-[#C8A661]/20 to-[#C8A661]/5",
     features: [
-      { name: "Operator Dashboard", link: "/operator-dashboard", icon: BarChart3 },
-      { name: "Service Guy AI", link: "/service-guy", icon: Wrench },
-      { name: "Design Studio", link: "/design-studio-pro", icon: Target },
-      { name: "Equipment Deals", link: "/equipment-marketplace", icon: Settings },
+      { name: "Operator Dashboard", link: "/owner-dashboard", icon: BarChart3 },
+      { name: "Service Guy AI", link: "/service-guy-ai", icon: Wrench },
+      { name: "Design Studio", link: "/design-studio", icon: Target },
+      { name: "Equipment Deals", link: "/marketplace", icon: Settings },
       { name: "POS Suite", link: "/pos-command-center", icon: Calculator },
       { name: "Revenue Tools", link: "/calculators", icon: TrendingUp }
     ],
-    cta: { text: "Boost Your Revenue", link: "/operator-dashboard" },
+    cta: { text: "Boost Your Revenue", link: "/for-owners" },
     stats: [
       { value: "20-30%", label: "Revenue increase" },
       { value: "50+", label: "Expert tools" },
@@ -75,14 +75,14 @@ const personas: PersonaPath[] = [
     color: "#3B82F6",
     gradient: "from-[#3B82F6]/20 to-[#3B82F6]/5",
     features: [
-      { name: "List Your Business", link: "/sell-your-laundromat", icon: Target },
-      { name: "Valuation Report", link: "/calculators", icon: Calculator },
+      { name: "List Your Business", link: "/list-your-laundromat", icon: Target },
+      { name: "Valuation Report", link: "/valuation-calculator", icon: Calculator },
       { name: "CLEANBI Report", link: "/cleanbi-explorer", icon: MapPin },
-      { name: "Broker Directory", link: "/broker-directory", icon: Users },
-      { name: "Enterprise API", link: "/broker-dashboard", icon: Briefcase },
-      { name: "White-Label Tools", link: "/broker-dashboard", icon: FileText }
+      { name: "Broker Directory", link: "/directory", icon: Users },
+      { name: "Talk to Expert", link: "/consultation", icon: Briefcase },
+      { name: "Exit Templates", link: "/template-vault", icon: FileText }
     ],
-    cta: { text: "Get Your Valuation", link: "/calculators" },
+    cta: { text: "Get Your Valuation", link: "/for-sellers" },
     stats: [
       { value: "3x", label: "Faster sales" },
       { value: "73K+", label: "Active buyers" },
