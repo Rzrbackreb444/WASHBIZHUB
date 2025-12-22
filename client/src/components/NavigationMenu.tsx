@@ -106,9 +106,17 @@ const MARKETPLACE_SELL_LINKS = [
   { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
 ];
 
+const PERSONA_HUB_LINKS = [
+  { href: "/for-buyers", label: "For Buyers", icon: ShoppingCart, desc: "Tools for finding & funding your laundromat", featured: true },
+  { href: "/for-owners", label: "For Owners", icon: Monitor, desc: "Operations, equipment & revenue tools", featured: true },
+  { href: "/for-sellers", label: "For Sellers", icon: Building2, desc: "Valuations, listings & broker connections", featured: true },
+  { href: "/laundromat-expert", label: "Laundromat Expert AI", icon: Sparkles, desc: "Your AI consultant for everything laundromat", featured: true },
+];
+
 const RESOURCES_LINKS = [
   { href: "/platform-directory", label: "All Features", icon: LayoutGrid, desc: "Explore 100+ platform tools", featured: true },
-  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 73K+ owners", featured: true },
+  { href: "/laundromat-expert", label: "Laundromat Expert AI", icon: Sparkles, desc: "AI consultant - 50+ years knowledge" },
+  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 73K+ owners" },
   { href: "/network", label: "Member Network", icon: Users, desc: "Find & connect with professionals" },
   { href: "/courses", label: "Courses & Training", icon: GraduationCap, desc: "Learn from industry experts" },
   { href: "/laundromat-bible", label: "Laundromat Bible", icon: BookOpen, desc: "The complete owner's guide" },
