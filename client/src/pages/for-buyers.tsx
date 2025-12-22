@@ -32,7 +32,7 @@ const buyerTools = [
     title: "Laundromat Marketplace",
     description: "Browse verified laundromats for sale across all 50 states with CLEANBI scores.",
     features: ["Real listings", "CLEANBI integrated", "Broker contacts", "Due diligence info"],
-    link: "/laundromat-listings",
+    link: "/marketplace",
     cta: "Browse Listings"
   },
   {
@@ -40,7 +40,7 @@ const buyerTools = [
     title: "Funding Hub",
     description: "Connect with pre-vetted lenders. SBA loans, equipment financing, investor matching.",
     features: ["SBA 7(a) & 504", "Equipment financing", "Up to $750K available", "24-48hr approvals"],
-    link: "/funding",
+    link: "/startup-funding",
     cta: "Explore Funding"
   },
   {
@@ -48,16 +48,16 @@ const buyerTools = [
     title: "Due Diligence Tools",
     description: "Professional checklists and verification tools to avoid costly mistakes.",
     features: ["50+ point checklist", "Lease red flags", "Financial verification", "Expert templates"],
-    link: "/vault",
+    link: "/template-vault",
     cta: "Get Checklists"
   },
   {
     icon: Users,
-    title: "AI Consultation Council",
-    description: "Get multi-AI analysis from 5 expert perspectives on any deal or opportunity.",
-    features: ["5 AI experts", "Detailed reports", "Risk assessment", "Recommendations"],
-    link: "/ai-consultation-council",
-    cta: "Get AI Analysis"
+    title: "Laundromat Expert AI",
+    description: "Your AI consultant for any laundromat question. Location, equipment, deals, funding.",
+    features: ["Instant answers", "50+ years knowledge", "Human verified", "Always learning"],
+    link: "/laundromat-expert",
+    cta: "Ask the Expert"
   }
 ];
 

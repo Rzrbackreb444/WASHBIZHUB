@@ -274,6 +274,12 @@ const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"))
 const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
 const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
 
+// Persona Hub Pages
+const ForBuyers = lazy(() => import("@/pages/for-buyers"));
+const ForOwners = lazy(() => import("@/pages/for-owners"));
+const ForSellers = lazy(() => import("@/pages/for-sellers"));
+const LaundromatExpert = lazy(() => import("@/pages/laundromat-expert"));
+
 // Calculator Pages
 const Calculator = lazy(() => import("@/pages/calculator"));
 const ROICalculator = lazy(() => import("@/pages/roi-calculator"));
@@ -703,6 +709,34 @@ function Router() {
       </Route>
       <Route path="/about-us" component={AboutUs} />
       <Route path="/about" component={AboutUs} />
+      
+      {/* Persona Hub Pages */}
+      <Route path="/for-buyers">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForBuyers />
+        </Suspense>
+      </Route>
+      <Route path="/for-owners">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForOwners />
+        </Suspense>
+      </Route>
+      <Route path="/for-sellers">
+        <Suspense fallback={<LoadingFallback />}>
+          <ForSellers />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-expert">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatExpert />
+        </Suspense>
+      </Route>
+      <Route path="/laundromat-ai">
+        <Suspense fallback={<LoadingFallback />}>
+          <LaundromatExpert />
+        </Suspense>
+      </Route>
+      
       <Route path="/platform-directory" component={PlatformDirectory} />
       <Route path="/features" component={PlatformDirectory} />
       <Route path="/all-features" component={PlatformDirectory} />

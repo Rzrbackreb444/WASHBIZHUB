@@ -4,148 +4,148 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { 
-  Wrench, LayoutGrid, Monitor, ShoppingCart, 
-  ArrowRight, CheckCircle, Settings, TrendingUp,
-  Cpu, Palette, BarChart3, Users
+  Calculator, DollarSign, FileText, Users,
+  ArrowRight, CheckCircle, Handshake, TrendingUp,
+  Building, Shield, Sparkles, BarChart3
 } from "lucide-react";
 
-const ownerTools = [
+const sellerTools = [
   {
-    icon: Wrench,
-    title: "Service Guy AI",
-    description: "AI-powered equipment diagnostics. Identify issues, get repair guides, order parts instantly.",
-    features: ["Photo diagnosis", "Error code lookup", "Parts ordering", "Repair guides"],
-    link: "/service-guy-ai",
-    cta: "Diagnose Issue",
+    icon: Calculator,
+    title: "Business Valuation Calculator",
+    description: "Get an accurate valuation using SDE multiples, revenue, and market comps.",
+    features: ["SDE-based valuation", "Market comparables", "Instant estimate", "PDF reports"],
+    link: "/valuation-calculator",
+    cta: "Get Valuation",
     highlight: true
   },
   {
-    icon: Monitor,
-    title: "POS Command Center",
-    description: "Complete point-of-sale system for laundromat operations with KPIs and order management.",
-    features: ["Transaction register", "Customer lookup", "Daily summaries", "Shift management"],
-    link: "/pos-command-center",
-    cta: "Open POS"
+    icon: FileText,
+    title: "Exit Preparation Checklist",
+    description: "Everything you need to maximize your sale price and attract buyers.",
+    features: ["Pre-sale improvements", "Documentation prep", "Financial cleanup", "Due diligence ready"],
+    link: "/template-vault",
+    cta: "Get Checklist"
   },
   {
-    icon: LayoutGrid,
-    title: "Operator Dashboard",
-    description: "Your command center for daily operations. KPIs, revenue charts, machine status at a glance.",
-    features: ["Real-time KPIs", "Revenue tracking", "Quick actions", "Activity feed"],
-    link: "/owner-dashboard",
-    cta: "View Dashboard"
+    icon: Users,
+    title: "Broker Directory",
+    description: "Connect with verified laundromat brokers across all 50 states.",
+    features: ["Verified brokers", "Commission rates", "Specializations", "Direct contact"],
+    link: "/directory",
+    cta: "Find Brokers"
   },
   {
-    icon: Palette,
-    title: "3D Design Studio",
-    description: "Plan your laundromat layout in 3D. Visualize equipment placement before buying.",
-    features: ["Drag & drop design", "Equipment library", "3D visualization", "Export plans"],
-    link: "/design-studio",
-    cta: "Design Layout"
+    icon: Building,
+    title: "List Your Laundromat",
+    description: "List on the WashBizHub marketplace - reach serious buyers directly.",
+    features: ["73K+ professionals", "CLEANBI integration", "Lead tracking", "Premium visibility"],
+    link: "/list-your-laundromat",
+    cta: "List Now"
   },
   {
-    icon: Cpu,
-    title: "IoT Dashboard",
-    description: "Real-time machine monitoring. Track usage, predict maintenance, optimize pricing.",
-    features: ["Machine status", "Usage analytics", "Predictive maintenance", "Dynamic pricing"],
-    link: "/iot-dashboard",
-    cta: "View IoT"
+    icon: DollarSign,
+    title: "Buyer Financing Partners",
+    description: "Pre-qualified lenders ready to fund your buyer's acquisition.",
+    features: ["SBA-approved lenders", "Equipment financing", "Fast approvals", "Buyer assistance"],
+    link: "/startup-funding",
+    cta: "View Partners"
   },
   {
-    icon: ShoppingCart,
-    title: "Equipment Marketplace",
-    description: "Buy and sell commercial laundry equipment. New and used machines from verified sellers.",
-    features: ["Verified listings", "Parts & supplies", "Distributor network", "Price comparison"],
-    link: "/marketplace",
-    cta: "Shop Equipment"
+    icon: Handshake,
+    title: "Talk to Larry Larsen",
+    description: "50+ years experience. Expert guidance on maximizing your exit.",
+    features: ["Exit strategy review", "Pricing guidance", "Deal structure", "Negotiation tips"],
+    link: "/consultation",
+    cta: "Book Consultation"
   }
 ];
 
 const testimonials = [
   {
-    quote: "Service Guy AI diagnosed my Dexter issue in 30 seconds. Would have cost $200 for a service call.",
-    name: "Tom H.",
-    location: "Chicago, IL"
+    quote: "Listed my laundromat on WashBizHub and had 5 qualified buyers within 2 weeks.",
+    name: "James P.",
+    location: "Atlanta, GA"
   },
   {
-    quote: "The operator dashboard gives me everything I need at a glance. No more spreadsheets.",
-    name: "Linda M.",
-    location: "Miami, FL"
+    quote: "The valuation calculator helped me price it right. Sold for 15% more than I expected.",
+    name: "Maria S.",
+    location: "Denver, CO"
   }
 ];
 
-export default function ForOwners() {
+export default function ForSellers() {
   return (
     <>
       <SEO
-        title="For Owners & Operators | WashBizHub"
-        description="Run your laundromat smarter. Service Guy AI diagnostics, POS system, operator dashboard, 3D design studio, and IoT monitoring."
+        title="For Sellers & Brokers | WashBizHub"
+        description="Sell your laundromat for maximum value. Business valuation tools, exit preparation checklists, verified broker directory, and marketplace listings."
       />
       
       <div className="min-h-screen bg-background">
-        <section className="py-16 md:py-24 bg-gradient-to-b from-[#0A1628] to-[#1a3a5c]" data-testid="section-owner-hero">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-[#0A1628] to-[#1a3a5c]" data-testid="section-seller-hero">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto">
-              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-owner-persona">
-                <Settings className="w-3 h-3 mr-1" />
-                For Owners & Operators
+              <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-seller-persona">
+                <Handshake className="w-3 h-3 mr-1" />
+                For Sellers & Brokers
               </Badge>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6" data-testid="text-owner-headline">
-                Run Your Laundromat Smarter
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-6" data-testid="text-seller-headline">
+                Sell Your Laundromat for Maximum Value
               </h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-8" data-testid="text-owner-subheadline">
-                AI diagnostics, operations management, and design tools to maximize your revenue.
+              <p className="text-lg md:text-xl text-gray-300 mb-8" data-testid="text-seller-subheadline">
+                Accurate valuations, qualified buyers, and expert exit guidance - all in one place.
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
-                <Link href="/service-guy-ai">
-                  <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" data-testid="button-owner-cta-primary">
-                    <Wrench className="w-4 h-4 mr-2" />
-                    Diagnose Equipment
+                <Link href="/valuation-calculator">
+                  <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" data-testid="button-seller-cta-primary">
+                    <Calculator className="w-4 h-4 mr-2" />
+                    Get Free Valuation
                   </Button>
                 </Link>
-                <Link href="/operator-dashboard">
-                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" data-testid="button-owner-cta-secondary">
-                    Open Dashboard
+                <Link href="/list-your-laundromat">
+                  <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10" data-testid="button-seller-cta-secondary">
+                    List Your Business
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               </div>
             </div>
             
-            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center" data-testid="owner-stats">
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center" data-testid="seller-stats">
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">20-30%</div>
-                <div className="text-sm text-gray-400">Revenue Boost</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">3-5x</div>
+                <div className="text-sm text-gray-400">SDE Multiples</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">All Brands</div>
-                <div className="text-sm text-gray-400">Equipment Supported</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">73K+</div>
+                <div className="text-sm text-gray-400">Active Buyers</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">24/7</div>
-                <div className="text-sm text-gray-400">AI Assistance</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">94%</div>
+                <div className="text-sm text-gray-400">Success Rate</div>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">1000+</div>
-                <div className="text-sm text-gray-400">Error Codes</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">30+</div>
+                <div className="text-sm text-gray-400">Verified Brokers</div>
               </div>
             </div>
           </div>
         </section>
         
-        <section className="py-16 md:py-20" data-testid="section-owner-tools">
+        <section className="py-16 md:py-20" data-testid="section-seller-tools">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" data-testid="text-tools-heading">
-                Your Operator Toolkit
+                Your Seller Toolkit
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Everything you need to run a more profitable laundromat
+                Everything you need to prepare, price, and sell your laundromat
               </p>
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ownerTools.map((tool) => {
+              {sellerTools.map((tool) => {
                 const Icon = tool.icon;
                 return (
                   <Card 
@@ -187,10 +187,10 @@ export default function ForOwners() {
           </div>
         </section>
         
-        <section className="py-16 bg-muted/30" data-testid="section-owner-testimonials">
+        <section className="py-16 bg-muted/30" data-testid="section-seller-testimonials">
           <div className="max-w-5xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-10">
-              <h2 className="text-2xl font-bold text-foreground mb-2">What Owners Are Saying</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-2">What Sellers Are Saying</h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
               {testimonials.map((t, i) => (
@@ -213,18 +213,18 @@ export default function ForOwners() {
           </div>
         </section>
         
-        <section className="py-16 bg-[#0A1628]" data-testid="section-owner-cta">
+        <section className="py-16 bg-[#0A1628]" data-testid="section-seller-cta">
           <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Ready to Optimize Your Operations?
+              Ready to Sell?
             </h2>
             <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-              Try Service Guy AI free or explore your operator dashboard
+              Start with a free valuation or list directly on our marketplace
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link href="/service-guy-ai">
-                <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" data-testid="button-owner-final-cta">
-                  Try Service Guy AI
+              <Link href="/valuation-calculator">
+                <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" data-testid="button-seller-final-cta">
+                  Get Free Valuation
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
