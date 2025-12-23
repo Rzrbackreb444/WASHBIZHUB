@@ -13,7 +13,7 @@ import { sendEmail } from "../resend-client";
 const router = Router();
 
 // Owner emails for access control (from environment or defaults)
-const OWNER_EMAILS = (process.env.OWNER_EMAILS || "nick@washbizhub.com,larry@washbizhub.com,nickkremers@gmail.com").split(",").map(e => e.trim().toLowerCase());
+const OWNER_EMAILS = (process.env.OWNER_EMAILS || "thelaundromatfb@gmail.com,rzrbackreb444@gmail.com,nick@washbizhub.com,larry@washbizhub.com").split(",").map(e => e.trim().toLowerCase());
 
 // Middleware to check if user is owner
 function requireOwner(req: Request, res: Response, next: Function) {
