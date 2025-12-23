@@ -19714,5 +19714,77 @@ export type InsertLeadActivity = z.infer<typeof insertLeadActivitySchema>;
 export type LeadActivity = typeof leadActivities.$inferSelect;
 
 // ============================================================================
+// LARRY'S CONTENT EMPIRE - Content Management System
+// ============================================================================
+
+// Larry's Content Items - For managing all content types
+export const larrysContentItems = pgTable("larrys_content_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Basic Info
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  excerpt: text("excerpt"),
+  content: text("content"),
+  
+  // Type & Category
+  type: varchar("type", { length: 50 }).notNull(), // "blog", "course", "book", "document", "product", "landing", "consultation"
+  category: varchar("category", { length: 100 }),
+  tags: text("tags").array(),
+  
+  // Monetization
+  monetization: varchar("monetization", { length: 50 }).notNull().default("free"), // "free", "preview", "paid", "subscription"
+  price: decimal("price", { precision: 10, scale: 2 }),
+  
+  // Status
+  status: varchar("status", { length: 30 }).notNull().default("draft"), // "draft", "review", "published"
+  
+  // Links
+  externalLink: text("external_link"),
+  fileUrl: text("file_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  
+  // SEO Scores (AI-generated)
+  seoScore: integer("seo_score"),
+  aeoScore: integer("aeo_score"),
+  eeatScore: integer("eeat_score"),
+  
+  // Analytics
+  views: integer("views").default(0).notNull(),
+  downloads: integer("downloads").default(0).notNull(),
+  purchases: integer("purchases").default(0).notNull(),
+  revenue: decimal("revenue", { precision: 12, scale: 2 }).default("0").notNull(),
+  
+  // Collaboration
+  createdBy: varchar("created_by", { length: 255 }), // "larry" or "nick"
+  lastEditedBy: varchar("last_edited_by", { length: 255 }),
+  
+  // Featured
+  isFeatured: boolean("is_featured").default(false),
+  
+  // Timestamps
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  typeIdx: index("larrys_content_type_idx").on(table.type),
+  statusIdx: index("larrys_content_status_idx").on(table.status),
+  monetizationIdx: index("larrys_content_monetization_idx").on(table.monetization),
+}));
+
+export const insertLarrysContentItemSchema = createInsertSchema(larrysContentItems).omit({
+  id: true,
+  views: true,
+  downloads: true,
+  purchases: true,
+  revenue: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLarrysContentItem = z.infer<typeof insertLarrysContentItemSchema>;
+export type LarrysContentItem = typeof larrysContentItems.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================

@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from "express";
 import { db } from "../db";
-import { larryConsultations, sessionRecordings, revenueSplitPayouts, larryEmailTemplates, leads, leadActivities, socialMediaConnections } from "@shared/schema";
+import { larryConsultations, sessionRecordings, revenueSplitPayouts, larryEmailTemplates, leads, leadActivities, socialMediaConnections, larrysContentItems } from "@shared/schema";
 import { eq, desc, sql, and, gte, lte } from "drizzle-orm";
 import { sendEmail } from "../resend-client";
 // Twilio disabled - too expensive. Using email notifications only for now.
@@ -526,6 +526,182 @@ router.get("/social/connections", requireOwner, async (req: Request, res: Respon
   } catch (error) {
     console.error("[Social] Error fetching:", error);
     res.status(500).json({ error: "Failed to fetch connections" });
+  }
+});
+
+// ============================================================================
+// LARRY'S CONTENT EMPIRE - Content Management
+// ============================================================================
+
+// Get all content items (owner only)
+router.get("/content", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const { type, status, monetization } = req.query;
+    
+    let query = db.select().from(larrysContentItems);
+    
+    const items = await query.orderBy(desc(larrysContentItems.updatedAt)).limit(200);
+    
+    // Filter in memory for now (can optimize with dynamic where later)
+    let filtered = items;
+    if (type && type !== 'all') {
+      filtered = filtered.filter(item => item.type === type);
+    }
+    if (status && status !== 'all') {
+      filtered = filtered.filter(item => item.status === status);
+    }
+    if (monetization && monetization !== 'all') {
+      filtered = filtered.filter(item => item.monetization === monetization);
+    }
+    
+    res.json(filtered);
+  } catch (error) {
+    console.error("[Content] Error fetching:", error);
+    res.status(500).json({ error: "Failed to fetch content items" });
+  }
+});
+
+// Get single content item (owner only)
+router.get("/content/:id", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const [item] = await db.select().from(larrysContentItems).where(eq(larrysContentItems.id, id));
+    
+    if (!item) {
+      return res.status(404).json({ error: "Content item not found" });
+    }
+    
+    res.json(item);
+  } catch (error) {
+    console.error("[Content] Error fetching item:", error);
+    res.status(500).json({ error: "Failed to fetch content item" });
+  }
+});
+
+// Create content item (owner only)
+router.post("/content", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { title, description, type, monetization, price, category, tags, status, content, excerpt, externalLink, fileUrl, thumbnailUrl } = req.body;
+    
+    if (!title || !type) {
+      return res.status(400).json({ error: "Title and type are required" });
+    }
+    
+    const [newItem] = await db.insert(larrysContentItems).values({
+      title,
+      description,
+      type,
+      monetization: monetization || "free",
+      price: price ? String(price) : null,
+      category,
+      tags: tags || [],
+      status: status || "draft",
+      content,
+      excerpt,
+      externalLink,
+      fileUrl,
+      thumbnailUrl,
+      createdBy: user?.email?.includes("larry") ? "larry" : "nick",
+      lastEditedBy: user?.email?.includes("larry") ? "larry" : "nick",
+    }).returning();
+    
+    res.json(newItem);
+  } catch (error) {
+    console.error("[Content] Error creating:", error);
+    res.status(500).json({ error: "Failed to create content item" });
+  }
+});
+
+// Update content item (owner only)
+router.patch("/content/:id", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+    const updates = req.body;
+    
+    // Convert price to string if present
+    if (updates.price !== undefined) {
+      updates.price = updates.price ? String(updates.price) : null;
+    }
+    
+    // Set publishedAt if status changed to published
+    if (updates.status === "published") {
+      updates.publishedAt = new Date();
+    }
+    
+    updates.lastEditedBy = user?.email?.includes("larry") ? "larry" : "nick";
+    updates.updatedAt = new Date();
+    
+    const [updated] = await db.update(larrysContentItems)
+      .set(updates)
+      .where(eq(larrysContentItems.id, id))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Content item not found" });
+    }
+    
+    res.json(updated);
+  } catch (error) {
+    console.error("[Content] Error updating:", error);
+    res.status(500).json({ error: "Failed to update content item" });
+  }
+});
+
+// Delete content item (owner only)
+router.delete("/content/:id", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const [deleted] = await db.delete(larrysContentItems)
+      .where(eq(larrysContentItems.id, id))
+      .returning();
+    
+    if (!deleted) {
+      return res.status(404).json({ error: "Content item not found" });
+    }
+    
+    res.json({ success: true, deleted });
+  } catch (error) {
+    console.error("[Content] Error deleting:", error);
+    res.status(500).json({ error: "Failed to delete content item" });
+  }
+});
+
+// Get content stats summary (owner only)
+router.get("/content/stats/summary", requireOwner, async (req: Request, res: Response) => {
+  try {
+    const items = await db.select().from(larrysContentItems);
+    
+    const stats = {
+      totalItems: items.length,
+      published: items.filter(i => i.status === "published").length,
+      drafts: items.filter(i => i.status === "draft").length,
+      inReview: items.filter(i => i.status === "review").length,
+      totalViews: items.reduce((sum, i) => sum + (i.views || 0), 0),
+      totalRevenue: items.reduce((sum, i) => sum + parseFloat(String(i.revenue || 0)), 0),
+      byType: {
+        blog: items.filter(i => i.type === "blog").length,
+        course: items.filter(i => i.type === "course").length,
+        book: items.filter(i => i.type === "book").length,
+        document: items.filter(i => i.type === "document").length,
+        product: items.filter(i => i.type === "product").length,
+        landing: items.filter(i => i.type === "landing").length,
+        consultation: items.filter(i => i.type === "consultation").length,
+      },
+      byMonetization: {
+        free: items.filter(i => i.monetization === "free").length,
+        preview: items.filter(i => i.monetization === "preview").length,
+        paid: items.filter(i => i.monetization === "paid").length,
+        subscription: items.filter(i => i.monetization === "subscription").length,
+      }
+    };
+    
+    res.json(stats);
+  } catch (error) {
+    console.error("[Content Stats] Error:", error);
+    res.status(500).json({ error: "Failed to fetch content stats" });
   }
 });
 

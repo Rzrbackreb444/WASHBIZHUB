@@ -50,8 +50,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
-import { AuthGuard } from "@/components/AuthGuard";
+import { OwnerGuard } from "@/components/OwnerGuard";
 import { useAuth } from "@/hooks/useAuth";
+import type { LarrysContentItem } from "@shared/schema";
 import { format } from "date-fns";
 import {
   Crown,
@@ -140,50 +141,17 @@ const CONSULTATION_TYPES = [
   { id: "vip", name: "VIP Day", icon: Crown, duration: "4 hours", price: 1997 },
 ];
 
-interface ContentItem {
-  id: string;
-  title: string;
-  type: string;
-  status: "draft" | "review" | "published";
-  monetization: string;
-  price?: number;
-  views: number;
-  revenue: number;
-  seoScore?: number;
-  aeoScore?: number;
-  eeatScore?: number;
-  lastEdited: string;
-  publishedAt?: string;
-  excerpt?: string;
-}
-
 interface ConsultationBooking {
   id: string;
   clientName: string;
   clientEmail: string;
   type: string;
-  date: string;
-  time: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  scheduledAt: string;
+  status: "scheduled" | "completed" | "cancelled" | "in-progress";
   notes?: string;
   paid: boolean;
-  amount: number;
+  price: string;
 }
-
-const mockContent: ContentItem[] = [
-  { id: "1", title: "The Ultimate Guide to Laundromat Due Diligence", type: "blog", status: "published", monetization: "preview", price: 29, views: 2847, revenue: 1247, seoScore: 94, aeoScore: 87, eeatScore: 92, lastEdited: "2024-01-15", publishedAt: "2024-01-10", excerpt: "Everything you need to know before buying a laundromat..." },
-  { id: "2", title: "Laundromat 101: From Zero to Owner", type: "course", status: "published", monetization: "paid", price: 299, views: 523, revenue: 8970, seoScore: 88, aeoScore: 82, eeatScore: 95, lastEdited: "2024-01-12", publishedAt: "2024-01-01" },
-  { id: "3", title: "Larry's Lease Red Flag Checklist", type: "document", status: "published", monetization: "subscription", views: 1892, revenue: 0, seoScore: 91, lastEdited: "2024-01-08", publishedAt: "2023-12-20" },
-  { id: "4", title: "The Little Washer That Could", type: "book", status: "draft", monetization: "paid", price: 14.99, views: 0, revenue: 0, lastEdited: "2024-01-18" },
-  { id: "5", title: "Equipment ROI Calculator Pro", type: "product", status: "review", monetization: "paid", price: 49, views: 0, revenue: 0, seoScore: 76, lastEdited: "2024-01-17" },
-  { id: "6", title: "Laundromat Investment Masterclass", type: "landing", status: "published", monetization: "paid", price: 997, views: 1243, revenue: 12964, seoScore: 89, lastEdited: "2024-01-14" },
-];
-
-const mockConsultations: ConsultationBooking[] = [
-  { id: "c1", clientName: "John Smith", clientEmail: "john@example.com", type: "video", date: "2024-01-25", time: "10:00 AM", status: "confirmed", paid: true, amount: 249, notes: "Wants to discuss equipment selection" },
-  { id: "c2", clientName: "Sarah Johnson", clientEmail: "sarah@example.com", type: "deep-dive", date: "2024-01-26", time: "2:00 PM", status: "pending", paid: false, amount: 499 },
-  { id: "c3", clientName: "Mike Williams", clientEmail: "mike@example.com", type: "phone", date: "2024-01-24", time: "11:30 AM", status: "completed", paid: true, amount: 149 },
-];
 
 export default function LarrysContentEmpire() {
   const { user, isAuthenticated } = useAuth();
@@ -198,7 +166,7 @@ export default function LarrysContentEmpire() {
   const [isConsultOpen, setIsConsultOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   
-  const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
+  const [selectedContent, setSelectedContent] = useState<LarrysContentItem | null>(null);
   const [newContent, setNewContent] = useState({ title: "", type: "blog", description: "", monetization: "free", price: "" });
   
   const [polishText, setPolishText] = useState("");
@@ -212,14 +180,77 @@ export default function LarrysContentEmpire() {
   
   const [consultDate, setConsultDate] = useState<Date>();
 
-  const totalRevenue = mockContent.reduce((sum, c) => sum + c.revenue, 0) + mockConsultations.filter(c => c.paid).reduce((sum, c) => sum + c.amount, 0);
-  const totalViews = mockContent.reduce((sum, c) => sum + c.views, 0);
-  const publishedCount = mockContent.filter(c => c.status === "published").length;
-  const avgSeoScore = Math.round(mockContent.filter(c => c.seoScore).reduce((sum, c) => sum + (c.seoScore || 0), 0) / mockContent.filter(c => c.seoScore).length);
-  const pendingConsults = mockConsultations.filter(c => c.status === "pending").length;
-  const upcomingConsults = mockConsultations.filter(c => c.status === "confirmed").length;
+  // Fetch content from API
+  const { data: contentItems = [], isLoading: contentLoading } = useQuery<LarrysContentItem[]>({
+    queryKey: ['/api/larry/content'],
+  });
 
-  const filteredContent = mockContent.filter(item => {
+  // Fetch consultations from API
+  const { data: consultations = [], isLoading: consultLoading } = useQuery<ConsultationBooking[]>({
+    queryKey: ['/api/larry/consultations'],
+  });
+
+  // Create content mutation
+  const createMutation = useMutation({
+    mutationFn: async (data: typeof newContent) => {
+      const res = await apiRequest("POST", "/api/larry/content", {
+        ...data,
+        price: data.price ? parseFloat(data.price) : null,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/larry/content'] });
+      setIsCreateOpen(false);
+      setNewContent({ title: "", type: "blog", description: "", monetization: "free", price: "" });
+      toast({ title: "Content Created!", description: "Your new content item has been added." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Update content mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<LarrysContentItem> }) => {
+      const res = await apiRequest("PATCH", `/api/larry/content/${id}`, updates);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/larry/content'] });
+      toast({ title: "Updated!", description: "Content has been updated." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Delete content mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/larry/content/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/larry/content'] });
+      setIsDeleteOpen(false);
+      setSelectedContent(null);
+      toast({ title: "Deleted", description: "Content has been removed." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+
+  // Calculate stats from real data
+  const totalRevenue = contentItems.reduce((sum, c) => sum + parseFloat(String(c.revenue || 0)), 0) + consultations.filter(c => c.paid).reduce((sum, c) => sum + (parseFloat(c.price || "0") || 0), 0);
+  const totalViews = contentItems.reduce((sum, c) => sum + (c.views || 0), 0);
+  const publishedCount = contentItems.filter(c => c.status === "published").length;
+  const itemsWithSeo = contentItems.filter(c => c.seoScore);
+  const avgSeoScore = itemsWithSeo.length > 0 ? Math.round(itemsWithSeo.reduce((sum, c) => sum + (c.seoScore || 0), 0) / itemsWithSeo.length) : 0;
+  const pendingConsults = consultations.filter(c => c.status === "scheduled").length;
+  const upcomingConsults = consultations.filter(c => c.status === "scheduled" || c.status === "in-progress").length;
+
+  const filteredContent = contentItems.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = contentTab === "all" || item.type === contentTab;
     return matchesSearch && matchesType;
@@ -291,7 +322,7 @@ export default function LarrysContentEmpire() {
   const getTypeConfig = (type: string) => CONTENT_TYPES.find(t => t.id === type) || CONTENT_TYPES[0];
 
   return (
-    <AuthGuard>
+    <OwnerGuard>
       <SEO
         title="Larry's Content Empire | Premium Content Creation & Monetization | WashBizHub"
         description="Create, polish, and monetize premium content with AI assistance. Larry's unified platform for blogs, courses, books, consultations, and digital products."
@@ -406,7 +437,7 @@ export default function LarrysContentEmpire() {
                         <p className="text-sm text-muted-foreground">Published Items</p>
                         <p className="text-3xl font-bold text-purple-600">{publishedCount}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {mockContent.filter(c => c.status === "draft").length} drafts pending
+                          {contentItems.filter(c => c.status === "draft").length} drafts pending
                         </p>
                       </div>
                       <div className="p-3 bg-purple-500/20 rounded-full">
@@ -467,14 +498,14 @@ export default function LarrysContentEmpire() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {mockConsultations.filter(c => c.status === "confirmed" || c.status === "pending").slice(0, 3).map(consult => (
+                    {consultations.filter(c => c.status === "scheduled" || c.status === "in-progress").slice(0, 3).map(consult => (
                       <div key={consult.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
                         <div className="p-2 bg-indigo-500/10 rounded-full">
                           {consult.type === "video" ? <VideoIcon className="w-4 h-4 text-indigo-500" /> : <Phone className="w-4 h-4 text-indigo-500" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{consult.clientName}</p>
-                          <p className="text-xs text-muted-foreground">{consult.date} at {consult.time}</p>
+                          <p className="text-xs text-muted-foreground">{consult.scheduledAt ? format(new Date(consult.scheduledAt), 'MMM d, yyyy h:mm a') : 'TBD'}</p>
                         </div>
                         {getConsultStatusBadge(consult.status)}
                       </div>
@@ -495,7 +526,7 @@ export default function LarrysContentEmpire() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {mockContent.slice(0, 4).map(item => {
+                    {contentItems.slice(0, 4).map(item => {
                       const typeConfig = getTypeConfig(item.type);
                       return (
                         <div key={item.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
@@ -514,7 +545,7 @@ export default function LarrysContentEmpire() {
                               </span>
                               <span className="flex items-center gap-1">
                                 <DollarSign className="w-3 h-3" />
-                                ${item.revenue.toLocaleString()}
+                                ${parseFloat(String(item.revenue || 0)).toLocaleString()}
                               </span>
                               {item.seoScore && (
                                 <span className="flex items-center gap-1">
@@ -622,7 +653,7 @@ export default function LarrysContentEmpire() {
                                         </span>
                                         <span className="flex items-center gap-1">
                                           <DollarSign className="w-3 h-3" />
-                                          ${item.revenue.toLocaleString()} revenue
+                                          ${parseFloat(String(item.revenue || 0)).toLocaleString()} revenue
                                         </span>
                                         {item.seoScore && (
                                           <span className="flex items-center gap-1">
@@ -644,7 +675,7 @@ export default function LarrysContentEmpire() {
                                         )}
                                         <span className="flex items-center gap-1">
                                           <Clock className="w-3 h-3" />
-                                          {item.lastEdited}
+                                          {item.updatedAt ? format(new Date(item.updatedAt), 'MMM d, yyyy') : 'N/A'}
                                         </span>
                                       </div>
                                     </div>
@@ -732,7 +763,7 @@ export default function LarrysContentEmpire() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Consultation Revenue</p>
-                        <p className="text-3xl font-bold text-amber-600">${mockConsultations.filter(c => c.paid).reduce((sum, c) => sum + c.amount, 0).toLocaleString()}</p>
+                        <p className="text-3xl font-bold text-amber-600">${consultations.filter(c => c.paid).reduce((sum, c) => sum + parseFloat(c.price || "0"), 0).toLocaleString()}</p>
                       </div>
                       <DollarSign className="w-8 h-8 text-amber-500/50" />
                     </div>
@@ -750,7 +781,7 @@ export default function LarrysContentEmpire() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {mockConsultations.map(consult => {
+                      {consultations.map(consult => {
                         const consultType = CONSULTATION_TYPES.find(t => t.id === consult.type);
                         return (
                           <Card key={consult.id} className="hover:border-indigo-500/30 transition-colors" data-testid={`card-consult-${consult.id}`}>
@@ -772,26 +803,26 @@ export default function LarrysContentEmpire() {
                                     </span>
                                     <span className="flex items-center gap-1">
                                       <CalendarIcon className="w-3 h-3" />
-                                      {consult.date}
+                                      {consult.scheduledAt ? format(new Date(consult.scheduledAt), 'MMM d, yyyy') : 'TBD'}
                                     </span>
                                     <span className="flex items-center gap-1">
                                       <Clock className="w-3 h-3" />
-                                      {consult.time}
+                                      {consult.scheduledAt ? format(new Date(consult.scheduledAt), 'h:mm a') : 'TBD'}
                                     </span>
-                                    <span className="font-medium text-emerald-600">${consult.amount}</span>
+                                    <span className="font-medium text-emerald-600">${parseFloat(consult.price || "0")}</span>
                                   </div>
                                   {consult.notes && (
                                     <p className="text-sm text-muted-foreground mt-2 italic">"{consult.notes}"</p>
                                   )}
                                 </div>
                                 <div className="flex gap-2">
-                                  {consult.status === "pending" && (
+                                  {consult.status === "scheduled" && (
                                     <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
                                       <CheckCircle className="w-4 h-4 mr-1" />
                                       Confirm
                                     </Button>
                                   )}
-                                  {consult.status === "confirmed" && (
+                                  {consult.status === "in-progress" && (
                                     <Button size="sm" variant="outline">
                                       <VideoIcon className="w-4 h-4 mr-1" />
                                       Join
@@ -1009,7 +1040,7 @@ export default function LarrysContentEmpire() {
                       <p className="text-sm text-muted-foreground">Content Revenue</p>
                       <TrendingUp className="w-4 h-4 text-emerald-500" />
                     </div>
-                    <p className="text-2xl font-bold">${mockContent.reduce((sum, c) => sum + c.revenue, 0).toLocaleString()}</p>
+                    <p className="text-2xl font-bold">${contentItems.reduce((sum, c) => sum + c.revenue, 0).toLocaleString()}</p>
                     <Progress value={75} className="mt-2" />
                   </CardContent>
                 </Card>
@@ -1019,7 +1050,7 @@ export default function LarrysContentEmpire() {
                       <p className="text-sm text-muted-foreground">Consultation Revenue</p>
                       <Phone className="w-4 h-4 text-indigo-500" />
                     </div>
-                    <p className="text-2xl font-bold">${mockConsultations.filter(c => c.paid).reduce((sum, c) => sum + c.amount, 0).toLocaleString()}</p>
+                    <p className="text-2xl font-bold">${consultations.filter(c => c.paid).reduce((sum, c) => sum + parseFloat(c.price || "0"), 0).toLocaleString()}</p>
                     <Progress value={45} className="mt-2" />
                   </CardContent>
                 </Card>
@@ -1056,7 +1087,7 @@ export default function LarrysContentEmpire() {
                   <CardContent>
                     <div className="space-y-4">
                       {CONTENT_TYPES.slice(0, 5).map(type => {
-                        const typeRevenue = mockContent.filter(c => c.type === type.id).reduce((sum, c) => sum + c.revenue, 0);
+                        const typeRevenue = contentItems.filter(c => c.type === type.id).reduce((sum, c) => sum + c.revenue, 0);
                         const percentage = Math.round((typeRevenue / totalRevenue) * 100) || 0;
                         return (
                           <div key={type.id} className="space-y-2">
@@ -1084,7 +1115,7 @@ export default function LarrysContentEmpire() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {[...mockContent].sort((a, b) => b.revenue - a.revenue).slice(0, 5).map((item, idx) => {
+                      {[...contentItems].sort((a, b) => b.revenue - a.revenue).slice(0, 5).map((item, idx) => {
                         const typeConfig = getTypeConfig(item.type);
                         return (
                           <div key={item.id} className="flex items-center gap-3">
@@ -1096,7 +1127,7 @@ export default function LarrysContentEmpire() {
                               <p className="font-medium truncate text-sm">{item.title}</p>
                               <p className="text-xs text-muted-foreground">{item.views.toLocaleString()} views</p>
                             </div>
-                            <p className="font-bold text-emerald-600">${item.revenue.toLocaleString()}</p>
+                            <p className="font-bold text-emerald-600">${parseFloat(String(item.revenue || 0)).toLocaleString()}</p>
                           </div>
                         );
                       })}
@@ -1379,13 +1410,18 @@ export default function LarrysContentEmpire() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => { setIsDeleteOpen(false); toast({ title: "Deleted", description: "Content has been deleted." }); }}>
-                Delete
+              <AlertDialogAction 
+                className="bg-red-600 hover:bg-red-700" 
+                onClick={() => selectedContent?.id && deleteMutation.mutate(selectedContent.id)}
+                disabled={deleteMutation.isPending}
+                data-testid="button-confirm-delete"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </AuthGuard>
+    </OwnerGuard>
   );
 }
