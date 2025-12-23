@@ -476,12 +476,14 @@ router.post("/export/pdf", async (req, res) => {
 
 router.post("/generate-cover", async (req, res) => {
   try {
-    const { title, subtitle, author, genre, description } = req.body;
+    const { title, subtitle, author, genre, description, generateImage } = req.body;
 
+    // Step 1: Generate optimized image prompt using Gemini
+    let imagePrompt = "";
     if (genAI) {
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       
-      const prompt = `Generate a detailed image prompt for a professional book cover:
+      const promptRequest = `Generate a detailed image prompt for a professional book cover:
 Title: ${title}
 Subtitle: ${subtitle || "None"}
 Author: ${author}
@@ -489,32 +491,246 @@ Genre: ${genre}
 Description: ${description}
 
 Create a detailed prompt for generating a professional, modern book cover. Include:
-- Visual style and mood
-- Color palette
-- Key imagery or symbols
-- Typography suggestions
-- Overall composition
+- Visual style and mood (modern, professional, eye-catching)
+- Color palette (specific colors that match the genre)
+- Key imagery or symbols (no text, just visual elements)
+- Overall composition (book cover format, 2:3 aspect ratio)
 
-Format as a single paragraph image generation prompt.`;
+IMPORTANT: Do NOT include any text or typography in the image - the title and author will be added separately.
+Format as a single paragraph image generation prompt optimized for DALL-E.`;
 
-      const result = await model.generateContent(prompt);
-      const imagePrompt = result.response.text();
-
-      res.json({ 
-        imagePrompt,
-        message: "Cover prompt generated. Connect to Vertex AI Imagen for image generation.",
-        placeholder: `https://placehold.co/600x900/1e293b/c8a661?text=${encodeURIComponent(title)}`
-      });
+      const result = await model.generateContent(promptRequest);
+      imagePrompt = result.response.text();
     } else {
-      res.json({ 
-        placeholder: `https://placehold.co/600x900/1e293b/c8a661?text=${encodeURIComponent(title)}`,
-        message: "Cover generation requires Gemini API"
-      });
+      imagePrompt = `Professional book cover design for "${title}" in the ${genre} genre. Modern, clean composition with relevant imagery. No text.`;
     }
+
+    // Step 2: Generate actual image using DALL-E 3 if requested
+    let coverImageUrl = `https://placehold.co/600x900/1e293b/c8a661?text=${encodeURIComponent(title)}`;
+    let imageGenerated = false;
+
+    if (generateImage && openai) {
+      try {
+        console.log("📚 Generating book cover with DALL-E 3...");
+        const dalleResponse = await openai.images.generate({
+          model: "dall-e-3",
+          prompt: `${imagePrompt}. Professional book cover design, portrait orientation (2:3 ratio), high quality, suitable for print. DO NOT include any text, letters, words, or typography in the image.`,
+          n: 1,
+          size: "1024x1792", // Portrait for book covers
+          quality: "hd",
+          style: "vivid"
+        });
+
+        if (dalleResponse.data?.[0]?.url) {
+          coverImageUrl = dalleResponse.data[0].url;
+          imageGenerated = true;
+          console.log("✅ Book cover generated successfully");
+        }
+      } catch (dalleError: any) {
+        console.error("DALL-E generation failed:", dalleError.message);
+        // Fall back to placeholder
+      }
+    }
+
+    res.json({ 
+      imagePrompt,
+      coverImageUrl,
+      imageGenerated,
+      message: imageGenerated 
+        ? "Cover image generated successfully!" 
+        : generateImage 
+          ? "Image generation failed - using placeholder" 
+          : "Cover prompt ready. Click 'Generate Image' to create the cover."
+    });
   } catch (error: any) {
     console.error("Cover generation error:", error);
     res.status(500).json({ error: error.message });
   }
+});
+
+// Generate interior illustrations for chapters
+router.post("/generate-illustration", async (req, res) => {
+  try {
+    const { chapterTitle, chapterContent, style, bookGenre } = req.body;
+
+    if (!openai) {
+      return res.status(400).json({ error: "Image generation requires OpenAI API" });
+    }
+
+    // Generate illustration prompt
+    let illustrationPrompt = "";
+    if (genAI) {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(`
+Create a brief image generation prompt for a book illustration:
+Chapter: ${chapterTitle}
+Genre: ${bookGenre}
+Content summary: ${chapterContent?.substring(0, 500)}
+Style: ${style || "modern illustration"}
+
+Generate a single paragraph prompt for DALL-E that captures the essence of this chapter.
+The illustration should be suitable for a book interior. No text in the image.`);
+      illustrationPrompt = result.response.text();
+    } else {
+      illustrationPrompt = `Book illustration for chapter "${chapterTitle}" in ${style || "modern"} style. ${bookGenre} genre. No text.`;
+    }
+
+    // Generate with DALL-E
+    const dalleResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `${illustrationPrompt}. Book interior illustration, clean and professional. NO text, letters, or words.`,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      style: "natural"
+    });
+
+    const imageUrl = dalleResponse.data?.[0]?.url;
+    if (!imageUrl) {
+      throw new Error("Failed to generate illustration");
+    }
+
+    res.json({
+      imageUrl,
+      prompt: illustrationPrompt,
+      message: "Illustration generated successfully"
+    });
+  } catch (error: any) {
+    console.error("Illustration generation error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Batch production pipeline - create multiple books from templates
+router.post("/batch-create", async (req, res) => {
+  try {
+    const { books, generateOutlines, generateChapters } = req.body;
+    
+    if (!Array.isArray(books) || books.length === 0) {
+      return res.status(400).json({ error: "No books provided" });
+    }
+
+    const results: any[] = [];
+    const errors: any[] = [];
+
+    for (const book of books) {
+      try {
+        const bookResult: any = {
+          title: book.title,
+          description: book.description,
+          genre: book.genre,
+          chapters: []
+        };
+
+        // Generate outline if requested
+        if (generateOutlines && genAI) {
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          const outlinePrompt = `Create a detailed chapter outline for a book:
+Title: ${book.title}
+Genre: ${book.genre || "Non-Fiction"}
+Description: ${book.description}
+Number of chapters: ${book.chapterCount || 10}
+
+Return ONLY valid JSON in this exact format:
+{
+  "chapters": [
+    {"title": "Chapter Title", "description": "Brief description", "keyPoints": ["point1", "point2"]}
+  ]
+}`;
+          
+          const result = await model.generateContent(outlinePrompt);
+          const text = result.response.text();
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const outline = JSON.parse(jsonMatch[0]);
+            bookResult.chapters = outline.chapters;
+          }
+        }
+
+        // Generate chapter content if requested
+        if (generateChapters && bookResult.chapters.length > 0) {
+          for (let i = 0; i < Math.min(bookResult.chapters.length, 3); i++) { // Limit to first 3 chapters in batch
+            const chapter = bookResult.chapters[i];
+            const chapterPrompt = `Write Chapter ${i + 1} of the book "${book.title}".
+Chapter Title: ${chapter.title}
+Description: ${chapter.description}
+Key Points: ${chapter.keyPoints?.join(", ")}
+
+Write approximately 1500 words. Format with HTML tags (<h2>, <h3>, <p>, <strong>, <em>).`;
+
+            const response = await callAI(book.aiModel || "gemini", chapterPrompt);
+            bookResult.chapters[i].content = response;
+          }
+        }
+
+        results.push(bookResult);
+      } catch (bookError: any) {
+        errors.push({ title: book.title, error: bookError.message });
+      }
+    }
+
+    res.json({
+      success: true,
+      totalBooks: books.length,
+      completed: results.length,
+      failed: errors.length,
+      results,
+      errors
+    });
+  } catch (error: any) {
+    console.error("Batch creation error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get batch job status
+router.get("/batch-status/:jobId", async (req, res) => {
+  // In production, this would check a job queue like BullMQ
+  res.json({
+    jobId: req.params.jobId,
+    status: "completed",
+    message: "Batch processing complete"
+  });
+});
+
+// Template library for quick book creation
+router.get("/templates", async (req, res) => {
+  const templates = [
+    {
+      id: "business-guide",
+      name: "Business Guide",
+      description: "Comprehensive guide template for business topics",
+      chapterCount: 12,
+      genres: ["Business", "Finance", "Entrepreneurship"],
+      structure: ["Introduction", "Foundation", "Strategy", "Implementation", "Case Studies", "Advanced Tactics", "Tools & Resources", "Common Mistakes", "Success Stories", "Future Trends", "Action Plan", "Conclusion"]
+    },
+    {
+      id: "how-to-manual",
+      name: "How-To Manual",
+      description: "Step-by-step instructional guide",
+      chapterCount: 10,
+      genres: ["Self-Help", "Education", "Technical"],
+      structure: ["Getting Started", "Essential Tools", "Basic Techniques", "Intermediate Skills", "Advanced Methods", "Troubleshooting", "Best Practices", "Expert Tips", "Resources", "Next Steps"]
+    },
+    {
+      id: "industry-bible",
+      name: "Industry Bible",
+      description: "Comprehensive industry reference guide",
+      chapterCount: 15,
+      genres: ["Business", "Reference", "Professional"],
+      structure: ["Industry Overview", "History & Evolution", "Key Players", "Market Analysis", "Operations", "Financial Management", "Marketing & Sales", "Technology", "Legal & Compliance", "Human Resources", "Growth Strategies", "Risk Management", "Future Outlook", "Resources", "Glossary"]
+    },
+    {
+      id: "memoir-template",
+      name: "Personal Memoir",
+      description: "Life story and personal journey template",
+      chapterCount: 12,
+      genres: ["Memoir", "Biography", "Inspiration"],
+      structure: ["Early Life", "Formative Years", "Turning Points", "Challenges", "Breakthroughs", "Lessons Learned", "Key Relationships", "Professional Journey", "Personal Growth", "Legacy", "Reflections", "Looking Forward"]
+    }
+  ];
+
+  res.json(templates);
 });
 
 export default router;
