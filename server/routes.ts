@@ -645,6 +645,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/ai-book", aiBookSuiteRoutes);
   console.log("✅ AI Book Writing Suite routes registered");
   
+  // ==================== BOOK STUDIO (FULL PUBLISHING SUITE) ====================
+  const bookStudioRoutes = (await import("./routes/book-studio")).default;
+  app.use("/api/book-studio", bookStudioRoutes);
+  console.log("✅ Book Studio routes registered");
+  
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
   

@@ -18558,5 +18558,295 @@ export type InsertEnterpriseMessageLog = z.infer<typeof insertEnterpriseMessageL
 export type EnterpriseMessageLog = typeof enterpriseMessageLogs.$inferSelect;
 
 // ============================================================================
+// KNOWLEDGE BASE & RAG SYSTEM
+// ============================================================================
+
+// Knowledge Sources - Where data comes from (manufacturers, websites, etc.)
+export const knowledgeSources = pgTable("knowledge_sources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Source identification
+  name: text("name").notNull(), // "Dexter Official", "Laundromat123", "Speed Queen Specs"
+  type: text("type").notNull(), // "manufacturer", "marketplace", "industry_publication", "consultant", "internal"
+  url: text("url"), // Base URL for the source
+  
+  // Reliability and freshness
+  reliabilityScore: integer("reliability_score").default(80), // 0-100
+  lastCrawled: timestamp("last_crawled"),
+  crawlFrequency: text("crawl_frequency").default("weekly"), // "daily", "weekly", "monthly", "manual"
+  
+  // Access and authentication
+  requiresAuth: boolean("requires_auth").default(false),
+  apiEndpoint: text("api_endpoint"),
+  
+  // Metadata
+  category: text("category"), // "equipment", "listings", "consulting", "funding", "operations"
+  isActive: boolean("is_active").default(true),
+  documentCount: integer("document_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  typeIdx: index("knowledge_sources_type_idx").on(table.type),
+  categoryIdx: index("knowledge_sources_category_idx").on(table.category),
+}));
+
+export const insertKnowledgeSourceSchema = createInsertSchema(knowledgeSources).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertKnowledgeSource = z.infer<typeof insertKnowledgeSourceSchema>;
+export type KnowledgeSource = typeof knowledgeSources.$inferSelect;
+
+// Knowledge Documents - Raw content chunks for RAG
+export const knowledgeDocuments = pgTable("knowledge_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceId: varchar("source_id").references(() => knowledgeSources.id, { onDelete: "cascade" }),
+  
+  // Content
+  title: text("title").notNull(),
+  content: text("content").notNull(), // The actual text content
+  contentType: text("content_type").default("text"), // "text", "html", "markdown", "json"
+  chunkIndex: integer("chunk_index").default(0), // For large documents split into chunks
+  
+  // Categorization
+  category: text("category"), // "equipment_specs", "pricing", "operations", "consulting", "funding"
+  subcategory: text("subcategory"), // More specific: "washer_specs", "dryer_specs", "valuation"
+  tags: text("tags").array(), // ["dexter", "t-450", "washer", "commercial"]
+  
+  // Source tracking
+  sourceUrl: text("source_url"), // Specific page URL
+  sourceDate: timestamp("source_date"), // When the source content was published
+  
+  // Quality and versioning
+  version: integer("version").default(1),
+  isVerified: boolean("is_verified").default(false),
+  verifiedBy: varchar("verified_by"),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  wordCount: integer("word_count"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  sourceIdx: index("knowledge_docs_source_idx").on(table.sourceId),
+  categoryIdx: index("knowledge_docs_category_idx").on(table.category),
+  tagsIdx: index("knowledge_docs_tags_idx").on(table.tags),
+}));
+
+export const insertKnowledgeDocumentSchema = createInsertSchema(knowledgeDocuments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertKnowledgeDocument = z.infer<typeof insertKnowledgeDocumentSchema>;
+export type KnowledgeDocument = typeof knowledgeDocuments.$inferSelect;
+
+// Equipment Specifications - Structured data from manufacturers
+export const equipmentSpecs = pgTable("equipment_specs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceId: varchar("source_id").references(() => knowledgeSources.id),
+  
+  // Equipment identification
+  manufacturer: text("manufacturer").notNull(), // "Dexter", "Speed Queen", "Continental", "Huebsch"
+  model: text("model").notNull(), // "T-450", "SC40", etc.
+  modelYear: integer("model_year"),
+  category: text("category").notNull(), // "washer", "dryer", "stack", "combo"
+  subcategory: text("subcategory"), // "commercial", "vended", "opl"
+  
+  // Capacity and dimensions
+  capacityLbs: decimal("capacity_lbs"),
+  capacityKg: decimal("capacity_kg"),
+  widthInches: decimal("width_inches"),
+  depthInches: decimal("depth_inches"),
+  heightInches: decimal("height_inches"),
+  weightLbs: decimal("weight_lbs"),
+  
+  // Utility specs
+  voltage: text("voltage"), // "120V", "208-240V", "480V"
+  phase: text("phase"), // "1", "3"
+  amperage: decimal("amperage"),
+  gasType: text("gas_type"), // "natural", "propane", "electric"
+  waterConnection: text("water_connection"),
+  drainSize: text("drain_size"),
+  
+  // Performance
+  cycleTimeMinutes: integer("cycle_time_minutes"),
+  gFactor: decimal("g_factor"), // G-force extraction
+  waterUsageGallons: decimal("water_usage_gallons"),
+  energyStarRated: boolean("energy_star_rated").default(false),
+  
+  // Pricing
+  msrpUsd: decimal("msrp_usd"),
+  streetPriceUsd: decimal("street_price_usd"),
+  usedPriceRangeLow: decimal("used_price_range_low"),
+  usedPriceRangeHigh: decimal("used_price_range_high"),
+  
+  // Features
+  features: text("features").array(),
+  controls: text("controls"), // "electronic", "coin", "card", "app"
+  paymentOptions: text("payment_options").array(), // ["coin", "card", "app", "loyalty"]
+  
+  // Documentation
+  specSheetUrl: text("spec_sheet_url"),
+  manualUrl: text("manual_url"),
+  partsListUrl: text("parts_list_url"),
+  imageUrl: text("image_url"),
+  
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  isVerified: boolean("is_verified").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  manufacturerIdx: index("equipment_specs_manufacturer_idx").on(table.manufacturer),
+  modelIdx: index("equipment_specs_model_idx").on(table.model),
+  categoryIdx: index("equipment_specs_category_idx").on(table.category),
+}));
+
+export const insertEquipmentSpecSchema = createInsertSchema(equipmentSpecs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEquipmentSpec = z.infer<typeof insertEquipmentSpecSchema>;
+export type EquipmentSpec = typeof equipmentSpecs.$inferSelect;
+
+// Research Jobs - Grok automation for data gathering
+export const researchJobs = pgTable("research_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Job configuration
+  type: text("type").notNull(), // "url_scrape", "equipment_lookup", "market_research", "competitor_analysis"
+  query: text("query").notNull(), // What to research
+  targetUrl: text("target_url"), // Specific URL to scrape
+  
+  // Status
+  status: text("status").default("pending"), // "pending", "running", "completed", "failed"
+  progress: integer("progress").default(0), // 0-100
+  
+  // Results
+  rawResponse: text("raw_response"), // Raw AI response
+  normalizedData: jsonb("normalized_data").$type<Record<string, any>>(), // Structured JSON
+  documentsCreated: integer("documents_created").default(0),
+  
+  // Error handling
+  errorMessage: text("error_message"),
+  retryCount: integer("retry_count").default(0),
+  maxRetries: integer("max_retries").default(3),
+  
+  // AI model used
+  aiModel: text("ai_model").default("grok"), // "grok", "perplexity", "gemini"
+  tokensUsed: integer("tokens_used"),
+  costUsd: decimal("cost_usd"),
+  
+  // Scheduling
+  scheduledFor: timestamp("scheduled_for"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  statusIdx: index("research_jobs_status_idx").on(table.status),
+  typeIdx: index("research_jobs_type_idx").on(table.type),
+  createdAtIdx: index("research_jobs_created_at_idx").on(table.createdAt),
+}));
+
+export const insertResearchJobSchema = createInsertSchema(researchJobs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertResearchJob = z.infer<typeof insertResearchJobSchema>;
+export type ResearchJob = typeof researchJobs.$inferSelect;
+
+// Knowledge Embeddings - Vector store for semantic search
+export const knowledgeEmbeddings = pgTable("knowledge_embeddings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  documentId: varchar("document_id").references(() => knowledgeDocuments.id, { onDelete: "cascade" }),
+  
+  // The chunk that was embedded
+  chunkText: text("chunk_text").notNull(),
+  chunkIndex: integer("chunk_index").default(0),
+  
+  // Embedding vector (stored as JSON array - will use pgvector extension when available)
+  embedding: jsonb("embedding").$type<number[]>(),
+  embeddingModel: text("embedding_model").default("text-embedding-3-small"), // OpenAI model
+  embeddingDimensions: integer("embedding_dimensions").default(1536),
+  
+  // Metadata for filtering
+  category: text("category"),
+  manufacturer: text("manufacturer"),
+  sourceType: text("source_type"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  documentIdx: index("knowledge_embeddings_doc_idx").on(table.documentId),
+  categoryIdx: index("knowledge_embeddings_category_idx").on(table.category),
+  manufacturerIdx: index("knowledge_embeddings_manufacturer_idx").on(table.manufacturer),
+}));
+
+export const insertKnowledgeEmbeddingSchema = createInsertSchema(knowledgeEmbeddings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertKnowledgeEmbedding = z.infer<typeof insertKnowledgeEmbeddingSchema>;
+export type KnowledgeEmbedding = typeof knowledgeEmbeddings.$inferSelect;
+
+// AI Chat Telemetry - For learning and fine-tuning
+export const aiChatTelemetry = pgTable("ai_chat_telemetry", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: varchar("session_id"),
+  
+  // The conversation
+  userQuery: text("user_query").notNull(),
+  aiResponse: text("ai_response").notNull(),
+  
+  // Context used
+  documentsRetrieved: jsonb("documents_retrieved").$type<Array<{
+    documentId: string;
+    title: string;
+    relevanceScore: number;
+  }>>(),
+  
+  // Quality signals
+  feedbackRating: integer("feedback_rating"), // 1-5
+  feedbackText: text("feedback_text"),
+  wasHelpful: boolean("was_helpful"),
+  
+  // Model info
+  aiModel: text("ai_model"),
+  tokensUsed: integer("tokens_used"),
+  latencyMs: integer("latency_ms"),
+  
+  // Topic classification
+  topic: text("topic"), // "valuation", "equipment", "funding", "operations"
+  intent: text("intent"), // "question", "calculation", "advice", "comparison"
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("ai_chat_telemetry_user_idx").on(table.userId),
+  topicIdx: index("ai_chat_telemetry_topic_idx").on(table.topic),
+  createdAtIdx: index("ai_chat_telemetry_created_idx").on(table.createdAt),
+}));
+
+export const insertAiChatTelemetrySchema = createInsertSchema(aiChatTelemetry).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertAiChatTelemetry = z.infer<typeof insertAiChatTelemetrySchema>;
+export type AiChatTelemetry = typeof aiChatTelemetry.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
