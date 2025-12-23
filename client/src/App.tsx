@@ -13,6 +13,7 @@ import { PersonaProvider } from "@/contexts/PersonaContext";
 import { AuthModalProvider } from "@/components/AuthModal";
 import { SignOutConfirmationProvider } from "@/components/SignOutConfirmation";
 import { NavigationMenu } from "@/components/NavigationMenu";
+import { PersonaHeader } from "@/components/PersonaHeader";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
 import { FloatingFeedbackButton } from "@/components/FloatingFeedbackButton";
@@ -2454,7 +2455,7 @@ function AppContent() {
         <Suspense fallback={null}>
           <DeferredAnalytics />
         </Suspense>
-        <NavigationMenu />
+        <PersonaHeader />
         <main id="main-content" role="main" className="flex-1">
           <RouteErrorBoundary>
             <PageTransition>

@@ -9,6 +9,7 @@ import {
   Target, Calculator, FileText, DollarSign, Wrench, TrendingUp,
   Users, BarChart3, MapPin, Briefcase, Star
 } from "lucide-react";
+import { usePersona, PersonaType } from "@/contexts/PersonaContext";
 
 interface PersonaPath {
   id: string;
@@ -94,6 +95,12 @@ const personas: PersonaPath[] = [
 export function PersonaSelector() {
   const [hoveredPersona, setHoveredPersona] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+  const { setPersona } = usePersona();
+  
+  const handlePersonaSelect = (personaId: string, link: string) => {
+    setPersona(personaId as PersonaType);
+    setLocation(link);
+  };
 
   return (
     <section className="py-16 px-4 bg-gradient-to-b from-background to-muted/30">
@@ -200,7 +207,7 @@ export function PersonaSelector() {
                           backgroundColor: persona.color,
                           borderColor: persona.color
                         }}
-                        onClick={() => setLocation(persona.cta.link)}
+                        onClick={() => handlePersonaSelect(persona.id, persona.cta.link)}
                         data-testid={`button-persona-cta-${persona.id}`}
                       >
                         {persona.cta.text}
@@ -232,6 +239,12 @@ export function PersonaSelector() {
 
 export function PersonaSelectorCompact() {
   const [, setLocation] = useLocation();
+  const { setPersona } = usePersona();
+
+  const handleSelect = (personaId: string, link: string) => {
+    setPersona(personaId as PersonaType);
+    setLocation(link);
+  };
 
   return (
     <div className="flex flex-wrap justify-center gap-4 p-4">
@@ -242,7 +255,7 @@ export function PersonaSelectorCompact() {
             key={persona.id}
             variant="outline"
             className="h-auto py-3 px-6 flex flex-col items-center gap-2 border-2 hover:border-[#C8A661]/50"
-            onClick={() => setLocation(persona.cta.link)}
+            onClick={() => handleSelect(persona.id, persona.cta.link)}
             data-testid={`button-persona-compact-${persona.id}`}
           >
             <Icon className="w-5 h-5" style={{ color: persona.color }} />
