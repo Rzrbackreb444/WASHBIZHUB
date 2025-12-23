@@ -1067,8 +1067,14 @@ export default function BookStudio() {
                 {/* Illustrated Page Editor */}
                 {currentPageIndex !== null && pageIllustrations[currentPageIndex] ? (
                   <div className="space-y-6">
-                    {/* Page Preview */}
-                    <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+                    {/* Page Preview with Real-time Text Positioning */}
+                    <div className="bg-white rounded-lg shadow-xl overflow-hidden relative group">
+                      {/* Page Number Badge */}
+                      <div className="absolute top-3 left-3 z-10 bg-[#C8A661] text-white px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                        Page {currentPageIndex + 1} of {pageIllustrations.length}
+                      </div>
+                      
+                      {/* Live Preview */}
                       <div className="aspect-[4/3] bg-gray-100 relative">
                         {pageIllustrations[currentPageIndex].imageUrl ? (
                           <img 
@@ -1077,12 +1083,15 @@ export default function BookStudio() {
                             className="w-full h-full object-contain"
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                            <div className="text-center">
-                              <ImageIcon className="w-20 h-20 mx-auto text-slate-300 mb-4" />
-                              <p className="text-slate-500">No illustration yet</p>
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100">
+                            <div className="text-center p-6">
+                              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-amber-200/50 flex items-center justify-center">
+                                <ImageIcon className="w-12 h-12 text-amber-400" />
+                              </div>
+                              <p className="text-amber-700 font-medium mb-1">Illustration Pending</p>
+                              <p className="text-amber-600 text-sm mb-4">Add a scene description below</p>
                               <Button
-                                className="mt-4 bg-[#C8A661] hover:bg-[#b89551]"
+                                className="bg-[#C8A661] hover:bg-[#b89551]"
                                 onClick={() => {
                                   const page = pageIllustrations[currentPageIndex];
                                   if (page?.sceneDescription) {
@@ -1101,24 +1110,74 @@ export default function BookStudio() {
                                 ) : (
                                   <Wand2 className="w-4 h-4 mr-2" />
                                 )}
-                                Generate Illustration
+                                Generate Art
                               </Button>
                             </div>
                           </div>
                         )}
-                        {/* Text overlay positioning */}
-                        {pageIllustrations[currentPageIndex].pageText && (
-                          <div className={`absolute bg-white/90 p-4 ${
-                            pageIllustrations[currentPageIndex].textPosition === "top" ? "top-0 left-0 right-0" :
-                            pageIllustrations[currentPageIndex].textPosition === "bottom" ? "bottom-0 left-0 right-0" :
-                            pageIllustrations[currentPageIndex].textPosition === "left" ? "left-0 top-0 bottom-0 w-1/3" :
-                            "right-0 top-0 bottom-0 w-1/3"
-                          }`}>
-                            <p className="text-xl font-serif text-gray-800 leading-relaxed">
-                              {pageIllustrations[currentPageIndex].pageText}
-                            </p>
+                        
+                        {/* Text Overlay with Real-time Preview */}
+                        {pageIllustrations[currentPageIndex].pageText && pageIllustrations[currentPageIndex].textPosition !== "none" && (
+                          <div 
+                            className={`absolute transition-all duration-300 ${
+                              pageIllustrations[currentPageIndex].textPosition === "top" 
+                                ? "top-0 left-0 right-0 p-4" 
+                                : pageIllustrations[currentPageIndex].textPosition === "bottom" 
+                                ? "bottom-0 left-0 right-0 p-4" 
+                                : pageIllustrations[currentPageIndex].textPosition === "left" 
+                                ? "left-0 top-0 bottom-0 w-2/5 flex items-center p-4" 
+                                : "right-0 top-0 bottom-0 w-2/5 flex items-center p-4"
+                            }`}
+                          >
+                            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                              <p className="text-lg font-serif text-gray-800 leading-relaxed">
+                                {pageIllustrations[currentPageIndex].pageText}
+                              </p>
+                            </div>
                           </div>
                         )}
+                        
+                        {/* Clickable Position Indicators - Always visible for touch/mobile */}
+                        <div className="absolute inset-0 pointer-events-none">
+                          {["top", "bottom", "left", "right"].map((pos) => (
+                            <div 
+                              key={pos}
+                              onClick={() => updatePage(currentPageIndex, { textPosition: pos })}
+                              className={`absolute cursor-pointer pointer-events-auto transition-all ${
+                                pos === "top" ? "top-2 left-1/4 right-1/4 h-7" :
+                                pos === "bottom" ? "bottom-2 left-1/4 right-1/4 h-7" :
+                                pos === "left" ? "left-2 top-1/4 bottom-1/4 w-7" :
+                                "right-2 top-1/4 bottom-1/4 w-7"
+                              } ${
+                                pageIllustrations[currentPageIndex].textPosition === pos 
+                                  ? "bg-[#C8A661] border-2 border-[#C8A661] shadow-lg" 
+                                  : "bg-slate-800/70 hover:bg-slate-700/90 border border-slate-500/50"
+                              } rounded flex items-center justify-center`}
+                              data-testid={`position-indicator-${pos}`}
+                            >
+                              <span className={`text-[9px] font-bold uppercase ${
+                                pageIllustrations[currentPageIndex].textPosition === pos 
+                                  ? "text-white" 
+                                  : "text-slate-200"
+                              }`}>
+                                {pageIllustrations[currentPageIndex].textPosition === pos ? "Text" : pos}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Quick Action Bar - Always visible */}
+                      <div className="absolute bottom-2 right-2 flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-7 text-xs bg-white/95 hover:bg-white shadow-lg"
+                          onClick={() => updatePage(currentPageIndex, { textPosition: "none" })}
+                          data-testid="button-hide-text"
+                        >
+                          Hide Text
+                        </Button>
                       </div>
                     </div>
 
