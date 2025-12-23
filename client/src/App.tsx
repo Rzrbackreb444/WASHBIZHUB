@@ -274,6 +274,8 @@ const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"))
 const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
 const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
 const BookStudio = lazy(() => import("@/pages/book-studio"));
+const LarrysCommandCenter = lazy(() => import("@/pages/larrys-command-center"));
+const LarrysContentEmpire = lazy(() => import("@/pages/larrys-content-empire"));
 
 // Persona Hub Pages
 const ForBuyers = lazy(() => import("@/pages/for-buyers"));
@@ -711,6 +713,26 @@ function Router() {
       <Route path="/ai-command-center">
         <Suspense fallback={<LoadingFallback />}>
           <AICommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/larrys-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarrysCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/content-command-center">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarrysCommandCenter />
+        </Suspense>
+      </Route>
+      <Route path="/larrys-content-empire">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarrysContentEmpire />
+        </Suspense>
+      </Route>
+      <Route path="/content-empire">
+        <Suspense fallback={<LoadingFallback />}>
+          <LarrysContentEmpire />
         </Suspense>
       </Route>
       <Route path="/about-us" component={AboutUs} />
