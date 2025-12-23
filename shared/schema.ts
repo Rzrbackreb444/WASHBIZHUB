@@ -19065,5 +19065,320 @@ export type InsertBookGenerationJob = z.infer<typeof insertBookGenerationJobSche
 export type BookGenerationJob = typeof bookGenerationJobs.$inferSelect;
 
 // ============================================================================
+// BOOK STUDIO COLLABORATION - Production-Grade Multi-Author System
+// ============================================================================
+
+// Book Collaborators - Team members working on a book
+export const bookCollaborators = pgTable("book_collaborators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  
+  // Collaborator info
+  name: varchar("name", { length: 200 }).notNull(),
+  email: varchar("email", { length: 200 }).notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("editor"), // "author", "co-author", "editor", "reviewer", "proofreader", "beta-reader"
+  color: varchar("color", { length: 20 }).default("#C8A661"), // Avatar color for UI
+  
+  // Permissions
+  canEdit: boolean("can_edit").default(true),
+  canComment: boolean("can_comment").default(true),
+  canExport: boolean("can_export").default(false),
+  canInvite: boolean("can_invite").default(false),
+  
+  // Status
+  status: varchar("status", { length: 50 }).default("invited"), // "invited", "active", "inactive"
+  invitedAt: timestamp("invited_at").defaultNow(),
+  acceptedAt: timestamp("accepted_at"),
+  lastActiveAt: timestamp("last_active_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_collaborators_project_idx").on(table.projectId),
+  emailIdx: index("book_collaborators_email_idx").on(table.email),
+}));
+
+export const insertBookCollaboratorSchema = createInsertSchema(bookCollaborators).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookCollaborator = z.infer<typeof insertBookCollaboratorSchema>;
+export type BookCollaborator = typeof bookCollaborators.$inferSelect;
+
+// Book Comments - Inline and chapter-level comments
+export const bookComments = pgTable("book_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  collaboratorId: varchar("collaborator_id").references(() => bookCollaborators.id, { onDelete: "set null" }),
+  
+  // Location
+  chapterId: varchar("chapter_id"), // Reference to chapter if chapter-level comment
+  pageId: varchar("page_id").references(() => bookPages.id, { onDelete: "cascade" }),
+  
+  // For inline comments - selection range
+  startOffset: integer("start_offset"), // Character offset in text
+  endOffset: integer("end_offset"),
+  selectedText: text("selected_text"), // The text that was highlighted
+  
+  // Comment content
+  content: text("content").notNull(),
+  commentType: varchar("comment_type", { length: 50 }).default("comment"), // "comment", "suggestion", "question", "approval", "rejection"
+  
+  // Thread support
+  parentId: varchar("parent_id"), // For threaded replies
+  
+  // Status
+  status: varchar("status", { length: 50 }).default("open"), // "open", "resolved", "dismissed"
+  resolvedBy: varchar("resolved_by"),
+  resolvedAt: timestamp("resolved_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_comments_project_idx").on(table.projectId),
+  chapterIdx: index("book_comments_chapter_idx").on(table.chapterId),
+  statusIdx: index("book_comments_status_idx").on(table.status),
+}));
+
+export const insertBookCommentSchema = createInsertSchema(bookComments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBookComment = z.infer<typeof insertBookCommentSchema>;
+export type BookComment = typeof bookComments.$inferSelect;
+
+// Book Activities - Audit log of all actions
+export const bookActivities = pgTable("book_activities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  collaboratorId: varchar("collaborator_id").references(() => bookCollaborators.id, { onDelete: "set null" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  
+  // Activity details
+  action: varchar("action", { length: 50 }).notNull(), // "edit", "comment", "approve", "reject", "join", "leave", "export", "ping", "review_request"
+  target: varchar("target", { length: 200 }), // What was affected (chapter name, collaborator name, etc)
+  details: text("details"), // Additional context
+  
+  // References
+  chapterId: varchar("chapter_id"),
+  commentId: varchar("comment_id"),
+  versionId: varchar("version_id"),
+  
+  // Notification tracking
+  notificationSent: boolean("notification_sent").default(false),
+  emailSentTo: text("email_sent_to").array(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_activities_project_idx").on(table.projectId),
+  createdAtIdx: index("book_activities_created_idx").on(table.createdAt),
+}));
+
+export const insertBookActivitySchema = createInsertSchema(bookActivities).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookActivity = z.infer<typeof insertBookActivitySchema>;
+export type BookActivity = typeof bookActivities.$inferSelect;
+
+// Book Versions - Full version history with snapshots (Reedsy-style)
+export const bookVersions = pgTable("book_versions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  collaboratorId: varchar("collaborator_id").references(() => bookCollaborators.id, { onDelete: "set null" }),
+  
+  // Version info
+  versionNumber: integer("version_number").notNull(),
+  name: varchar("name", { length: 200 }), // Optional name like "First draft", "After Larry's review"
+  description: text("description"),
+  
+  // Snapshot - full state at this version
+  chapters: jsonb("chapters").$type<Array<{
+    id: string;
+    title: string;
+    content: string;
+    wordCount: number;
+  }>>(),
+  projectMetadata: jsonb("project_metadata"),
+  
+  // Statistics
+  totalWords: integer("total_words"),
+  chapterCount: integer("chapter_count"),
+  
+  // Change tracking
+  changeType: varchar("change_type", { length: 50 }).default("manual"), // "manual", "auto", "milestone"
+  changedChapters: text("changed_chapters").array(), // Which chapters changed
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_versions_project_idx").on(table.projectId),
+  versionIdx: index("book_versions_number_idx").on(table.projectId, table.versionNumber),
+}));
+
+export const insertBookVersionSchema = createInsertSchema(bookVersions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookVersion = z.infer<typeof insertBookVersionSchema>;
+export type BookVersion = typeof bookVersions.$inferSelect;
+
+// Beta Reader Links - Shareable preview links (Reedsy feature)
+export const betaReaderLinks = pgTable("beta_reader_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  // Link settings
+  token: varchar("token", { length: 100 }).notNull().unique(), // Random URL-safe token
+  name: varchar("name", { length: 200 }), // "Beta Reader Group 1"
+  
+  // Access control
+  chaptersAllowed: text("chapters_allowed").array(), // Empty = all chapters
+  allowComments: boolean("allow_comments").default(true),
+  requireEmail: boolean("require_email").default(true),
+  
+  // Expiration
+  expiresAt: timestamp("expires_at"),
+  maxViews: integer("max_views"),
+  currentViews: integer("current_views").default(0),
+  
+  // Status
+  status: varchar("status", { length: 50 }).default("active"), // "active", "expired", "revoked"
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  tokenIdx: index("beta_reader_token_idx").on(table.token),
+  projectIdx: index("beta_reader_project_idx").on(table.projectId),
+}));
+
+export const insertBetaReaderLinkSchema = createInsertSchema(betaReaderLinks).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBetaReaderLink = z.infer<typeof insertBetaReaderLinkSchema>;
+export type BetaReaderLink = typeof betaReaderLinks.$inferSelect;
+
+// Writing Goals - Reedsy/Kajabi style goal tracking
+export const writingGoals = pgTable("writing_goals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  
+  // Goal settings
+  goalType: varchar("goal_type", { length: 50 }).notNull(), // "daily", "weekly", "total", "deadline"
+  targetWords: integer("target_words"),
+  targetChapters: integer("target_chapters"),
+  deadlineDate: timestamp("deadline_date"),
+  
+  // Progress tracking
+  currentWords: integer("current_words").default(0),
+  currentChapters: integer("current_chapters").default(0),
+  streakDays: integer("streak_days").default(0),
+  longestStreak: integer("longest_streak").default(0),
+  
+  // Status
+  isActive: boolean("is_active").default(true),
+  completedAt: timestamp("completed_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("writing_goals_project_idx").on(table.projectId),
+  userIdx: index("writing_goals_user_idx").on(table.userId),
+}));
+
+export const insertWritingGoalSchema = createInsertSchema(writingGoals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertWritingGoal = z.infer<typeof insertWritingGoalSchema>;
+export type WritingGoal = typeof writingGoals.$inferSelect;
+
+// Planning Boards - Reedsy-style character/scene/research boards
+export const planningBoards = pgTable("planning_boards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  // Board info
+  name: varchar("name", { length: 200 }).notNull(),
+  boardType: varchar("board_type", { length: 50 }).notNull(), // "characters", "scenes", "research", "worldbuilding", "timeline", "notes"
+  color: varchar("color", { length: 20 }).default("#C8A661"),
+  icon: varchar("icon", { length: 50 }),
+  
+  // Ordering
+  displayOrder: integer("display_order").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("planning_boards_project_idx").on(table.projectId),
+}));
+
+export const insertPlanningBoardSchema = createInsertSchema(planningBoards).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPlanningBoard = z.infer<typeof insertPlanningBoardSchema>;
+export type PlanningBoard = typeof planningBoards.$inferSelect;
+
+// Planning Cards - Items on planning boards
+export const planningCards = pgTable("planning_cards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  boardId: varchar("board_id").notNull().references(() => planningBoards.id, { onDelete: "cascade" }),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  // Card content
+  title: varchar("title", { length: 300 }).notNull(),
+  content: text("content"),
+  
+  // For character cards
+  characterDetails: jsonb("character_details").$type<{
+    age?: string;
+    role?: string;
+    appearance?: string;
+    personality?: string;
+    backstory?: string;
+    relationships?: string[];
+    imageUrl?: string;
+  }>(),
+  
+  // For scene cards
+  sceneDetails: jsonb("scene_details").$type<{
+    chapter?: number;
+    setting?: string;
+    characters?: string[];
+    conflict?: string;
+    outcome?: string;
+  }>(),
+  
+  // Ordering and display
+  displayOrder: integer("display_order").default(0),
+  color: varchar("color", { length: 20 }),
+  tags: text("tags").array(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  boardIdx: index("planning_cards_board_idx").on(table.boardId),
+  projectIdx: index("planning_cards_project_idx").on(table.projectId),
+}));
+
+export const insertPlanningCardSchema = createInsertSchema(planningCards).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPlanningCard = z.infer<typeof insertPlanningCardSchema>;
+export type PlanningCard = typeof planningCards.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
