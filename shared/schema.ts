@@ -19380,5 +19380,251 @@ export type InsertPlanningCard = z.infer<typeof insertPlanningCardSchema>;
 export type PlanningCard = typeof planningCards.$inferSelect;
 
 // ============================================================================
+// LARRY'S COMMAND CENTER - Consulting & Revenue Tracking
+// ============================================================================
+
+// Larry's Consultations with 50/50 Revenue Split
+export const larryConsultations = pgTable("larry_consultations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Client Information
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientEmail: varchar("client_email", { length: 255 }).notNull(),
+  clientPhone: varchar("client_phone", { length: 50 }),
+  clientUserId: varchar("client_user_id").references(() => users.id),
+  
+  // Consultation Type & Pricing
+  consultationType: varchar("consultation_type", { length: 50 }).notNull(), // "phone", "video", "deep-dive", "vip-day"
+  duration: integer("duration").notNull(), // minutes: 30, 45, 90, 240
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  
+  // 50/50 Revenue Split
+  larryShare: decimal("larry_share", { precision: 10, scale: 2 }).notNull(),
+  nickShare: decimal("nick_share", { precision: 10, scale: 2 }).notNull(),
+  
+  // Scheduling
+  scheduledAt: timestamp("scheduled_at").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("scheduled"), // "scheduled", "in-progress", "completed", "cancelled", "no-show"
+  
+  // Session Details
+  recordingUrl: text("recording_url"),
+  sessionNotes: text("session_notes"),
+  internalNotes: text("internal_notes"),
+  
+  // Client Feedback
+  rating: integer("rating"), // 1-5 stars
+  feedback: text("feedback"),
+  testimonialApproved: boolean("testimonial_approved").default(false),
+  
+  // Payment Tracking
+  paid: boolean("paid").default(false),
+  paymentDate: timestamp("payment_date"),
+  stripePaymentId: varchar("stripe_payment_id", { length: 255 }),
+  invoiceSent: boolean("invoice_sent").default(false),
+  
+  // Follow-up
+  followUpScheduled: boolean("follow_up_scheduled").default(false),
+  followUpDate: timestamp("follow_up_date"),
+  followUpNotes: text("follow_up_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  clientEmailIdx: index("larry_consultations_client_email_idx").on(table.clientEmail),
+  scheduledAtIdx: index("larry_consultations_scheduled_at_idx").on(table.scheduledAt),
+  statusIdx: index("larry_consultations_status_idx").on(table.status),
+}));
+
+export const insertLarryConsultationSchema = createInsertSchema(larryConsultations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  completedAt: true,
+});
+
+export type InsertLarryConsultation = z.infer<typeof insertLarryConsultationSchema>;
+export type LarryConsultation = typeof larryConsultations.$inferSelect;
+
+// Session Recordings Library
+export const sessionRecordings = pgTable("session_recordings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Recording Info
+  title: varchar("title", { length: 300 }).notNull(),
+  description: text("description"),
+  
+  // Source
+  consultationId: varchar("consultation_id").references(() => larryConsultations.id),
+  recordingType: varchar("recording_type", { length: 50 }).notNull(), // "consultation", "webinar", "tutorial", "interview"
+  
+  // Client/Guest
+  clientName: varchar("client_name", { length: 200 }),
+  isPublic: boolean("is_public").default(false), // Can be published to social
+  
+  // File Details
+  fileUrl: text("file_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  duration: varchar("duration", { length: 20 }), // "1:32:45" format
+  fileSize: varchar("file_size", { length: 50 }), // "1.2 GB" format
+  
+  // Publishing
+  isPublished: boolean("is_published").default(false),
+  publishedPlatforms: text("published_platforms").array(), // ["youtube", "tiktok", "facebook"]
+  youtubeUrl: text("youtube_url"),
+  tiktokUrl: text("tiktok_url"),
+  facebookUrl: text("facebook_url"),
+  linkedinUrl: text("linkedin_url"),
+  
+  // Analytics
+  views: integer("views").default(0),
+  likes: integer("likes").default(0),
+  shares: integer("shares").default(0),
+  
+  // Timestamps
+  recordedAt: timestamp("recorded_at").defaultNow(),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  recordingTypeIdx: index("session_recordings_type_idx").on(table.recordingType),
+  isPublishedIdx: index("session_recordings_published_idx").on(table.isPublished),
+}));
+
+export const insertSessionRecordingSchema = createInsertSchema(sessionRecordings).omit({
+  id: true,
+  views: true,
+  likes: true,
+  shares: true,
+  createdAt: true,
+});
+
+export type InsertSessionRecording = z.infer<typeof insertSessionRecordingSchema>;
+export type SessionRecording = typeof sessionRecordings.$inferSelect;
+
+// Revenue Split Payouts
+export const revenueSplitPayouts = pgTable("revenue_split_payouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Payout Period
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  payoutType: varchar("payout_type", { length: 50 }).notNull(), // "monthly", "quarterly", "on-demand"
+  
+  // Revenue Summary
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).notNull(),
+  larryPayout: decimal("larry_payout", { precision: 12, scale: 2 }).notNull(),
+  nickPayout: decimal("nick_payout", { precision: 12, scale: 2 }).notNull(),
+  
+  // Breakdown by Type
+  consultationRevenue: decimal("consultation_revenue", { precision: 12, scale: 2 }).default("0"),
+  contentRevenue: decimal("content_revenue", { precision: 12, scale: 2 }).default("0"),
+  courseRevenue: decimal("course_revenue", { precision: 12, scale: 2 }).default("0"),
+  bookRevenue: decimal("book_revenue", { precision: 12, scale: 2 }).default("0"),
+  
+  // Consultation Count
+  consultationCount: integer("consultation_count").default(0),
+  
+  // Payout Status
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // "pending", "processing", "paid", "failed"
+  
+  // Payment Details
+  larryPaymentMethod: varchar("larry_payment_method", { length: 100 }),
+  nickPaymentMethod: varchar("nick_payment_method", { length: 100 }),
+  larryPaymentRef: varchar("larry_payment_ref", { length: 255 }),
+  nickPaymentRef: varchar("nick_payment_ref", { length: 255 }),
+  
+  // Timestamps
+  scheduledPayoutDate: timestamp("scheduled_payout_date"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  periodIdx: index("revenue_split_payouts_period_idx").on(table.periodStart, table.periodEnd),
+  statusIdx: index("revenue_split_payouts_status_idx").on(table.status),
+}));
+
+export const insertRevenueSplitPayoutSchema = createInsertSchema(revenueSplitPayouts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertRevenueSplitPayout = z.infer<typeof insertRevenueSplitPayoutSchema>;
+export type RevenueSplitPayout = typeof revenueSplitPayouts.$inferSelect;
+
+// Email Templates for Larry's Outreach
+export const larryEmailTemplates = pgTable("larry_email_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Template Info
+  name: varchar("name", { length: 200 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // "followup", "booking", "resources", "proposal", "marketing"
+  subject: varchar("subject", { length: 500 }).notNull(),
+  body: text("body").notNull(),
+  
+  // Variables
+  variables: text("variables").array(), // ["clientName", "consultationType", "date", "price"]
+  
+  // Usage Stats
+  timesUsed: integer("times_used").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  
+  // Active/Archived
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertLarryEmailTemplateSchema = createInsertSchema(larryEmailTemplates).omit({
+  id: true,
+  timesUsed: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLarryEmailTemplate = z.infer<typeof insertLarryEmailTemplateSchema>;
+export type LarryEmailTemplate = typeof larryEmailTemplates.$inferSelect;
+
+// Social Media Connections for Publishing
+export const socialMediaConnections = pgTable("social_media_connections", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Platform
+  platform: varchar("platform", { length: 50 }).notNull(), // "youtube", "tiktok", "facebook", "twitter", "linkedin", "instagram"
+  accountName: varchar("account_name", { length: 200 }),
+  accountId: varchar("account_id", { length: 255 }),
+  
+  // OAuth Tokens (encrypted)
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  tokenExpiresAt: timestamp("token_expires_at"),
+  
+  // Connection Status
+  isConnected: boolean("is_connected").default(false),
+  lastSyncAt: timestamp("last_sync_at"),
+  
+  // Stats
+  followers: integer("followers").default(0),
+  totalViews: integer("total_views").default(0),
+  totalPosts: integer("total_posts").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  platformIdx: uniqueIndex("social_media_platform_idx").on(table.platform),
+}));
+
+export const insertSocialMediaConnectionSchema = createInsertSchema(socialMediaConnections).omit({
+  id: true,
+  followers: true,
+  totalViews: true,
+  totalPosts: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertSocialMediaConnection = z.infer<typeof insertSocialMediaConnectionSchema>;
+export type SocialMediaConnection = typeof socialMediaConnections.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
