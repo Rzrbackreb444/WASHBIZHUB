@@ -213,7 +213,7 @@ function CLEANBIDemo() {
           className="flex-1"
           data-testid="demo-cleanbi-input"
         />
-        <Button onClick={handleAnalyze} className="bg-[#C8A661] hover:bg-[#B89651]" data-testid="demo-cleanbi-analyze">
+        <Button onClick={handleAnalyze} className="bg-[#C8A661]" data-testid="demo-cleanbi-analyze">
           <Search className="h-4 w-4 mr-2" />
           Analyze
         </Button>
@@ -244,7 +244,7 @@ function CLEANBIDemo() {
             </div>
           </div>
           <Link href="/cleanbi-explorer">
-            <Button className="w-full mt-4 bg-[#C8A661] hover:bg-[#B89651]">
+            <Button className="w-full mt-4 bg-[#C8A661]" data-testid="demo-cleanbi-full-report">
               Get Full Report Free <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -317,7 +317,7 @@ function CalculatorDemo() {
       </div>
       
       <Link href="/calculators">
-        <Button className="w-full bg-blue-600 hover:bg-blue-700">
+        <Button className="w-full bg-blue-600" data-testid="demo-calc-access">
           Access All 50+ Calculators <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </Link>
@@ -348,7 +348,7 @@ function BookStudioDemo() {
         />
         <Button 
           onClick={() => topic.length > 2 && setGenerated(true)}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-purple-600"
           data-testid="demo-book-generate"
         >
           <Sparkles className="h-4 w-4 mr-2" />
@@ -395,7 +395,7 @@ function BookStudioDemo() {
       </div>
       
       <Link href="/book-studio">
-        <Button className="w-full bg-purple-600 hover:bg-purple-700">
+        <Button className="w-full bg-purple-600" data-testid="demo-book-open">
           Open Book Studio <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </Link>
@@ -426,7 +426,7 @@ function ServiceGuyDemo() {
           className="flex-1 uppercase"
           data-testid="demo-serviceguy-input"
         />
-        <Button className="bg-orange-600 hover:bg-orange-700" data-testid="demo-serviceguy-lookup">
+        <Button className="bg-orange-600" data-testid="demo-serviceguy-lookup">
           <Search className="h-4 w-4 mr-2" />
           Lookup
         </Button>
@@ -460,6 +460,7 @@ function ServiceGuyDemo() {
             variant="outline" 
             size="sm"
             onClick={() => { setErrorCode(code); setShowResult(true); }}
+            data-testid={`demo-serviceguy-code-${code.toLowerCase()}`}
           >
             {code}
           </Button>
@@ -467,7 +468,7 @@ function ServiceGuyDemo() {
       </div>
       
       <Link href="/service-guy-ai">
-        <Button className="w-full bg-orange-600 hover:bg-orange-700">
+        <Button className="w-full bg-orange-600" data-testid="demo-serviceguy-access">
           Access Full Diagnostic Tool <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </Link>
@@ -541,7 +542,7 @@ function DesignStudioDemo() {
       </div>
       
       <Link href="/design-studio">
-        <Button className="w-full bg-green-600 hover:bg-green-700">
+        <Button className="w-full bg-green-600" data-testid="demo-design-open">
           Open Design Studio <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </Link>
@@ -606,7 +607,7 @@ function TemplateVaultDemo() {
       </div>
       
       <Link href="/template-vault">
-        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+        <Button className="w-full bg-indigo-600" data-testid="demo-template-access">
           Access Template Vault <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </Link>
@@ -780,7 +781,7 @@ function ProductCard({ product }: { product: Product }) {
           </Link>
           <Link href={product.purchaseLink} className="flex-1">
             <Button 
-              className={`w-full ${product.popular ? 'bg-[#C8A661] hover:bg-[#B89651]' : ''}`}
+              className={`w-full ${product.popular ? 'bg-[#C8A661]' : ''}`}
               data-testid={`button-buy-${product.id}`}
             >
               Get Access
@@ -855,7 +856,7 @@ export default function Products() {
                   variant={filter === audience ? "default" : "outline"}
                   size="sm"
                   onClick={() => setFilter(audience)}
-                  className={filter === audience ? "bg-[#C8A661] hover:bg-[#B89651]" : ""}
+                  className={filter === audience ? "bg-[#C8A661]" : ""}
                   data-testid={`button-filter-${audience.toLowerCase()}`}
                 >
                   {audience === "all" ? "All Products" : `For ${audience}`}
@@ -924,7 +925,7 @@ export default function Products() {
                     <Link href="/pricing">
                       <Button 
                         size="lg" 
-                        className="w-full bg-[#C8A661] hover:bg-[#B89651]"
+                        className="w-full bg-[#C8A661]"
                         data-testid="button-all-access"
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
@@ -952,7 +953,7 @@ export default function Products() {
               Try our most popular tool - CLEANBI Explorer. Analyze any address for free.
             </p>
             <Link href="/cleanbi-explorer">
-              <Button size="lg" className="bg-[#C8A661] hover:bg-[#B89651]">
+              <Button size="lg" className="bg-[#C8A661]" data-testid="button-try-cleanbi">
                 <Map className="h-4 w-4 mr-2" />
                 Try CLEANBI Free
               </Button>
