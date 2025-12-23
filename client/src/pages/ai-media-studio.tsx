@@ -301,18 +301,18 @@ export default function AIMediaStudio() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded font-normal">AI Creative</span>
+                        <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 rounded font-normal">Guaranteed</span>
                         Remove Background
                       </CardTitle>
                       <CardDescription>
-                        AI-powered background removal for product photos, portraits, and more
+                        Pixel-perfect background removal for product photos, portraits, and brand assets
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <Alert data-testid="alert-ai-info" className="border-amber-500/50 bg-amber-500/10">
-                        <Sparkles className="h-4 w-4 text-amber-500" />
-                        <AlertDescription className="text-amber-700 dark:text-amber-300">
-                          <span className="font-semibold">AI Creative:</span> Uses AI to intelligently isolate and place your subject on white. Results are AI-generated and may vary from the original.
+                      <Alert data-testid="alert-bg-info" className="border-green-500/50 bg-green-500/10">
+                        <Scissors className="h-4 w-4 text-green-500" />
+                        <AlertDescription className="text-green-700 dark:text-green-300">
+                          <span className="font-semibold">Guaranteed Edit:</span> Professional-grade background removal that preserves your original subject exactly. Perfect for logos, product photography, and brand assets.
                         </AlertDescription>
                       </Alert>
                       <Button

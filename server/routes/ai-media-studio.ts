@@ -3,6 +3,7 @@ import multer from "multer";
 import { randomUUID } from "crypto";
 import OpenAI from "openai";
 import sharp from "sharp";
+import FormData from "form-data";
 import { ObjectStorageService, parseObjectPath, objectStorageClient } from "../objectStorage";
 import * as fs from "fs";
 import * as path from "path";
@@ -123,11 +124,16 @@ router.get("/media/:folder/:objectId", async (req: Request, res: Response) => {
   }
 });
 
+// Deterministic background removal using remove.bg API
 router.post("/remove-background", requireAuth, upload.single("image"), async (req: Request, res: Response) => {
-  let tempPath: string | null = null;
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No image file provided" });
+    }
+    
+    const removeBgApiKey = process.env.REMOVE_BG_API_KEY;
+    if (!removeBgApiKey) {
+      return res.status(500).json({ error: "Background removal service not configured" });
     }
     
     const originalSavedUrl = await uploadToStorage(
@@ -137,29 +143,33 @@ router.post("/remove-background", requireAuth, upload.single("image"), async (re
       "originals"
     );
     
-    tempPath = await saveBufferToTempFile(req.file.buffer, req.file.originalname);
+    // Use remove.bg API for deterministic, pixel-perfect background removal
+    // Using Node-compatible form-data package
+    const formData = new FormData();
+    formData.append("image_file", req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype,
+    });
+    formData.append("size", "auto"); // auto selects best quality based on input
+    formData.append("format", "png"); // PNG for transparency support
+    formData.append("type", "auto"); // auto-detect subject type
     
-    const response = await openai.images.edit({
-      model: "gpt-image-1",
-      image: fs.createReadStream(tempPath) as any,
-      prompt: "Remove the background completely and replace it with a clean, pure white background. Keep the main subject exactly as it is with crisp, clean edges. The subject should be isolated on white, suitable for e-commerce or marketing use.",
-      size: "1024x1024",
+    const removeBgResponse = await fetch("https://api.remove.bg/v1.0/removebg", {
+      method: "POST",
+      headers: {
+        "X-Api-Key": removeBgApiKey,
+        ...formData.getHeaders(),
+      },
+      body: formData as any,
     });
     
-    const imageData = response.data[0];
-    let imageBuffer: Buffer;
-    
-    if (imageData.b64_json) {
-      imageBuffer = Buffer.from(imageData.b64_json, "base64");
-    } else if (imageData.url) {
-      const imageResponse = await fetch(imageData.url);
-      if (!imageResponse.ok) {
-        throw new Error("Failed to download processed image");
-      }
-      imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-    } else {
-      throw new Error("No image data in response");
+    if (!removeBgResponse.ok) {
+      const errorText = await removeBgResponse.text();
+      console.error("[MediaStudio] remove.bg API error:", errorText);
+      throw new Error(`Background removal failed: ${removeBgResponse.status}`);
     }
+    
+    const imageBuffer = Buffer.from(await removeBgResponse.arrayBuffer());
     
     const savedUrl = await uploadToStorage(
       imageBuffer,
@@ -168,18 +178,18 @@ router.post("/remove-background", requireAuth, upload.single("image"), async (re
       "processed"
     );
     
+    console.log("[MediaStudio] Background removed successfully via remove.bg");
+    
     res.json({
       success: true,
       originalUrl: originalSavedUrl,
       processedUrl: savedUrl,
-      type: "ai-creative",
-      disclaimer: "AI-generated result. Subject appearance may vary from original.",
+      type: "deterministic",
+      disclaimer: "Pixel-perfect background removal. Your original subject is preserved exactly.",
     });
   } catch (error: any) {
     console.error("[MediaStudio] Background removal error:", error);
     res.status(500).json({ error: error.message || "Failed to remove background" });
-  } finally {
-    if (tempPath) await cleanupTempFile(tempPath);
   }
 });
 
