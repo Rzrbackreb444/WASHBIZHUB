@@ -1,11 +1,457 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak } from "docx";
 import { z } from "zod";
+import { db } from "../db";
+import { bookProjects, bookPages, larrysContentItems, contentPurchases } from "@shared/schema";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 const router = Router();
+
+// Owner emails for access control
+const OWNER_EMAILS = (process.env.OWNER_EMAILS || "thelaundromatfb@gmail.com,rzrbackreb444@gmail.com,nick@washbizhub.com,larry@washbizhub.com").split(",").map(e => e.trim().toLowerCase());
+
+function isOwner(email?: string): boolean {
+  if (!email) return false;
+  return OWNER_EMAILS.includes(email.toLowerCase());
+}
+
+// ============================================================================
+// BOOK PROJECT CRUD OPERATIONS - Database Persistence
+// ============================================================================
+
+// Get all book projects (owner only sees all, others see their own)
+router.get("/projects", async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const userEmail = user?.email?.toLowerCase();
+    
+    let projects;
+    if (isOwner(userEmail)) {
+      projects = await db.select().from(bookProjects)
+        .orderBy(desc(bookProjects.updatedAt))
+        .limit(100);
+    } else if (user?.id) {
+      projects = await db.select().from(bookProjects)
+        .where(eq(bookProjects.userId, user.id))
+        .orderBy(desc(bookProjects.updatedAt))
+        .limit(50);
+    } else {
+      return res.json([]);
+    }
+    
+    res.json(projects);
+  } catch (error: any) {
+    console.error("[BookStudio] Error fetching projects:", error);
+    res.status(500).json({ error: "Failed to fetch projects" });
+  }
+});
+
+// Get single book project
+router.get("/projects/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+    
+    const [project] = await db.select().from(bookProjects).where(eq(bookProjects.id, id));
+    
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    
+    // Check access
+    if (!isOwner(user?.email) && project.userId !== user?.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    // Get pages for this project
+    const pages = await db.select().from(bookPages)
+      .where(eq(bookPages.projectId, id))
+      .orderBy(bookPages.pageNumber);
+    
+    res.json({ ...project, pages });
+  } catch (error: any) {
+    console.error("[BookStudio] Error fetching project:", error);
+    res.status(500).json({ error: "Failed to fetch project" });
+  }
+});
+
+// Create new book project (requires authentication)
+router.post("/projects", async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    // Require authentication for project creation
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required to create a project" });
+    }
+    
+    const { 
+      title, subtitle, author, description, genre, ageRange, targetAudience,
+      bookType, artStyle, artStylePrompt, characterDescriptions 
+    } = req.body;
+    
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+    
+    const [project] = await db.insert(bookProjects).values({
+      userId: user.id,
+      title,
+      subtitle,
+      author: author || user?.firstName || "Unknown Author",
+      description,
+      genre,
+      ageRange,
+      targetAudience,
+      bookType: bookType || "standard",
+      artStyle,
+      artStylePrompt,
+      characterDescriptions,
+      status: "draft",
+    }).returning();
+    
+    res.json(project);
+  } catch (error: any) {
+    console.error("[BookStudio] Error creating project:", error);
+    res.status(500).json({ error: "Failed to create project" });
+  }
+});
+
+// Update book project (requires authentication)
+router.patch("/projects/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+    const updates = req.body;
+    
+    // Require authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Check ownership
+    const [existing] = await db.select().from(bookProjects).where(eq(bookProjects.id, id));
+    if (!existing) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    
+    if (!isOwner(user?.email) && existing.userId !== user?.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    const [updated] = await db.update(bookProjects)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(bookProjects.id, id))
+      .returning();
+    
+    res.json(updated);
+  } catch (error: any) {
+    console.error("[BookStudio] Error updating project:", error);
+    res.status(500).json({ error: "Failed to update project" });
+  }
+});
+
+// Delete book project (requires authentication)
+router.delete("/projects/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+    
+    // Require authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const [existing] = await db.select().from(bookProjects).where(eq(bookProjects.id, id));
+    if (!existing) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    
+    if (!isOwner(user?.email) && existing.userId !== user?.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    
+    await db.delete(bookProjects).where(eq(bookProjects.id, id));
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("[BookStudio] Error deleting project:", error);
+    res.status(500).json({ error: "Failed to delete project" });
+  }
+});
+
+// ============================================================================
+// BOOK PAGES CRUD (with ownership verification)
+// ============================================================================
+
+// Helper function to verify project access
+async function verifyProjectAccess(projectId: string, user: any): Promise<{ authorized: boolean; project: any; error?: string }> {
+  const [project] = await db.select().from(bookProjects).where(eq(bookProjects.id, projectId));
+  
+  if (!project) {
+    return { authorized: false, project: null, error: "Project not found" };
+  }
+  
+  // Owners always have access
+  if (isOwner(user?.email)) {
+    return { authorized: true, project };
+  }
+  
+  // Check if user owns the project
+  if (user?.id && project.userId === user.id) {
+    return { authorized: true, project };
+  }
+  
+  return { authorized: false, project: null, error: "Access denied" };
+}
+
+// Add/update page (requires authentication and ownership)
+router.post("/projects/:projectId/pages", async (req: Request, res: Response) => {
+  try {
+    const { projectId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    const { pageNumber, textContent, imageUrl, imagePrompt, layout, status } = req.body;
+    
+    const [page] = await db.insert(bookPages).values({
+      projectId,
+      pageNumber: pageNumber || 1,
+      textContent,
+      imageUrl,
+      imagePrompt,
+      layout: layout || "text_below",
+      status: status || "draft",
+    }).returning();
+    
+    // Update project page count
+    const pageCount = await db.select({ count: sql<number>`count(*)` })
+      .from(bookPages)
+      .where(eq(bookPages.projectId, projectId));
+    
+    await db.update(bookProjects)
+      .set({ totalPages: Number(pageCount[0]?.count) || 0, updatedAt: new Date() })
+      .where(eq(bookProjects.id, projectId));
+    
+    res.json(page);
+  } catch (error: any) {
+    console.error("[BookStudio] Error adding page:", error);
+    res.status(500).json({ error: "Failed to add page" });
+  }
+});
+
+// Update page (requires authentication and ownership, verifies page belongs to project)
+router.patch("/projects/:projectId/pages/:pageId", async (req: Request, res: Response) => {
+  try {
+    const { projectId, pageId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    const updates = req.body;
+    
+    // Update only if page belongs to this project (prevents cross-project attacks)
+    const [updated] = await db.update(bookPages)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(eq(bookPages.id, pageId), eq(bookPages.projectId, projectId)))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Page not found in this project" });
+    }
+    
+    res.json(updated);
+  } catch (error: any) {
+    console.error("[BookStudio] Error updating page:", error);
+    res.status(500).json({ error: "Failed to update page" });
+  }
+});
+
+// Delete page (requires authentication and ownership, verifies page belongs to project)
+router.delete("/projects/:projectId/pages/:pageId", async (req: Request, res: Response) => {
+  try {
+    const { projectId, pageId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    // Verify page belongs to this project before deletion
+    const [page] = await db.select().from(bookPages)
+      .where(and(eq(bookPages.id, pageId), eq(bookPages.projectId, projectId)));
+    
+    if (!page) {
+      return res.status(404).json({ error: "Page not found in this project" });
+    }
+    
+    await db.delete(bookPages).where(eq(bookPages.id, pageId));
+    
+    // Update project page count
+    const pageCount = await db.select({ count: sql<number>`count(*)` })
+      .from(bookPages)
+      .where(eq(bookPages.projectId, projectId));
+    
+    await db.update(bookProjects)
+      .set({ totalPages: Number(pageCount[0]?.count) || 0, updatedAt: new Date() })
+      .where(eq(bookProjects.id, projectId));
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("[BookStudio] Error deleting page:", error);
+    res.status(500).json({ error: "Failed to delete page" });
+  }
+});
+
+// ============================================================================
+// CONTENT PURCHASES - Entitlements System
+// ============================================================================
+
+// Check if user has access to content
+router.get("/purchases/check/:contentId", async (req: Request, res: Response) => {
+  try {
+    const { contentId } = req.params;
+    const user = (req as any).user;
+    
+    if (!user?.email) {
+      return res.json({ hasAccess: false, reason: "not_authenticated" });
+    }
+    
+    // Owners always have access
+    if (isOwner(user.email)) {
+      return res.json({ hasAccess: true, reason: "owner" });
+    }
+    
+    // Check for purchase
+    const [purchase] = await db.select().from(contentPurchases)
+      .where(and(
+        eq(contentPurchases.userEmail, user.email.toLowerCase()),
+        eq(contentPurchases.contentId, contentId)
+      ));
+    
+    if (!purchase) {
+      return res.json({ hasAccess: false, reason: "not_purchased" });
+    }
+    
+    // Check expiration for rentals/subscriptions
+    if (purchase.expiresAt && new Date(purchase.expiresAt) < new Date()) {
+      return res.json({ hasAccess: false, reason: "expired" });
+    }
+    
+    res.json({ hasAccess: true, purchase });
+  } catch (error: any) {
+    console.error("[ContentPurchases] Check error:", error);
+    res.status(500).json({ error: "Failed to check access" });
+  }
+});
+
+// Get user's purchases
+router.get("/purchases", async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    if (!user?.email) {
+      return res.json([]);
+    }
+    
+    const purchases = await db.select({
+      purchase: contentPurchases,
+      content: larrysContentItems,
+    })
+      .from(contentPurchases)
+      .leftJoin(larrysContentItems, eq(contentPurchases.contentId, larrysContentItems.id))
+      .where(eq(contentPurchases.userEmail, user.email.toLowerCase()))
+      .orderBy(desc(contentPurchases.createdAt));
+    
+    res.json(purchases);
+  } catch (error: any) {
+    console.error("[ContentPurchases] Fetch error:", error);
+    res.status(500).json({ error: "Failed to fetch purchases" });
+  }
+});
+
+// Record purchase (called after Stripe payment)
+router.post("/purchases", async (req: Request, res: Response) => {
+  try {
+    const { userId, userEmail, contentId, amountPaid, stripePaymentId, accessType, expiresAt } = req.body;
+    
+    if (!userEmail || !contentId || !amountPaid) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    const [purchase] = await db.insert(contentPurchases).values({
+      userId: userId || "anonymous",
+      userEmail: userEmail.toLowerCase(),
+      contentId,
+      amountPaid: amountPaid.toString(),
+      stripePaymentId,
+      accessType: accessType || "permanent",
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+    }).returning();
+    
+    // Update content purchase count and revenue
+    await db.update(larrysContentItems)
+      .set({ 
+        purchases: sql`${larrysContentItems.purchases} + 1`,
+        revenue: sql`${larrysContentItems.revenue} + ${amountPaid}`,
+        updatedAt: new Date() 
+      })
+      .where(eq(larrysContentItems.id, contentId));
+    
+    res.json(purchase);
+  } catch (error: any) {
+    console.error("[ContentPurchases] Create error:", error);
+    res.status(500).json({ error: "Failed to record purchase" });
+  }
+});
+
+// Track content download
+router.post("/purchases/:id/download", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    await db.update(contentPurchases)
+      .set({ 
+        downloadCount: sql`${contentPurchases.downloadCount} + 1`,
+        lastAccessedAt: new Date() 
+      })
+      .where(eq(contentPurchases.id, id));
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("[ContentPurchases] Download tracking error:", error);
+    res.status(500).json({ error: "Failed to track download" });
+  }
+});
 
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;

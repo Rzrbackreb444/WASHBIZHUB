@@ -73,7 +73,7 @@ const MONETIZATION_TIERS = [
 
 interface ContentBlock {
   id: string;
-  type: "text" | "heading" | "image" | "video" | "calculator" | "callout" | "quote" | "list" | "code";
+  type: "text" | "heading" | "image" | "video" | "calculator" | "callout" | "quote" | "list" | "code" | "form" | "spreadsheet" | "demographics" | "embed" | "divider" | "accordion";
   content: string;
   metadata?: {
     level?: 1 | 2 | 3;
@@ -83,8 +83,34 @@ interface ContentBlock {
     variant?: "info" | "warning" | "success" | "tip";
     items?: string[];
     language?: string;
+    formFields?: { label: string; type: "text" | "email" | "phone" | "select" | "textarea"; required: boolean; options?: string[] }[];
+    spreadsheetData?: { headers: string[]; rows: string[][] };
+    demographicType?: "income" | "age" | "population" | "education" | "housing";
+    zipCode?: string;
+    embedUrl?: string;
+    embedType?: "youtube" | "vimeo" | "google-sheet" | "google-doc" | "iframe";
+    accordionItems?: { title: string; content: string }[];
   };
 }
+
+// Block type definitions for the block selector
+const BLOCK_TYPES = [
+  { id: "text", name: "Paragraph", icon: "T", description: "Regular text content" },
+  { id: "heading", name: "Heading", icon: "H", description: "Section heading" },
+  { id: "image", name: "Image", icon: "📷", description: "Photo or graphic" },
+  { id: "video", name: "Video", icon: "🎬", description: "YouTube or Vimeo embed" },
+  { id: "calculator", name: "Calculator", icon: "🧮", description: "Interactive calculator widget" },
+  { id: "callout", name: "Callout", icon: "💡", description: "Highlighted tip or warning" },
+  { id: "quote", name: "Quote", icon: "❝", description: "Blockquote" },
+  { id: "list", name: "List", icon: "•", description: "Bullet or numbered list" },
+  { id: "code", name: "Code", icon: "</>", description: "Code snippet" },
+  { id: "form", name: "Form", icon: "📝", description: "Lead capture or survey form" },
+  { id: "spreadsheet", name: "Spreadsheet", icon: "📊", description: "Data table" },
+  { id: "demographics", name: "Demographics", icon: "👥", description: "Area demographic data" },
+  { id: "embed", name: "Embed", icon: "🔗", description: "External content embed" },
+  { id: "divider", name: "Divider", icon: "—", description: "Horizontal separator" },
+  { id: "accordion", name: "Accordion", icon: "▼", description: "Collapsible sections" },
+];
 
 interface SEOData {
   metaTitle: string;
