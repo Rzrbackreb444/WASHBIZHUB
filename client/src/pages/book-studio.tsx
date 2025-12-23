@@ -167,21 +167,16 @@ export default function BookStudio() {
   const pageIllustrations = project.pageIllustrations || [];
   const characters = project.characters || [];
   
-  // Helper to update pageIllustrations in project state
-  const setPageIllustrations = useCallback((updater: (prev: PageIllustration[]) => PageIllustration[]) => {
-    setProject(prev => ({
-      ...prev,
-      pageIllustrations: updater(prev.pageIllustrations || [])
-    }));
-  }, []);
-  
-  // Helper to update characters in project state
-  const setCharacters = useCallback((updater: (prev: CharacterDescription[]) => CharacterDescription[]) => {
-    setProject(prev => ({
-      ...prev,
-      characters: updater(prev.characters || [])
-    }));
-  }, []);
+  // Keep currentPageIndex in bounds
+  useEffect(() => {
+    if (pageIllustrations.length === 0) {
+      setCurrentPageIndex(0);
+    } else if (currentPageIndex >= pageIllustrations.length) {
+      setCurrentPageIndex(pageIllustrations.length - 1);
+    } else if (currentPageIndex < 0) {
+      setCurrentPageIndex(0);
+    }
+  }, [pageIllustrations.length, currentPageIndex]);
 
   const currentChapter = currentChapterIndex !== null ? project.chapters[currentChapterIndex] : null;
 
@@ -442,10 +437,10 @@ export default function BookStudio() {
       const res = await apiRequest("POST", "/api/book-studio/generate-children-illustration", {
         sceneDescription,
         characterDescriptions: characters,
-        artStyle: selectedArtStyle,
-        pageNumber: (currentPageIndex || 0) + 1,
+        artStyle: project.artStyle || "watercolor",
+        pageNumber: currentPageIndex + 1,
         bookTitle: project.title,
-        ageRange: selectedAgeRange,
+        ageRange: project.ageRange || "3-5",
         mood: "cheerful",
         setting: ""
       });
@@ -453,19 +448,14 @@ export default function BookStudio() {
     },
     onSuccess: (data) => {
       setGeneratingIllustration(false);
-      if (data.imageUrl && currentPageIndex !== null) {
-        const newIllustration: PageIllustration = {
-          id: crypto.randomUUID(),
-          pageNumber: currentPageIndex + 1,
-          imageUrl: data.imageUrl,
-          sceneDescription: data.prompt || "",
-          textPosition: "bottom",
-          pageText: ""
-        };
-        setPageIllustrations(prev => {
-          const filtered = prev.filter(p => p.pageNumber !== currentPageIndex + 1);
-          return [...filtered, newIllustration];
-        });
+      if (data.imageUrl && pageIllustrations.length > 0 && currentPageIndex < pageIllustrations.length) {
+        // Update the existing page with the new illustration
+        setProject(prev => ({
+          ...prev,
+          pageIllustrations: (prev.pageIllustrations || []).map((p, i) => 
+            i === currentPageIndex ? { ...p, imageUrl: data.imageUrl } : p
+          )
+        }));
         toast({ title: "Illustration Created", description: "Your page illustration is ready!" });
       }
     },
@@ -483,8 +473,8 @@ export default function BookStudio() {
         synopsis: project.description,
         pageCount: 24,
         characterDescriptions: characters,
-        artStyle: selectedArtStyle,
-        ageRange: selectedAgeRange
+        artStyle: project.artStyle || "watercolor",
+        ageRange: project.ageRange || "3-5"
       });
       return res.json();
     },
@@ -498,7 +488,8 @@ export default function BookStudio() {
           textPosition: page.isSpread ? "bottom" : "bottom",
           pageText: page.pageText
         }));
-        setPageIllustrations(pages);
+        setProject(prev => ({ ...prev, pageIllustrations: pages }));
+        setCurrentPageIndex(0);
         toast({ title: "Storyboard Created", description: `${pages.length} pages planned` });
       }
     },
@@ -509,42 +500,57 @@ export default function BookStudio() {
 
   // Add character
   const addCharacter = useCallback(() => {
-    const newChar: CharacterDescription = {
-      id: crypto.randomUUID(),
-      name: `Character ${characters.length + 1}`,
-      description: "",
-      clothing: ""
-    };
-    setCharacters(prev => [...prev, newChar]);
-  }, [characters.length]);
+    setProject(prev => {
+      const newChar: CharacterDescription = {
+        id: crypto.randomUUID(),
+        name: `Character ${(prev.characters?.length || 0) + 1}`,
+        description: "",
+        clothing: ""
+      };
+      return { ...prev, characters: [...(prev.characters || []), newChar] };
+    });
+  }, []);
 
   // Update character
   const updateCharacter = useCallback((id: string, updates: Partial<CharacterDescription>) => {
-    setCharacters(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+    setProject(prev => ({
+      ...prev,
+      characters: (prev.characters || []).map(c => c.id === id ? { ...c, ...updates } : c)
+    }));
   }, []);
 
   // Remove character
   const removeCharacter = useCallback((id: string) => {
-    setCharacters(prev => prev.filter(c => c.id !== id));
+    setProject(prev => ({
+      ...prev,
+      characters: (prev.characters || []).filter(c => c.id !== id)
+    }));
   }, []);
 
   // Add blank page
   const addPage = useCallback(() => {
-    const newPage: PageIllustration = {
-      id: crypto.randomUUID(),
-      pageNumber: pageIllustrations.length + 1,
-      imageUrl: "",
-      sceneDescription: "",
-      textPosition: "bottom",
-      pageText: ""
-    };
-    setPageIllustrations(prev => [...prev, newPage]);
-    setCurrentPageIndex(pageIllustrations.length);
-  }, [pageIllustrations.length]);
+    setProject(prev => {
+      const newPage: PageIllustration = {
+        id: crypto.randomUUID(),
+        pageNumber: (prev.pageIllustrations?.length || 0) + 1,
+        imageUrl: "",
+        sceneDescription: "",
+        textPosition: "bottom",
+        pageText: ""
+      };
+      const newPages = [...(prev.pageIllustrations || []), newPage];
+      // Set the new page as selected after render
+      setTimeout(() => setCurrentPageIndex(newPages.length - 1), 0);
+      return { ...prev, pageIllustrations: newPages };
+    });
+  }, []);
 
   // Update page
   const updatePage = useCallback((index: number, updates: Partial<PageIllustration>) => {
-    setPageIllustrations(prev => prev.map((p, i) => i === index ? { ...p, ...updates } : p));
+    setProject(prev => ({
+      ...prev,
+      pageIllustrations: (prev.pageIllustrations || []).map((p, i) => i === index ? { ...p, ...updates } : p)
+    }));
   }, []);
 
   const saveProject = useCallback(() => {
@@ -824,7 +830,10 @@ export default function BookStudio() {
                     {/* Art Style Selection */}
                     <div>
                       <Label className="text-slate-400 text-xs">Art Style</Label>
-                      <Select value={selectedArtStyle} onValueChange={setSelectedArtStyle}>
+                      <Select 
+                        value={project.artStyle || "watercolor"} 
+                        onValueChange={(v) => setProject(prev => ({ ...prev, artStyle: v }))}
+                      >
                         <SelectTrigger className="mt-1 bg-slate-800 border-slate-600 text-white text-sm" data-testid="select-art-style">
                           <SelectValue />
                         </SelectTrigger>
@@ -844,7 +853,10 @@ export default function BookStudio() {
                     {/* Age Range Selection */}
                     <div>
                       <Label className="text-slate-400 text-xs">Age Range</Label>
-                      <Select value={selectedAgeRange} onValueChange={setSelectedAgeRange}>
+                      <Select 
+                        value={project.ageRange || "3-5"} 
+                        onValueChange={(v) => setProject(prev => ({ ...prev, ageRange: v }))}
+                      >
                         <SelectTrigger className="mt-1 bg-slate-800 border-slate-600 text-white text-sm" data-testid="select-age-range">
                           <SelectValue />
                         </SelectTrigger>
