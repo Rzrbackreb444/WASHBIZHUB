@@ -4,11 +4,28 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, PageBreak } from "docx";
 import { z } from "zod";
+import multer from "multer";
+import { randomUUID } from "crypto";
 import { db } from "../db";
 import { bookProjects, bookPages, larrysContentItems, contentPurchases } from "@shared/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
+import { ObjectStorageService, parseObjectPath, objectStorageClient } from "../objectStorage";
 
 const router = Router();
+const objectStorage = new ObjectStorageService();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm", "audio/mp3", "audio/mpeg", "application/pdf"];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Invalid file type: ${file.mimetype}`));
+    }
+  },
+});
 
 // Owner emails for access control
 const OWNER_EMAILS = (process.env.OWNER_EMAILS || "thelaundromatfb@gmail.com,rzrbackreb444@gmail.com,nick@washbizhub.com,larry@washbizhub.com").split(",").map(e => e.trim().toLowerCase());
@@ -329,6 +346,98 @@ router.delete("/projects/:projectId/pages/:pageId", async (req: Request, res: Re
   } catch (error: any) {
     console.error("[BookStudio] Error deleting page:", error);
     res.status(500).json({ error: "Failed to delete page" });
+  }
+});
+
+// ============================================================================
+// MEDIA UPLOAD - Object Storage Integration
+// ============================================================================
+
+// Upload media file to object storage
+router.post("/media/upload", upload.single("file"), async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: "No file provided" });
+    }
+    
+    const { folder = "media" } = req.body;
+    const fileExtension = req.file.originalname.split('.').pop() || 'bin';
+    const objectId = `${randomUUID()}.${fileExtension}`;
+    
+    const privateObjectDir = process.env.PRIVATE_OBJECT_DIR;
+    if (!privateObjectDir) {
+      return res.status(500).json({ error: "Object storage not configured" });
+    }
+    
+    const fullPath = `${privateObjectDir}/${folder}/${objectId}`;
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+    
+    const bucket = objectStorageClient.bucket(bucketName);
+    const file = bucket.file(objectName);
+    
+    await file.save(req.file.buffer, {
+      contentType: req.file.mimetype,
+      metadata: {
+        originalName: req.file.originalname,
+        uploadedBy: user.email || user.id,
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+    
+    const objectUrl = `/objects/${folder}/${objectId}`;
+    
+    res.json({
+      success: true,
+      url: objectUrl,
+      filename: req.file.originalname,
+      size: req.file.size,
+      type: req.file.mimetype,
+    });
+  } catch (error: any) {
+    console.error("[BookStudio] Media upload error:", error);
+    res.status(500).json({ error: error.message || "Failed to upload media" });
+  }
+});
+
+// Get signed URL for direct upload (larger files)
+router.get("/media/upload-url", async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const uploadUrl = await objectStorage.getObjectEntityUploadURL();
+    
+    res.json({
+      success: true,
+      uploadUrl,
+    });
+  } catch (error: any) {
+    console.error("[BookStudio] Upload URL error:", error);
+    res.status(500).json({ error: error.message || "Failed to generate upload URL" });
+  }
+});
+
+// Serve media files from object storage
+router.get("/media/*", async (req: Request, res: Response) => {
+  try {
+    const objectPath = `/objects/${req.params[0]}`;
+    const file = await objectStorage.getObjectEntityFile(objectPath);
+    await objectStorage.downloadObject(file, res);
+  } catch (error: any) {
+    if (error.name === "ObjectNotFoundError") {
+      return res.status(404).json({ error: "Media not found" });
+    }
+    console.error("[BookStudio] Media serve error:", error);
+    res.status(500).json({ error: "Failed to serve media" });
   }
 });
 

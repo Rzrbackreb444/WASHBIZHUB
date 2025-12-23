@@ -275,6 +275,7 @@ const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"))
 const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
 const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
 const BookStudio = lazy(() => import("@/pages/book-studio"));
+const AIMediaStudio = lazy(() => import("@/pages/ai-media-studio"));
 const LarrysCommandCenter = lazy(() => import("@/pages/larrys-command-center"));
 const LarrysContentEmpire = lazy(() => import("@/pages/larrys-content-empire"));
 const LarrysEditor = lazy(() => import("@/pages/larrys-editor"));
@@ -711,6 +712,16 @@ function Router() {
       <Route path="/book-studio">
         <Suspense fallback={<LoadingFallback />}>
           <BookStudio />
+        </Suspense>
+      </Route>
+      <Route path="/media-studio">
+        <Suspense fallback={<LoadingFallback />}>
+          <AIMediaStudio />
+        </Suspense>
+      </Route>
+      <Route path="/ai-media-studio">
+        <Suspense fallback={<LoadingFallback />}>
+          <AIMediaStudio />
         </Suspense>
       </Route>
       <Route path="/ai-command-center">
