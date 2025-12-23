@@ -333,6 +333,254 @@ router.delete("/projects/:projectId/pages/:pageId", async (req: Request, res: Re
 });
 
 // ============================================================================
+// AI ILLUSTRATION GENERATION
+// ============================================================================
+
+// Generate illustration for a book page using DALL-E
+router.post("/projects/:projectId/pages/:pageId/generate-illustration", async (req: Request, res: Response) => {
+  try {
+    const { projectId, pageId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    const { sceneDescription, artStyle, characters, ageRange, textPosition } = req.body;
+    
+    if (!sceneDescription) {
+      return res.status(400).json({ error: "Scene description is required" });
+    }
+    
+    // Build the illustration prompt based on art style and scene
+    const artStylePrompts: Record<string, string> = {
+      "watercolor": "in soft watercolor illustration style with dreamy colors and gentle brushstrokes",
+      "cartoon": "in vibrant cartoon style with bold colors like Disney or Pixar animation",
+      "digital-painting": "in rich digital painting style with detailed textures and realistic lighting",
+      "pencil-sketch": "in hand-drawn pencil sketch style with visible strokes and shading",
+      "flat-design": "in modern flat design illustration style with clean lines and simple shapes",
+      "storybook-classic": "in classic storybook illustration style like Beatrix Potter with warm earth tones",
+      "whimsical": "in whimsical magical illustration style with enchanted fantasy elements",
+      "anime": "in Japanese anime illustration style with expressive characters"
+    };
+    
+    const ageRangeGuidance: Record<string, string> = {
+      "0-3": "simple shapes, bright primary colors, minimal detail, friendly faces",
+      "3-5": "clear simple illustrations, cheerful colors, easy to understand",
+      "5-8": "more detail, story-driven scenes, engaging characters",
+      "8-12": "detailed illustrations, dynamic compositions, expressive characters",
+      "12-18": "sophisticated illustrations, complex scenes, mature style",
+      "adult": "professional quality, refined details, adult aesthetic"
+    };
+    
+    // Build character consistency prompt
+    let characterPrompt = "";
+    if (characters && characters.length > 0) {
+      const characterDescriptions = characters.map((c: any) => 
+        `${c.name}: ${c.description}${c.clothing ? `, wearing ${c.clothing}` : ""}`
+      ).join("; ");
+      characterPrompt = ` Characters in scene: ${characterDescriptions}.`;
+    }
+    
+    // Compose the full prompt
+    const stylePrompt = artStylePrompts[artStyle] || artStylePrompts["watercolor"];
+    const agePrompt = ageRangeGuidance[ageRange] || "";
+    
+    const fullPrompt = `Create a children's book illustration ${stylePrompt}. Scene: ${sceneDescription}.${characterPrompt} Style requirements: ${agePrompt}. Leave ${textPosition === "none" ? "no" : textPosition} space for text placement. High quality, suitable for print.`;
+    
+    // Call OpenAI DALL-E API
+    const OpenAI = (await import("openai")).default;
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    const imageResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: fullPrompt,
+      n: 1,
+      size: "1024x1024",
+      quality: "hd",
+      style: "vivid"
+    });
+    
+    const imageUrl = imageResponse.data[0]?.url;
+    
+    if (!imageUrl) {
+      return res.status(500).json({ error: "Failed to generate illustration" });
+    }
+    
+    // Update the page with the generated illustration
+    const [updated] = await db.update(bookPages)
+      .set({ 
+        imageUrl,
+        imagePrompt: fullPrompt,
+        status: "illustrated",
+        updatedAt: new Date()
+      })
+      .where(and(eq(bookPages.id, pageId), eq(bookPages.projectId, projectId)))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Page not found in this project" });
+    }
+    
+    res.json({
+      success: true,
+      imageUrl,
+      prompt: fullPrompt,
+      page: updated
+    });
+  } catch (error: any) {
+    console.error("[BookStudio] Illustration generation error:", error);
+    res.status(500).json({ error: error.message || "Failed to generate illustration" });
+  }
+});
+
+// AI-assisted scene description generation
+router.post("/projects/:projectId/pages/:pageId/generate-scene", async (req: Request, res: Response) => {
+  try {
+    const { projectId, pageId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    const { pageText, bookTitle, bookDescription, characters, artStyle, ageRange } = req.body;
+    
+    if (!pageText) {
+      return res.status(400).json({ error: "Page text is required" });
+    }
+    
+    // Use Gemini to generate scene description
+    const { GoogleGenerativeAI } = await import("@google/generative-ai");
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const characterInfo = characters?.map((c: any) => `${c.name}: ${c.description}`).join("\n") || "No specific characters defined";
+    
+    const prompt = `You are an expert children's book illustrator helping create scene descriptions for AI image generation.
+
+Book Title: ${bookTitle || "Untitled"}
+Book Description: ${bookDescription || "Not provided"}
+Art Style: ${artStyle || "watercolor"}
+Target Age: ${ageRange || "5-8"}
+
+Characters:
+${characterInfo}
+
+Page Text:
+"${pageText}"
+
+Generate a detailed scene description that would make a beautiful illustration for this page. Include:
+1. Setting and environment details
+2. Character positions and expressions
+3. Key visual elements that match the text
+4. Mood and lighting suggestions
+5. Composition that leaves space for text
+
+Respond with ONLY the scene description, no other text.`;
+
+    const result = await model.generateContent(prompt);
+    const sceneDescription = result.response.text();
+    
+    res.json({
+      success: true,
+      sceneDescription
+    });
+  } catch (error: any) {
+    console.error("[BookStudio] Scene generation error:", error);
+    res.status(500).json({ error: error.message || "Failed to generate scene description" });
+  }
+});
+
+// Get AI placement suggestions for text on illustration
+router.post("/projects/:projectId/pages/:pageId/placement-hints", async (req: Request, res: Response) => {
+  try {
+    const { projectId, pageId } = req.params;
+    const user = (req as any).user;
+    
+    // Verify authentication
+    if (!user?.id && !isOwner(user?.email)) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify project ownership
+    const access = await verifyProjectAccess(projectId, user);
+    if (!access.authorized) {
+      return res.status(access.error === "Project not found" ? 404 : 403).json({ error: access.error });
+    }
+    
+    const { imageUrl, sceneDescription } = req.body;
+    
+    // For now, return intelligent placement suggestions based on typical book layouts
+    // In a production system, this could use Vision AI to analyze the actual image
+    const placementHints = [
+      {
+        id: "top-banner",
+        x: 0.05,
+        y: 0.02,
+        width: 0.9,
+        height: 0.15,
+        label: "Top Banner",
+        confidence: 0.85,
+        reason: "Clear sky/background area typical for title text"
+      },
+      {
+        id: "bottom-strip",
+        x: 0.05,
+        y: 0.80,
+        width: 0.9,
+        height: 0.18,
+        label: "Bottom Strip",
+        confidence: 0.90,
+        reason: "Traditional placement for story text below illustration"
+      },
+      {
+        id: "left-margin",
+        x: 0.02,
+        y: 0.20,
+        width: 0.25,
+        height: 0.60,
+        label: "Left Margin",
+        confidence: 0.75,
+        reason: "Left side text column for chapter-style layout"
+      },
+      {
+        id: "right-margin",
+        x: 0.73,
+        y: 0.20,
+        width: 0.25,
+        height: 0.60,
+        label: "Right Margin",
+        confidence: 0.75,
+        reason: "Right side text column for picture book layout"
+      }
+    ];
+    
+    res.json({
+      success: true,
+      placementHints
+    });
+  } catch (error: any) {
+    console.error("[BookStudio] Placement hints error:", error);
+    res.status(500).json({ error: "Failed to generate placement hints" });
+  }
+});
+
+// ============================================================================
 // CONTENT PURCHASES - Entitlements System
 // ============================================================================
 
