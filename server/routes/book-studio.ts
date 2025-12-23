@@ -474,6 +474,238 @@ router.post("/export/pdf", async (req, res) => {
   }
 });
 
+// KDP-Ready Illustrated Children's Book Export
+router.post("/export/kdp-illustrated", async (req, res) => {
+  try {
+    const { project, trimSize = "8.5x8.5", bleed = true } = req.body;
+    
+    // KDP trim sizes - these are FINAL CUT dimensions (after trimming)
+    const trimSizes: Record<string, { width: number; height: number; name: string }> = {
+      "8.5x8.5": { width: 8.5, height: 8.5, name: "Square (8.5\" x 8.5\")" },
+      "8x10": { width: 8, height: 10, name: "Portrait (8\" x 10\")" },
+      "6x9": { width: 6, height: 9, name: "Trade (6\" x 9\")" },
+      "7x10": { width: 7, height: 10, name: "Large (7\" x 10\")" },
+      "8.25x6": { width: 8.25, height: 6, name: "Landscape (8.25\" x 6\")" },
+      "8.25x8.25": { width: 8.25, height: 8.25, name: "Square Alt (8.25\" x 8.25\")" },
+    };
+    
+    const size = trimSizes[trimSize] || trimSizes["8.5x8.5"];
+    // KDP bleed: 0.125" on each side (0.25" total per dimension)
+    const bleedAmount = bleed ? 0.125 : 0;
+    // Page dimensions = trim size + bleed on all sides
+    const pageWidth = size.width + (bleedAmount * 2);
+    const pageHeight = size.height + (bleedAmount * 2);
+    // Safe area starts 0.25" from trim edge (0.375" from bleed edge when bleed is active)
+    const safeAreaOffset = bleedAmount + 0.25;
+    
+    const pageIllustrations = project.pageIllustrations || [];
+    
+    // Generate print-ready HTML for each page
+    let html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>${project.title} - KDP Print Ready</title>
+  <style>
+    @page { 
+      size: ${pageWidth}in ${pageHeight}in; 
+      margin: 0; 
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Georgia', 'Times New Roman', serif; 
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .page {
+      width: ${pageWidth}in;
+      height: ${pageHeight}in;
+      position: relative;
+      page-break-after: always;
+      page-break-inside: avoid;
+      overflow: hidden;
+    }
+    .page:last-child { page-break-after: auto; }
+    .bleed-area {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .safe-area {
+      position: absolute;
+      top: ${safeAreaOffset}in;
+      left: ${safeAreaOffset}in;
+      right: ${safeAreaOffset}in;
+      bottom: ${safeAreaOffset}in;
+    }
+    .illustration-full {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .text-overlay {
+      position: absolute;
+      left: ${safeAreaOffset}in;
+      right: ${safeAreaOffset}in;
+      padding: 0.25in;
+      text-align: center;
+      font-size: 18pt;
+      line-height: 1.4;
+      color: #1a1a1a;
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+    }
+    .text-top { top: ${safeAreaOffset}in; }
+    .text-bottom { bottom: ${safeAreaOffset}in; }
+    .text-left {
+      left: ${safeAreaOffset}in;
+      top: ${safeAreaOffset}in;
+      bottom: ${safeAreaOffset}in;
+      width: 2.5in;
+      right: auto;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      padding: 0.25in;
+    }
+    .text-right {
+      right: ${safeAreaOffset}in;
+      top: ${safeAreaOffset}in;
+      bottom: ${safeAreaOffset}in;
+      width: 2.5in;
+      left: auto;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      padding: 0.25in;
+    }
+    .title-page {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+    .title-page h1 {
+      font-size: 36pt;
+      font-weight: bold;
+      margin-bottom: 0.5in;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .title-page .author {
+      font-size: 18pt;
+      font-style: italic;
+      opacity: 0.9;
+    }
+    .copyright-page {
+      background: white;
+      padding: 1in;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      font-size: 10pt;
+      color: #666;
+      line-height: 1.6;
+    }
+    .page-number {
+      position: absolute;
+      bottom: ${safeAreaOffset}in;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10pt;
+      color: #666;
+    }
+    @media print {
+      .page { page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Title Page -->
+  <div class="page title-page">
+    <h1>${project.title}</h1>
+    ${project.subtitle ? `<p style="font-size: 20pt; margin-bottom: 0.5in;">${project.subtitle}</p>` : ""}
+    <p class="author">Written by ${project.author}</p>
+  </div>
+  
+  <!-- Copyright Page -->
+  <div class="page copyright-page">
+    <div>
+      <p><strong>${project.title}</strong></p>
+      ${project.subtitle ? `<p>${project.subtitle}</p>` : ""}
+      <p>By ${project.author}</p>
+      <br>
+      <p>Copyright &copy; ${new Date().getFullYear()} ${project.author}</p>
+      <p>All rights reserved.</p>
+      <br>
+      <p>No part of this publication may be reproduced, stored in a retrieval system,
+      or transmitted in any form or by any means without the prior written permission
+      of the copyright owner.</p>
+      <br>
+      <p>Art Style: ${project.artStyle || "Digital Illustration"}</p>
+      <p>Age Range: ${project.ageRange || "All Ages"}</p>
+      <br>
+      <p style="font-size: 8pt;">Created with WashBizHub Book Studio</p>
+    </div>
+  </div>
+`;
+
+    // Generate illustration pages
+    pageIllustrations.forEach((page: any, index: number) => {
+      const textPosition = page.textPosition || "bottom";
+      const hasImage = page.imageUrl && page.imageUrl.length > 0;
+      const hasText = page.pageText && page.pageText.length > 0;
+      
+      html += `
+  <!-- Page ${page.pageNumber} -->
+  <div class="page">`;
+      
+      if (hasImage) {
+        html += `
+    <div class="bleed-area" style="background-image: url('${page.imageUrl}');"></div>`;
+      } else {
+        html += `
+    <div class="bleed-area" style="background: linear-gradient(180deg, #f0f8ff 0%, #e6f2ff 100%);"></div>`;
+      }
+      
+      if (hasText && textPosition !== "none") {
+        html += `
+    <div class="text-overlay text-${textPosition}">
+      ${page.pageText}
+    </div>`;
+      }
+      
+      html += `
+    <div class="page-number">${page.pageNumber}</div>
+  </div>
+`;
+    });
+
+    // Back cover (blank or with description)
+    html += `
+  <!-- Back Cover -->
+  <div class="page" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8c 100%); color: white; padding: 1in; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <p style="font-size: 14pt; text-align: center; max-width: 5in; line-height: 1.8;">
+      ${project.description || "A delightful story for young readers everywhere."}
+    </p>
+  </div>
+</body>
+</html>`;
+
+    // Return HTML for browser-based PDF printing
+    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Disposition", `attachment; filename="${project.title.replace(/[^a-z0-9]/gi, '_')}_KDP_${trimSize.replace(".", "_")}.html"`);
+    res.send(html);
+  } catch (error: any) {
+    console.error("KDP export error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post("/generate-cover", async (req, res) => {
   try {
     const { title, subtitle, author, genre, description, generateImage } = req.body;
