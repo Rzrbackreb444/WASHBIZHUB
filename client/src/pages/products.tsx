@@ -1,888 +1,459 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocation, Link } from "wouter";
+import { useState } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import {
-  Check, X, MapPin, TrendingUp, Building2, Users, BarChart3, 
-  FileText, Calculator, Target, Zap, Crown, Shield, Globe,
-  ArrowRight, Play, Star, Sparkles, ChevronRight, LineChart,
-  PieChart, Map, Layers, Lock, Unlock, Brain, Rocket,
-  DollarSign, Award, CheckCircle2, Clock, Infinity
-} from "lucide-react";
 import { SEO } from "@/components/SEO";
+import {
+  Map, Calculator, BookOpen, Wrench, LayoutGrid, FileText,
+  ArrowRight, Play, Star, Check, Sparkles, TrendingUp,
+  Users, Building2, Zap, Crown, Lock
+} from "lucide-react";
 
-function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          const duration = 2000;
-          const steps = 60;
-          const increment = end / steps;
-          let current = 0;
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= end) {
-              setCount(end);
-              clearInterval(timer);
-            } else {
-              setCount(Math.floor(current));
-            }
-          }, duration / steps);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [end]);
-
-  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+interface Product {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  icon: typeof Map;
+  color: string;
+  demoLink: string;
+  purchaseLink: string;
+  price: string;
+  priceNote?: string;
+  features: string[];
+  demoFeatures: string[];
+  forWho: string[];
+  popular?: boolean;
 }
 
-function GlassCard({ children, className = "", highlight = false }: { children: React.ReactNode; className?: string; highlight?: boolean }) {
+const PRODUCTS: Product[] = [
+  {
+    id: "cleanbi",
+    name: "CLEANBI Explorer",
+    tagline: "AI Location Intelligence",
+    description: "Analyze any address for laundromat investment potential. Get A/B/C grades, competitor mapping, demographics, and revenue projections in seconds.",
+    icon: Map,
+    color: "bg-[#C8A661]",
+    demoLink: "/cleanbi-explorer",
+    purchaseLink: "/pricing",
+    price: "3 Free",
+    priceNote: "then $49/mo for unlimited",
+    features: [
+      "17-factor scoring algorithm",
+      "Competitor radius mapping",
+      "Demographics & income data",
+      "Street View integration",
+      "PDF report export",
+      "Revenue projections"
+    ],
+    demoFeatures: [
+      "Try 3 analyses free",
+      "See real scores instantly",
+      "No credit card required"
+    ],
+    forWho: ["Buyers", "Investors", "Brokers"],
+    popular: true
+  },
+  {
+    id: "calculators",
+    name: "Calculator Suite",
+    tagline: "50+ Business Tools",
+    description: "Complete financial toolkit: ROI calculator, valuation models, break-even analysis, equipment mix optimizer, and more.",
+    icon: Calculator,
+    color: "bg-blue-600",
+    demoLink: "/calculators",
+    purchaseLink: "/pricing",
+    price: "Preview Free",
+    priceNote: "full access $49/mo",
+    features: [
+      "ROI & cash flow calculator",
+      "Valuation estimator",
+      "Break-even analysis",
+      "Equipment mix optimizer",
+      "Utility cost forecaster",
+      "Financing scenario planner"
+    ],
+    demoFeatures: [
+      "Preview all calculators",
+      "Sample calculations",
+      "See what's included"
+    ],
+    forWho: ["Buyers", "Owners", "Investors"]
+  },
+  {
+    id: "book-studio",
+    name: "Book Studio",
+    tagline: "AI Publishing Suite",
+    description: "Create professional books on any topic with multi-AI orchestration. Word-like editor, cover generation, KDP formatting, batch production.",
+    icon: BookOpen,
+    color: "bg-purple-600",
+    demoLink: "/book-studio",
+    purchaseLink: "/pricing",
+    price: "$149/mo",
+    priceNote: "included in All-Access",
+    features: [
+      "Multi-AI writing (GPT-4, Claude, Gemini)",
+      "DALL-E 3 cover generation",
+      "Word-like rich text editor",
+      "KDP-ready DOCX export",
+      "Batch book production",
+      "Template library"
+    ],
+    demoFeatures: [
+      "Try the editor free",
+      "Generate sample content",
+      "See AI in action"
+    ],
+    forWho: ["Authors", "Publishers", "Entrepreneurs"]
+  },
+  {
+    id: "service-guy",
+    name: "Service Guy AI",
+    tagline: "Equipment Diagnostics",
+    description: "AI-powered troubleshooting for laundromat equipment. Photo diagnosis, error code lookup, parts ordering, job tracking.",
+    icon: Wrench,
+    color: "bg-orange-600",
+    demoLink: "/service-guy-ai",
+    purchaseLink: "/pricing",
+    price: "$149/mo",
+    priceNote: "included in All-Access",
+    features: [
+      "Photo-based diagnosis",
+      "Error code database",
+      "Parts recommendations",
+      "Job & invoice tracking",
+      "Voice input support",
+      "Multi-brand coverage"
+    ],
+    demoFeatures: [
+      "Try demo diagnosis",
+      "Browse error codes",
+      "See parts catalog"
+    ],
+    forWho: ["Technicians", "Owners", "Distributors"]
+  },
+  {
+    id: "design-studio",
+    name: "Design Studio",
+    tagline: "2D/3D Floor Plans",
+    description: "Professional laundromat layout design. Drag-and-drop equipment placement, 3D visualization, equipment lists with pricing.",
+    icon: LayoutGrid,
+    color: "bg-green-600",
+    demoLink: "/design-studio",
+    purchaseLink: "/pricing",
+    price: "$149/mo",
+    priceNote: "included in All-Access",
+    features: [
+      "Drag-and-drop editor",
+      "Real equipment dimensions",
+      "3D walkthrough view",
+      "Equipment cost totals",
+      "Export floor plans",
+      "Save unlimited designs"
+    ],
+    demoFeatures: [
+      "Try the editor",
+      "Place equipment",
+      "See 3D preview"
+    ],
+    forWho: ["Owners", "Developers", "Distributors"]
+  },
+  {
+    id: "template-vault",
+    name: "Template Vault",
+    tagline: "Business Documents",
+    description: "Professional templates: AI Business Plan Generator, Lease Red Flag Checklist (50+ alerts), Due Diligence Checklist, LOI templates.",
+    icon: FileText,
+    color: "bg-indigo-600",
+    demoLink: "/template-vault",
+    purchaseLink: "/pricing",
+    price: "$149/mo",
+    priceNote: "included in All-Access",
+    features: [
+      "AI Business Plan Generator",
+      "Lease Red Flags (50+ alerts)",
+      "Due Diligence Checklist",
+      "LOI & legal templates",
+      "Employee handbook",
+      "Marketing plan template"
+    ],
+    demoFeatures: [
+      "Preview all templates",
+      "See 7 free Lease Red Flags",
+      "Try AI Business Plan"
+    ],
+    forWho: ["Buyers", "Owners", "Brokers"]
+  }
+];
+
+function ProductCard({ product }: { product: Product }) {
+  const Icon = product.icon;
+  
   return (
-    <div className={`relative rounded-2xl border ${highlight ? 'border-[#C8A661]/50 bg-[#C8A661]/5' : 'border-white/10 bg-white/5'} backdrop-blur-xl ${className}`}>
-      {highlight && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] text-white border-0 px-4 py-1">
-            <Star className="w-3 h-3 mr-1" /> Most Popular
+    <Card 
+      className={`relative overflow-hidden ${product.popular ? 'border-2 border-[#C8A661]' : ''}`}
+      data-testid={`card-product-${product.id}`}
+    >
+      {product.popular && (
+        <div className="absolute top-0 right-0">
+          <Badge className="rounded-none rounded-bl-lg bg-[#C8A661] text-white border-0">
+            <Star className="h-3 w-3 mr-1" />
+            Popular
           </Badge>
         </div>
       )}
-      {children}
-    </div>
+      
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-4">
+          <div className={`p-3 rounded-lg ${product.color} text-white shrink-0`}>
+            <Icon className="h-6 w-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg">{product.name}</CardTitle>
+            <p className="text-sm text-muted-foreground">{product.tagline}</p>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          {product.description}
+        </p>
+        
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold">{product.price}</span>
+          {product.priceNote && (
+            <span className="text-sm text-muted-foreground">{product.priceNote}</span>
+          )}
+        </div>
+        
+        {/* Key Features */}
+        <div className="space-y-1.5">
+          {product.features.slice(0, 4).map((feature, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+              <span>{feature}</span>
+            </div>
+          ))}
+          {product.features.length > 4 && (
+            <p className="text-xs text-muted-foreground pl-5">
+              +{product.features.length - 4} more features
+            </p>
+          )}
+        </div>
+        
+        {/* Demo Features */}
+        <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Try the Demo
+          </p>
+          {product.demoFeatures.map((feature, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <Play className="h-3 w-3 text-[#C8A661] shrink-0" />
+              <span>{feature}</span>
+            </div>
+          ))}
+        </div>
+        
+        {/* For Who */}
+        <div className="flex flex-wrap gap-1.5">
+          {product.forWho.map((who, i) => (
+            <Badge key={i} variant="secondary" className="text-xs">
+              {who}
+            </Badge>
+          ))}
+        </div>
+        
+        {/* CTAs */}
+        <div className="flex gap-2 pt-2">
+          <Link href={product.demoLink} className="flex-1">
+            <Button variant="outline" className="w-full" data-testid={`button-demo-${product.id}`}>
+              <Play className="h-4 w-4 mr-2" />
+              Try Demo
+            </Button>
+          </Link>
+          <Link href={product.purchaseLink} className="flex-1">
+            <Button 
+              className={`w-full ${product.popular ? 'bg-[#C8A661] hover:bg-[#B89651]' : ''}`}
+              data-testid={`button-buy-${product.id}`}
+            >
+              Get Access
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-const PRICING_TIERS = [
-  {
-    name: "Free",
-    price: 0,
-    period: "forever",
-    description: "Get started with essential tools",
-    icon: Unlock,
-    color: "from-slate-500 to-slate-600",
-    features: [
-      { name: "CLEANBI Explorer", included: true, limit: "1 analysis/day" },
-      { name: "Basic Location Score", included: true },
-      { name: "Valuation Calculator", included: true, limit: "Limited" },
-      { name: "ROI Calculator", included: true },
-      { name: "Industry Resources", included: true },
-      { name: "Premium Reports", included: false },
-      { name: "Competitor Dashboard", included: false },
-      { name: "Expansion Planner", included: false },
-      { name: "Bulk Analysis", included: false },
-      { name: "API Access", included: false },
-    ],
-    cta: "Start Free",
-    ctaLink: "/cleanbi-explorer",
-  },
-  {
-    name: "Starter",
-    price: 29,
-    period: "/month",
-    description: "For serious buyers & new owners",
-    icon: Rocket,
-    color: "from-blue-500 to-blue-600",
-    features: [
-      { name: "CLEANBI Explorer", included: true, limit: "20 analyses/day" },
-      { name: "Full Location Score", included: true },
-      { name: "Valuation Calculator", included: true, limit: "Unlimited" },
-      { name: "ROI Calculator Pro", included: true },
-      { name: "Industry Resources", included: true },
-      { name: "Premium Reports", included: true, limit: "3/month" },
-      { name: "Competitor Dashboard", included: true, limit: "Basic" },
-      { name: "Expansion Planner", included: false },
-      { name: "Bulk Analysis", included: false },
-      { name: "API Access", included: false },
-    ],
-    cta: "Get Starter",
-    ctaLink: "/subscribe?plan=starter",
-  },
-  {
-    name: "Pro",
-    price: 99,
-    period: "/month",
-    description: "For owners & active investors",
-    icon: Crown,
-    color: "from-[#C8A661] to-[#C8A661]",
-    highlight: true,
-    features: [
-      { name: "CLEANBI Explorer", included: true, limit: "100 analyses/day" },
-      { name: "Full Location Score + AI", included: true },
-      { name: "Valuation Calculator", included: true, limit: "Unlimited" },
-      { name: "ROI Calculator Pro", included: true },
-      { name: "Industry Resources", included: true },
-      { name: "Premium Reports", included: true, limit: "Unlimited" },
-      { name: "Competitor Dashboard", included: true, limit: "Full" },
-      { name: "Expansion Planner", included: true },
-      { name: "Bulk Analysis", included: true, limit: "50 locations" },
-      { name: "API Access", included: false },
-    ],
-    cta: "Get Pro",
-    ctaLink: "/subscribe?plan=pro",
-  },
-  {
-    name: "Enterprise",
-    price: 299,
-    period: "/month",
-    description: "For brokers & multi-location owners",
-    icon: Building2,
-    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
-    features: [
-      { name: "CLEANBI Explorer", included: true, limit: "Unlimited" },
-      { name: "Full Location Score + AI", included: true },
-      { name: "Valuation Calculator", included: true, limit: "White-label" },
-      { name: "ROI Calculator Pro", included: true },
-      { name: "Industry Resources", included: true },
-      { name: "Premium Reports", included: true, limit: "White-label" },
-      { name: "Competitor Dashboard", included: true, limit: "Multi-location" },
-      { name: "Expansion Planner", included: true },
-      { name: "Bulk Analysis", included: true, limit: "500 locations" },
-      { name: "API Access", included: true },
-    ],
-    cta: "Contact Sales",
-    ctaLink: "/contact?inquiry=enterprise",
-  },
-];
-
-const PRODUCTS = [
-  {
-    id: "cleanbi-explorer",
-    name: "CLEANBI Explorer™",
-    tagline: "The Viral Location Intelligence Tool",
-    description: "Analyze any address instantly with our proprietary scoring algorithm. Get demographic data, competitor mapping, and investment grades in seconds.",
-    icon: Map,
-    color: "from-[#C8A661] to-[#C8A661]",
-    link: "/cleanbi-explorer",
-    features: ["A/B/C Grading System", "Competitor Mapping", "Demographics Analysis", "Street View Integration", "Shareable Reports"],
-    forWho: ["Buyers", "Investors", "Brokers"],
-    stats: { label: "Analyses Run", value: "10,000+" },
-  },
-  {
-    id: "premium-reports",
-    name: "Premium CLEANBI Reports",
-    tagline: "Professional Investment Reports",
-    description: "Generate comprehensive PDF reports with AI-powered insights, Vision AI photo analysis, and detailed market breakdowns for any location.",
-    icon: FileText,
-    color: "from-blue-500 to-cyan-500",
-    link: "/cleanbi-reports",
-    features: ["AI Market Analysis", "Vision AI Photos", "PDF Export", "Competitor Intel", "Investment Scoring"],
-    forWho: ["Buyers", "Sellers", "Brokers"],
-    stats: { label: "Starting at", value: "$199" },
-  },
-  {
-    id: "expansion-planner",
-    name: "Expansion Planner",
-    tagline: "Multi-Location Analysis",
-    description: "Compare up to 25 locations side-by-side. Detect territory cannibalization, optimize your portfolio, and find your next winning location.",
-    icon: Layers,
-    color: "from-[#1e3a5f] to-[#C8A661]",
-    link: "/expansion-planner",
-    features: ["25 Location Comparison", "Cannibalization Detection", "Portfolio Optimization", "Territory Mapping", "ROI Projections"],
-    forWho: ["Multi-location Owners", "Franchises"],
-    stats: { label: "Locations Analyzed", value: "5,000+" },
-  },
-  {
-    id: "competitor-dashboard",
-    name: "Competitor Intelligence",
-    tagline: "Real-Time Market Monitoring",
-    description: "Monitor your competition 24/7. Get alerts on new openings, pricing changes, sentiment analysis, and SWOT breakdowns for any market.",
-    icon: Target,
-    color: "from-red-500 to-pink-500",
-    link: "/competitor-dashboard",
-    features: ["Real-time Alerts", "Sentiment Analysis", "SWOT Analysis", "Pricing Intel", "Market Share Tracking"],
-    forWho: ["Owners", "Investors"],
-    stats: { label: "Markets Tracked", value: "500+" },
-  },
-  {
-    id: "bulk-analysis",
-    name: "Bulk Analysis Tool",
-    tagline: "Enterprise-Grade Processing",
-    description: "Upload CSV/XLSX with up to 500 locations. Perfect for brokers, REITs, and portfolio managers who need to analyze at scale.",
-    icon: BarChart3,
-    color: "from-[#1e3a5f] to-[#1e3a5f]/80",
-    link: "/bulk-analysis",
-    features: ["500 Location Upload", "Google Sheets Sync", "API Integration", "Batch Processing", "Export Options"],
-    forWho: ["Brokers", "REITs", "Enterprises"],
-    stats: { label: "Enterprise Price", value: "$999/mo" },
-  },
-  {
-    id: "valuation-calculator",
-    name: "Valuation Calculator",
-    tagline: "Know Your True Value",
-    description: "Industry-standard valuation using SDE/EBITDA multiples, lease adjustments, and equipment depreciation. Compare to market benchmarks.",
-    icon: Calculator,
-    color: "from-[#1e3a5f] to-[#C8A661]",
-    link: "/valuation-calculator",
-    features: ["SDE/EBITDA Methods", "Lease Impact Analysis", "Equipment Depreciation", "Market Comparables", "PDF Reports"],
-    forWho: ["Sellers", "Buyers", "Brokers"],
-    stats: { label: "Avg Accuracy", value: "95%" },
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    quote: "CLEANBI Explorer helped me find a location that increased my revenue by 40%. The competitor mapping alone is worth the subscription.",
-    author: "Mike R.",
-    role: "Multi-location Owner, Texas",
-    rating: 5,
-  },
-  {
-    quote: "I use the Premium Reports for every deal I present to clients. It's professional, comprehensive, and closes deals faster.",
-    author: "Sarah L.",
-    role: "Business Broker, California",
-    rating: 5,
-  },
-  {
-    quote: "The Expansion Planner saved me from opening a location that would have cannibalized my existing store. Worth every penny.",
-    author: "James T.",
-    role: "Franchise Owner, Florida",
-    rating: 5,
-  },
-];
-
-const FAQS = [
-  {
-    q: "What's included in the free plan?",
-    a: "The free plan includes 5 CLEANBI analyses total, basic valuation calculator access, ROI calculator, and access to our industry resources library. Perfect for getting started and exploring the platform.",
-  },
-  {
-    q: "Can I upgrade or downgrade anytime?",
-    a: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, you'll keep your current plan until the end of your billing cycle.",
-  },
-  {
-    q: "What's the difference between Pro and Enterprise?",
-    a: "Pro is designed for individual owners and investors with generous limits. Enterprise includes white-label reports, API access, unlimited analyses, and priority support - perfect for brokers and multi-location operators.",
-  },
-  {
-    q: "Do you offer refunds?",
-    a: "We offer a 14-day money-back guarantee on all paid plans. If you're not satisfied, contact us within 14 days for a full refund.",
-  },
-  {
-    q: "How accurate is the CLEANBI scoring?",
-    a: "CLEANBI uses real-time data from Google Maps, US Census, and proprietary algorithms. Our location scores have a 95%+ correlation with actual business performance based on our validation studies.",
-  },
-];
-
-export default function ProductsHub() {
-  const [, setLocation] = useLocation();
-  const [isAnnual, setIsAnnual] = useState(false);
-  const [activeProduct, setActiveProduct] = useState("cleanbi-explorer");
-
-  const productsFaqs = [
-    {
-      question: "What's included in the free plan?",
-      answer: "The free plan includes 5 CLEANBI analyses total, basic valuation calculator access, ROI calculator, and access to our industry resources library. Perfect for getting started and exploring the platform."
-    },
-    {
-      question: "Can I upgrade or downgrade anytime?",
-      answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, you'll keep your current plan until the end of your billing cycle."
-    },
-    {
-      question: "What's the difference between Pro and Enterprise?",
-      answer: "Pro is designed for individual owners and investors with generous limits. Enterprise includes white-label reports, API access, unlimited analyses, and priority support - perfect for brokers and multi-location operators."
-    },
-    {
-      question: "Do you offer refunds?",
-      answer: "We offer a 14-day money-back guarantee on all paid plans. If you're not satisfied, contact us within 14 days for a full refund."
-    },
-    {
-      question: "How accurate is the CLEANBI scoring?",
-      answer: "CLEANBI uses real-time data from Google Maps, US Census, and proprietary algorithms. Our location scores have a 95%+ correlation with actual business performance based on our validation studies."
-    }
-  ];
+export default function Products() {
+  const [filter, setFilter] = useState<string>("all");
+  
+  const audiences = ["all", "Buyers", "Owners", "Investors", "Brokers", "Technicians"];
+  
+  const filteredProducts = filter === "all" 
+    ? PRODUCTS 
+    : PRODUCTS.filter(p => p.forWho.includes(filter));
 
   return (
     <>
-      <SEO
-        title="Laundromat Business Tools & Pricing Plans"
-        description="Complete toolkit for laundromat success: CLEANBI location analysis, valuation calculators, competitor intel, and expansion planning. Free to $299/mo."
+      <SEO 
+        title="Products & Tools | WashBizHub"
+        description="Explore our complete suite of laundromat business tools. CLEANBI location analysis, calculators, Book Studio, Service Guy AI, Design Studio, and more. Try demos free."
         canonicalUrl="/products"
-        ogType="product"
-        keywords={[
-          "laundromat business tools",
-          "CLEANBI location analysis",
-          "laundromat valuation calculator",
-          "coin laundry software",
-          "laundromat pricing plans",
-          "laundry business analytics",
-          "laundromat competitor analysis",
-          "coin laundry investment tools",
-          "laundromat expansion planner",
-          "laundry business intelligence",
-          "laundromat ROI calculator",
-          "laundry industry software",
-          "laundromat market research"
-        ]}
-        breadcrumbs={[
-          { name: "Home", url: "/" },
-          { name: "Products & Pricing", url: "/products" }
-        ]}
-        faqs={productsFaqs}
-        productOffers={[
-          { name: "Free Plan", description: "Essential laundromat tools to get started", price: "0", availability: "InStock" },
-          { name: "Starter Plan", description: "For serious buyers and new owners", price: "29", availability: "InStock" },
-          { name: "Pro Plan", description: "For owners and active investors", price: "99", availability: "InStock" },
-          { name: "Enterprise Plan", description: "For brokers and multi-location owners", price: "299", availability: "InStock" }
-        ]}
+        ogType="website"
       />
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#C8A661]/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOCAxOC04LjA1OSAxOC0xOC04LjA1OS0xOC0xOC0xOHptMCAzMmMtNy43MzIgMC0xNC02LjI2OC0xNC0xNHM2LjI2OC0xNCAxNC0xNCAxNCA2LjI2OCAxNCAxNC02LjI2OCAxNC0xNCAxNHoiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAyIi8+PC9nPjwvc3ZnPg==')] opacity-30"></div>
-        </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-24 sm:py-32">
-          <div className="text-center">
-            {/* Social Proof Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
-              <div className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C8A661] to-[#C8A661] border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-white">
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
-              </div>
-              <span className="text-sm text-slate-300">
-                Trusted by <span className="text-[#C8A661] font-semibold">72,600+</span> laundromat professionals
-              </span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              The Complete Toolkit for
-              <span className="block mt-2 bg-gradient-to-r from-[#C8A661] via-[#C8A661] to-[#C8A661] bg-clip-text text-transparent">
-                Laundromat Success
-              </span>
+      <div className="min-h-screen bg-background">
+        {/* Hero */}
+        <section className="py-16 bg-[#0A1628]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+            <Badge variant="outline" className="mb-6 border-[#C8A661]/40 text-[#C8A661]">
+              Products
+            </Badge>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              Tools That <span className="text-[#C8A661]">Drive Results</span>
             </h1>
-
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto mb-10">
-              From location analysis to business valuation, competitor intelligence to expansion planning — 
-              everything you need to buy, run, and grow a profitable laundromat business.
+            
+            <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
+              Every product has a free demo. Try before you buy. See exactly what you're getting.
             </p>
+            
+            {/* Stats */}
+            <div className="flex flex-wrap justify-center gap-8 text-white/70">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">6</div>
+                <div className="text-sm">Products</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">50+</div>
+                <div className="text-sm">Tools</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">73K+</div>
+                <div className="text-sm">Users</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
-                onClick={() => setLocation("/cleanbi-explorer")}
-                data-testid="button-try-free"
-              >
-                <Play className="w-5 h-5 mr-2" />
+        {/* Filter Tabs */}
+        <section className="py-8 border-b">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex flex-wrap justify-center gap-2">
+              {audiences.map((audience) => (
+                <Button
+                  key={audience}
+                  variant={filter === audience ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilter(audience)}
+                  className={filter === audience ? "bg-[#C8A661] hover:bg-[#B89651]" : ""}
+                  data-testid={`button-filter-${audience.toLowerCase()}`}
+                >
+                  {audience === "all" ? "All Products" : `For ${audience}`}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Products Grid */}
+        <section className="py-12">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* All-Access Bundle */}
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Card className="border-2 border-[#C8A661] overflow-hidden">
+              <div className="bg-[#C8A661] text-white p-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Crown className="h-6 w-6" />
+                  <span className="text-lg font-bold">All-Access Bundle</span>
+                </div>
+                <p className="text-white/90">
+                  Get everything for one price. Best value for serious professionals.
+                </p>
+              </div>
+              
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-4">Includes All 6 Products:</h3>
+                    <div className="space-y-2">
+                      {PRODUCTS.map((product) => (
+                        <div key={product.id} className="flex items-center gap-2 text-sm">
+                          <Check className="h-4 w-4 text-[#C8A661]" />
+                          <span>{product.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col justify-center text-center md:text-left">
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                        <span className="text-4xl font-bold">$124</span>
+                        <span className="text-muted-foreground">/mo</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Billed annually ($1,490/year)
+                      </p>
+                      <p className="text-sm text-green-600 font-medium mt-1">
+                        Save $298 vs buying individually
+                      </p>
+                    </div>
+                    
+                    <Link href="/pricing">
+                      <Button 
+                        size="lg" 
+                        className="w-full bg-[#C8A661] hover:bg-[#B89651]"
+                        data-testid="button-all-access"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Get All-Access
+                      </Button>
+                    </Link>
+                    
+                    <p className="text-xs text-muted-foreground mt-3 text-center">
+                      30-day money-back guarantee
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-16 bg-[#0A1628]">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Not sure where to start?
+            </h2>
+            <p className="text-white/70 mb-6">
+              Try our most popular tool - CLEANBI Explorer. Analyze any address for free.
+            </p>
+            <Link href="/cleanbi-explorer">
+              <Button size="lg" className="bg-[#C8A661] hover:bg-[#B89651]">
+                <Map className="h-4 w-4 mr-2" />
                 Try CLEANBI Free
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl"
-                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-                data-testid="button-view-pricing"
-              >
-                View Pricing
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </div>
+            </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="border-y border-white/10 bg-white/5 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Facebook Community", value: 72600, suffix: "+", icon: Users, id: "facebook" },
-              { label: "Locations Analyzed", value: 50000, suffix: "+", icon: MapPin, id: "locations" },
-              { label: "Active Users", value: 2500, suffix: "+", icon: TrendingUp, id: "users" },
-              { label: "Premium Reports", value: 1200, suffix: "+", icon: FileText, id: "reports" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center" data-testid={`stat-${stat.id}`}>
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#C8A661]/10 mb-3">
-                  <stat.icon className="w-6 h-6 text-[#C8A661]" />
-                </div>
-                <p className="text-3xl font-bold text-white" data-testid={`stat-value-${stat.id}`}>
-                  <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                </p>
-                <p className="text-sm text-slate-400">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Funding & Business Plan Section - Conversion Funnel */}
-      <section className="py-16 border-b border-white/10" id="funding-tools">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <Badge variant="outline" className="border-green-500/50 text-green-500 mb-4">
-              <DollarSign className="w-3 h-3 mr-1" />
-              Get Funded
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Ready to Secure Funding?
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Start with our free SBA Readiness Check, then get an AI-generated business plan that lenders love.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* SBA Readiness Checker */}
-            <GlassCard className="p-6 hover-elevate">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0">
-                  <Target className="w-7 h-7 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-bold text-white">SBA Readiness Check</h3>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">FREE</Badge>
-                  </div>
-                  <p className="text-slate-400 mb-4">
-                    2-minute quiz to see if you qualify for SBA financing. Get your readiness score and personalized recommendations.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> 2 min
-                    </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Instant results
-                    </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Shield className="w-3 h-3" /> No credit check
-                    </span>
-                  </div>
-                  <Button
-                    onClick={() => setLocation("/sba-readiness")}
-                    className="bg-gradient-to-r from-green-500 to-green-600"
-                    data-testid="button-sba-readiness"
-                  >
-                    Check My Readiness
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            </GlassCard>
-
-            {/* Business Plan Generator */}
-            <GlassCard className="p-6 hover-elevate" highlight>
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#C8A661] to-[#C8A661] flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-7 h-7 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-xl font-bold text-white">AI Business Plan</h3>
-                    <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">$299</Badge>
-                  </div>
-                  <p className="text-slate-400 mb-4">
-                    Generate a complete, SBA-ready business plan in minutes. Professional financial projections lenders require.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> AI-Powered
-                    </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <FileText className="w-3 h-3" /> PDF & Word
-                    </span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3" /> 5-Year Projections
-                    </span>
-                  </div>
-                  <Button
-                    onClick={() => setLocation("/business-plan-generator")}
-                    className="bg-gradient-to-r from-[#C8A661] to-[#C8A661]"
-                    data-testid="button-business-plan"
-                  >
-                    Generate Business Plan
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
-
-          {/* Funnel Flow Indicator */}
-          <div className="flex items-center justify-center gap-4 mt-8 text-slate-500">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                <span className="text-green-400 text-sm font-bold">1</span>
-              </div>
-              <span className="text-sm">Check Readiness</span>
-            </div>
-            <ChevronRight className="w-4 h-4" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
-                <span className="text-[#C8A661] text-sm font-bold">2</span>
-              </div>
-              <span className="text-sm">Get Business Plan</span>
-            </div>
-            <ChevronRight className="w-4 h-4" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <span className="text-blue-400 text-sm font-bold">3</span>
-              </div>
-              <Link href="/larry-larsen" className="text-sm text-blue-400 hover:text-blue-300">
-                Expert Consultation
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Showcase */}
-      <section className="py-20" id="products">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Our Products
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Powerful Tools for Every Stage
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Whether you're buying your first laundromat or managing a portfolio, we have the tools you need.
-            </p>
-          </div>
-
-          {/* Product Tabs */}
-          <Tabs value={activeProduct} onValueChange={setActiveProduct} className="w-full">
-            <TabsList className="flex flex-wrap justify-center gap-2 bg-transparent h-auto p-0 mb-8">
-              {PRODUCTS.map((product) => (
-                <TabsTrigger
-                  key={product.id}
-                  value={product.id}
-                  className="data-[state=active]:bg-[#C8A661]/20 data-[state=active]:text-[#C8A661] data-[state=active]:border-[#C8A661]/50 border border-white/10 rounded-lg px-4 py-2 text-slate-400 hover:text-white transition-all"
-                  data-testid={`tab-${product.id}`}
-                >
-                  <product.icon className="w-4 h-4 mr-2" />
-                  {product.name.split(' ')[0]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {PRODUCTS.map((product) => (
-              <TabsContent key={product.id} value={product.id} className="mt-0">
-                <GlassCard className="p-8">
-                  <div className="grid lg:grid-cols-2 gap-8 items-center">
-                    <div>
-                      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${product.color} mb-6`}>
-                        <product.icon className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
-                      <p className="text-[#C8A661] font-medium mb-4">{product.tagline}</p>
-                      <p className="text-slate-400 mb-6">{product.description}</p>
-                      
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {product.forWho.map((who) => (
-                          <Badge key={who} variant="outline" className="border-white/20 text-slate-300">
-                            {who}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="space-y-3 mb-8">
-                        {product.features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                            <span className="text-slate-300">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Button 
-                        className={`bg-gradient-to-r ${product.color} hover:opacity-90 text-white px-6 py-3 rounded-xl`}
-                        onClick={() => setLocation(product.link)}
-                        data-testid={`button-try-${product.id}`}
-                      >
-                        Try {product.name.split(' ')[0]}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-
-                    <div className="relative">
-                      <div className="aspect-video rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center">
-                        <div className="text-center p-8">
-                          <product.icon className={`w-24 h-24 mx-auto mb-4 text-transparent bg-gradient-to-br ${product.color} bg-clip-text`} style={{ stroke: 'url(#gradient)' }} />
-                          <p className="text-2xl font-bold text-white">{product.stats.value}</p>
-                          <p className="text-slate-400">{product.stats.label}</p>
-                        </div>
-                      </div>
-                      {/* Decorative elements */}
-                      <div className={`absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br ${product.color} rounded-full blur-2xl opacity-30`}></div>
-                      <div className={`absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-br ${product.color} rounded-full blur-3xl opacity-20`}></div>
-                    </div>
-                  </div>
-                </GlassCard>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-20 bg-gradient-to-b from-transparent to-slate-950/50" id="pricing">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
-              <DollarSign className="w-3 h-3 mr-1" />
-              Simple Pricing
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Choose Your Plan
-            </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-8">
-              Start free, upgrade when you're ready. All plans include our core tools.
-            </p>
-
-            {/* Annual Toggle */}
-            <div className="inline-flex items-center gap-3 p-1 rounded-full bg-white/5 border border-white/10">
-              <span className={`px-4 py-2 rounded-full transition-all ${!isAnnual ? 'bg-[#C8A661] text-white' : 'text-slate-400'}`}>
-                Monthly
-              </span>
-              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} data-testid="switch-billing-toggle" />
-              <span className={`px-4 py-2 rounded-full transition-all ${isAnnual ? 'bg-[#C8A661] text-white' : 'text-slate-400'}`}>
-                Annual <span className="text-green-400 text-sm">(Save 20%)</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Pricing Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PRICING_TIERS.map((tier) => (
-              <GlassCard key={tier.name} highlight={tier.highlight} className="p-6 flex flex-col">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${tier.color} mb-4`}>
-                  <tier.icon className="w-6 h-6 text-white" />
-                </div>
-                
-                <h3 className="text-xl font-bold text-white mb-1">{tier.name}</h3>
-                <p className="text-sm text-slate-400 mb-4">{tier.description}</p>
-                
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-white">
-                    ${isAnnual && tier.price > 0 ? Math.floor(tier.price * 0.8) : tier.price}
-                  </span>
-                  <span className="text-slate-400">{tier.period}</span>
-                </div>
-
-                <div className="space-y-3 flex-1 mb-6">
-                  {tier.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      {feature.included ? (
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      ) : (
-                        <X className="w-5 h-5 text-slate-600 flex-shrink-0 mt-0.5" />
-                      )}
-                      <span className={feature.included ? 'text-slate-300' : 'text-slate-600'}>
-                        {feature.name}
-                        {feature.limit && feature.included && (
-                          <span className="text-xs text-slate-500 ml-1">({feature.limit})</span>
-                        )}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <Button 
-                  className={`w-full ${tier.highlight ? 'bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white' : 'bg-white/10 hover:bg-white/20 text-white'}`}
-                  onClick={() => setLocation(tier.ctaLink)}
-                  data-testid={`button-${tier.name.toLowerCase()}-plan`}
-                >
-                  {tier.cta}
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </GlassCard>
-            ))}
-          </div>
-
-          {/* Enterprise CTA */}
-          <div className="mt-12 text-center">
-            <GlassCard className="inline-flex items-center gap-4 px-6 py-4">
-              <Building2 className="w-8 h-8 text-[#1e3a5f]" />
-              <div className="text-left">
-                <p className="text-white font-medium">Need a custom solution?</p>
-                <p className="text-sm text-slate-400">We offer white-label and API access for brokers & enterprises</p>
-              </div>
-              <Button variant="outline" className="border-[#1e3a5f]/50 text-[#C8A661] hover:bg-[#1e3a5f]/10" onClick={() => setLocation("/contact?inquiry=enterprise")} data-testid="button-enterprise-contact">
-                Contact Sales
-              </Button>
-            </GlassCard>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="border-[#C8A661]/50 text-[#C8A661] mb-4">
-              <Star className="w-3 h-3 mr-1" />
-              Testimonials
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Loved by Laundromat Professionals
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((testimonial, i) => (
-              <GlassCard key={i} className="p-6">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, j) => (
-                    <Star key={j} className="w-5 h-5 text-[#C8A661] fill-[#C8A661]" />
-                  ))}
-                </div>
-                <p className="text-slate-300 mb-6 italic">"{testimonial.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#C8A661] flex items-center justify-center text-white font-bold">
-                    {testimonial.author[0]}
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">{testimonial.author}</p>
-                    <p className="text-sm text-slate-400">{testimonial.role}</p>
-                  </div>
-                </div>
-              </GlassCard>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Comparison Table */}
-      <section className="py-20 bg-gradient-to-b from-transparent to-slate-950/50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">Full Feature Comparison</h2>
-            <p className="text-slate-400">See exactly what's included in each plan</p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/10">
-                  <th className="text-left py-4 px-4 text-slate-400 font-medium">Feature</th>
-                  {PRICING_TIERS.map((tier) => (
-                    <th key={tier.name} className="text-center py-4 px-4">
-                      <span className={`text-white font-bold ${tier.highlight ? 'text-[#C8A661]' : ''}`}>
-                        {tier.name}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {PRICING_TIERS[0].features.map((feature, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-4 text-slate-300">{feature.name}</td>
-                    {PRICING_TIERS.map((tier) => {
-                      const tierFeature = tier.features[i];
-                      return (
-                        <td key={tier.name} className="text-center py-4 px-4">
-                          {tierFeature.included ? (
-                            <div className="flex flex-col items-center">
-                              <Check className="w-5 h-5 text-green-500" />
-                              {tierFeature.limit && (
-                                <span className="text-xs text-slate-500 mt-1">{tierFeature.limit}</span>
-                              )}
-                            </div>
-                          ) : (
-                            <X className="w-5 h-5 text-slate-600 mx-auto" />
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-white mb-4">Frequently Asked Questions</h2>
-          </div>
-
-          <Accordion type="single" collapsible className="space-y-4" data-testid="accordion-faq">
-            {FAQS.map((faq, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="border border-white/10 rounded-xl px-6 bg-white/5" data-testid={`accordion-item-faq-${i}`}>
-                <AccordionTrigger className="text-white hover:text-[#C8A661] py-4" data-testid={`accordion-trigger-faq-${i}`}>
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-slate-400 pb-4" data-testid={`accordion-content-faq-${i}`}>
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4">
-          <GlassCard className="p-8 sm:p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#C8A661]/10 to-[#C8A661]/10"></div>
-            <div className="relative">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C8A661] to-[#C8A661] mb-6">
-                <Rocket className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Ready to Grow Your Laundromat Business?
-              </h2>
-              <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
-                Join 72,600+ laundromat professionals who trust WashBizHub for location intelligence, 
-                business analysis, and growth tools.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-[#C8A661] to-[#C8A661] hover:from-[#C8A661] hover:to-[#996f0a] text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-[#C8A661]/25"
-                  onClick={() => setLocation("/cleanbi-explorer")}
-                  data-testid="button-final-cta"
-                >
-                  Start Free Analysis
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl"
-                  onClick={() => setLocation("/subscribe?plan=pro")}
-                  data-testid="button-final-pro"
-                >
-                  Get Pro Access
-                </Button>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      </section>
-
-      {/* Footer spacing */}
-      <div className="h-20"></div>
-    </div>
+        </section>
+      </div>
     </>
   );
 }
