@@ -404,6 +404,33 @@ export default function BookStudio() {
     }
   });
 
+  const [kdpTrimSize, setKdpTrimSize] = useState("8.5x8.5");
+  const [showKdpExport, setShowKdpExport] = useState(false);
+  
+  const exportKdpMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/book-studio/export/kdp-illustrated", {
+        project,
+        trimSize: kdpTrimSize,
+        bleed: true
+      });
+      return res.blob();
+    },
+    onSuccess: async (blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${project.title.replace(/\s+/g, "_")}_KDP_${kdpTrimSize.replace(".", "_")}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setShowKdpExport(false);
+      toast({ title: "KDP Export Ready", description: "Open the HTML file in a browser and print to PDF for KDP upload" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Export Error", description: err.message, variant: "destructive" });
+    }
+  });
+
   const generateCoverMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/book-studio/generate-cover", {
@@ -649,6 +676,19 @@ export default function BookStudio() {
                 {exportPdfMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 mr-1" />}
                 PDF
               </Button>
+              
+              {pageIllustrations.length > 0 && (
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowKdpExport(true)}
+                  className="bg-[#C8A661] hover:bg-[#b89551]"
+                  data-testid="button-export-kdp"
+                >
+                  <Printer className="w-4 h-4 mr-1" />
+                  KDP Export
+                </Button>
+              )}
             </div>
           </div>
 
@@ -1561,6 +1601,92 @@ export default function BookStudio() {
               <FilePlus className="w-4 h-4 mr-2" />
               {project.isIllustratedMode ? "Create Picture Book" : "Create Book"}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={showKdpExport} onOpenChange={setShowKdpExport}>
+        <DialogContent className="bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Printer className="w-5 h-5 text-[#C8A661]" />
+              KDP Print-Ready Export
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Export your illustrated book for Amazon Kindle Direct Publishing
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Trim Size</Label>
+              <Select value={kdpTrimSize} onValueChange={setKdpTrimSize}>
+                <SelectTrigger className="mt-1 bg-slate-800 border-slate-600" data-testid="select-kdp-trim-size">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="8.5x8.5">Square (8.5" x 8.5") - Most Popular</SelectItem>
+                  <SelectItem value="8x10">Portrait (8" x 10")</SelectItem>
+                  <SelectItem value="6x9">Trade (6" x 9")</SelectItem>
+                  <SelectItem value="7x10">Large (7" x 10")</SelectItem>
+                  <SelectItem value="8.25x6">Landscape (8.25" x 6")</SelectItem>
+                  <SelectItem value="8.25x8.25">Square Alt (8.25" x 8.25")</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-slate-500 mt-1">
+                Square format recommended for children's picture books
+              </p>
+            </div>
+            
+            <div className="bg-slate-800/50 p-4 rounded-lg space-y-2">
+              <h4 className="font-semibold text-sm">Book Details</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm text-slate-400">
+                <span>Title:</span>
+                <span className="text-white">{project.title}</span>
+                <span>Author:</span>
+                <span className="text-white">{project.author}</span>
+                <span>Pages:</span>
+                <span className="text-white">{pageIllustrations.length + 3} (incl. front/back matter)</span>
+                <span>Art Style:</span>
+                <span className="text-white">{project.artStyle || "Watercolor"}</span>
+              </div>
+            </div>
+            
+            <div className="bg-amber-900/30 border border-amber-700/50 p-3 rounded-lg space-y-2">
+              <p className="text-xs text-amber-200 font-semibold">Print to PDF Instructions:</p>
+              <ol className="text-xs text-amber-200/90 list-decimal list-inside space-y-1">
+                <li>Download the HTML file</li>
+                <li>Open in Chrome or Firefox</li>
+                <li>Press Ctrl+P (Cmd+P on Mac)</li>
+                <li>Set "Destination" to "Save as PDF"</li>
+                <li>Set "Paper size" to match your trim size</li>
+                <li>Set "Margins" to "None"</li>
+                <li>Enable "Background graphics"</li>
+                <li>Save and upload to KDP</li>
+              </ol>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-600"
+                onClick={() => setShowKdpExport(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
+                onClick={() => exportKdpMutation.mutate()}
+                disabled={exportKdpMutation.isPending}
+                data-testid="button-confirm-kdp-export"
+              >
+                {exportKdpMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Export for KDP
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
