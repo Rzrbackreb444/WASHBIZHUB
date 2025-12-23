@@ -24,7 +24,7 @@ import {
   Image as ImageIcon, Layout, Type, AlignLeft, AlignCenter, AlignRight,
   Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Heading3,
   MessageSquare, Settings, FileDown, Printer, Share2, Eye, ChevronRight,
-  ChevronDown, GripVertical, X, MoreVertical, FileImage, Video, Mic,
+  ChevronDown, ChevronUp, ChevronLeft, GripVertical, X, MoreVertical, FileImage, Video, Mic,
   Play, Pause, RotateCcw, Clock, Users, Target, TrendingUp, Star,
   Palette, Layers, Grid, BookCopy, Library, FolderOpen, FilePlus
 } from "lucide-react";
@@ -1147,6 +1147,61 @@ export default function BookStudio() {
                             )}
                             {pageIllustrations[currentPageIndex].imageUrl ? "Regenerate" : "Generate"} Illustration
                           </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-slate-600 text-slate-400 hover:text-white"
+                            onClick={() => {
+                              if (currentPageIndex > 0) {
+                                setProject(prev => {
+                                  const pages = [...(prev.pageIllustrations || [])];
+                                  [pages[currentPageIndex - 1], pages[currentPageIndex]] = [pages[currentPageIndex], pages[currentPageIndex - 1]];
+                                  return { ...prev, pageIllustrations: pages.map((p, i) => ({ ...p, pageNumber: i + 1 })) };
+                                });
+                                setCurrentPageIndex(prev => prev - 1);
+                              }
+                            }}
+                            disabled={currentPageIndex === 0}
+                            data-testid="button-move-page-up"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-slate-600 text-slate-400 hover:text-white"
+                            onClick={() => {
+                              if (currentPageIndex < pageIllustrations.length - 1) {
+                                setProject(prev => {
+                                  const pages = [...(prev.pageIllustrations || [])];
+                                  [pages[currentPageIndex], pages[currentPageIndex + 1]] = [pages[currentPageIndex + 1], pages[currentPageIndex]];
+                                  return { ...prev, pageIllustrations: pages.map((p, i) => ({ ...p, pageNumber: i + 1 })) };
+                                });
+                                setCurrentPageIndex(prev => prev + 1);
+                              }
+                            }}
+                            disabled={currentPageIndex >= pageIllustrations.length - 1}
+                            data-testid="button-move-page-down"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                            onClick={() => {
+                              const newIndex = Math.min(currentPageIndex, pageIllustrations.length - 2);
+                              setProject(prev => {
+                                const filtered = prev.pageIllustrations?.filter((_, i) => i !== currentPageIndex) || [];
+                                return { ...prev, pageIllustrations: filtered.map((p, i) => ({ ...p, pageNumber: i + 1 })) };
+                              });
+                              setCurrentPageIndex(Math.max(0, newIndex));
+                            }}
+                            disabled={pageIllustrations.length <= 1}
+                            data-testid="button-delete-page"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -1196,6 +1251,77 @@ export default function BookStudio() {
                 )}
               </div>
             </ScrollArea>
+            
+            {/* Horizontal Page Strip - Storyboard Navigator */}
+            {pageIllustrations.length > 0 && (
+              <div className="h-28 border-t border-slate-700 bg-slate-900/80 flex items-center px-4 gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-slate-400 hover:text-white"
+                  onClick={() => setCurrentPageIndex(prev => Math.max(0, prev - 1))}
+                  disabled={currentPageIndex === 0}
+                  data-testid="button-prev-page"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                
+                <div className="flex-1 overflow-x-auto">
+                  <div className="flex gap-2 py-2">
+                    {pageIllustrations.map((page, idx) => (
+                      <div
+                        key={page.id}
+                        className={`shrink-0 w-16 h-20 rounded-lg cursor-pointer transition-all ${
+                          idx === currentPageIndex 
+                            ? "ring-2 ring-[#C8A661] scale-105" 
+                            : "ring-1 ring-slate-600 hover:ring-slate-400"
+                        }`}
+                        onClick={() => setCurrentPageIndex(idx)}
+                        data-testid={`page-thumbnail-${idx}`}
+                      >
+                        {page.imageUrl ? (
+                          <img 
+                            src={page.imageUrl} 
+                            alt={`Page ${idx + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-slate-800 rounded-lg flex flex-col items-center justify-center">
+                            <span className="text-[10px] text-slate-500">{idx + 1}</span>
+                            {page.sceneDescription && (
+                              <div className="w-1 h-1 bg-[#C8A661] rounded-full mt-1" />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      className="shrink-0 w-16 h-20 border border-dashed border-slate-600 rounded-lg text-slate-500 hover:text-white hover:border-slate-400"
+                      onClick={addPage}
+                      data-testid="button-add-page-strip"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-slate-400 hover:text-white"
+                  onClick={() => setCurrentPageIndex(prev => Math.min(pageIllustrations.length - 1, prev + 1))}
+                  disabled={currentPageIndex >= pageIllustrations.length - 1}
+                  data-testid="button-next-page"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+                
+                <div className="shrink-0 text-sm text-slate-400 ml-2">
+                  Page {currentPageIndex + 1} / {pageIllustrations.length}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="w-80 border-l border-slate-700 bg-slate-900/50 flex flex-col">
