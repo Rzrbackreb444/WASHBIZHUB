@@ -34,7 +34,7 @@ import {
   Radio, Tv, MonitorPlay, UserCheck, DollarSign as DollarIcon,
   ChevronDown, Gauge, PiggyBank, Receipt, CreditCard, Wallet
 } from "lucide-react";
-import { SiYoutube, SiTiktok, SiFacebook, SiTwitter, SiLinkedin, SiInstagram } from "react-icons/si";
+import { SiYoutube, SiTiktok, SiFacebook, SiX, SiLinkedin, SiInstagram } from "react-icons/si";
 import larryPhoto from "@assets/image_1765341641648.png";
 
 // Types
@@ -1616,7 +1616,7 @@ export default function LarrysCommandCenter() {
                       { name: "YouTube", icon: SiYoutube, color: "#FF0000", connected: true },
                       { name: "TikTok", icon: SiTiktok, color: "#000000", connected: true },
                       { name: "Facebook", icon: SiFacebook, color: "#1877F2", connected: true },
-                      { name: "Twitter/X", icon: SiTwitter, color: "#1DA1F2", connected: false },
+                      { name: "Twitter/X", icon: SiX, color: "#000000", connected: false },
                       { name: "LinkedIn", icon: SiLinkedin, color: "#0A66C2", connected: true },
                       { name: "Instagram", icon: SiInstagram, color: "#E4405F", connected: false },
                     ].map(platform => {

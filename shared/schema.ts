@@ -19726,6 +19726,7 @@ export const larrysContentItems = pgTable("larrys_content_items", {
   description: text("description"),
   excerpt: text("excerpt"),
   content: text("content"),
+  contentBlocks: jsonb("content_blocks").default([]), // Embeddable blocks (calculators, forms, videos, etc.)
   
   // Type & Category
   type: varchar("type", { length: 50 }).notNull(), // "blog", "course", "book", "document", "product", "landing", "consultation"
@@ -19784,6 +19785,33 @@ export const insertLarrysContentItemSchema = createInsertSchema(larrysContentIte
 
 export type InsertLarrysContentItem = z.infer<typeof insertLarrysContentItemSchema>;
 export type LarrysContentItem = typeof larrysContentItems.$inferSelect;
+
+// Content Purchases - For entitlements and access control
+export const contentPurchases = pgTable("content_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  userEmail: varchar("user_email", { length: 255 }).notNull(),
+  contentId: varchar("content_id").notNull().references(() => larrysContentItems.id),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).notNull(),
+  stripePaymentId: varchar("stripe_payment_id", { length: 255 }),
+  accessType: varchar("access_type", { length: 50 }).default("permanent"), // "permanent", "subscription", "rental"
+  expiresAt: timestamp("expires_at"),
+  downloadCount: integer("download_count").default(0),
+  lastAccessedAt: timestamp("last_accessed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userEmailIdx: index("content_purchases_user_email_idx").on(table.userEmail),
+  contentIdIdx: index("content_purchases_content_id_idx").on(table.contentId),
+}));
+
+export const insertContentPurchaseSchema = createInsertSchema(contentPurchases).omit({
+  id: true,
+  downloadCount: true,
+  createdAt: true,
+});
+
+export type InsertContentPurchase = z.infer<typeof insertContentPurchaseSchema>;
+export type ContentPurchase = typeof contentPurchases.$inferSelect;
 
 // ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
