@@ -158,13 +158,28 @@ export default function Consultation() {
   const submitMutation = useMutation({
     mutationFn: async (data: ConsultationForm) => {
       const pkg = CONSULTATION_PACKAGES[data.packageType as keyof typeof CONSULTATION_PACKAGES];
-      const response = await apiRequest("POST", "/api/consultations", {
-        ...data,
-        userId: null,
-        status: "new",
-        priority: data.packageType === 'enterprise' || data.packageType === 'vip_annual' ? 'high' : 'normal',
-        consultationFee: (pkg.price / 100).toFixed(2),
-        paid: false,
+      
+      // Map package type to consultation type for API
+      const typeMap: Record<string, string> = {
+        quick_call: "phone",
+        strategy_session: "video",
+        vip_annual: "deep-dive",
+        enterprise: "vip-day"
+      };
+      
+      const consultationType = typeMap[data.packageType] || "video";
+      const scheduledAt = data.preferredDate 
+        ? new Date(data.preferredDate).toISOString() 
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // Default to 1 week from now
+      
+      const response = await apiRequest("POST", "/api/larry/consultations/book", {
+        clientName: data.name,
+        clientEmail: data.email,
+        clientPhone: data.phone,
+        consultationType,
+        scheduledAt,
+        notes: data.message,
+        source: "consultation-page"
       });
       return response.json();
     },
@@ -666,7 +681,93 @@ export default function Consultation() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Lead Capture Section */}
+        <LeadCaptureSection />
       </div>
     </div>
+  );
+}
+
+function LeadCaptureSection() {
+  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+
+  const leadMutation = useMutation({
+    mutationFn: async (data: { email: string; firstName: string }) => {
+      const response = await apiRequest("POST", "/api/larry/leads/subscribe", {
+        name: data.firstName,
+        email: data.email,
+        source: "consultation-page-signup"
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "You're on the list!",
+        description: "Check your inbox for Larry's free laundromat tips.",
+      });
+      setEmail("");
+      setFirstName("");
+    },
+    onError: () => {
+      toast({
+        title: "Already subscribed",
+        description: "You're already on our list!",
+      });
+    }
+  });
+
+  return (
+    <Card className="mt-12 bg-gradient-to-r from-[#0A1628] to-[#1a2d45] border-amber-500/20">
+      <CardContent className="py-10">
+        <div className="text-center max-w-2xl mx-auto">
+          <h3 className="text-2xl font-bold text-white mb-3">Not Ready to Book Yet?</h3>
+          <p className="text-white/70 mb-6">
+            Get Larry's free weekly tips on buying, running, and selling laundromats. 
+            Join 15,000+ industry professionals.
+          </p>
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (email && firstName) {
+                leadMutation.mutate({ email, firstName });
+              }
+            }}
+            className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+          >
+            <Input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First name"
+              required
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              data-testid="input-lead-firstname"
+            />
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email"
+              required
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              data-testid="input-lead-email"
+            />
+            <Button 
+              type="submit"
+              className="bg-amber-500 hover:bg-amber-600 text-black font-bold whitespace-nowrap"
+              disabled={leadMutation.isPending}
+              data-testid="button-subscribe-lead"
+            >
+              {leadMutation.isPending ? "..." : "Get Free Tips"}
+            </Button>
+          </form>
+          <p className="text-xs text-white/40 mt-4">
+            No spam. Unsubscribe anytime. We respect your privacy.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
