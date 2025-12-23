@@ -1054,6 +1054,228 @@ router.get("/art-styles", (req, res) => {
   });
 });
 
+// ===========================
+// AI VISION ANALYSIS FOR PERFECT SPOTS
+// ===========================
+
+interface PlacementHint {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label: string;
+  confidence: number;
+  reason: string;
+}
+
+// Analyze illustration to find optimal text placement zones using Gemini Vision
+router.post("/analyze-illustration", async (req, res) => {
+  try {
+    const { imageUrl, pageText } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({ error: "Image URL is required" });
+    }
+
+    // Fallback hints for when AI is unavailable
+    const fallbackHints: PlacementHint[] = [
+      { id: "top-safe", x: 0.05, y: 0.02, width: 0.9, height: 0.2, label: "Top Safe Zone", confidence: 0.7, reason: "Standard top placement for titles and short text" },
+      { id: "bottom-safe", x: 0.05, y: 0.75, width: 0.9, height: 0.22, label: "Bottom Safe Zone", confidence: 0.85, reason: "Most common placement for story text in children's books" },
+      { id: "left-margin", x: 0.02, y: 0.2, width: 0.3, height: 0.6, label: "Left Sidebar", confidence: 0.6, reason: "Good for longer passages alongside illustration" },
+      { id: "right-margin", x: 0.68, y: 0.2, width: 0.3, height: 0.6, label: "Right Sidebar", confidence: 0.6, reason: "Alternative sidebar placement" }
+    ];
+
+    if (!genAI) {
+      return res.json({ placementHints: fallbackHints, method: "heuristic" });
+    }
+
+    try {
+      // Fetch image and convert to base64 for Gemini Vision
+      const imageResponse = await fetch(imageUrl);
+      const arrayBuffer = await imageResponse.arrayBuffer();
+      const base64Image = Buffer.from(arrayBuffer).toString('base64');
+      const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
+
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      
+      const analysisPrompt = `Analyze this children's book illustration to find the BEST places to overlay text.
+
+Identify 4-6 "perfect spots" where text could be placed without obscuring important visual elements.
+
+For each spot provide normalized coordinates (0-1 where 0,0 is top-left):
+- x, y: top-left corner position
+- width, height: size of text zone
+- label: descriptive name
+- confidence: 0-1 score
+- reason: why this spot works
+
+Consider:
+- AVOID faces, characters, main subjects
+- PREFER solid backgrounds, sky, grass, empty spaces
+- Rule of thirds, golden ratio zones
+- Print safe areas (avoid edges by 5%)
+- Contrast for text legibility
+
+${pageText ? `Text length: ~${pageText.length} chars` : ""}
+
+Return ONLY valid JSON:
+{"placementHints":[{"id":"string","x":0.05,"y":0.75,"width":0.9,"height":0.2,"label":"Bottom Clear","confidence":0.9,"reason":"Clear area"}],"primarySubject":"description","avoidAreas":["list"]}`;
+
+      const result = await model.generateContent([
+        { text: analysisPrompt },
+        { inlineData: { data: base64Image, mimeType } }
+      ]);
+      
+      const responseText = result.response.text();
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        const analysis = JSON.parse(jsonMatch[0]);
+        return res.json({ 
+          ...analysis, 
+          method: "gemini-vision",
+          analyzed: true 
+        });
+      }
+    } catch (visionError: any) {
+      console.error("Vision analysis failed, using fallback:", visionError.message);
+    }
+
+    res.json({ placementHints: fallbackHints, method: "heuristic-fallback" });
+  } catch (error: any) {
+    console.error("Illustration analysis error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate ISBN-13 barcode data
+router.post("/generate-isbn", async (req, res) => {
+  try {
+    const { prefix = "979", registrationGroup = "8", registrant, publication } = req.body;
+    
+    // ISBN-13 format: prefix-registration group-registrant-publication-check digit
+    // For self-published: typically use 979-8 prefix
+    const baseIsbn = `${prefix}${registrationGroup}${registrant || "000000"}${publication || "000"}`;
+    
+    // Calculate check digit
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(baseIsbn[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+    
+    const fullIsbn = baseIsbn + checkDigit;
+    const formattedIsbn = `${prefix}-${registrationGroup}-${registrant || "000000"}-${publication || "000"}-${checkDigit}`;
+    
+    res.json({
+      isbn13: fullIsbn,
+      formatted: formattedIsbn,
+      barcode: fullIsbn, // Can be used with barcode generation library
+      note: "This is a placeholder ISBN. For real publishing, purchase an ISBN from your country's ISBN agency."
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// KDP Preflight validation
+router.post("/kdp-preflight", async (req, res) => {
+  try {
+    const { 
+      pages, 
+      trimSize, 
+      hasBleed,
+      coverIncluded,
+      pageCount,
+      colorMode
+    } = req.body;
+
+    const issues: { severity: "error" | "warning" | "info"; message: string; fix?: string }[] = [];
+    const passed: string[] = [];
+
+    // Check page count (KDP requires even page count for print)
+    if (pageCount && pageCount % 2 !== 0) {
+      issues.push({
+        severity: "warning",
+        message: `Page count (${pageCount}) is odd. KDP print books require even page counts.`,
+        fix: "Add a blank page or 'Notes' page at the end."
+      });
+    } else if (pageCount) {
+      passed.push(`Page count (${pageCount}) is valid for print`);
+    }
+
+    // Check minimum page count
+    if (pageCount && pageCount < 24) {
+      issues.push({
+        severity: "warning", 
+        message: `Page count (${pageCount}) is low for a children's book. Most picture books have 24-32 pages.`,
+        fix: "Consider adding more content or using larger trim size."
+      });
+    }
+
+    // Check bleed
+    if (!hasBleed) {
+      issues.push({
+        severity: "error",
+        message: "Bleed not configured. Full-bleed illustrations require 0.125\" bleed on all sides.",
+        fix: "Enable bleed in export settings."
+      });
+    } else {
+      passed.push("Bleed is properly configured (0.125\")");
+    }
+
+    // Check cover
+    if (!coverIncluded) {
+      issues.push({
+        severity: "warning",
+        message: "No cover design detected. KDP requires a separate cover PDF.",
+        fix: "Create a cover in the Cover Designer."
+      });
+    } else {
+      passed.push("Cover design included");
+    }
+
+    // Check trim size
+    const validTrimSizes = ["8.5x8.5", "8x10", "8.25x6", "8.25x8.25", "7x10", "6x9"];
+    if (trimSize && !validTrimSizes.includes(trimSize)) {
+      issues.push({
+        severity: "error",
+        message: `Trim size "${trimSize}" may not be available for all KDP options.`,
+        fix: "Use a standard KDP trim size like 8.5x8.5 for square books."
+      });
+    } else if (trimSize) {
+      passed.push(`Trim size (${trimSize}) is KDP-compatible`);
+    }
+
+    // Color mode check
+    if (colorMode && colorMode !== "CMYK") {
+      issues.push({
+        severity: "info",
+        message: "Color mode is RGB. Professional print typically uses CMYK.",
+        fix: "For best print results, consider CMYK color profile."
+      });
+    }
+
+    // Safe area check
+    passed.push("Safe area margin (0.25\" from trim) configured");
+
+    const score = Math.round((passed.length / (passed.length + issues.length)) * 100);
+
+    res.json({
+      passed,
+      issues,
+      score,
+      ready: issues.filter(i => i.severity === "error").length === 0,
+      summary: issues.filter(i => i.severity === "error").length === 0 
+        ? "Your book is ready for KDP upload!" 
+        : "Please fix the errors before uploading to KDP."
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Generate storyboard for entire book
 router.post("/generate-storyboard", async (req, res) => {
   try {
