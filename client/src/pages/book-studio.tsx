@@ -108,6 +108,30 @@ interface CharacterDescription {
   clothing?: string;
 }
 
+interface PlacementHint {
+  id: string;
+  x: number; // Normalized 0-1
+  y: number; // Normalized 0-1
+  width: number; // Normalized 0-1
+  height: number; // Normalized 0-1
+  label: string; // e.g., "top-safe", "bottom-clear", "left-margin"
+  confidence: number; // 0-1
+  reason?: string; // Why this spot is recommended
+}
+
+interface TextFrame {
+  x: number; // Normalized 0-1
+  y: number; // Normalized 0-1
+  width: number; // Normalized 0-1
+  height: number; // Normalized 0-1
+}
+
+interface CropSettings {
+  x: number; // Normalized 0-1 offset from left
+  y: number; // Normalized 0-1 offset from top
+  scale: number; // 1 = no zoom, >1 = zoomed in
+}
+
 interface PageIllustration {
   id: string;
   pageNumber: number;
@@ -115,6 +139,12 @@ interface PageIllustration {
   sceneDescription: string;
   textPosition: "left" | "right" | "top" | "bottom" | "none";
   pageText: string;
+  // NEW: Placement mode and settings
+  placementMode?: "auto" | "manual" | "hybrid";
+  textFrame?: TextFrame; // Custom text position (for manual/hybrid)
+  cropSettings?: CropSettings; // Image crop/pan settings
+  placementHints?: PlacementHint[]; // AI-suggested "perfect spots"
+  selectedHintId?: string; // Which AI suggestion was chosen (for hybrid)
 }
 
 const AI_MODELS = [
