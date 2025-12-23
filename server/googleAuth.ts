@@ -6,6 +6,17 @@ import { db } from "./db";
 import { adminActivityLog } from "@shared/schema";
 import { OAuth2Client } from "google-auth-library";
 
+// Platform owner emails with full admin access
+const ADMIN_EMAILS = [
+  "nick@washbizhub.com",
+  "rzrbackreb444@gmail.com",
+  "thelaundromatfb@gmail.com"
+];
+
+function isAdminEmail(email: string): boolean {
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 // Get dynamic callback URL based on request
 function getCallbackUrl(req: Request): string {
   // Use X-Forwarded headers if behind proxy, otherwise use request host
@@ -62,13 +73,18 @@ export async function setupGoogleAuth(app: Express) {
           }
 
           let existingUser = await storage.getUserByEmail(email);
+          const userIsAdmin = isAdminEmail(email);
           
           if (existingUser) {
-            if (!existingUser.googleId) {
+            // Always update isAdmin status and googleId if needed
+            const needsUpdate = !existingUser.googleId || existingUser.isAdmin !== userIsAdmin;
+            if (needsUpdate) {
               await storage.updateUser(existingUser.id, {
-                googleId,
+                googleId: existingUser.googleId || googleId,
                 profileImageUrl: existingUser.profileImageUrl || profileImageUrl,
+                isAdmin: userIsAdmin,
               });
+              existingUser = await storage.getUser(existingUser.id);
             }
             
             const sessionUser = {
@@ -96,6 +112,7 @@ export async function setupGoogleAuth(app: Express) {
             profileImageUrl,
             googleId,
             emailVerified: true,
+            isAdmin: userIsAdmin,
           });
 
           try {
