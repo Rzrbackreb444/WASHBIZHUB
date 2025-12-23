@@ -601,6 +601,305 @@ The illustration should be suitable for a book interior. No text in the image.`)
   }
 });
 
+// ===========================
+// CHILDREN'S BOOK ILLUSTRATION SYSTEM
+// ===========================
+
+const ART_STYLES = {
+  watercolor: "soft watercolor painting, gentle colors, dreamy atmosphere, children's book illustration style",
+  cartoon: "colorful cartoon illustration, vibrant colors, friendly characters, rounded shapes, Disney-style",
+  "digital-painting": "digital painting, rich colors, detailed backgrounds, modern illustration style",
+  "pencil-sketch": "soft pencil sketch with color wash, hand-drawn feel, warm tones",
+  "flat-design": "flat design illustration, bold colors, simple shapes, modern minimalist",
+  "storybook-classic": "classic storybook illustration, warm colors, detailed scenes, timeless feel like Beatrix Potter",
+  "whimsical": "whimsical fantasy illustration, magical atmosphere, glowing elements, enchanted forest style",
+  "anime": "anime-style illustration, expressive characters, colorful backgrounds, Japanese animation inspired"
+};
+
+// Generate children's book illustration with character consistency
+router.post("/generate-children-illustration", async (req, res) => {
+  try {
+    const { 
+      sceneDescription, 
+      characterDescriptions, 
+      artStyle, 
+      pageNumber,
+      bookTitle,
+      ageRange,
+      mood,
+      setting
+    } = req.body;
+
+    if (!openai) {
+      return res.status(400).json({ error: "Image generation requires OpenAI API" });
+    }
+
+    const selectedStyle = ART_STYLES[artStyle as keyof typeof ART_STYLES] || ART_STYLES.watercolor;
+    
+    // Build comprehensive character description for consistency
+    let characterContext = "";
+    if (characterDescriptions && Array.isArray(characterDescriptions)) {
+      characterContext = characterDescriptions.map((char: any) => 
+        `${char.name}: ${char.description}${char.clothing ? `, wearing ${char.clothing}` : ""}`
+      ).join(". ");
+    }
+
+    // Generate detailed prompt using Gemini for better quality
+    let illustrationPrompt = "";
+    if (genAI) {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(`
+You are creating an illustration prompt for a children's picture book.
+
+Book: "${bookTitle || 'Untitled'}"
+Age Range: ${ageRange || "3-8 years"}
+Page: ${pageNumber || 1}
+Scene: ${sceneDescription}
+Characters: ${characterContext || "No specific characters"}
+Setting: ${setting || "Not specified"}
+Mood: ${mood || "cheerful"}
+Art Style: ${selectedStyle}
+
+Create a detailed, vivid image generation prompt for DALL-E 3 that:
+1. Captures the scene exactly as described
+2. Maintains character appearance consistency
+3. Uses the specified art style throughout
+4. Is age-appropriate and engaging for children
+5. Has clear focal point and good composition
+6. Includes appropriate background details
+
+IMPORTANT: The prompt must explicitly state NO TEXT, NO LETTERS, NO WORDS in the image.
+
+Generate a single comprehensive paragraph prompt optimized for DALL-E 3.`);
+      illustrationPrompt = result.response.text();
+    } else {
+      illustrationPrompt = `Children's book illustration: ${sceneDescription}. ${characterContext}. ${selectedStyle}. Age-appropriate, colorful, engaging. NO TEXT.`;
+    }
+
+    console.log("🎨 Generating children's book illustration...");
+    
+    const dalleResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `${illustrationPrompt}. CRITICAL: This is a children's book illustration. Do NOT include any text, letters, words, numbers, or typography anywhere in the image. Keep it completely text-free.`,
+      n: 1,
+      size: "1024x1024",
+      quality: "hd",
+      style: "vivid"
+    });
+
+    const imageUrl = dalleResponse.data?.[0]?.url;
+    const revisedPrompt = dalleResponse.data?.[0]?.revised_prompt;
+    
+    if (!imageUrl) {
+      throw new Error("Failed to generate illustration");
+    }
+
+    console.log("✅ Children's book illustration generated successfully");
+
+    res.json({
+      imageUrl,
+      prompt: illustrationPrompt,
+      revisedPrompt,
+      artStyle: artStyle || "watercolor",
+      pageNumber: pageNumber || 1,
+      message: "Illustration generated successfully"
+    });
+  } catch (error: any) {
+    console.error("Children's illustration error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate a full page spread (landscape orientation for double-page spreads)
+router.post("/generate-page-spread", async (req, res) => {
+  try {
+    const { 
+      sceneDescription, 
+      characterDescriptions, 
+      artStyle, 
+      spreadType,
+      text,
+      textPosition
+    } = req.body;
+
+    if (!openai) {
+      return res.status(400).json({ error: "Image generation requires OpenAI API" });
+    }
+
+    const selectedStyle = ART_STYLES[artStyle as keyof typeof ART_STYLES] || ART_STYLES.watercolor;
+    
+    // Build character context
+    let characterContext = "";
+    if (characterDescriptions && Array.isArray(characterDescriptions)) {
+      characterContext = characterDescriptions.map((char: any) => 
+        `${char.name}: ${char.description}`
+      ).join(". ");
+    }
+
+    // Determine composition based on text position
+    let compositionGuide = "";
+    switch (textPosition) {
+      case "left":
+        compositionGuide = "Leave empty space on the LEFT side of the image for text overlay. Main action and characters should be on the RIGHT side.";
+        break;
+      case "right":
+        compositionGuide = "Leave empty space on the RIGHT side of the image for text overlay. Main action and characters should be on the LEFT side.";
+        break;
+      case "bottom":
+        compositionGuide = "Leave empty space at the BOTTOM of the image for text. Main scene should be in the upper 2/3.";
+        break;
+      case "top":
+        compositionGuide = "Leave empty space at the TOP of the image for text. Main scene should be in the lower 2/3.";
+        break;
+      default:
+        compositionGuide = "Full illustration with balanced composition.";
+    }
+
+    // Use landscape size for spreads
+    const imageSize = spreadType === "double" ? "1792x1024" : "1024x1024";
+
+    let illustrationPrompt = `${selectedStyle}. ${sceneDescription}. ${characterContext}. ${compositionGuide} Children's picture book style, vibrant and engaging. NO TEXT, NO LETTERS, NO WORDS in the image.`;
+
+    if (genAI) {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(`
+Create a DALL-E prompt for a children's book ${spreadType === "double" ? "double-page spread (landscape)" : "single page"}.
+
+Scene: ${sceneDescription}
+Characters: ${characterContext || "None specified"}
+Art Style: ${selectedStyle}
+Text Position: ${textPosition || "none"} - ${compositionGuide}
+
+Generate a detailed prompt that creates a professional children's book illustration.
+The illustration must have NO TEXT whatsoever.`);
+      illustrationPrompt = result.response.text();
+    }
+
+    console.log("🎨 Generating page spread illustration...");
+    
+    const dalleResponse = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: `${illustrationPrompt}. ABSOLUTELY NO text, letters, words, or typography in this image.`,
+      n: 1,
+      size: imageSize as "1024x1024" | "1792x1024" | "1024x1792",
+      quality: "hd",
+      style: "vivid"
+    });
+
+    const imageUrl = dalleResponse.data?.[0]?.url;
+    
+    if (!imageUrl) {
+      throw new Error("Failed to generate page spread");
+    }
+
+    console.log("✅ Page spread generated successfully");
+
+    res.json({
+      imageUrl,
+      prompt: illustrationPrompt,
+      spreadType: spreadType || "single",
+      textPosition: textPosition || "none",
+      suggestedTextArea: textPosition ? {
+        position: textPosition,
+        recommendation: `Place text in the ${textPosition} area of the image`
+      } : null,
+      message: "Page spread generated successfully"
+    });
+  } catch (error: any) {
+    console.error("Page spread error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get available art styles
+router.get("/art-styles", (req, res) => {
+  res.json({
+    styles: Object.entries(ART_STYLES).map(([id, description]) => ({
+      id,
+      name: id.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+      description
+    }))
+  });
+});
+
+// Generate storyboard for entire book
+router.post("/generate-storyboard", async (req, res) => {
+  try {
+    const { 
+      bookTitle,
+      synopsis,
+      pageCount,
+      characterDescriptions,
+      artStyle,
+      ageRange
+    } = req.body;
+
+    if (!genAI) {
+      return res.status(400).json({ error: "Storyboard generation requires Gemini API" });
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    
+    const characterList = (characterDescriptions || []).map((c: any) => 
+      `- ${c.name}: ${c.description}`
+    ).join("\n");
+
+    const result = await model.generateContent(`
+You are a children's book illustrator planning a ${pageCount || 24}-page picture book.
+
+Book Title: "${bookTitle}"
+Synopsis: ${synopsis}
+Age Range: ${ageRange || "3-8 years"}
+Art Style: ${artStyle || "watercolor"}
+Characters:
+${characterList || "To be designed"}
+
+Create a detailed storyboard with exactly ${pageCount || 24} pages. For each page provide:
+1. Page number
+2. Scene description (what's happening)
+3. Text to appear on the page (keep it simple for the age range)
+4. Illustration notes (composition, mood, key visual elements)
+5. Character positions
+
+Return as JSON:
+{
+  "storyboard": [
+    {
+      "pageNumber": 1,
+      "sceneDescription": "Detailed scene description",
+      "pageText": "Text for this page",
+      "illustrationNotes": "Key visual elements and composition",
+      "characterPositions": "Where characters appear",
+      "mood": "The emotional tone",
+      "isSpread": false
+    }
+  ]
+}
+
+Make the story engaging, age-appropriate, and with clear visual progression.`);
+
+    const text = result.response.text();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) {
+      throw new Error("Failed to parse storyboard");
+    }
+
+    const storyboard = JSON.parse(jsonMatch[0]);
+
+    res.json({
+      bookTitle,
+      pageCount: pageCount || 24,
+      artStyle: artStyle || "watercolor",
+      ...storyboard,
+      message: "Storyboard generated successfully"
+    });
+  } catch (error: any) {
+    console.error("Storyboard error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Batch production pipeline - create multiple books from templates
 router.post("/batch-create", async (req, res) => {
   try {

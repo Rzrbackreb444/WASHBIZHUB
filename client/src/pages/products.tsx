@@ -11,7 +11,7 @@ import {
   Map, Calculator, BookOpen, Wrench, LayoutGrid, FileText,
   ArrowRight, Play, Star, Check, Sparkles, TrendingUp,
   Users, Building2, Zap, Crown, Lock, Search, DollarSign,
-  Percent, MapPin, PenTool, FileCheck, AlertTriangle, Eye
+  Percent, MapPin, PenTool, FileCheck, AlertTriangle, Eye, Bot
 } from "lucide-react";
 
 interface Product {
@@ -188,6 +188,33 @@ const PRODUCTS: Product[] = [
       "Try AI Business Plan"
     ],
     forWho: ["Buyers", "Owners", "Brokers"]
+  },
+  {
+    id: "ai-consultation",
+    name: "AI Consultation Council",
+    tagline: "Expert AI Panel",
+    description: "Get investment decisions vetted by an AI panel of industry experts. Larry Larsen, financial analysts, market experts, and operations specialists analyze your deal.",
+    icon: Bot,
+    color: "bg-violet-600",
+    demoLink: "/ai-consultation-council",
+    purchaseLink: "/pricing",
+    price: "10 Free",
+    priceNote: "Pro: 500/mo, Enterprise: Unlimited",
+    features: [
+      "Multi-expert AI analysis",
+      "Larry Larsen review (Pro+)",
+      "CLEANBI integration",
+      "Competition heatmaps",
+      "Financial projections",
+      "Risk assessment reports"
+    ],
+    demoFeatures: [
+      "10 free consultations",
+      "See all expert insights",
+      "Sample analysis included"
+    ],
+    forWho: ["Buyers", "Investors", "Brokers"],
+    popular: true
   }
 ];
 
@@ -615,6 +642,81 @@ function TemplateVaultDemo() {
   );
 }
 
+function AIConsultationDemo() {
+  const [showResult, setShowResult] = useState(false);
+  
+  const experts = [
+    { name: "Larry Larsen", title: "Industry Legend", icon: Crown, verdict: "BUY" },
+    { name: "Sarah Chen", title: "Market Analyst", icon: TrendingUp, verdict: "STRONG BUY" },
+    { name: "Mike Torres", title: "Financial Expert", icon: DollarSign, verdict: "BUY" },
+    { name: "Emily R.", title: "Risk Assessor", icon: AlertTriangle, verdict: "CAUTION" },
+  ];
+  
+  return (
+    <div className="space-y-4">
+      <Button 
+        className="w-full bg-violet-600"
+        onClick={() => setShowResult(!showResult)}
+        data-testid="demo-consultation-start"
+      >
+        <Bot className="h-4 w-4 mr-2" />
+        {showResult ? "View Expert Panel" : "Start AI Consultation"}
+      </Button>
+      
+      {showResult && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-3"
+        >
+          {experts.map((expert, i) => {
+            const Icon = expert.icon;
+            return (
+              <div 
+                key={i}
+                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-violet-500/20">
+                    <Icon className="h-4 w-4 text-violet-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{expert.name}</p>
+                    <p className="text-xs text-muted-foreground">{expert.title}</p>
+                  </div>
+                </div>
+                <Badge 
+                  className={
+                    expert.verdict === "STRONG BUY" ? "bg-green-500 text-white" :
+                    expert.verdict === "BUY" ? "bg-green-400 text-white" :
+                    "bg-amber-500 text-white"
+                  }
+                >
+                  {expert.verdict}
+                </Badge>
+              </div>
+            );
+          })}
+          
+          <div className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30 rounded-lg p-4 text-center">
+            <p className="text-sm font-medium mb-1">Final Verdict</p>
+            <Badge className="bg-green-500 text-white text-lg px-4 py-1">
+              STRONG BUY
+            </Badge>
+            <p className="text-xs text-muted-foreground mt-2">85% Confidence Score</p>
+          </div>
+        </motion.div>
+      )}
+      
+      <Link href="/ai-consultation-council">
+        <Button className="w-full" variant="outline" data-testid="demo-consultation-full">
+          Get Full Consultation <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
 // Demo selector component
 function InteractiveDemos() {
   const [activeDemo, setActiveDemo] = useState<string>("cleanbi");
@@ -626,6 +728,7 @@ function InteractiveDemos() {
     { id: "service-guy", name: "Service Guy", icon: Wrench, color: "bg-orange-600" },
     { id: "design-studio", name: "Design Studio", icon: LayoutGrid, color: "bg-green-600" },
     { id: "template-vault", name: "Templates", icon: FileText, color: "bg-indigo-600" },
+    { id: "ai-consultation", name: "AI Council", icon: Bot, color: "bg-violet-600" },
   ];
   
   return (
@@ -681,6 +784,7 @@ function InteractiveDemos() {
             {activeDemo === "service-guy" && <ServiceGuyDemo />}
             {activeDemo === "design-studio" && <DesignStudioDemo />}
             {activeDemo === "template-vault" && <TemplateVaultDemo />}
+            {activeDemo === "ai-consultation" && <AIConsultationDemo />}
           </CardContent>
         </Card>
       </div>
@@ -831,7 +935,7 @@ export default function Products() {
             {/* Stats */}
             <div className="flex flex-wrap justify-center gap-8 text-white/70">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">6</div>
+                <div className="text-2xl font-bold text-white">7</div>
                 <div className="text-sm">Products</div>
               </div>
               <div className="text-center">
@@ -897,7 +1001,7 @@ export default function Products() {
               <CardContent className="p-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-semibold mb-4">Includes All 6 Products:</h3>
+                    <h3 className="font-semibold mb-4">Includes All 7 Products:</h3>
                     <div className="space-y-2">
                       {PRODUCTS.map((product) => (
                         <div key={product.id} className="flex items-center gap-2 text-sm">
