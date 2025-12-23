@@ -11906,6 +11906,120 @@ You learn and improve from every interaction across the WashBizHub platform.`;
     }
   });
 
+  // ==================== LARRY'S CONTENT EMPIRE AI TOOLS ====================
+
+  // POST /api/ai/polish-content - Polish content for professional quality
+  app.post("/api/ai/polish-content", rateLimiter("/api/ai/polish-content", 20, 60), async (req, res) => {
+    try {
+      const { content, type = "professional" } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: "Content is required" });
+      }
+
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      const systemPrompts: Record<string, string> = {
+        professional: `You are a professional editor for Larry Larsen, a 50+ year laundromat industry veteran. 
+Polish the following content to be:
+- Grammatically perfect
+- Professional yet approachable tone
+- Clear and readable (8th grade reading level)
+- Free of jargon unless industry-specific
+- Well-structured with proper formatting
+- SEO-friendly with natural keyword usage
+
+Maintain Larry's authoritative voice while making content flawless. 
+Return ONLY the polished content, no explanations.`,
+        seo: `You are an SEO expert. Optimize this content for search engines while maintaining readability.
+- Add relevant keywords naturally
+- Improve headings and structure
+- Make it scannable with bullet points where appropriate
+- Ensure proper meta-description length (155 chars)
+Return the optimized content with SEO suggestions.`,
+        concise: `You are an editor focused on clarity. Make this content more concise:
+- Remove redundancy
+- Tighten sentences
+- Improve flow
+- Keep the core message intact
+Return ONLY the polished content.`,
+      };
+      
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompts[type] || systemPrompts.professional },
+          { role: "user", content }
+        ],
+        temperature: 0.7,
+        max_tokens: 4000,
+      });
+      
+      const polished = response.choices[0]?.message?.content || content;
+      
+      res.json({ 
+        polished,
+        originalLength: content.length,
+        polishedLength: polished.length,
+        type
+      });
+    } catch (error: any) {
+      console.error("AI Polish error:", error);
+      res.status(500).json({ error: error.message || "Content polish failed" });
+    }
+  });
+
+  // POST /api/ai/analyze-seo - Analyze content for SEO/AEO/E-E-A-T
+  app.post("/api/ai/analyze-seo", rateLimiter("/api/ai/analyze-seo", 15, 60), async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: "Content is required" });
+      }
+
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { 
+            role: "system", 
+            content: `You are an SEO/AEO expert. Analyze content for:
+1. SEO Score (0-100): keyword usage, meta optimization, structure, internal linking potential
+2. AEO Score (0-100): Answer Engine Optimization - featured snippet potential, FAQ structure, direct answers
+3. E-E-A-T Score (0-100): Experience, Expertise, Authoritativeness, Trustworthiness signals
+
+Return a JSON object with:
+{
+  "seoScore": number,
+  "aeoScore": number,
+  "eeatScore": number,
+  "suggestions": ["array of specific actionable suggestions"],
+  "keywords": ["array of main keywords found"],
+  "readability": "reading level assessment"
+}
+
+Be strict but fair in scoring. Provide actionable suggestions.`
+          },
+          { role: "user", content: `Analyze this content:\n\n${content}` }
+        ],
+        temperature: 0.3,
+        max_tokens: 1500,
+        response_format: { type: "json_object" }
+      });
+      
+      const analysis = JSON.parse(response.choices[0]?.message?.content || "{}");
+      
+      res.json(analysis);
+    } catch (error: any) {
+      console.error("SEO Analysis error:", error);
+      res.status(500).json({ error: error.message || "SEO analysis failed" });
+    }
+  });
+
   // ==================== LAUNDROMAT CONSULTATION COUNCIL ====================
   
   // POST /api/consultation-council - Full expert consultation with multiple AI analysts
