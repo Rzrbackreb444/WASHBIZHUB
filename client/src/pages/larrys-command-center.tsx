@@ -19,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { SEO } from "@/components/SEO";
-import { AuthGuard } from "@/components/AuthGuard";
+import { OwnerGuard } from "@/components/OwnerGuard";
 import { 
   Phone, Video, Monitor, Mic, MicOff, VideoOff, ScreenShare, 
   Users, MessageSquare, Calendar, DollarSign, TrendingUp, 
@@ -451,7 +451,7 @@ export default function LarrysCommandCenter() {
   };
 
   return (
-    <AuthGuard>
+    <OwnerGuard>
       <SEO
         title="Larry's Command Center | Consulting & Content Studio | WashBizHub"
         description="Larry's comprehensive consulting command center with live video sessions, 50/50 revenue split tracking, calculator sharing, and content collaboration tools."
@@ -1959,6 +1959,6 @@ export default function LarrysCommandCenter() {
           </DialogContent>
         </Dialog>
       </div>
-    </AuthGuard>
+    </OwnerGuard>
   );
 }
