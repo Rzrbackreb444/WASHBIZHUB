@@ -273,6 +273,7 @@ const DeliveryRouteOptimizer = lazy(() => import("@/pages/delivery-route-optimiz
 const MarketingAttribution = lazy(() => import("@/pages/marketing-attribution"));
 const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
 const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
+const BookStudio = lazy(() => import("@/pages/book-studio"));
 
 // Persona Hub Pages
 const ForBuyers = lazy(() => import("@/pages/for-buyers"));
@@ -700,6 +701,11 @@ function Router() {
       <Route path="/ai-book-suite">
         <Suspense fallback={<LoadingFallback />}>
           <AIBookSuite />
+        </Suspense>
+      </Route>
+      <Route path="/book-studio">
+        <Suspense fallback={<LoadingFallback />}>
+          <BookStudio />
         </Suspense>
       </Route>
       <Route path="/ai-command-center">
