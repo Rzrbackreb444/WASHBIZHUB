@@ -73,6 +73,59 @@ interface AIMessage {
   timestamp: string;
 }
 
+interface Collaborator {
+  id: string;
+  name: string;
+  email: string;
+  role: "author" | "co-author" | "editor" | "reviewer";
+  avatar?: string;
+  isOnline?: boolean;
+  lastSeen?: string;
+  color: string;
+}
+
+interface Comment {
+  id: string;
+  chapterId: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  timestamp: string;
+  resolved: boolean;
+  replies: Comment[];
+  selection?: { start: number; end: number };
+}
+
+interface Activity {
+  id: string;
+  userId: string;
+  userName: string;
+  action: "edit" | "comment" | "approve" | "suggestion" | "join";
+  target: string;
+  timestamp: string;
+  details?: string;
+}
+
+const DEFAULT_COLLABORATORS: Collaborator[] = [
+  { 
+    id: "nick", 
+    name: "Nick Kremers", 
+    email: "nick@washbizhub.com", 
+    role: "author",
+    color: "#39CCCC",
+    isOnline: true 
+  },
+  { 
+    id: "larry", 
+    name: "Larry Larsen", 
+    email: "larry@washbizhub.com", 
+    role: "co-author",
+    color: "#C8A661",
+    isOnline: false,
+    lastSeen: new Date(Date.now() - 3600000).toISOString()
+  }
+];
+
 const GENRES = [
   "Business & Finance", "Self-Help", "Health & Wellness", "Biography",
   "How-To Guide", "Technical Manual", "Educational", "Memoir",
@@ -234,6 +287,19 @@ export default function BookStudio() {
   const [batchGenerating, setBatchGenerating] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
   
+  // Collaboration features
+  const [collaborators, setCollaborators] = useState<Collaborator[]>(DEFAULT_COLLABORATORS);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([
+    { id: "1", userId: "nick", userName: "Nick Kremers", action: "edit", target: "Chapter 1", timestamp: new Date().toISOString(), details: "Updated introduction" },
+    { id: "2", userId: "larry", userName: "Larry Larsen", action: "comment", target: "Chapter 4", timestamp: new Date(Date.now() - 7200000).toISOString(), details: "Great section on lease traps" },
+    { id: "3", userId: "nick", userName: "Nick Kremers", action: "edit", target: "CLEANBI Formula", timestamp: new Date(Date.now() - 86400000).toISOString(), details: "Added weight breakdown" }
+  ]);
+  const [newComment, setNewComment] = useState("");
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"editor" | "reviewer">("editor");
+
   // Cover settings
   const [coverSettings, setCoverSettings] = useState({
     frontTitle: "",
@@ -827,10 +893,17 @@ export default function BookStudio() {
         <div className="flex h-[calc(100vh-100px)]">
           <div className="w-64 border-r border-slate-700 bg-slate-900/50 flex flex-col">
             <Tabs value={sidebarTab} onValueChange={setSidebarTab} className="flex-1 flex flex-col">
-              <TabsList className="w-full rounded-none bg-slate-800 border-b border-slate-700">
-                <TabsTrigger value="chapters" className="flex-1 text-xs">Chapters</TabsTrigger>
-                <TabsTrigger value="outline" className="flex-1 text-xs">Outline</TabsTrigger>
-                <TabsTrigger value="illustrations" className="flex-1 text-xs">Illustrations</TabsTrigger>
+              <TabsList className="w-full rounded-none bg-slate-800 border-b border-slate-700 grid grid-cols-4">
+                <TabsTrigger value="chapters" className="text-xs px-1">Chapters</TabsTrigger>
+                <TabsTrigger value="outline" className="text-xs px-1">Outline</TabsTrigger>
+                <TabsTrigger value="collab" className="text-xs px-1 relative">
+                  <Users className="w-3 h-3 mr-1" />
+                  Team
+                  {collaborators.filter(c => c.isOnline).length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full" />
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="activity" className="text-xs px-1">Activity</TabsTrigger>
               </TabsList>
 
               <TabsContent value="chapters" className="flex-1 m-0 overflow-hidden">
@@ -1290,6 +1363,227 @@ export default function BookStudio() {
                         <FolderOpen className="w-4 h-4 mr-2" />
                         Load Project
                       </Button>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              {/* Collaboration Tab */}
+              <TabsContent value="collab" className="flex-1 m-0 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-3 space-y-4">
+                    {/* Team Header */}
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-400 text-xs">Team</Label>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 px-2 text-xs text-[#C8A661]"
+                        onClick={() => setShowInviteDialog(true)}
+                        data-testid="button-invite-collaborator"
+                      >
+                        <Plus className="w-3 h-3 mr-1" /> Invite
+                      </Button>
+                    </div>
+
+                    {/* Collaborators List */}
+                    <div className="space-y-2">
+                      {collaborators.map(collab => (
+                        <div key={collab.id} className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                style={{ backgroundColor: collab.color }}
+                              >
+                                {collab.name.split(' ').map(n => n[0]).join('')}
+                              </div>
+                              {collab.isOnline && (
+                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-800" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-white truncate">{collab.name}</span>
+                                <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400">
+                                  {collab.role}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-slate-500 truncate">{collab.email}</p>
+                              <p className="text-[10px] text-slate-600">
+                                {collab.isOnline ? (
+                                  <span className="text-green-400">Online now</span>
+                                ) : (
+                                  `Last seen ${collab.lastSeen ? new Date(collab.lastSeen).toLocaleString() : 'recently'}`
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Separator className="bg-slate-700" />
+
+                    {/* Chapter Comments */}
+                    <div>
+                      <Label className="text-slate-400 text-xs mb-2 block">Chapter Comments</Label>
+                      {currentChapter ? (
+                        <div className="space-y-3">
+                          {comments.filter(c => c.chapterId === currentChapter.id).length === 0 ? (
+                            <p className="text-xs text-slate-500 text-center py-3">No comments on this chapter</p>
+                          ) : (
+                            comments.filter(c => c.chapterId === currentChapter.id).map(comment => (
+                              <div key={comment.id} className="bg-slate-800 rounded-lg p-2 border border-slate-700">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-medium text-[#C8A661]">{comment.authorName}</span>
+                                  <span className="text-[10px] text-slate-500">
+                                    {new Date(comment.timestamp).toLocaleString()}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-300">{comment.content}</p>
+                              </div>
+                            ))
+                          )}
+                          {/* Add Comment */}
+                          <div className="flex gap-2">
+                            <Input
+                              value={newComment}
+                              onChange={(e) => setNewComment(e.target.value)}
+                              placeholder="Add a comment..."
+                              className="flex-1 h-8 text-xs bg-slate-800 border-slate-600 text-white"
+                              data-testid="input-comment"
+                            />
+                            <Button
+                              size="sm"
+                              className="h-8 bg-[#C8A661] hover:bg-[#b89551]"
+                              onClick={() => {
+                                if (newComment.trim() && currentChapter) {
+                                  const comment: Comment = {
+                                    id: crypto.randomUUID(),
+                                    chapterId: currentChapter.id,
+                                    authorId: "nick",
+                                    authorName: "Nick Kremers",
+                                    content: newComment,
+                                    timestamp: new Date().toISOString(),
+                                    resolved: false,
+                                    replies: []
+                                  };
+                                  setComments(prev => [...prev, comment]);
+                                  setActivities(prev => [{
+                                    id: crypto.randomUUID(),
+                                    userId: "nick",
+                                    userName: "Nick Kremers",
+                                    action: "comment",
+                                    target: currentChapter.title,
+                                    timestamp: new Date().toISOString(),
+                                    details: newComment.substring(0, 50) + (newComment.length > 50 ? '...' : '')
+                                  }, ...prev]);
+                                  setNewComment("");
+                                  toast({ title: "Comment added" });
+                                }
+                              }}
+                              data-testid="button-add-comment"
+                            >
+                              <Send className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 text-center py-3">Select a chapter to view comments</p>
+                      )}
+                    </div>
+
+                    <Separator className="bg-slate-700" />
+
+                    {/* Quick Notify */}
+                    <div>
+                      <Label className="text-slate-400 text-xs mb-2 block">Quick Notify</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs border-slate-600 text-white"
+                          onClick={() => {
+                            toast({ title: "Notification sent to Larry!" });
+                            setActivities(prev => [{
+                              id: crypto.randomUUID(),
+                              userId: "nick",
+                              userName: "Nick Kremers",
+                              action: "suggestion",
+                              target: "Larry Larsen",
+                              timestamp: new Date().toISOString(),
+                              details: "Requested review"
+                            }, ...prev]);
+                          }}
+                          data-testid="button-notify-larry"
+                        >
+                          <MessageSquare className="w-3 h-3 mr-1" />
+                          Ping Larry
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs border-slate-600 text-white"
+                          onClick={() => {
+                            toast({ title: "Review request sent!" });
+                          }}
+                          data-testid="button-request-review"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          Request Review
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              {/* Activity Tab */}
+              <TabsContent value="activity" className="flex-1 m-0 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-3 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-slate-400 text-xs">Recent Activity</Label>
+                      <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400">
+                        {activities.length} events
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2">
+                      {activities.slice(0, 20).map(activity => (
+                        <div key={activity.id} className="bg-slate-800 rounded-lg p-2 border border-slate-700">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${
+                              activity.userId === "nick" ? "bg-[#39CCCC]" : "bg-[#C8A661]"
+                            }`}>
+                              {activity.userName.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs font-medium text-white">{activity.userName}</span>
+                                <span className="text-[10px] text-slate-500">
+                                  {activity.action === "edit" && "edited"}
+                                  {activity.action === "comment" && "commented on"}
+                                  {activity.action === "approve" && "approved"}
+                                  {activity.action === "suggestion" && "suggested"}
+                                  {activity.action === "join" && "joined"}
+                                </span>
+                                <span className="text-xs text-[#C8A661] truncate">{activity.target}</span>
+                              </div>
+                              {activity.details && (
+                                <p className="text-[10px] text-slate-400 truncate">{activity.details}</p>
+                              )}
+                              <p className="text-[10px] text-slate-600">
+                                {new Date(activity.timestamp).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {activities.length === 0 && (
+                        <p className="text-xs text-slate-500 text-center py-4">No activity yet</p>
+                      )}
                     </div>
                   </div>
                 </ScrollArea>
@@ -1997,6 +2291,31 @@ export default function BookStudio() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-4">
+            {/* Quick Template: The Laundromat Bible */}
+            <Button
+              variant="outline"
+              className="w-full border-[#C8A661] text-[#C8A661] hover:bg-[#C8A661]/10"
+              onClick={() => {
+                setProject(prev => ({
+                  ...prev,
+                  title: "The Laundromat Bible",
+                  subtitle: "Three Generations' Guide to Building, Running, and Scaling a Profitable Laundry Business",
+                  author: "Nick Kremers with Larry Larsen",
+                  description: "This ain't your grandpa's laundry manual, but it's got his grit. Three generations of Kremers sweat—Grandpa's coin routes, Dad's Dexter fixes, my stroke comeback at 36—paired with Larry's 50+ years owning and consulting via laundromat123.com. This guide's for every hustler: single moms grinding, newbies dreaming, investors scaling.",
+                  genre: "Business & Finance",
+                  targetAudience: "First-time laundromat buyers, current operators looking to optimize, investors seeking to add laundromats to their portfolio, equipment distributors, and anyone rebuilding after setbacks.",
+                  status: "writing"
+                }));
+                toast({ title: "The Laundromat Bible loaded!", description: "Ready to collaborate with Larry" });
+              }}
+              data-testid="button-load-bible"
+            >
+              <BookMarked className="w-4 h-4 mr-2" />
+              Quick Start: The Laundromat Bible (Nick + Larry)
+            </Button>
+            
+            <Separator className="bg-slate-700" />
+            
             <div>
               <Label>Book Title</Label>
               <Input
@@ -2488,6 +2807,111 @@ export default function BookStudio() {
               >
                 <Printer className="w-4 h-4 mr-2" />
                 Export for KDP
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Collaborator Dialog */}
+      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+        <DialogContent className="max-w-md bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#C8A661]" />
+              Invite Collaborator
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Add team members to collaborate on "{project.title || 'this book'}"
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-slate-400 text-xs">Email Address</Label>
+              <Input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="collaborator@email.com"
+                className="mt-1 bg-slate-800 border-slate-600 text-white"
+                data-testid="input-invite-email"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-400 text-xs">Role</Label>
+              <Select value={inviteRole} onValueChange={(v: "editor" | "reviewer") => setInviteRole(v)}>
+                <SelectTrigger className="mt-1 bg-slate-800 border-slate-600 text-white" data-testid="select-invite-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="editor">Editor (can edit)</SelectItem>
+                  <SelectItem value="reviewer">Reviewer (comments only)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Current Team */}
+            <div className="bg-slate-800/50 rounded-lg p-3">
+              <Label className="text-slate-400 text-xs mb-2 block">Current Team</Label>
+              <div className="space-y-2">
+                {collaborators.map(collab => (
+                  <div key={collab.id} className="flex items-center gap-2">
+                    <div 
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                      style={{ backgroundColor: collab.color }}
+                    >
+                      {collab.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <span className="text-xs text-white flex-1">{collab.name}</span>
+                    <Badge variant="outline" className="text-[10px] border-slate-600 text-slate-400">
+                      {collab.role}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-600"
+                onClick={() => setShowInviteDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
+                onClick={() => {
+                  if (inviteEmail.trim()) {
+                    const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD"];
+                    const newCollab: Collaborator = {
+                      id: crypto.randomUUID(),
+                      name: inviteEmail.split('@')[0],
+                      email: inviteEmail,
+                      role: inviteRole,
+                      color: colors[Math.floor(Math.random() * colors.length)],
+                      isOnline: false
+                    };
+                    setCollaborators(prev => [...prev, newCollab]);
+                    setActivities(prev => [{
+                      id: crypto.randomUUID(),
+                      userId: "nick",
+                      userName: "Nick Kremers",
+                      action: "join",
+                      target: newCollab.name,
+                      timestamp: new Date().toISOString(),
+                      details: `Invited as ${inviteRole}`
+                    }, ...prev]);
+                    toast({ title: `Invitation sent to ${inviteEmail}` });
+                    setInviteEmail("");
+                    setShowInviteDialog(false);
+                  }
+                }}
+                disabled={!inviteEmail.trim()}
+                data-testid="button-send-invite"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Send Invite
               </Button>
             </div>
           </div>
