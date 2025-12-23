@@ -60,6 +60,11 @@ interface BookProject {
   updatedAt: string;
   wordCount: number;
   status: "planning" | "writing" | "editing" | "complete";
+  isIllustratedMode?: boolean;
+  artStyle?: string;
+  ageRange?: string;
+  characters?: CharacterDescription[];
+  pageIllustrations?: PageIllustration[];
 }
 
 interface AIMessage {
@@ -71,8 +76,46 @@ interface AIMessage {
 const GENRES = [
   "Business & Finance", "Self-Help", "Health & Wellness", "Biography",
   "How-To Guide", "Technical Manual", "Educational", "Memoir",
-  "Industry Guide", "Recovery & Rehabilitation", "Entrepreneurship"
+  "Industry Guide", "Recovery & Rehabilitation", "Entrepreneurship",
+  "Children's Picture Book", "Children's Chapter Book", "Young Adult",
+  "Fiction", "Fantasy", "Mystery", "Romance", "Sci-Fi"
 ];
+
+const ART_STYLES = [
+  { id: "watercolor", name: "Watercolor", description: "Soft, dreamy colors" },
+  { id: "cartoon", name: "Cartoon", description: "Vibrant, Disney-style" },
+  { id: "digital-painting", name: "Digital Painting", description: "Rich, detailed" },
+  { id: "pencil-sketch", name: "Pencil Sketch", description: "Hand-drawn feel" },
+  { id: "flat-design", name: "Flat Design", description: "Modern minimalist" },
+  { id: "storybook-classic", name: "Storybook Classic", description: "Beatrix Potter style" },
+  { id: "whimsical", name: "Whimsical", description: "Magical, enchanted" },
+  { id: "anime", name: "Anime", description: "Japanese animation" }
+];
+
+const AGE_RANGES = [
+  { id: "0-3", name: "Baby/Toddler (0-3)" },
+  { id: "3-5", name: "Preschool (3-5)" },
+  { id: "5-8", name: "Early Reader (5-8)" },
+  { id: "8-12", name: "Middle Grade (8-12)" },
+  { id: "12-18", name: "Young Adult (12-18)" },
+  { id: "adult", name: "Adult" }
+];
+
+interface CharacterDescription {
+  id: string;
+  name: string;
+  description: string;
+  clothing?: string;
+}
+
+interface PageIllustration {
+  id: string;
+  pageNumber: number;
+  imageUrl: string;
+  sceneDescription: string;
+  textPosition: "left" | "right" | "top" | "bottom" | "none";
+  pageText: string;
+}
 
 const AI_MODELS = [
   { id: "gemini", name: "Gemini Pro", icon: "🔷", tier: "free" },
@@ -100,7 +143,12 @@ export default function BookStudio() {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     wordCount: 0,
-    status: "planning"
+    status: "planning",
+    isIllustratedMode: false,
+    artStyle: "watercolor",
+    ageRange: "3-5",
+    characters: [],
+    pageIllustrations: []
   });
 
   const [currentChapterIndex, setCurrentChapterIndex] = useState<number | null>(null);
@@ -110,6 +158,30 @@ export default function BookStudio() {
   const [selectedAI, setSelectedAI] = useState("gemini");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showNewBookDialog, setShowNewBookDialog] = useState(true);
+  
+  // Illustrated book mode - page index for current page being edited
+  const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
+  const [generatingIllustration, setGeneratingIllustration] = useState(false);
+
+  // Derived state for easier access
+  const pageIllustrations = project.pageIllustrations || [];
+  const characters = project.characters || [];
+  
+  // Helper to update pageIllustrations in project state
+  const setPageIllustrations = useCallback((updater: (prev: PageIllustration[]) => PageIllustration[]) => {
+    setProject(prev => ({
+      ...prev,
+      pageIllustrations: updater(prev.pageIllustrations || [])
+    }));
+  }, []);
+  
+  // Helper to update characters in project state
+  const setCharacters = useCallback((updater: (prev: CharacterDescription[]) => CharacterDescription[]) => {
+    setProject(prev => ({
+      ...prev,
+      characters: updater(prev.characters || [])
+    }));
+  }, []);
 
   const currentChapter = currentChapterIndex !== null ? project.chapters[currentChapterIndex] : null;
 
@@ -359,6 +431,122 @@ export default function BookStudio() {
     }
   });
 
+  // Generate illustration for a page
+  const generateIllustrationMutation = useMutation({
+    mutationFn: async ({ sceneDescription, pageText, textPosition }: { 
+      sceneDescription: string; 
+      pageText: string; 
+      textPosition: string;
+    }) => {
+      setGeneratingIllustration(true);
+      const res = await apiRequest("POST", "/api/book-studio/generate-children-illustration", {
+        sceneDescription,
+        characterDescriptions: characters,
+        artStyle: selectedArtStyle,
+        pageNumber: (currentPageIndex || 0) + 1,
+        bookTitle: project.title,
+        ageRange: selectedAgeRange,
+        mood: "cheerful",
+        setting: ""
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setGeneratingIllustration(false);
+      if (data.imageUrl && currentPageIndex !== null) {
+        const newIllustration: PageIllustration = {
+          id: crypto.randomUUID(),
+          pageNumber: currentPageIndex + 1,
+          imageUrl: data.imageUrl,
+          sceneDescription: data.prompt || "",
+          textPosition: "bottom",
+          pageText: ""
+        };
+        setPageIllustrations(prev => {
+          const filtered = prev.filter(p => p.pageNumber !== currentPageIndex + 1);
+          return [...filtered, newIllustration];
+        });
+        toast({ title: "Illustration Created", description: "Your page illustration is ready!" });
+      }
+    },
+    onError: (err: any) => {
+      setGeneratingIllustration(false);
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  });
+
+  // Generate full storyboard
+  const generateStoryboardMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/book-studio/generate-storyboard", {
+        bookTitle: project.title,
+        synopsis: project.description,
+        pageCount: 24,
+        characterDescriptions: characters,
+        artStyle: selectedArtStyle,
+        ageRange: selectedAgeRange
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      if (data.storyboard) {
+        const pages: PageIllustration[] = data.storyboard.map((page: any) => ({
+          id: crypto.randomUUID(),
+          pageNumber: page.pageNumber,
+          imageUrl: "",
+          sceneDescription: page.sceneDescription,
+          textPosition: page.isSpread ? "bottom" : "bottom",
+          pageText: page.pageText
+        }));
+        setPageIllustrations(pages);
+        toast({ title: "Storyboard Created", description: `${pages.length} pages planned` });
+      }
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  });
+
+  // Add character
+  const addCharacter = useCallback(() => {
+    const newChar: CharacterDescription = {
+      id: crypto.randomUUID(),
+      name: `Character ${characters.length + 1}`,
+      description: "",
+      clothing: ""
+    };
+    setCharacters(prev => [...prev, newChar]);
+  }, [characters.length]);
+
+  // Update character
+  const updateCharacter = useCallback((id: string, updates: Partial<CharacterDescription>) => {
+    setCharacters(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+  }, []);
+
+  // Remove character
+  const removeCharacter = useCallback((id: string) => {
+    setCharacters(prev => prev.filter(c => c.id !== id));
+  }, []);
+
+  // Add blank page
+  const addPage = useCallback(() => {
+    const newPage: PageIllustration = {
+      id: crypto.randomUUID(),
+      pageNumber: pageIllustrations.length + 1,
+      imageUrl: "",
+      sceneDescription: "",
+      textPosition: "bottom",
+      pageText: ""
+    };
+    setPageIllustrations(prev => [...prev, newPage]);
+    setCurrentPageIndex(pageIllustrations.length);
+  }, [pageIllustrations.length]);
+
+  // Update page
+  const updatePage = useCallback((index: number, updates: Partial<PageIllustration>) => {
+    setPageIllustrations(prev => prev.map((p, i) => i === index ? { ...p, ...updates } : p));
+  }, []);
+
   const saveProject = useCallback(() => {
     localStorage.setItem(`book_project_${project.id}`, JSON.stringify(project));
     toast({ title: "Saved", description: "Project saved locally" });
@@ -512,7 +700,7 @@ export default function BookStudio() {
               <TabsList className="w-full rounded-none bg-slate-800 border-b border-slate-700">
                 <TabsTrigger value="chapters" className="flex-1 text-xs">Chapters</TabsTrigger>
                 <TabsTrigger value="outline" className="flex-1 text-xs">Outline</TabsTrigger>
-                <TabsTrigger value="assets" className="flex-1 text-xs">Assets</TabsTrigger>
+                <TabsTrigger value="illustrations" className="flex-1 text-xs">Illustrations</TabsTrigger>
               </TabsList>
 
               <TabsContent value="chapters" className="flex-1 m-0 overflow-hidden">
@@ -630,39 +818,193 @@ export default function BookStudio() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="assets" className="flex-1 m-0 p-4">
-                <div className="space-y-4">
-                  <div className="text-center">
-                    {project.coverImage ? (
-                      <img 
-                        src={project.coverImage} 
-                        alt="Book cover" 
-                        className="w-full rounded-lg shadow-lg"
-                      />
-                    ) : (
-                      <div className="aspect-[2/3] bg-slate-800 rounded-lg flex items-center justify-center border border-dashed border-slate-600">
-                        <div className="text-center text-slate-500">
-                          <ImageIcon className="w-8 h-8 mx-auto mb-2" />
-                          <span className="text-xs">No cover</span>
-                        </div>
+              <TabsContent value="illustrations" className="flex-1 m-0 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-3 space-y-4">
+                    {/* Art Style Selection */}
+                    <div>
+                      <Label className="text-slate-400 text-xs">Art Style</Label>
+                      <Select value={selectedArtStyle} onValueChange={setSelectedArtStyle}>
+                        <SelectTrigger className="mt-1 bg-slate-800 border-slate-600 text-white text-sm" data-testid="select-art-style">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ART_STYLES.map(style => (
+                            <SelectItem key={style.id} value={style.id}>
+                              <span className="flex flex-col">
+                                <span>{style.name}</span>
+                                <span className="text-xs text-muted-foreground">{style.description}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Age Range Selection */}
+                    <div>
+                      <Label className="text-slate-400 text-xs">Age Range</Label>
+                      <Select value={selectedAgeRange} onValueChange={setSelectedAgeRange}>
+                        <SelectTrigger className="mt-1 bg-slate-800 border-slate-600 text-white text-sm" data-testid="select-age-range">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AGE_RANGES.map(range => (
+                            <SelectItem key={range.id} value={range.id}>{range.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Characters Section */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-slate-400 text-xs">Characters</Label>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 px-2 text-xs text-[#C8A661]"
+                          onClick={addCharacter}
+                          data-testid="button-add-character"
+                        >
+                          <Plus className="w-3 h-3 mr-1" /> Add
+                        </Button>
                       </div>
-                    )}
+                      <div className="space-y-2">
+                        {characters.map(char => (
+                          <div key={char.id} className="bg-slate-800 rounded-lg p-2 border border-slate-700">
+                            <div className="flex items-center justify-between mb-1">
+                              <Input
+                                value={char.name}
+                                onChange={(e) => updateCharacter(char.id, { name: e.target.value })}
+                                placeholder="Name"
+                                className="h-7 text-xs bg-transparent border-none p-0 text-white font-medium"
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 text-slate-500 hover:text-red-400"
+                                onClick={() => removeCharacter(char.id)}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                            <Textarea
+                              value={char.description}
+                              onChange={(e) => updateCharacter(char.id, { description: e.target.value })}
+                              placeholder="Describe appearance..."
+                              className="h-16 text-xs bg-slate-700/50 border-slate-600 text-white resize-none"
+                            />
+                          </div>
+                        ))}
+                        {characters.length === 0 && (
+                          <p className="text-xs text-slate-500 text-center py-2">No characters yet</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator className="bg-slate-700" />
+
+                    {/* Pages Section */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-slate-400 text-xs">Pages ({pageIllustrations.length})</Label>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-6 px-2 text-xs text-[#C8A661]"
+                          onClick={addPage}
+                          data-testid="button-add-page"
+                        >
+                          <Plus className="w-3 h-3 mr-1" /> Add Page
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {pageIllustrations.map((page, index) => (
+                          <div 
+                            key={page.id}
+                            className={`p-2 rounded-lg cursor-pointer transition-colors ${
+                              currentPageIndex === index 
+                                ? "bg-[#C8A661]/20 border border-[#C8A661]" 
+                                : "bg-slate-800 border border-slate-700 hover:border-slate-600"
+                            }`}
+                            onClick={() => setCurrentPageIndex(index)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-12 h-16 bg-slate-700 rounded flex items-center justify-center overflow-hidden">
+                                {page.imageUrl ? (
+                                  <img src={page.imageUrl} alt={`Page ${page.pageNumber}`} className="w-full h-full object-cover" />
+                                ) : (
+                                  <ImageIcon className="w-4 h-4 text-slate-500" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-white">Page {page.pageNumber}</p>
+                                <p className="text-xs text-slate-400 truncate">{page.sceneDescription || "No description"}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {pageIllustrations.length === 0 && (
+                          <p className="text-xs text-slate-500 text-center py-2">No pages yet</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <Separator className="bg-slate-700" />
+
+                    {/* Generate Storyboard */}
+                    <Button
+                      className="w-full bg-[#C8A661]"
+                      onClick={() => generateStoryboardMutation.mutate()}
+                      disabled={generateStoryboardMutation.isPending || !project.title || !project.description}
+                      data-testid="button-generate-storyboard"
+                    >
+                      {generateStoryboardMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Layers className="w-4 h-4 mr-2" />
+                      )}
+                      Generate Storyboard
+                    </Button>
+
+                    {/* Cover Image */}
+                    <div className="pt-2">
+                      <Label className="text-slate-400 text-xs">Cover</Label>
+                      <div className="mt-2 text-center">
+                        {project.coverImage ? (
+                          <img 
+                            src={project.coverImage} 
+                            alt="Book cover" 
+                            className="w-full rounded-lg shadow-lg"
+                          />
+                        ) : (
+                          <div className="aspect-[2/3] bg-slate-800 rounded-lg flex items-center justify-center border border-dashed border-slate-600">
+                            <div className="text-center text-slate-500">
+                              <ImageIcon className="w-6 h-6 mx-auto mb-1" />
+                              <span className="text-xs">No cover</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-2 border-slate-600 text-white"
+                        onClick={() => generateCoverMutation.mutate()}
+                        disabled={generateCoverMutation.isPending}
+                        data-testid="button-generate-cover"
+                      >
+                        {generateCoverMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Palette className="w-4 h-4 mr-2" />
+                        )}
+                        Generate Cover
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="w-full border-slate-600 text-white"
-                    onClick={() => generateCoverMutation.mutate()}
-                    disabled={generateCoverMutation.isPending}
-                    data-testid="button-generate-cover"
-                  >
-                    {generateCoverMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Palette className="w-4 h-4 mr-2" />
-                    )}
-                    Generate Cover
-                  </Button>
-                </div>
+                </ScrollArea>
               </TabsContent>
             </Tabs>
           </div>
@@ -670,7 +1012,134 @@ export default function BookStudio() {
           <div className="flex-1 flex flex-col overflow-hidden">
             <ScrollArea className="flex-1">
               <div className="max-w-4xl mx-auto p-8">
-                {currentChapter ? (
+                {/* Illustrated Page Editor */}
+                {currentPageIndex !== null && pageIllustrations[currentPageIndex] ? (
+                  <div className="space-y-6">
+                    {/* Page Preview */}
+                    <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+                      <div className="aspect-[4/3] bg-gray-100 relative">
+                        {pageIllustrations[currentPageIndex].imageUrl ? (
+                          <img 
+                            src={pageIllustrations[currentPageIndex].imageUrl} 
+                            alt={`Page ${currentPageIndex + 1}`}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                            <div className="text-center">
+                              <ImageIcon className="w-20 h-20 mx-auto text-slate-300 mb-4" />
+                              <p className="text-slate-500">No illustration yet</p>
+                              <Button
+                                className="mt-4 bg-[#C8A661] hover:bg-[#b89551]"
+                                onClick={() => {
+                                  const page = pageIllustrations[currentPageIndex];
+                                  if (page?.sceneDescription) {
+                                    generateIllustrationMutation.mutate({
+                                      sceneDescription: page.sceneDescription,
+                                      pageText: page.pageText || "",
+                                      textPosition: page.textPosition || "bottom"
+                                    });
+                                  }
+                                }}
+                                disabled={generatingIllustration || !pageIllustrations[currentPageIndex].sceneDescription}
+                                data-testid="button-generate-illustration"
+                              >
+                                {generatingIllustration ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Wand2 className="w-4 h-4 mr-2" />
+                                )}
+                                Generate Illustration
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                        {/* Text overlay positioning */}
+                        {pageIllustrations[currentPageIndex].pageText && (
+                          <div className={`absolute bg-white/90 p-4 ${
+                            pageIllustrations[currentPageIndex].textPosition === "top" ? "top-0 left-0 right-0" :
+                            pageIllustrations[currentPageIndex].textPosition === "bottom" ? "bottom-0 left-0 right-0" :
+                            pageIllustrations[currentPageIndex].textPosition === "left" ? "left-0 top-0 bottom-0 w-1/3" :
+                            "right-0 top-0 bottom-0 w-1/3"
+                          }`}>
+                            <p className="text-xl font-serif text-gray-800 leading-relaxed">
+                              {pageIllustrations[currentPageIndex].pageText}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Page Details Editor */}
+                    <Card className="bg-slate-800 border-slate-700">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-white text-lg">Page {currentPageIndex + 1} Details</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-slate-400 text-sm">Scene Description (for AI)</Label>
+                          <Textarea
+                            value={pageIllustrations[currentPageIndex].sceneDescription}
+                            onChange={(e) => updatePage(currentPageIndex, { sceneDescription: e.target.value })}
+                            placeholder="Describe what should be illustrated on this page..."
+                            className="mt-1 bg-slate-700 border-slate-600 text-white resize-none h-24"
+                            data-testid="input-scene-description"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-slate-400 text-sm">Page Text</Label>
+                          <Textarea
+                            value={pageIllustrations[currentPageIndex].pageText}
+                            onChange={(e) => updatePage(currentPageIndex, { pageText: e.target.value })}
+                            placeholder="The story text for this page..."
+                            className="mt-1 bg-slate-700 border-slate-600 text-white resize-none h-20 font-serif"
+                            data-testid="input-page-text"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-slate-400 text-sm">Text Position</Label>
+                          <Select 
+                            value={pageIllustrations[currentPageIndex].textPosition} 
+                            onValueChange={(val) => updatePage(currentPageIndex, { textPosition: val })}
+                          >
+                            <SelectTrigger className="mt-1 bg-slate-700 border-slate-600 text-white" data-testid="select-text-position">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="top">Top</SelectItem>
+                              <SelectItem value="bottom">Bottom</SelectItem>
+                              <SelectItem value="left">Left</SelectItem>
+                              <SelectItem value="right">Right</SelectItem>
+                              <SelectItem value="none">No Text</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
+                            onClick={() => {
+                              const page = pageIllustrations[currentPageIndex];
+                              generateIllustrationMutation.mutate({
+                                sceneDescription: page.sceneDescription,
+                                pageText: page.pageText || "",
+                                textPosition: page.textPosition || "bottom"
+                              });
+                            }}
+                            disabled={generatingIllustration || !pageIllustrations[currentPageIndex].sceneDescription}
+                            data-testid="button-regenerate-illustration"
+                          >
+                            {generatingIllustration ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                            )}
+                            {pageIllustrations[currentPageIndex].imageUrl ? "Regenerate" : "Generate"} Illustration
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : currentChapter ? (
                   <div className="bg-white rounded-lg shadow-xl min-h-[800px]">
                     <div className="p-8">
                       <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
@@ -691,12 +1160,25 @@ export default function BookStudio() {
                     <div className="text-center text-slate-400">
                       <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
                       <p className="text-lg">Select or create a chapter to begin writing</p>
-                      <Button 
-                        className="mt-4 bg-[#C8A661] hover:bg-[#b89551]"
-                        onClick={addChapter}
-                      >
-                        <Plus className="w-4 h-4 mr-2" /> Create First Chapter
-                      </Button>
+                      <p className="text-sm mt-2 opacity-75">Or use the Illustrations tab to create a picture book</p>
+                      <div className="flex gap-2 justify-center mt-4">
+                        <Button 
+                          className="bg-[#C8A661] hover:bg-[#b89551]"
+                          onClick={addChapter}
+                        >
+                          <Plus className="w-4 h-4 mr-2" /> Create Chapter
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="border-slate-600 text-white"
+                          onClick={() => {
+                            setSidebarTab("illustrations");
+                            addPage();
+                          }}
+                        >
+                          <ImageIcon className="w-4 h-4 mr-2" /> Create Picture Book
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -854,9 +1336,15 @@ export default function BookStudio() {
               <Label>Genre</Label>
               <Select 
                 value={project.genre} 
-                onValueChange={(v) => setProject(prev => ({ ...prev, genre: v }))}
+                onValueChange={(v) => {
+                  setProject(prev => ({ 
+                    ...prev, 
+                    genre: v,
+                    isIllustratedMode: v.includes("Children") || v.includes("Picture") ? true : prev.isIllustratedMode
+                  }));
+                }}
               >
-                <SelectTrigger className="mt-1 bg-slate-800 border-slate-600">
+                <SelectTrigger className="mt-1 bg-slate-800 border-slate-600" data-testid="dialog-select-genre">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -864,14 +1352,76 @@ export default function BookStudio() {
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Illustrated Book Toggle */}
+            <div className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <ImageIcon className="w-5 h-5 text-[#C8A661]" />
+                <div>
+                  <Label className="text-sm">Illustrated Picture Book</Label>
+                  <p className="text-xs text-slate-400">Create a book with AI-generated illustrations</p>
+                </div>
+              </div>
+              <Switch
+                checked={project.isIllustratedMode || false}
+                onCheckedChange={(v) => setProject(prev => ({ ...prev, isIllustratedMode: v }))}
+                data-testid="dialog-switch-illustrated"
+              />
+            </div>
+
+            {/* Art Style (shown when illustrated mode is on) */}
+            {project.isIllustratedMode && (
+              <div>
+                <Label>Art Style</Label>
+                <Select 
+                  value={project.artStyle || "watercolor"} 
+                  onValueChange={(v) => setProject(prev => ({ ...prev, artStyle: v }))}
+                >
+                  <SelectTrigger className="mt-1 bg-slate-800 border-slate-600" data-testid="dialog-select-art-style">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ART_STYLES.map(style => (
+                      <SelectItem key={style.id} value={style.id}>{style.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Age Range (shown when illustrated mode is on) */}
+            {project.isIllustratedMode && (
+              <div>
+                <Label>Target Age Range</Label>
+                <Select 
+                  value={project.ageRange || "3-5"} 
+                  onValueChange={(v) => setProject(prev => ({ ...prev, ageRange: v }))}
+                >
+                  <SelectTrigger className="mt-1 bg-slate-800 border-slate-600" data-testid="dialog-select-age-range">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AGE_RANGES.map(range => (
+                      <SelectItem key={range.id} value={range.id}>{range.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <Button
               className="w-full bg-[#C8A661] hover:bg-[#b89551]"
-              onClick={() => setShowNewBookDialog(false)}
+              onClick={() => {
+                setShowNewBookDialog(false);
+                if (project.isIllustratedMode) {
+                  setSidebarTab("illustrations");
+                }
+              }}
               disabled={!project.title}
               data-testid="dialog-button-create"
             >
               <FilePlus className="w-4 h-4 mr-2" />
-              Create Book
+              {project.isIllustratedMode ? "Create Picture Book" : "Create Book"}
             </Button>
           </div>
         </DialogContent>
