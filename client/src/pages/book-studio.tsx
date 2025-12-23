@@ -132,6 +132,16 @@ interface CropSettings {
   scale: number; // 1 = no zoom, >1 = zoomed in
 }
 
+interface TextStyle {
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: "normal" | "bold";
+  color: string;
+  backgroundColor: string;
+  textAlign: "left" | "center" | "right";
+  lineHeight: number;
+}
+
 interface PageIllustration {
   id: string;
   pageNumber: number;
@@ -139,13 +149,36 @@ interface PageIllustration {
   sceneDescription: string;
   textPosition: "left" | "right" | "top" | "bottom" | "none";
   pageText: string;
-  // NEW: Placement mode and settings
+  // Placement mode and settings
   placementMode?: "auto" | "manual" | "hybrid";
   textFrame?: TextFrame; // Custom text position (for manual/hybrid)
   cropSettings?: CropSettings; // Image crop/pan settings
   placementHints?: PlacementHint[]; // AI-suggested "perfect spots"
   selectedHintId?: string; // Which AI suggestion was chosen (for hybrid)
+  // Typography settings
+  textStyle?: TextStyle;
 }
+
+const DEFAULT_TEXT_STYLE: TextStyle = {
+  fontFamily: "Georgia",
+  fontSize: 18,
+  fontWeight: "normal",
+  color: "#1f2937",
+  backgroundColor: "rgba(255,255,255,0.95)",
+  textAlign: "center",
+  lineHeight: 1.6
+};
+
+const FONT_FAMILIES = [
+  { id: "Georgia", name: "Georgia (Classic)" },
+  { id: "Comic Sans MS", name: "Comic Sans (Playful)" },
+  { id: "Courier New", name: "Courier (Typewriter)" },
+  { id: "Arial", name: "Arial (Clean)" },
+  { id: "Times New Roman", name: "Times (Traditional)" },
+  { id: "Verdana", name: "Verdana (Modern)" },
+  { id: "Trebuchet MS", name: "Trebuchet (Friendly)" },
+  { id: "Palatino", name: "Palatino (Elegant)" }
+];
 
 const AI_MODELS = [
   { id: "gemini", name: "Gemini Pro", icon: "🔷", tier: "free" },
@@ -192,6 +225,27 @@ export default function BookStudio() {
   // Illustrated book mode - page index for current page being edited
   const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
   const [generatingIllustration, setGeneratingIllustration] = useState(false);
+  
+  // Advanced features
+  const [showFlipbook, setShowFlipbook] = useState(false);
+  const [showCoverDesigner, setShowCoverDesigner] = useState(false);
+  const [showKdpPreflight, setShowKdpPreflight] = useState(false);
+  const [flipbookPageIndex, setFlipbookPageIndex] = useState(0);
+  const [batchGenerating, setBatchGenerating] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
+  
+  // Cover settings
+  const [coverSettings, setCoverSettings] = useState({
+    frontTitle: "",
+    frontSubtitle: "",
+    frontAuthor: "",
+    frontImageUrl: "",
+    backBlurb: "",
+    backAuthor: "",
+    spineText: "",
+    backgroundColor: "#1e3a5f",
+    textColor: "#ffffff"
+  });
 
   // Derived state for easier access
   const pageIllustrations = project.pageIllustrations || [];
@@ -1085,6 +1139,158 @@ export default function BookStudio() {
                         Generate Cover
                       </Button>
                     </div>
+                    
+                    <Separator className="bg-slate-700" />
+                    
+                    {/* Publishing Tools */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-400 text-xs">Publishing Tools</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-slate-600 text-white"
+                        onClick={() => setShowFlipbook(true)}
+                        disabled={pageIllustrations.length === 0}
+                        data-testid="button-flipbook-preview"
+                      >
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Flipbook Preview
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-slate-600 text-white"
+                        onClick={() => setShowCoverDesigner(true)}
+                        data-testid="button-cover-designer"
+                      >
+                        <Palette className="w-4 h-4 mr-2" />
+                        Cover Designer
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-slate-600 text-white"
+                        onClick={() => setShowKdpPreflight(true)}
+                        disabled={pageIllustrations.length === 0}
+                        data-testid="button-kdp-preflight"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        KDP Preflight Check
+                      </Button>
+                      <Button
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        onClick={async () => {
+                          const pagesWithoutArt = pageIllustrations.filter(p => !p.imageUrl && p.sceneDescription);
+                          if (pagesWithoutArt.length === 0) {
+                            toast({ title: "All pages already have illustrations!" });
+                            return;
+                          }
+                          setBatchGenerating(true);
+                          setBatchProgress({ current: 0, total: pagesWithoutArt.length });
+                          for (let i = 0; i < pagesWithoutArt.length; i++) {
+                            const page = pagesWithoutArt[i];
+                            const pageIndex = pageIllustrations.findIndex(p => p.id === page.id);
+                            try {
+                              const response = await apiRequest("/api/book-studio/generate-children-illustration", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                  sceneDescription: page.sceneDescription,
+                                  artStyle: project.artStyle,
+                                  ageRange: project.ageRange,
+                                  characters: characters,
+                                  pageText: page.pageText,
+                                  textPosition: page.textPosition
+                                })
+                              });
+                              const data = await response.json();
+                              if (data.imageUrl) {
+                                setProject(prev => ({
+                                  ...prev,
+                                  pageIllustrations: prev.pageIllustrations?.map((p, idx) =>
+                                    idx === pageIndex ? { ...p, imageUrl: data.imageUrl } : p
+                                  )
+                                }));
+                              }
+                            } catch (error) {
+                              console.error(`Failed to generate page ${page.pageNumber}:`, error);
+                            }
+                            setBatchProgress({ current: i + 1, total: pagesWithoutArt.length });
+                          }
+                          setBatchGenerating(false);
+                          toast({ title: `Generated ${pagesWithoutArt.length} illustrations!` });
+                        }}
+                        disabled={batchGenerating || pageIllustrations.filter(p => !p.imageUrl && p.sceneDescription).length === 0}
+                        data-testid="button-batch-generate"
+                      >
+                        {batchGenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {batchProgress.current}/{batchProgress.total}
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-4 h-4 mr-2" />
+                            Batch Generate All
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <Separator className="bg-slate-700" />
+                    
+                    {/* Project Save/Load */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-400 text-xs">Project</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-slate-600 text-white"
+                        onClick={() => {
+                          const projectData = JSON.stringify(project, null, 2);
+                          const blob = new Blob([projectData], { type: "application/json" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = `${project.title || "book"}-project.json`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                          toast({ title: "Project saved!" });
+                        }}
+                        data-testid="button-save-project"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Project
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-slate-600 text-white"
+                        onClick={() => {
+                          const input = document.createElement("input");
+                          input.type = "file";
+                          input.accept = ".json";
+                          input.onchange = async (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (file) {
+                              const text = await file.text();
+                              try {
+                                const loadedProject = JSON.parse(text);
+                                setProject(loadedProject);
+                                setCurrentPageIndex(0);
+                                toast({ title: "Project loaded!" });
+                              } catch {
+                                toast({ title: "Invalid project file", variant: "destructive" });
+                              }
+                            }
+                          };
+                          input.click();
+                        }}
+                        data-testid="button-load-project"
+                      >
+                        <FolderOpen className="w-4 h-4 mr-2" />
+                        Load Project
+                      </Button>
+                    </div>
                   </div>
                 </ScrollArea>
               </TabsContent>
@@ -1146,26 +1352,77 @@ export default function BookStudio() {
                           </div>
                         )}
                         
-                        {/* Text Overlay with Real-time Preview */}
-                        {pageIllustrations[currentPageIndex].pageText && pageIllustrations[currentPageIndex].textPosition !== "none" && (
-                          <div 
-                            className={`absolute transition-all duration-300 ${
-                              pageIllustrations[currentPageIndex].textPosition === "top" 
-                                ? "top-0 left-0 right-0 p-4" 
-                                : pageIllustrations[currentPageIndex].textPosition === "bottom" 
-                                ? "bottom-0 left-0 right-0 p-4" 
-                                : pageIllustrations[currentPageIndex].textPosition === "left" 
-                                ? "left-0 top-0 bottom-0 w-2/5 flex items-center p-4" 
-                                : "right-0 top-0 bottom-0 w-2/5 flex items-center p-4"
-                            }`}
-                          >
-                            <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                              <p className="text-lg font-serif text-gray-800 leading-relaxed">
-                                {pageIllustrations[currentPageIndex].pageText}
-                              </p>
-                            </div>
+                        {/* Perfect Spots Overlay Visualization */}
+                        {pageIllustrations[currentPageIndex].placementHints && 
+                         pageIllustrations[currentPageIndex].placementMode === "hybrid" && (
+                          <div className="absolute inset-0 pointer-events-none">
+                            {pageIllustrations[currentPageIndex].placementHints.map((hint: PlacementHint) => (
+                              <div
+                                key={hint.id}
+                                className={`absolute border-2 rounded transition-all ${
+                                  pageIllustrations[currentPageIndex].selectedHintId === hint.id
+                                    ? "border-[#C8A661] bg-[#C8A661]/20"
+                                    : "border-purple-400/50 bg-purple-400/10"
+                                }`}
+                                style={{
+                                  left: `${hint.x * 100}%`,
+                                  top: `${hint.y * 100}%`,
+                                  width: `${hint.width * 100}%`,
+                                  height: `${hint.height * 100}%`
+                                }}
+                              >
+                                <span className="absolute -top-5 left-0 text-[10px] text-purple-300 bg-slate-900/80 px-1 rounded">
+                                  {hint.label} ({Math.round(hint.confidence * 100)}%)
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         )}
+                        
+                        {/* Text Overlay with Real-time Preview + Typography */}
+                        {pageIllustrations[currentPageIndex].pageText && pageIllustrations[currentPageIndex].textPosition !== "none" && (() => {
+                          const style = pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE;
+                          const textFrame = pageIllustrations[currentPageIndex].textFrame;
+                          const useCustomFrame = textFrame && pageIllustrations[currentPageIndex].placementMode !== "auto";
+                          
+                          return (
+                            <div 
+                              className={`absolute transition-all duration-300 ${
+                                useCustomFrame ? "" : 
+                                pageIllustrations[currentPageIndex].textPosition === "top" 
+                                  ? "top-0 left-0 right-0 p-4" 
+                                  : pageIllustrations[currentPageIndex].textPosition === "bottom" 
+                                  ? "bottom-0 left-0 right-0 p-4" 
+                                  : pageIllustrations[currentPageIndex].textPosition === "left" 
+                                  ? "left-0 top-0 bottom-0 w-2/5 flex items-center p-4" 
+                                  : "right-0 top-0 bottom-0 w-2/5 flex items-center p-4"
+                              }`}
+                              style={useCustomFrame ? {
+                                left: `${(textFrame?.x || 0) * 100}%`,
+                                top: `${(textFrame?.y || 0) * 100}%`,
+                                width: `${(textFrame?.width || 0.9) * 100}%`,
+                                height: `${(textFrame?.height || 0.2) * 100}%`,
+                                padding: "8px"
+                              } : undefined}
+                            >
+                              <div 
+                                className="backdrop-blur-sm rounded-lg p-4 shadow-lg h-full flex items-center justify-center"
+                                style={{ backgroundColor: style.backgroundColor }}
+                              >
+                                <p style={{
+                                  fontFamily: style.fontFamily,
+                                  fontSize: `${style.fontSize}px`,
+                                  fontWeight: style.fontWeight,
+                                  color: style.color,
+                                  textAlign: style.textAlign,
+                                  lineHeight: style.lineHeight
+                                }}>
+                                  {pageIllustrations[currentPageIndex].pageText}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
                         
                         {/* Clickable Position Indicators - Always visible for touch/mobile */}
                         <div className="absolute inset-0 pointer-events-none">
@@ -1353,6 +1610,86 @@ export default function BookStudio() {
                             </div>
                           </div>
                         )}
+                        
+                        {/* Typography Controls */}
+                        <div className="bg-slate-700/50 rounded-lg p-3">
+                          <Label className="text-slate-400 text-sm mb-2 block">Typography</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Select 
+                              value={(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE).fontFamily}
+                              onValueChange={(val) => updatePage(currentPageIndex, { 
+                                textStyle: { ...(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE), fontFamily: val }
+                              })}
+                            >
+                              <SelectTrigger className="bg-slate-600 border-slate-500 text-white text-xs h-8" data-testid="select-font-family">
+                                <SelectValue placeholder="Font" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FONT_FAMILIES.map(f => (
+                                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Select 
+                              value={String((pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE).fontSize)}
+                              onValueChange={(val) => updatePage(currentPageIndex, { 
+                                textStyle: { ...(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE), fontSize: parseInt(val) }
+                              })}
+                            >
+                              <SelectTrigger className="bg-slate-600 border-slate-500 text-white text-xs h-8" data-testid="select-font-size">
+                                <SelectValue placeholder="Size" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[12, 14, 16, 18, 20, 24, 28, 32, 36].map(s => (
+                                  <SelectItem key={s} value={String(s)}>{s}px</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex gap-1 mt-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className={`h-7 px-2 ${(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE).fontWeight === "bold" ? "bg-slate-600" : ""}`}
+                              onClick={() => {
+                                const current = pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE;
+                                updatePage(currentPageIndex, { 
+                                  textStyle: { ...current, fontWeight: current.fontWeight === "bold" ? "normal" : "bold" }
+                                });
+                              }}
+                              data-testid="button-bold"
+                            >
+                              <Bold className="w-3 h-3 text-slate-300" />
+                            </Button>
+                            {(["left", "center", "right"] as const).map(align => (
+                              <Button
+                                key={align}
+                                size="sm"
+                                variant="ghost"
+                                className={`h-7 px-2 ${(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE).textAlign === align ? "bg-slate-600" : ""}`}
+                                onClick={() => updatePage(currentPageIndex, { 
+                                  textStyle: { ...(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE), textAlign: align }
+                                })}
+                                data-testid={`button-align-${align}`}
+                              >
+                                {align === "left" ? <AlignLeft className="w-3 h-3 text-slate-300" /> : 
+                                 align === "center" ? <AlignCenter className="w-3 h-3 text-slate-300" /> : 
+                                 <AlignRight className="w-3 h-3 text-slate-300" />}
+                              </Button>
+                            ))}
+                            <div className="flex-1" />
+                            <Input
+                              type="color"
+                              value={(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE).color}
+                              onChange={(e) => updatePage(currentPageIndex, { 
+                                textStyle: { ...(pageIllustrations[currentPageIndex].textStyle || DEFAULT_TEXT_STYLE), color: e.target.value }
+                              })}
+                              className="w-7 h-7 p-0 border-0 cursor-pointer"
+                              title="Text Color"
+                              data-testid="input-text-color"
+                            />
+                          </div>
+                        </div>
                         <div className="flex gap-2">
                           <Button
                             className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
@@ -1871,6 +2208,285 @@ export default function BookStudio() {
                 ) : (
                   <Download className="w-4 h-4 mr-2" />
                 )}
+                Export for KDP
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Flipbook Preview Dialog */}
+      <Dialog open={showFlipbook} onOpenChange={setShowFlipbook}>
+        <DialogContent className="max-w-4xl bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[#C8A661]" />
+              Flipbook Preview
+            </DialogTitle>
+          </DialogHeader>
+          <div className="relative">
+            <div className="aspect-[4/3] bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg overflow-hidden shadow-2xl">
+              {pageIllustrations[flipbookPageIndex]?.imageUrl ? (
+                <div className="relative w-full h-full">
+                  <img 
+                    src={pageIllustrations[flipbookPageIndex].imageUrl}
+                    alt={`Page ${flipbookPageIndex + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                  {pageIllustrations[flipbookPageIndex].pageText && 
+                   pageIllustrations[flipbookPageIndex].textPosition !== "none" && (
+                    <div className={`absolute ${
+                      pageIllustrations[flipbookPageIndex].textPosition === "bottom" 
+                        ? "bottom-0 left-0 right-0 p-6" 
+                        : "top-0 left-0 right-0 p-6"
+                    }`}>
+                      <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
+                        <p className="text-xl font-serif text-gray-800 leading-relaxed text-center">
+                          {pageIllustrations[flipbookPageIndex].pageText}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-amber-600">Page {flipbookPageIndex + 1} - No illustration</p>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setFlipbookPageIndex(prev => Math.max(0, prev - 1))}
+                disabled={flipbookPageIndex === 0}
+                data-testid="flipbook-prev"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" /> Previous
+              </Button>
+              <span className="text-slate-400">
+                Page {flipbookPageIndex + 1} of {pageIllustrations.length}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setFlipbookPageIndex(prev => Math.min(pageIllustrations.length - 1, prev + 1))}
+                disabled={flipbookPageIndex >= pageIllustrations.length - 1}
+                data-testid="flipbook-next"
+              >
+                Next <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Cover Designer Dialog */}
+      <Dialog open={showCoverDesigner} onOpenChange={setShowCoverDesigner}>
+        <DialogContent className="max-w-5xl bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Palette className="w-5 h-5 text-[#C8A661]" />
+              Cover Designer
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Design your book cover for KDP publishing
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-6">
+            {/* Cover Preview */}
+            <div className="space-y-4">
+              <Label className="text-slate-400">Preview</Label>
+              <div className="flex gap-2 justify-center">
+                {/* Back Cover */}
+                <div 
+                  className="w-40 h-56 rounded-l-lg shadow-xl flex flex-col p-4 text-center"
+                  style={{ backgroundColor: coverSettings.backgroundColor, color: coverSettings.textColor }}
+                >
+                  <p className="text-[8px] flex-1 overflow-hidden">
+                    {coverSettings.backBlurb || "Back cover blurb..."}
+                  </p>
+                  <p className="text-[7px] mt-2">{coverSettings.backAuthor}</p>
+                </div>
+                {/* Spine */}
+                <div 
+                  className="w-6 h-56 flex items-center justify-center"
+                  style={{ backgroundColor: coverSettings.backgroundColor, color: coverSettings.textColor }}
+                >
+                  <p className="text-[6px] whitespace-nowrap transform -rotate-90">
+                    {coverSettings.spineText || project.title}
+                  </p>
+                </div>
+                {/* Front Cover */}
+                <div 
+                  className="w-40 h-56 rounded-r-lg shadow-xl flex flex-col items-center justify-center p-4 text-center relative overflow-hidden"
+                  style={{ backgroundColor: coverSettings.backgroundColor, color: coverSettings.textColor }}
+                >
+                  {coverSettings.frontImageUrl && (
+                    <img 
+                      src={coverSettings.frontImageUrl} 
+                      alt="Cover" 
+                      className="absolute inset-0 w-full h-full object-cover opacity-50"
+                    />
+                  )}
+                  <div className="relative z-10">
+                    <h3 className="text-sm font-bold">{coverSettings.frontTitle || project.title}</h3>
+                    <p className="text-[8px] mt-1">{coverSettings.frontSubtitle || project.subtitle}</p>
+                    <p className="text-[8px] mt-4">{coverSettings.frontAuthor || project.author}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Cover Settings */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-slate-400 text-xs">Front Title</Label>
+                <Input
+                  value={coverSettings.frontTitle || project.title}
+                  onChange={(e) => setCoverSettings(prev => ({ ...prev, frontTitle: e.target.value }))}
+                  className="mt-1 bg-slate-800 border-slate-600 text-white text-sm"
+                  data-testid="input-cover-title"
+                />
+              </div>
+              <div>
+                <Label className="text-slate-400 text-xs">Subtitle</Label>
+                <Input
+                  value={coverSettings.frontSubtitle}
+                  onChange={(e) => setCoverSettings(prev => ({ ...prev, frontSubtitle: e.target.value }))}
+                  className="mt-1 bg-slate-800 border-slate-600 text-white text-sm"
+                />
+              </div>
+              <div>
+                <Label className="text-slate-400 text-xs">Author</Label>
+                <Input
+                  value={coverSettings.frontAuthor || project.author}
+                  onChange={(e) => setCoverSettings(prev => ({ ...prev, frontAuthor: e.target.value }))}
+                  className="mt-1 bg-slate-800 border-slate-600 text-white text-sm"
+                />
+              </div>
+              <div>
+                <Label className="text-slate-400 text-xs">Back Cover Blurb</Label>
+                <Textarea
+                  value={coverSettings.backBlurb}
+                  onChange={(e) => setCoverSettings(prev => ({ ...prev, backBlurb: e.target.value }))}
+                  placeholder="Brief description of your book..."
+                  className="mt-1 bg-slate-800 border-slate-600 text-white text-sm resize-none h-20"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-slate-400 text-xs">Background Color</Label>
+                  <Input
+                    type="color"
+                    value={coverSettings.backgroundColor}
+                    onChange={(e) => setCoverSettings(prev => ({ ...prev, backgroundColor: e.target.value }))}
+                    className="mt-1 h-8 p-1 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <Label className="text-slate-400 text-xs">Text Color</Label>
+                  <Input
+                    type="color"
+                    value={coverSettings.textColor}
+                    onChange={(e) => setCoverSettings(prev => ({ ...prev, textColor: e.target.value }))}
+                    className="mt-1 h-8 p-1 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <Button
+                className="w-full bg-[#C8A661] hover:bg-[#b89551]"
+                onClick={() => {
+                  // Use first page illustration as cover image
+                  if (pageIllustrations[0]?.imageUrl) {
+                    setCoverSettings(prev => ({ ...prev, frontImageUrl: pageIllustrations[0].imageUrl }));
+                    toast({ title: "Cover image set from first page" });
+                  }
+                }}
+                disabled={!pageIllustrations[0]?.imageUrl}
+              >
+                <ImageIcon className="w-4 h-4 mr-2" />
+                Use First Page as Cover
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* KDP Preflight Checklist Dialog */}
+      <Dialog open={showKdpPreflight} onOpenChange={setShowKdpPreflight}>
+        <DialogContent className="max-w-2xl bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-[#C8A661]" />
+              KDP Preflight Checklist
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Verify your book is ready for Amazon KDP publishing
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Checklist items */}
+            {[
+              { 
+                label: "Page Count", 
+                check: pageIllustrations.length >= 24 && pageIllustrations.length % 2 === 0,
+                detail: `${pageIllustrations.length} pages (24+ recommended, must be even)`
+              },
+              { 
+                label: "All Pages Have Illustrations", 
+                check: pageIllustrations.every(p => !!p.imageUrl),
+                detail: `${pageIllustrations.filter(p => p.imageUrl).length}/${pageIllustrations.length} complete`
+              },
+              { 
+                label: "All Pages Have Text", 
+                check: pageIllustrations.filter(p => p.textPosition !== "none").every(p => !!p.pageText),
+                detail: "Story text on visible text pages"
+              },
+              { 
+                label: "Title Set", 
+                check: !!project.title,
+                detail: project.title || "Missing"
+              },
+              { 
+                label: "Author Set", 
+                check: !!project.author,
+                detail: project.author || "Missing"
+              },
+              { 
+                label: "Cover Designed", 
+                check: !!coverSettings.frontTitle || !!coverSettings.frontImageUrl,
+                detail: coverSettings.frontTitle ? "Ready" : "Not configured"
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                  item.check ? "bg-green-500/20 text-green-400" : "bg-amber-500/20 text-amber-400"
+                }`}>
+                  {item.check ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs">!</span>}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{item.label}</p>
+                  <p className="text-xs text-slate-400">{item.detail}</p>
+                </div>
+              </div>
+            ))}
+            
+            <div className="flex gap-2 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1 border-slate-600"
+                onClick={() => setShowCoverDesigner(true)}
+              >
+                <Palette className="w-4 h-4 mr-2" />
+                Design Cover
+              </Button>
+              <Button
+                className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
+                onClick={() => {
+                  setShowKdpPreflight(false);
+                  setShowKdpExport(true);
+                }}
+              >
+                <Printer className="w-4 h-4 mr-2" />
                 Export for KDP
               </Button>
             </div>
