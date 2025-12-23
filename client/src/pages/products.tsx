@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import {
   Map, Calculator, BookOpen, Wrench, LayoutGrid, FileText,
   ArrowRight, Play, Star, Check, Sparkles, TrendingUp,
-  Users, Building2, Zap, Crown, Lock
+  Users, Building2, Zap, Crown, Lock, Search, DollarSign,
+  Percent, MapPin, PenTool, FileCheck, AlertTriangle, Eye
 } from "lucide-react";
 
 interface Product {
@@ -187,6 +190,506 @@ const PRODUCTS: Product[] = [
     forWho: ["Buyers", "Owners", "Brokers"]
   }
 ];
+
+// ============================================
+// INTERACTIVE DEMO COMPONENTS
+// ============================================
+
+function CLEANBIDemo() {
+  const [address, setAddress] = useState("");
+  const [showResult, setShowResult] = useState(false);
+  
+  const handleAnalyze = () => {
+    if (address.length > 5) setShowResult(true);
+  };
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter any US address..."
+          value={address}
+          onChange={(e) => { setAddress(e.target.value); setShowResult(false); }}
+          className="flex-1"
+          data-testid="demo-cleanbi-input"
+        />
+        <Button onClick={handleAnalyze} className="bg-[#C8A661] hover:bg-[#B89651]" data-testid="demo-cleanbi-analyze">
+          <Search className="h-4 w-4 mr-2" />
+          Analyze
+        </Button>
+      </div>
+      
+      {showResult && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/30 rounded-lg p-4"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-medium">Sample Analysis Result</span>
+            <Badge className="bg-green-500 text-white text-lg px-3">A</Badge>
+          </div>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">CLEANBI Score</p>
+              <p className="font-bold text-lg">87/100</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Competitors</p>
+              <p className="font-bold text-lg">2 nearby</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Population</p>
+              <p className="font-bold text-lg">45,230</p>
+            </div>
+          </div>
+          <Link href="/cleanbi-explorer">
+            <Button className="w-full mt-4 bg-[#C8A661] hover:bg-[#B89651]">
+              Get Full Report Free <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </Link>
+        </motion.div>
+      )}
+      
+      {!showResult && (
+        <div className="text-center text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4 inline mr-1" />
+          Try: "123 Main Street, Los Angeles, CA"
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CalculatorDemo() {
+  const [revenue, setRevenue] = useState("200000");
+  const [expenses, setExpenses] = useState("60");
+  
+  const annualRev = parseInt(revenue) || 0;
+  const expenseRate = parseInt(expenses) || 0;
+  const netIncome = annualRev * (1 - expenseRate / 100);
+  const valuation = netIncome * 3.5;
+  
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium mb-1 block">Annual Revenue</label>
+          <div className="relative">
+            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="number"
+              value={revenue}
+              onChange={(e) => setRevenue(e.target.value)}
+              className="pl-9"
+              data-testid="demo-calc-revenue"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Expenses (%)</label>
+          <div className="relative">
+            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="number"
+              value={expenses}
+              onChange={(e) => setExpenses(e.target.value)}
+              className="pl-9"
+              data-testid="demo-calc-expenses"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-muted/50 rounded-lg p-4 grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-sm text-muted-foreground">Net Income</p>
+          <p className="text-2xl font-bold text-green-600">
+            ${netIncome.toLocaleString()}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Est. Valuation (3.5x)</p>
+          <p className="text-2xl font-bold text-[#C8A661]">
+            ${valuation.toLocaleString()}
+          </p>
+        </div>
+      </div>
+      
+      <Link href="/calculators">
+        <Button className="w-full bg-blue-600 hover:bg-blue-700">
+          Access All 50+ Calculators <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function BookStudioDemo() {
+  const [topic, setTopic] = useState("");
+  const [generated, setGenerated] = useState(false);
+  
+  const sampleTitles = [
+    "The Complete Guide to {topic}",
+    "{topic}: From Beginner to Expert",
+    "Mastering {topic} in 30 Days",
+    "The {topic} Handbook: Strategies That Work"
+  ];
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter a book topic..."
+          value={topic}
+          onChange={(e) => { setTopic(e.target.value); setGenerated(false); }}
+          className="flex-1"
+          data-testid="demo-book-topic"
+        />
+        <Button 
+          onClick={() => topic.length > 2 && setGenerated(true)}
+          className="bg-purple-600 hover:bg-purple-700"
+          data-testid="demo-book-generate"
+        >
+          <Sparkles className="h-4 w-4 mr-2" />
+          Generate
+        </Button>
+      </div>
+      
+      {generated && topic && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-2"
+        >
+          <p className="text-sm font-medium">AI-Generated Title Ideas:</p>
+          {sampleTitles.map((title, i) => (
+            <div key={i} className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3 flex items-center justify-between">
+              <span>{title.replace("{topic}", topic)}</span>
+              <Badge variant="secondary">Title {i + 1}</Badge>
+            </div>
+          ))}
+        </motion.div>
+      )}
+      
+      <div className="bg-muted/50 rounded-lg p-4">
+        <p className="text-sm font-medium mb-2">Book Studio Features:</p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center gap-2">
+            <PenTool className="h-4 w-4 text-purple-600" />
+            <span>Word-like editor</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-purple-600" />
+            <span>AI writing assist</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FileCheck className="h-4 w-4 text-purple-600" />
+            <span>KDP formatting</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-purple-600" />
+            <span>Cover generation</span>
+          </div>
+        </div>
+      </div>
+      
+      <Link href="/book-studio">
+        <Button className="w-full bg-purple-600 hover:bg-purple-700">
+          Open Book Studio <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function ServiceGuyDemo() {
+  const [errorCode, setErrorCode] = useState("");
+  const [showResult, setShowResult] = useState(false);
+  
+  const errorDatabase: Record<string, { brand: string; issue: string; fix: string }> = {
+    "E01": { brand: "Speed Queen", issue: "Door Lock Failure", fix: "Check door latch mechanism. Replace door lock assembly if worn." },
+    "F21": { brand: "Whirlpool", issue: "Long Drain", fix: "Check drain hose for clogs. Inspect drain pump for blockage." },
+    "LE": { brand: "LG", issue: "Motor Locked", fix: "Overloaded drum. Remove excess items. Check motor coupling." },
+    "E2": { brand: "Dexter", issue: "Fill Timeout", fix: "Check water supply valves. Inspect inlet hoses and screens." }
+  };
+  
+  const result = errorDatabase[errorCode.toUpperCase()];
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter error code (E01, F21, LE, E2)..."
+          value={errorCode}
+          onChange={(e) => { setErrorCode(e.target.value); setShowResult(true); }}
+          className="flex-1 uppercase"
+          data-testid="demo-serviceguy-input"
+        />
+        <Button className="bg-orange-600 hover:bg-orange-700" data-testid="demo-serviceguy-lookup">
+          <Search className="h-4 w-4 mr-2" />
+          Lookup
+        </Button>
+      </div>
+      
+      {showResult && result && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <Badge className="bg-orange-600">{result.brand}</Badge>
+            <span className="font-mono font-bold">{errorCode.toUpperCase()}</span>
+          </div>
+          <p className="font-medium mb-2">{result.issue}</p>
+          <p className="text-sm text-muted-foreground">{result.fix}</p>
+        </motion.div>
+      )}
+      
+      {!result && errorCode.length > 0 && (
+        <div className="text-center text-sm text-muted-foreground">
+          Try: E01, F21, LE, or E2
+        </div>
+      )}
+      
+      <div className="flex flex-wrap gap-2">
+        {Object.keys(errorDatabase).map((code) => (
+          <Button 
+            key={code} 
+            variant="outline" 
+            size="sm"
+            onClick={() => { setErrorCode(code); setShowResult(true); }}
+          >
+            {code}
+          </Button>
+        ))}
+      </div>
+      
+      <Link href="/service-guy-ai">
+        <Button className="w-full bg-orange-600 hover:bg-orange-700">
+          Access Full Diagnostic Tool <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function DesignStudioDemo() {
+  const [machines, setMachines] = useState({ washer: 8, dryer: 10, folder: 2 });
+  
+  const totalCost = machines.washer * 4500 + machines.dryer * 3200 + machines.folder * 1200;
+  const sqftNeeded = machines.washer * 25 + machines.dryer * 20 + machines.folder * 15;
+  
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <label className="text-sm font-medium mb-1 block">Washers</label>
+          <Input
+            type="number"
+            value={machines.washer}
+            onChange={(e) => setMachines({ ...machines, washer: parseInt(e.target.value) || 0 })}
+            min="0"
+            data-testid="demo-design-washers"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Dryers</label>
+          <Input
+            type="number"
+            value={machines.dryer}
+            onChange={(e) => setMachines({ ...machines, dryer: parseInt(e.target.value) || 0 })}
+            min="0"
+            data-testid="demo-design-dryers"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Folders</label>
+          <Input
+            type="number"
+            value={machines.folder}
+            onChange={(e) => setMachines({ ...machines, folder: parseInt(e.target.value) || 0 })}
+            min="0"
+            data-testid="demo-design-folders"
+          />
+        </div>
+      </div>
+      
+      <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-muted-foreground">Equipment Cost</p>
+            <p className="text-2xl font-bold text-green-600">
+              ${totalCost.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Min. Space Needed</p>
+            <p className="text-2xl font-bold">
+              {sqftNeeded.toLocaleString()} sq ft
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-muted/50 rounded-lg p-4 flex items-center justify-center h-24">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <LayoutGrid className="h-8 w-8" />
+          <span>Drag-and-drop floor plan editor in full version</span>
+        </div>
+      </div>
+      
+      <Link href="/design-studio">
+        <Button className="w-full bg-green-600 hover:bg-green-700">
+          Open Design Studio <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function TemplateVaultDemo() {
+  const redFlags = [
+    { flag: "Triple Net (NNN) lease terms", severity: "high" },
+    { flag: "Personal guarantee required", severity: "high" },
+    { flag: "No exclusive use clause", severity: "medium" },
+    { flag: "Landlord controls HVAC", severity: "medium" },
+    { flag: "60-day termination notice", severity: "low" },
+    { flag: "Annual rent escalation > 3%", severity: "high" },
+    { flag: "No sublease rights", severity: "medium" }
+  ];
+  
+  return (
+    <div className="space-y-4">
+      <div className="bg-muted/50 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <span className="font-medium">Lease Red Flags Preview (7 of 50+)</span>
+        </div>
+        
+        <div className="space-y-2">
+          {redFlags.map((item, i) => (
+            <div 
+              key={i} 
+              className={`flex items-center justify-between p-2 rounded-lg text-sm ${
+                item.severity === "high" ? "bg-red-500/10 border border-red-500/30" :
+                item.severity === "medium" ? "bg-amber-500/10 border border-amber-500/30" :
+                "bg-blue-500/10 border border-blue-500/30"
+              }`}
+            >
+              <span>{item.flag}</span>
+              <Badge 
+                variant="secondary"
+                className={
+                  item.severity === "high" ? "bg-red-500 text-white" :
+                  item.severity === "medium" ? "bg-amber-500 text-white" :
+                  "bg-blue-500 text-white"
+                }
+              >
+                {item.severity}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="bg-indigo-500/10 rounded-lg p-3 text-center">
+          <FileText className="h-6 w-6 mx-auto mb-1 text-indigo-600" />
+          <span>AI Business Plan</span>
+        </div>
+        <div className="bg-indigo-500/10 rounded-lg p-3 text-center">
+          <FileCheck className="h-6 w-6 mx-auto mb-1 text-indigo-600" />
+          <span>Due Diligence</span>
+        </div>
+      </div>
+      
+      <Link href="/template-vault">
+        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+          Access Template Vault <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+// Demo selector component
+function InteractiveDemos() {
+  const [activeDemo, setActiveDemo] = useState<string>("cleanbi");
+  
+  const demos = [
+    { id: "cleanbi", name: "CLEANBI", icon: Map, color: "bg-[#C8A661]" },
+    { id: "calculators", name: "Calculators", icon: Calculator, color: "bg-blue-600" },
+    { id: "book-studio", name: "Book Studio", icon: BookOpen, color: "bg-purple-600" },
+    { id: "service-guy", name: "Service Guy", icon: Wrench, color: "bg-orange-600" },
+    { id: "design-studio", name: "Design Studio", icon: LayoutGrid, color: "bg-green-600" },
+    { id: "template-vault", name: "Templates", icon: FileText, color: "bg-indigo-600" },
+  ];
+  
+  return (
+    <section className="py-16 bg-muted/30">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
+            <Eye className="h-3 w-3 mr-1" />
+            Interactive Demos
+          </Badge>
+          <h2 className="text-3xl font-bold mb-2">Try Before You Buy</h2>
+          <p className="text-muted-foreground">
+            Experience each product right here. No signup required.
+          </p>
+        </div>
+        
+        {/* Demo Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {demos.map((demo) => {
+            const Icon = demo.icon;
+            return (
+              <Button
+                key={demo.id}
+                variant={activeDemo === demo.id ? "default" : "outline"}
+                onClick={() => setActiveDemo(demo.id)}
+                className={activeDemo === demo.id ? demo.color : ""}
+                data-testid={`demo-tab-${demo.id}`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {demo.name}
+              </Button>
+            );
+          })}
+        </div>
+        
+        {/* Demo Content */}
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {demos.find(d => d.id === activeDemo)?.icon && (
+                (() => {
+                  const Icon = demos.find(d => d.id === activeDemo)!.icon;
+                  return <Icon className="h-5 w-5" />;
+                })()
+              )}
+              {demos.find(d => d.id === activeDemo)?.name} Demo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeDemo === "cleanbi" && <CLEANBIDemo />}
+            {activeDemo === "calculators" && <CalculatorDemo />}
+            {activeDemo === "book-studio" && <BookStudioDemo />}
+            {activeDemo === "service-guy" && <ServiceGuyDemo />}
+            {activeDemo === "design-studio" && <DesignStudioDemo />}
+            {activeDemo === "template-vault" && <TemplateVaultDemo />}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+// ============================================
+// PRODUCT CARD COMPONENT
+// ============================================
 
 function ProductCard({ product }: { product: Product }) {
   const Icon = product.icon;
@@ -372,6 +875,9 @@ export default function Products() {
             </div>
           </div>
         </section>
+
+        {/* Interactive Demos Section */}
+        <InteractiveDemos />
 
         {/* All-Access Bundle */}
         <section className="py-16 bg-muted/30">

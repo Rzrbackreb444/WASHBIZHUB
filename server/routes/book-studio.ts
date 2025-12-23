@@ -693,40 +693,247 @@ router.get("/batch-status/:jobId", async (req, res) => {
   });
 });
 
-// Template library for quick book creation
+// Template library for quick book creation - comprehensive library
 router.get("/templates", async (req, res) => {
   const templates = [
+    // BUSINESS & PROFESSIONAL
     {
       id: "business-guide",
       name: "Business Guide",
+      category: "Business",
       description: "Comprehensive guide template for business topics",
       chapterCount: 12,
       genres: ["Business", "Finance", "Entrepreneurship"],
+      targetWordCount: 35000,
       structure: ["Introduction", "Foundation", "Strategy", "Implementation", "Case Studies", "Advanced Tactics", "Tools & Resources", "Common Mistakes", "Success Stories", "Future Trends", "Action Plan", "Conclusion"]
-    },
-    {
-      id: "how-to-manual",
-      name: "How-To Manual",
-      description: "Step-by-step instructional guide",
-      chapterCount: 10,
-      genres: ["Self-Help", "Education", "Technical"],
-      structure: ["Getting Started", "Essential Tools", "Basic Techniques", "Intermediate Skills", "Advanced Methods", "Troubleshooting", "Best Practices", "Expert Tips", "Resources", "Next Steps"]
     },
     {
       id: "industry-bible",
       name: "Industry Bible",
+      category: "Business",
       description: "Comprehensive industry reference guide",
       chapterCount: 15,
       genres: ["Business", "Reference", "Professional"],
+      targetWordCount: 50000,
       structure: ["Industry Overview", "History & Evolution", "Key Players", "Market Analysis", "Operations", "Financial Management", "Marketing & Sales", "Technology", "Legal & Compliance", "Human Resources", "Growth Strategies", "Risk Management", "Future Outlook", "Resources", "Glossary"]
     },
     {
+      id: "startup-playbook",
+      name: "Startup Playbook",
+      category: "Business",
+      description: "Launch and scale your startup with proven strategies",
+      chapterCount: 14,
+      genres: ["Business", "Entrepreneurship", "Startups"],
+      targetWordCount: 40000,
+      structure: ["The Startup Mindset", "Finding Your Idea", "Market Research", "Business Model Canvas", "Building Your MVP", "Funding Strategies", "Team Building", "Go-to-Market", "Growth Hacking", "Scaling Operations", "Financial Management", "Pivoting When Needed", "Exit Strategies", "Founder Stories"]
+    },
+    {
+      id: "real-estate-investing",
+      name: "Real Estate Investing",
+      category: "Business",
+      description: "Master real estate investment strategies",
+      chapterCount: 12,
+      genres: ["Finance", "Real Estate", "Investing"],
+      targetWordCount: 38000,
+      structure: ["Why Real Estate", "Investment Types", "Market Analysis", "Finding Deals", "Financing Options", "Due Diligence", "The Numbers", "Property Management", "Tax Strategies", "Scaling Your Portfolio", "Common Pitfalls", "Building Wealth"]
+    },
+    // HOW-TO & SELF-HELP
+    {
+      id: "how-to-manual",
+      name: "How-To Manual",
+      category: "Self-Help",
+      description: "Step-by-step instructional guide",
+      chapterCount: 10,
+      genres: ["Self-Help", "Education", "Technical"],
+      targetWordCount: 30000,
+      structure: ["Getting Started", "Essential Tools", "Basic Techniques", "Intermediate Skills", "Advanced Methods", "Troubleshooting", "Best Practices", "Expert Tips", "Resources", "Next Steps"]
+    },
+    {
+      id: "30-day-transformation",
+      name: "30-Day Transformation",
+      category: "Self-Help",
+      description: "Daily action plan for personal change",
+      chapterCount: 6,
+      genres: ["Self-Help", "Personal Development", "Health"],
+      targetWordCount: 25000,
+      structure: ["The Promise", "Week 1: Foundation", "Week 2: Building Momentum", "Week 3: Breakthrough", "Week 4: Mastery", "Life After 30 Days"]
+    },
+    {
+      id: "habit-builder",
+      name: "Habit Builder",
+      category: "Self-Help",
+      description: "Build lasting habits that stick",
+      chapterCount: 10,
+      genres: ["Self-Help", "Psychology", "Personal Development"],
+      targetWordCount: 28000,
+      structure: ["The Science of Habits", "Identifying Your Triggers", "The Habit Loop", "Starting Small", "Stacking Habits", "Environment Design", "Accountability Systems", "Breaking Bad Habits", "Measuring Progress", "Habits for Life"]
+    },
+    // MEMOIR & BIOGRAPHY
+    {
       id: "memoir-template",
       name: "Personal Memoir",
+      category: "Memoir",
       description: "Life story and personal journey template",
       chapterCount: 12,
       genres: ["Memoir", "Biography", "Inspiration"],
+      targetWordCount: 45000,
       structure: ["Early Life", "Formative Years", "Turning Points", "Challenges", "Breakthroughs", "Lessons Learned", "Key Relationships", "Professional Journey", "Personal Growth", "Legacy", "Reflections", "Looking Forward"]
+    },
+    {
+      id: "career-journey",
+      name: "Career Journey",
+      category: "Memoir",
+      description: "Professional autobiography and lessons",
+      chapterCount: 10,
+      genres: ["Memoir", "Business", "Inspiration"],
+      targetWordCount: 35000,
+      structure: ["How It All Started", "Early Career", "Finding My Path", "Major Milestones", "Biggest Challenges", "Mentors & Influences", "Leadership Lessons", "Industry Insights", "What I'd Do Differently", "Advice for the Next Generation"]
+    },
+    // FICTION
+    {
+      id: "novel-fiction",
+      name: "Novel Framework",
+      category: "Fiction",
+      description: "Classic three-act novel structure",
+      chapterCount: 20,
+      genres: ["Fiction", "Novel", "Literary"],
+      targetWordCount: 70000,
+      structure: ["The Hook", "Normal World", "Inciting Incident", "Rising Action I", "First Threshold", "Rising Action II", "Tests & Allies", "Approach to Crisis", "The Ordeal", "Midpoint Twist", "Rising Action III", "Major Setback", "Dark Night of the Soul", "Rally", "Final Push", "Climax", "Resolution I", "Resolution II", "New Normal", "Epilogue"]
+    },
+    {
+      id: "thriller-template",
+      name: "Thriller/Mystery",
+      category: "Fiction",
+      description: "Page-turning suspense structure",
+      chapterCount: 18,
+      genres: ["Thriller", "Mystery", "Suspense"],
+      targetWordCount: 65000,
+      structure: ["The Crime/Incident", "Discovery", "Investigation Begins", "First Clues", "Dead End", "New Lead", "Rising Stakes", "Suspect Emerges", "Twist", "Deeper Investigation", "Personal Danger", "Race Against Time", "False Resolution", "Major Revelation", "Final Confrontation", "Climax", "Resolution", "Aftermath"]
+    },
+    {
+      id: "romance-template",
+      name: "Romance Novel",
+      category: "Fiction",
+      description: "Contemporary romance structure",
+      chapterCount: 15,
+      genres: ["Romance", "Contemporary", "Fiction"],
+      targetWordCount: 55000,
+      structure: ["Meet Cute", "First Impressions", "Forced Proximity", "Growing Attraction", "First Kiss", "Getting Closer", "The Vulnerability", "All In", "The Complication", "The Breakup", "Misery Apart", "The Realization", "Grand Gesture", "Reunion", "Happily Ever After"]
+    },
+    // HEALTH & WELLNESS
+    {
+      id: "health-guide",
+      name: "Health & Wellness Guide",
+      category: "Health",
+      description: "Comprehensive health transformation guide",
+      chapterCount: 12,
+      genres: ["Health", "Wellness", "Fitness"],
+      targetWordCount: 35000,
+      structure: ["Your Health Journey", "Understanding Your Body", "Nutrition Fundamentals", "Meal Planning", "Exercise Basics", "Building a Routine", "Sleep & Recovery", "Stress Management", "Mental Health", "Tracking Progress", "Overcoming Plateaus", "Lifelong Wellness"]
+    },
+    {
+      id: "fitness-program",
+      name: "Fitness Program",
+      category: "Health",
+      description: "Complete workout and training program",
+      chapterCount: 10,
+      genres: ["Fitness", "Health", "Sports"],
+      targetWordCount: 28000,
+      structure: ["Fitness Assessment", "Goal Setting", "Warm-Up & Mobility", "Strength Training", "Cardio Conditioning", "Flexibility & Recovery", "Nutrition for Performance", "Sample Programs", "Progress Tracking", "Long-Term Success"]
+    },
+    // EDUCATION & LEARNING
+    {
+      id: "textbook-template",
+      name: "Educational Textbook",
+      category: "Education",
+      description: "Academic textbook structure",
+      chapterCount: 12,
+      genres: ["Education", "Academic", "Reference"],
+      targetWordCount: 50000,
+      structure: ["Introduction to the Subject", "Historical Context", "Core Concepts I", "Core Concepts II", "Core Concepts III", "Applications", "Case Studies", "Advanced Topics", "Current Research", "Practice Problems", "Review & Summary", "Further Reading"]
+    },
+    {
+      id: "course-companion",
+      name: "Course Companion",
+      category: "Education",
+      description: "Supplement for online courses",
+      chapterCount: 8,
+      genres: ["Education", "Online Learning", "Tutorial"],
+      targetWordCount: 20000,
+      structure: ["Course Overview", "Module 1 Deep Dive", "Module 2 Deep Dive", "Module 3 Deep Dive", "Practical Exercises", "Common Questions", "Additional Resources", "What's Next"]
+    },
+    // CHILDREN'S BOOKS
+    {
+      id: "childrens-picture",
+      name: "Children's Picture Book",
+      category: "Children",
+      description: "Illustrated children's story template",
+      chapterCount: 8,
+      genres: ["Children", "Picture Book", "Educational"],
+      targetWordCount: 1500,
+      structure: ["Once Upon a Time", "Meet the Character", "The Problem", "First Attempt", "Learning Moment", "Trying Again", "Success!", "The End (Lesson)"]
+    },
+    {
+      id: "middle-grade",
+      name: "Middle Grade Adventure",
+      category: "Children",
+      description: "Ages 8-12 adventure story",
+      chapterCount: 15,
+      genres: ["Children", "Middle Grade", "Adventure"],
+      targetWordCount: 35000,
+      structure: ["Normal Life", "The Discovery", "Call to Adventure", "Crossing the Threshold", "New World Rules", "Making Friends", "First Challenge", "Setback", "Training/Preparation", "Major Test", "All Hope Lost", "Inner Strength", "Final Battle", "Victory", "Return Home Changed"]
+    },
+    // SPECIALTY TEMPLATES
+    {
+      id: "cookbook-template",
+      name: "Cookbook",
+      category: "Specialty",
+      description: "Recipe collection with stories",
+      chapterCount: 10,
+      genres: ["Cookbook", "Food", "Lifestyle"],
+      targetWordCount: 40000,
+      structure: ["My Food Story", "Kitchen Essentials", "Breakfast & Brunch", "Appetizers & Snacks", "Soups & Salads", "Main Courses", "Side Dishes", "Desserts & Sweets", "Entertaining Menus", "Index & Tips"]
+    },
+    {
+      id: "travel-guide",
+      name: "Travel Guide",
+      category: "Specialty",
+      description: "Destination travel guide template",
+      chapterCount: 12,
+      genres: ["Travel", "Guide", "Lifestyle"],
+      targetWordCount: 35000,
+      structure: ["Welcome to [Destination]", "Planning Your Trip", "Getting There", "Where to Stay", "Getting Around", "Must-See Attractions", "Hidden Gems", "Food & Dining", "Nightlife & Entertainment", "Day Trips", "Practical Tips", "Itinerary Suggestions"]
+    },
+    {
+      id: "poetry-collection",
+      name: "Poetry Collection",
+      category: "Specialty",
+      description: "Themed poetry anthology",
+      chapterCount: 6,
+      genres: ["Poetry", "Literary", "Art"],
+      targetWordCount: 10000,
+      structure: ["Opening (Dawn)", "Rising (Morning)", "Peak (Noon)", "Turning (Afternoon)", "Descending (Evening)", "Closing (Night)"]
+    },
+    // LAUNDROMAT INDUSTRY SPECIFIC
+    {
+      id: "laundromat-guide",
+      name: "Laundromat Business Guide",
+      category: "Industry",
+      description: "Complete laundromat investment and operations guide",
+      chapterCount: 15,
+      genres: ["Business", "Laundromat", "Investment"],
+      targetWordCount: 45000,
+      structure: ["The Laundromat Opportunity", "Industry Overview", "Location Analysis", "Due Diligence", "Valuation Methods", "Financing Your Purchase", "Equipment Selection", "Store Design & Layout", "Operations Management", "Marketing Your Store", "Financial Management", "Staffing & Training", "Technology & Automation", "Growth Strategies", "Exit Planning"]
+    },
+    {
+      id: "stroke-recovery",
+      name: "Stroke Recovery Journey",
+      category: "Health",
+      description: "Personal stroke recovery guide and memoir",
+      chapterCount: 12,
+      genres: ["Health", "Memoir", "Recovery"],
+      targetWordCount: 40000,
+      structure: ["The Day Everything Changed", "Understanding Stroke", "Hospital Days", "Early Recovery", "Physical Therapy Journey", "Speech & Cognitive Recovery", "Emotional Challenges", "Family & Caregivers", "Celebrating Small Wins", "Returning to Life", "What I've Learned", "Hope & The Future"]
     }
   ];
 
