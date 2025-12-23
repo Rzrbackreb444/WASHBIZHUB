@@ -18848,5 +18848,222 @@ export type InsertAiChatTelemetry = z.infer<typeof insertAiChatTelemetrySchema>;
 export type AiChatTelemetry = typeof aiChatTelemetry.$inferSelect;
 
 // ============================================================================
+// BOOK STUDIO - Professional Book Publishing Platform
+// ============================================================================
+
+// Book Projects - Main book container with metadata
+export const bookProjects = pgTable("book_projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  
+  // Book metadata
+  title: varchar("title", { length: 500 }).notNull(),
+  subtitle: varchar("subtitle", { length: 500 }),
+  author: varchar("author", { length: 200 }),
+  description: text("description"),
+  
+  // Classification
+  genre: varchar("genre", { length: 100 }), // "children", "business", "self-help", "memoir", "fiction"
+  ageRange: varchar("age_range", { length: 50 }), // For children's books: "0-2", "3-5", "6-8", "9-12"
+  targetAudience: varchar("target_audience", { length: 200 }),
+  
+  // Book format settings
+  bookType: varchar("book_type", { length: 50 }).default("standard"), // "standard", "children_picture", "children_chapter", "workbook"
+  trimSize: varchar("trim_size", { length: 50 }).default("6x9"), // KDP sizes: "5x8", "5.5x8.5", "6x9", "8.5x11", "8x10"
+  orientation: varchar("orientation", { length: 20 }).default("portrait"), // "portrait", "landscape", "square"
+  colorInterior: boolean("color_interior").default(true),
+  
+  // Art style consistency for illustrated books
+  artStyle: varchar("art_style", { length: 100 }), // "watercolor", "cartoon", "realistic", "minimalist", "vintage"
+  artStylePrompt: text("art_style_prompt"), // Full style description for AI image generation
+  characterDescriptions: jsonb("character_descriptions").$type<Array<{
+    name: string;
+    description: string;
+    visualDescription: string;
+  }>>(),
+  
+  // Cover
+  coverImageUrl: text("cover_image_url"),
+  coverPrompt: text("cover_prompt"),
+  
+  // Progress tracking
+  status: varchar("status", { length: 50 }).default("draft"), // "draft", "writing", "illustrating", "reviewing", "published"
+  totalPages: integer("total_pages").default(0),
+  totalWords: integer("total_words").default(0),
+  completionPercent: integer("completion_percent").default(0),
+  
+  // AI preferences
+  preferredAiModel: varchar("preferred_ai_model", { length: 50 }).default("gemini"),
+  preferredImageModel: varchar("preferred_image_model", { length: 50 }).default("dalle3"),
+  
+  // Publishing
+  isbn: varchar("isbn", { length: 20 }),
+  publishedAt: timestamp("published_at"),
+  kdpAsin: varchar("kdp_asin", { length: 20 }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  userIdx: index("book_projects_user_idx").on(table.userId),
+  statusIdx: index("book_projects_status_idx").on(table.status),
+}));
+
+export const insertBookProjectSchema = createInsertSchema(bookProjects).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBookProject = z.infer<typeof insertBookProjectSchema>;
+export type BookProject = typeof bookProjects.$inferSelect;
+
+// Book Pages - Individual pages with text and image layout
+export const bookPages = pgTable("book_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  // Page ordering
+  pageNumber: integer("page_number").notNull(),
+  spreadType: varchar("spread_type", { length: 50 }).default("single"), // "single", "left", "right", "full_spread"
+  
+  // Content
+  textContent: text("text_content"),
+  formattedContent: text("formatted_content"), // HTML formatted version
+  
+  // Layout settings for children's picture books
+  layout: varchar("layout", { length: 50 }).default("text_below"), // "text_below", "text_above", "text_overlay", "image_only", "text_only", "side_by_side"
+  textPosition: jsonb("text_position").$type<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    alignment: "left" | "center" | "right";
+    fontSize: number;
+    fontFamily: string;
+  }>(),
+  
+  // Main image for the page
+  imageUrl: text("image_url"),
+  imagePrompt: text("image_prompt"),
+  imageAlt: text("image_alt"),
+  
+  // Background
+  backgroundColor: varchar("background_color", { length: 20 }),
+  backgroundImageUrl: text("background_image_url"),
+  
+  // Page status
+  status: varchar("status", { length: 50 }).default("draft"), // "draft", "text_ready", "image_generating", "complete"
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_pages_project_idx").on(table.projectId),
+  pageNumberIdx: index("book_pages_number_idx").on(table.projectId, table.pageNumber),
+}));
+
+export const insertBookPageSchema = createInsertSchema(bookPages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBookPage = z.infer<typeof insertBookPageSchema>;
+export type BookPage = typeof bookPages.$inferSelect;
+
+// Page Assets - Generated images and additional assets for pages
+export const pageAssets = pgTable("page_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pageId: varchar("page_id").notNull().references(() => bookPages.id, { onDelete: "cascade" }),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  // Asset info
+  assetType: varchar("asset_type", { length: 50 }).notNull(), // "illustration", "character", "background", "icon", "decoration"
+  url: text("url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
+  
+  // Generation details
+  prompt: text("prompt"),
+  negativePrompt: text("negative_prompt"),
+  aiModel: varchar("ai_model", { length: 50 }), // "dalle3", "gemini", "midjourney"
+  
+  // Image metadata
+  width: integer("width"),
+  height: integer("height"),
+  fileSize: integer("file_size"),
+  mimeType: varchar("mime_type", { length: 50 }),
+  
+  // Placement on page
+  placement: jsonb("placement").$type<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation: number;
+    zIndex: number;
+  }>(),
+  
+  // Status
+  status: varchar("status", { length: 50 }).default("active"), // "active", "archived", "deleted"
+  isMainImage: boolean("is_main_image").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  pageIdx: index("page_assets_page_idx").on(table.pageId),
+  projectIdx: index("page_assets_project_idx").on(table.projectId),
+}));
+
+export const insertPageAssetSchema = createInsertSchema(pageAssets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPageAsset = z.infer<typeof insertPageAssetSchema>;
+export type PageAsset = typeof pageAssets.$inferSelect;
+
+// Book Generation Jobs - Track async generation tasks
+export const bookGenerationJobs = pgTable("book_generation_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").notNull().references(() => bookProjects.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id),
+  
+  // Job type
+  jobType: varchar("job_type", { length: 50 }).notNull(), // "outline", "chapter", "image", "cover", "full_book", "export"
+  
+  // Target
+  pageId: varchar("page_id"), // For page-specific jobs
+  chapterNumber: integer("chapter_number"),
+  
+  // Status
+  status: varchar("status", { length: 50 }).default("pending"), // "pending", "processing", "completed", "failed"
+  progress: integer("progress").default(0), // 0-100
+  
+  // Input/Output
+  inputParams: jsonb("input_params"),
+  outputData: jsonb("output_data"),
+  errorMessage: text("error_message"),
+  
+  // AI details
+  aiModel: varchar("ai_model", { length: 50 }),
+  tokensUsed: integer("tokens_used"),
+  costEstimate: decimal("cost_estimate", { precision: 10, scale: 4 }),
+  
+  // Timing
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  projectIdx: index("book_jobs_project_idx").on(table.projectId),
+  statusIdx: index("book_jobs_status_idx").on(table.status),
+}));
+
+export const insertBookGenerationJobSchema = createInsertSchema(bookGenerationJobs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertBookGenerationJob = z.infer<typeof insertBookGenerationJobSchema>;
+export type BookGenerationJob = typeof bookGenerationJobs.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
