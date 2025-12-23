@@ -1214,7 +1214,35 @@ export default function BookStudio() {
                     {/* Page Details Editor */}
                     <Card className="bg-slate-800 border-slate-700">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-white text-lg">Page {currentPageIndex + 1} Details</CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-white text-lg">Page {currentPageIndex + 1} Details</CardTitle>
+                          {/* Placement Mode Toggle */}
+                          <div className="flex gap-1 bg-slate-700 rounded-lg p-1">
+                            {(["auto", "manual", "hybrid"] as const).map((mode) => (
+                              <Button
+                                key={mode}
+                                size="sm"
+                                variant="ghost"
+                                className={`h-7 px-3 text-xs capitalize ${
+                                  (pageIllustrations[currentPageIndex].placementMode || "auto") === mode
+                                    ? "bg-[#C8A661] text-white hover:bg-[#b89551]"
+                                    : "text-slate-400 hover:text-white hover:bg-slate-600"
+                                }`}
+                                onClick={() => updatePage(currentPageIndex, { placementMode: mode })}
+                                data-testid={`button-mode-${mode}`}
+                              >
+                                {mode === "auto" ? "Auto" : mode === "manual" ? "Manual" : "Hybrid"}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-slate-500 text-xs mt-1">
+                          {(pageIllustrations[currentPageIndex].placementMode || "auto") === "auto" 
+                            ? "AI finds perfect spots for text placement"
+                            : (pageIllustrations[currentPageIndex].placementMode || "auto") === "manual"
+                            ? "You control exact text position"
+                            : "AI suggests, you refine"}
+                        </p>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
@@ -1237,24 +1265,94 @@ export default function BookStudio() {
                             data-testid="input-page-text"
                           />
                         </div>
-                        <div>
-                          <Label className="text-slate-400 text-sm">Text Position</Label>
-                          <Select 
-                            value={pageIllustrations[currentPageIndex].textPosition} 
-                            onValueChange={(val) => updatePage(currentPageIndex, { textPosition: val })}
-                          >
-                            <SelectTrigger className="mt-1 bg-slate-700 border-slate-600 text-white" data-testid="select-text-position">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="top">Top</SelectItem>
-                              <SelectItem value="bottom">Bottom</SelectItem>
-                              <SelectItem value="left">Left</SelectItem>
-                              <SelectItem value="right">Right</SelectItem>
-                              <SelectItem value="none">No Text</SelectItem>
-                            </SelectContent>
-                          </Select>
+                        
+                        {/* Text Position & Typography Controls */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-slate-400 text-sm">Text Position</Label>
+                            <Select 
+                              value={pageIllustrations[currentPageIndex].textPosition} 
+                              onValueChange={(val) => updatePage(currentPageIndex, { textPosition: val })}
+                            >
+                              <SelectTrigger className="mt-1 bg-slate-700 border-slate-600 text-white" data-testid="select-text-position">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="top">Top</SelectItem>
+                                <SelectItem value="bottom">Bottom</SelectItem>
+                                <SelectItem value="left">Left</SelectItem>
+                                <SelectItem value="right">Right</SelectItem>
+                                <SelectItem value="none">No Text</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-slate-400 text-sm">Find Perfect Spots</Label>
+                            <Button
+                              className="w-full mt-1 bg-purple-600 hover:bg-purple-700"
+                              onClick={async () => {
+                                const page = pageIllustrations[currentPageIndex];
+                                if (!page.imageUrl) {
+                                  toast({ title: "Generate illustration first", variant: "destructive" });
+                                  return;
+                                }
+                                try {
+                                  const response = await apiRequest("/api/book-studio/analyze-illustration", {
+                                    method: "POST",
+                                    body: JSON.stringify({
+                                      imageUrl: page.imageUrl,
+                                      pageText: page.pageText
+                                    })
+                                  });
+                                  const data = await response.json();
+                                  if (data.placementHints) {
+                                    updatePage(currentPageIndex, { placementHints: data.placementHints });
+                                    toast({ title: `Found ${data.placementHints.length} perfect spots!` });
+                                  }
+                                } catch (error) {
+                                  toast({ title: "Analysis failed", variant: "destructive" });
+                                }
+                              }}
+                              disabled={!pageIllustrations[currentPageIndex].imageUrl}
+                              data-testid="button-find-perfect-spots"
+                            >
+                              <Search className="w-4 h-4 mr-2" />
+                              AI Analyze
+                            </Button>
+                          </div>
                         </div>
+                        
+                        {/* Perfect Spots Preview */}
+                        {pageIllustrations[currentPageIndex].placementHints && pageIllustrations[currentPageIndex].placementHints.length > 0 && (
+                          <div className="bg-slate-700/50 rounded-lg p-3">
+                            <Label className="text-slate-400 text-sm mb-2 block">Perfect Spots Found</Label>
+                            <div className="flex flex-wrap gap-2">
+                              {pageIllustrations[currentPageIndex].placementHints.map((hint: PlacementHint) => (
+                                <Button
+                                  key={hint.id}
+                                  size="sm"
+                                  variant="outline"
+                                  className={`h-auto py-1 px-2 text-xs ${
+                                    pageIllustrations[currentPageIndex].selectedHintId === hint.id
+                                      ? "bg-[#C8A661] border-[#C8A661] text-white"
+                                      : "border-slate-500 text-slate-300"
+                                  }`}
+                                  onClick={() => {
+                                    updatePage(currentPageIndex, { 
+                                      selectedHintId: hint.id,
+                                      textFrame: { x: hint.x, y: hint.y, width: hint.width, height: hint.height }
+                                    });
+                                  }}
+                                  title={hint.reason}
+                                  data-testid={`hint-${hint.id}`}
+                                >
+                                  <span className="mr-1">{Math.round(hint.confidence * 100)}%</span>
+                                  {hint.label}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex gap-2">
                           <Button
                             className="flex-1 bg-[#C8A661] hover:bg-[#b89551]"
