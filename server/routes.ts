@@ -650,6 +650,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/book-studio", bookStudioRoutes);
   console.log("✅ Book Studio routes registered");
   
+  // ==================== LARRY'S COMMAND CENTER ====================
+  const larryConsultationsRoutes = (await import("./routes/larry-consultations")).default;
+  app.use("/api/larry", larryConsultationsRoutes);
+  app.use("/api/auth/check-owner", (req, res, next) => {
+    // Forward to larry routes for owner check
+    req.url = "/check-owner";
+    larryConsultationsRoutes(req, res, next);
+  });
+  console.log("✅ Larry's Command Center routes registered");
+  
   // ==================== OWNER COMMAND CENTER ====================
   app.use("/api/owner", ownerAnalyticsRoutes);
   

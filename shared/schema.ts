@@ -19626,5 +19626,93 @@ export type InsertSocialMediaConnection = z.infer<typeof insertSocialMediaConnec
 export type SocialMediaConnection = typeof socialMediaConnections.$inferSelect;
 
 // ============================================================================
+// LEAD CAPTURE & SUBSCRIBER MANAGEMENT
+// ============================================================================
+
+// Leads / Subscribers
+export const leads = pgTable("leads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Contact Info
+  name: varchar("name", { length: 200 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  
+  // Source & Interests
+  source: varchar("source", { length: 100 }).notNull().default("website"),
+  interests: text("interests").array(),
+  persona: varchar("persona", { length: 50 }),
+  
+  // Subscription Status
+  emailSubscribed: boolean("email_subscribed").default(true),
+  smsSubscribed: boolean("sms_subscribed").default(false),
+  emailVerified: boolean("email_verified").default(false),
+  
+  // Engagement
+  leadScore: integer("lead_score").default(0),
+  lastActivityAt: timestamp("last_activity_at"),
+  conversionStatus: varchar("conversion_status", { length: 50 }).default("new"),
+  
+  // Consultation Interest
+  consultationInterest: boolean("consultation_interest").default(false),
+  preferredConsultationType: varchar("preferred_consultation_type", { length: 50 }),
+  budgetRange: varchar("budget_range", { length: 50 }),
+  timeline: varchar("timeline", { length: 50 }),
+  
+  // Location
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
+  country: varchar("country", { length: 50 }).default("US"),
+  
+  // Notes
+  notes: text("notes"),
+  tags: text("tags").array(),
+  
+  // Tracking
+  utmSource: varchar("utm_source", { length: 100 }),
+  utmMedium: varchar("utm_medium", { length: 100 }),
+  utmCampaign: varchar("utm_campaign", { length: 100 }),
+  referrer: text("referrer"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  emailIdx: index("leads_email_idx").on(table.email),
+  sourceIdx: index("leads_source_idx").on(table.source),
+  conversionIdx: index("leads_conversion_status_idx").on(table.conversionStatus),
+}));
+
+export const insertLeadSchema = createInsertSchema(leads).omit({
+  id: true,
+  leadScore: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertLead = z.infer<typeof insertLeadSchema>;
+export type Lead = typeof leads.$inferSelect;
+
+// Lead Activities
+export const leadActivities = pgTable("lead_activities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  leadId: varchar("lead_id").notNull().references(() => leads.id, { onDelete: "cascade" }),
+  
+  activityType: varchar("activity_type", { length: 100 }).notNull(),
+  activityData: jsonb("activity_data"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => ({
+  leadIdIdx: index("lead_activities_lead_id_idx").on(table.leadId),
+}));
+
+export const insertLeadActivitySchema = createInsertSchema(leadActivities).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertLeadActivity = z.infer<typeof insertLeadActivitySchema>;
+export type LeadActivity = typeof leadActivities.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
