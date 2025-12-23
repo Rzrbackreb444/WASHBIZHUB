@@ -251,7 +251,7 @@ export default function Pricing() {
                   </div>
                   
                   <Button 
-                    className="w-full bg-[#C8A661] hover:bg-[#B89651] text-white"
+                    className="w-full bg-[#C8A661] text-white"
                     onClick={() => handleCheckout('business')}
                     disabled={checkoutMutation.isPending}
                     data-testid="button-all-access"
@@ -373,7 +373,7 @@ export default function Pricing() {
               <Link href="/signup">
                 <Button 
                   size="lg" 
-                  className="bg-[#C8A661] hover:bg-[#B89651] text-white"
+                  className="bg-[#C8A661] text-white"
                   data-testid="button-cta-free"
                 >
                   Start Free Today
@@ -383,7 +383,7 @@ export default function Pricing() {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white/30 text-white hover:bg-white/10"
+                  className="border-white/30 text-white"
                   data-testid="button-cta-demo"
                 >
                   Try CLEANBI Demo
