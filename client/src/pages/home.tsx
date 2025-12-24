@@ -1046,42 +1046,66 @@ export default function Home() {
           </div>
         </section>
 
-        {/* STARTUP FUNDING BANNER - Prominent funding promotion */}
-        <section className="py-12 bg-gradient-to-r from-[#1e3a5f] via-[#1e3a5f]/95 to-[#1e3a5f]" data-testid="section-startup-funding-banner">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+        {/* STARTUP FUNDING BANNER - Premium futuristic design */}
+        <section className="py-16 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-startup-funding-banner">
+          <HexGrid opacity={0.02} />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#C8A661]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-green-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
               <div className="flex-1 text-center lg:text-left">
-                <Badge className="mb-4 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-funding-promo">
+                <PremiumBadge variant="gold" size="md" animated className="mb-4" data-testid="badge-funding-promo">
                   <DollarSign className="w-3 h-3 mr-1" />
                   Startup Funding Available
-                </Badge>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3" data-testid="text-funding-headline">
+                </PremiumBadge>
+                <h2 className="text-2xl md:text-4xl font-bold text-white mb-4" data-testid="text-funding-headline">
                   Ready to Fund Your First Laundromat?
                 </h2>
-                <p className="text-gray-300 max-w-xl mb-6" data-testid="text-funding-description">
+                <p className="text-gray-400 max-w-xl mb-6" data-testid="text-funding-description">
                   Access up to $750K in combined funding through our verified lending partners. 
                   No business history required for personal credit options.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                   <Link href="/startup-funding">
-                    <Button className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold" size="lg" data-testid="button-explore-funding">
+                    <Button className="bg-[#C8A661] text-[#0A1628] font-semibold" size="lg" data-testid="button-explore-funding">
                       Explore Funding Options
                       <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link href="/funding-wizard">
+                    <Button variant="outline" className="border-[#C8A661]/30 text-[#C8A661]" size="lg" data-testid="button-funding-wizard">
+                      Get Matched Now
+                      <Zap className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
-                <Card className="bg-white/10 border-white/20 backdrop-blur-sm p-6 text-center min-w-[160px]" data-testid="card-personal-credit-highlight">
-                  <div className="text-3xl md:text-4xl font-bold text-[#C8A661] mb-1" data-testid="text-personal-credit-amount">$500K</div>
-                  <div className="text-sm text-white font-medium">Personal Credit</div>
-                  <div className="text-xs text-gray-400 mt-1">5-7 Year Terms</div>
-                </Card>
-                <Card className="bg-white/10 border-white/20 backdrop-blur-sm p-6 text-center min-w-[160px]" data-testid="card-business-credit-highlight">
-                  <div className="text-3xl md:text-4xl font-bold text-[#C8A661] mb-1" data-testid="text-business-credit-amount">$250K</div>
-                  <div className="text-sm text-white font-medium">Business Credit</div>
-                  <div className="text-xs text-gray-400 mt-1">24-48hr Approval</div>
-                </Card>
+                <FuturisticCard glowColor="gold">
+                  <div className="p-6 text-center min-w-[160px]" data-testid="card-personal-credit-highlight">
+                    <div className="text-3xl md:text-4xl font-bold text-[#C8A661] mb-1" data-testid="text-personal-credit-amount">
+                      $<AnimatedCounter value={500} duration={1500} />K
+                    </div>
+                    <div className="text-sm text-white font-medium">Personal Credit</div>
+                    <div className="text-xs text-gray-500 mt-1">5-7 Year Terms</div>
+                    <div className="mt-3">
+                      <TechLabel variant="success">No Business Required</TechLabel>
+                    </div>
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="cyan">
+                  <div className="p-6 text-center min-w-[160px]" data-testid="card-business-credit-highlight">
+                    <div className="text-3xl md:text-4xl font-bold text-cyan-400 mb-1" data-testid="text-business-credit-amount">
+                      $<AnimatedCounter value={250} duration={1500} />K
+                    </div>
+                    <div className="text-sm text-white font-medium">Business Credit</div>
+                    <div className="text-xs text-gray-500 mt-1">24-48hr Approval</div>
+                    <div className="mt-3">
+                      <TechLabel variant="info">Fast Funding</TechLabel>
+                    </div>
+                  </div>
+                </FuturisticCard>
               </div>
             </div>
           </div>
@@ -1094,73 +1118,85 @@ export default function Home() {
         <EquipmentCarousel showListCTA={true} />
         
         {/* EXPERT SERVICES FUNNEL - AI Council → Larry → Funding */}
-        <section className="py-16 md:py-20 bg-muted/30" data-testid="section-expert-services">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <section className="py-16 md:py-20 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-expert-services">
+          <HexGrid opacity={0.02} />
+          <div className="absolute top-10 left-10 opacity-15 pointer-events-none">
+            <GlowOrb size="md" color="gold" />
+          </div>
+          <div className="absolute bottom-10 right-10 opacity-10 pointer-events-none">
+            <GlowOrb size="lg" color="cyan" />
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
             <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]" data-testid="badge-expert-services">
+              <PremiumBadge variant="elite" size="md" animated className="mb-4" data-testid="badge-expert-services">
                 <Sparkles className="w-3 h-3 mr-1.5" />
                 Premium Expert Services
-              </Badge>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" data-testid="text-expert-heading">
+              </PremiumBadge>
+              <h2 className="text-2xl md:text-4xl font-bold text-white mb-3" data-testid="text-expert-heading">
                 Get Expert Guidance at Every Step
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto" data-testid="text-expert-subheading">
+              <p className="text-gray-400 max-w-2xl mx-auto" data-testid="text-expert-subheading">
                 From AI-powered analysis to 1-on-1 consulting with industry veterans
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
               {/* AI Consultation Council */}
-              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all" data-testid="card-expert-ai-council">
-                <div className="h-1 bg-[#C8A661]" />
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
-                    <Users className="h-6 w-6 text-[#C8A661]" />
+              <FuturisticCard glowColor="cyan" className="h-full" data-testid="card-expert-ai-council">
+                <div className="p-6 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/30 flex items-center justify-center">
+                      <Users className="h-6 w-6 text-cyan-400" />
+                    </div>
+                    <TechLabel variant="info">AI-Powered</TechLabel>
                   </div>
-                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-ai-council-price">From $49</Badge>
-                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-ai-council-title">AI Consultation Council</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <Badge className="mb-3 bg-cyan-500/20 text-cyan-400 border-cyan-500/30 w-fit" data-testid="badge-ai-council-price">From $49</Badge>
+                  <h3 className="text-lg font-bold text-white mb-2" data-testid="text-ai-council-title">AI Consultation Council</h3>
+                  <p className="text-sm text-gray-400 mb-4">
                     Get multi-AI analysis from 5 expert perspectives on any deal or location
                   </p>
-                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                  <ul className="space-y-2 mb-4 text-sm text-gray-400 flex-1">
                     <li className="flex items-center gap-2" data-testid="text-feature-ai-1">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-cyan-400" />
                       5 AI experts analyze your opportunity
                     </li>
                     <li className="flex items-center gap-2" data-testid="text-feature-ai-2">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-cyan-400" />
                       Detailed due diligence report
                     </li>
                     <li className="flex items-center gap-2" data-testid="text-feature-ai-3">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-cyan-400" />
                       Risk assessment & recommendations
                     </li>
                   </ul>
                   <Link href="/ai-consultation-council">
-                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-ai-council-home">
+                    <Button className="w-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400" data-testid="button-ai-council-home">
                       Get AI Council Analysis
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
-              
-              {/* Larry Larsen Consulting */}
-              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all relative" data-testid="card-expert-larry">
-                <div className="h-1 bg-[#C8A661]" />
-                <div className="absolute top-3 right-3">
-                  <Badge className="font-bold bg-[#C8A661] text-[#0A1628]" data-testid="badge-larry-featured">Featured</Badge>
                 </div>
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
-                    <Star className="h-6 w-6 text-[#C8A661]" />
+              </FuturisticCard>
+              
+              {/* Larry Larsen Consulting - Featured */}
+              <GoldBorderCard variant="thick" animated className="h-full" data-testid="card-expert-larry">
+                <div className="bg-gradient-to-br from-[#0A1628] to-[#1a2a4a] p-6 rounded-xl h-full flex flex-col relative">
+                  <div className="absolute top-3 right-3">
+                    <PremiumBadge variant="elite" size="sm" data-testid="badge-larry-featured">Featured</PremiumBadge>
                   </div>
-                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-larry-price">$397/session</Badge>
-                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-larry-title">Talk to Larry Larsen</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#C8A661]/20 to-[#C8A661]/5 border border-[#C8A661]/30 flex items-center justify-center">
+                      <Star className="h-6 w-6 text-[#C8A661]" />
+                    </div>
+                    <LiveIndicator status="online" />
+                  </div>
+                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30 w-fit" data-testid="badge-larry-price">$397/session</Badge>
+                  <h3 className="text-lg font-bold text-white mb-2" data-testid="text-larry-title">Talk to Larry Larsen</h3>
+                  <p className="text-sm text-gray-400 mb-4">
                     50+ years experience. The most trusted name in laundromat consulting.
                   </p>
-                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                  <ul className="space-y-2 mb-4 text-sm text-gray-400 flex-1">
                     <li className="flex items-center gap-2" data-testid="text-feature-larry-1">
                       <CheckCircle className="w-4 h-4 text-[#C8A661]" />
                       1 on 1 consultation
@@ -1175,71 +1211,100 @@ export default function Home() {
                     </li>
                   </ul>
                   <Link href="/larry-larsen">
-                    <Button className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]" data-testid="button-larry-home">
+                    <Button className="w-full bg-[#C8A661] text-[#0A1628] font-semibold" data-testid="button-larry-home">
                       Book with Larry
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
+                </div>
+              </GoldBorderCard>
               
               {/* Funding Hub */}
-              <Card className="bg-card border shadow-sm overflow-hidden hover:border-[#C8A661]/50 hover-elevate transition-all" data-testid="card-expert-funding">
-                <div className="h-1 bg-[#C8A661]" />
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center mb-4">
-                    <DollarSign className="h-6 w-6 text-[#C8A661]" />
+              <FuturisticCard glowColor="gold" className="h-full" data-testid="card-expert-funding">
+                <div className="p-6 h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-[#C8A661]/20 to-[#C8A661]/5 border border-[#C8A661]/30 flex items-center justify-center">
+                      <DollarSign className="h-6 w-6 text-[#C8A661]" />
+                    </div>
+                    <TechLabel variant="success">Pre-Qualified</TechLabel>
                   </div>
-                  <Badge className="mb-3 bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-funding-type">Pre-Qualified</Badge>
-                  <h3 className="text-lg font-bold text-foreground mb-2" data-testid="text-funding-title">Funding Partners Hub</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <Badge className="mb-3 bg-green-500/20 text-green-400 border-green-500/30 w-fit" data-testid="badge-funding-type">Up to $750K</Badge>
+                  <h3 className="text-lg font-bold text-white mb-2" data-testid="text-funding-title">Funding Partners Hub</h3>
+                  <p className="text-sm text-gray-400 mb-4">
                     Connect with pre-vetted lenders ready to fund your laundromat deal
                   </p>
-                  <ul className="space-y-2 mb-4 text-sm text-muted-foreground">
+                  <ul className="space-y-2 mb-4 text-sm text-gray-400 flex-1">
                     <li className="flex items-center gap-2" data-testid="text-feature-funding-1">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-green-400" />
                       SBA 7(a) & 504 loans
                     </li>
                     <li className="flex items-center gap-2" data-testid="text-feature-funding-2">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-green-400" />
                       Equipment financing
                     </li>
                     <li className="flex items-center gap-2" data-testid="text-feature-funding-3">
-                      <CheckCircle className="w-4 h-4 text-[#C8A661]" />
+                      <CheckCircle className="w-4 h-4 text-green-400" />
                       Investor matching
                     </li>
                   </ul>
                   <Link href="/funding">
-                    <Button className="w-full bg-[#0A1628] hover:bg-[#1a3a5c] text-white" data-testid="button-funding-home">
+                    <Button className="w-full bg-[#C8A661]/20 border border-[#C8A661]/30 text-[#C8A661]" data-testid="button-funding-home">
                       Explore Funding Options
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
+                </div>
+              </FuturisticCard>
             </div>
             
-            {/* Funnel Journey Indicator */}
-            <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400" data-testid="funnel-journey-indicator">
-              <div className="flex items-center gap-2" data-testid="step-cleanbi">
-                <div className="w-8 h-8 rounded-full bg-[#C8A661] text-white flex items-center justify-center font-bold">1</div>
-                <span>Analyze with CLEANBI</span>
-              </div>
-              <ArrowRight className="w-4 h-4 hidden md:block" />
-              <div className="flex items-center gap-2" data-testid="step-council">
-                <div className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center font-bold">2</div>
-                <span>Get AI Council Review</span>
-              </div>
-              <ArrowRight className="w-4 h-4 hidden md:block" />
-              <div className="flex items-center gap-2" data-testid="step-larry">
-                <div className="w-8 h-8 rounded-full bg-[#C8A661] text-[#1e3a5f] flex items-center justify-center font-bold">3</div>
-                <span>Consult with Larry</span>
-              </div>
-              <ArrowRight className="w-4 h-4 hidden md:block" />
-              <div className="flex items-center gap-2" data-testid="step-funding">
-                <div className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center font-bold">4</div>
-                <span>Secure Funding</span>
-              </div>
+            {/* Funnel Journey Indicator - Premium */}
+            <div className="mt-12">
+              <GlassmorphismCard intensity="light" glowColor="gold" className="max-w-4xl mx-auto">
+                <div className="p-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4" data-testid="funnel-journey-indicator">
+                    <div className="flex items-center gap-3" data-testid="step-cleanbi">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#B8964F] text-[#0A1628] flex items-center justify-center font-bold shadow-lg shadow-[#C8A661]/30">1</div>
+                      <div>
+                        <div className="text-white font-medium text-sm">Analyze</div>
+                        <div className="text-gray-500 text-xs">CLEANBI Score</div>
+                      </div>
+                    </div>
+                    <div className="hidden md:flex items-center">
+                      <div className="w-12 h-[2px] bg-gradient-to-r from-[#C8A661] to-cyan-400" />
+                      <ArrowRight className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="flex items-center gap-3" data-testid="step-council">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 text-white flex items-center justify-center font-bold shadow-lg shadow-cyan-500/30">2</div>
+                      <div>
+                        <div className="text-white font-medium text-sm">Review</div>
+                        <div className="text-gray-500 text-xs">AI Council</div>
+                      </div>
+                    </div>
+                    <div className="hidden md:flex items-center">
+                      <div className="w-12 h-[2px] bg-gradient-to-r from-cyan-400 to-[#C8A661]" />
+                      <ArrowRight className="w-4 h-4 text-[#C8A661]" />
+                    </div>
+                    <div className="flex items-center gap-3" data-testid="step-larry">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C8A661] to-[#B8964F] text-[#0A1628] flex items-center justify-center font-bold shadow-lg shadow-[#C8A661]/30">3</div>
+                      <div>
+                        <div className="text-white font-medium text-sm">Consult</div>
+                        <div className="text-gray-500 text-xs">Larry Larsen</div>
+                      </div>
+                    </div>
+                    <div className="hidden md:flex items-center">
+                      <div className="w-12 h-[2px] bg-gradient-to-r from-[#C8A661] to-green-400" />
+                      <ArrowRight className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div className="flex items-center gap-3" data-testid="step-funding">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white flex items-center justify-center font-bold shadow-lg shadow-green-500/30">4</div>
+                      <div>
+                        <div className="text-white font-medium text-sm">Fund</div>
+                        <div className="text-gray-500 text-xs">Secure Capital</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </GlassmorphismCard>
             </div>
           </div>
         </section>
