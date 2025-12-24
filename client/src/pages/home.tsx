@@ -949,6 +949,74 @@ export default function Home() {
               </DataPanel>
             </div>
             
+            {/* CLEANBI Score Demo */}
+            <div className="mt-10">
+              <GlassmorphismCard intensity="medium" glowColor="gold" className="max-w-3xl mx-auto">
+                <div className="p-6">
+                  <div className="flex flex-col md:flex-row items-center gap-6">
+                    <div className="flex-shrink-0">
+                      <div className="relative">
+                        <ProgressRing value={78} size="lg" color="gold" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-[#C8A661]">B+</div>
+                            <div className="text-[10px] text-gray-400">GRADE</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                      <TechLabel variant="success" animated>Sample Analysis</TechLabel>
+                      <h3 className="text-xl font-bold text-white mt-2 mb-1" data-testid="text-cleanbi-demo-title">
+                        123 Main Street, Austin, TX
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-3">
+                        High foot traffic • Low competition • Growing demographics
+                      </p>
+                      <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30" data-testid="badge-cleanbi-demographics">Demographics: A</Badge>
+                        <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30" data-testid="badge-cleanbi-traffic">Traffic: B+</Badge>
+                        <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30" data-testid="badge-cleanbi-competition">Competition: B</Badge>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Link href="/cleanbi-explorer">
+                        <Button className="bg-[#C8A661] text-[#0A1628] font-semibold" data-testid="button-try-cleanbi-demo">
+                          Analyze Your Location
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </GlassmorphismCard>
+            </div>
+            
+            {/* Testimonial Highlight */}
+            <div className="mt-10 grid md:grid-cols-3 gap-4" data-testid="section-testimonial-highlights">
+              {[
+                { quote: "CLEANBI saved me from a $180K mistake.", name: "Mike R.", location: "Dallas, TX", saved: "$180K" },
+                { quote: "Scored 94 on my location - now my best performer.", name: "Sarah L.", location: "Phoenix, AZ", saved: "3 locations" },
+                { quote: "Found a hidden gem the broker missed.", name: "James T.", location: "Houston, TX", saved: "$45K under" },
+              ].map((t, i) => (
+                <GoldBorderCard key={i} variant="default">
+                  <div className="bg-[#0A1628] p-4 rounded-xl" data-testid={`card-testimonial-${i}`}>
+                    <div className="flex items-start gap-2 mb-3">
+                      <Quote className="w-4 h-4 text-[#C8A661] flex-shrink-0 mt-1" />
+                      <p className="text-sm text-gray-300 italic" data-testid={`text-testimonial-quote-${i}`}>{t.quote}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-white font-medium text-sm" data-testid={`text-testimonial-name-${i}`}>{t.name}</div>
+                        <div className="text-gray-500 text-xs" data-testid={`text-testimonial-location-${i}`}>{t.location}</div>
+                      </div>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs" data-testid={`badge-testimonial-saved-${i}`}>{t.saved}</Badge>
+                    </div>
+                  </div>
+                </GoldBorderCard>
+              ))}
+            </div>
+            
             {/* CTA to explore tools */}
             <div className="text-center mt-10">
               <Link href="/cleanbi-explorer">
