@@ -1,4 +1,4 @@
-import { SeoHead } from "@/components/SeoHead";
+import { SEOHead } from "@/components/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ export default function MarketplaceLanding() {
 
   return (
     <>
-      <SeoHead
+      <SEOHead
         title="Buy & Sell Laundromats - Verified Marketplace"
         description="Browse verified, profitable laundromat businesses with CLEANBI scoring. Connect with sellers, brokers, and find your next opportunity on WashBizHub's marketplace."
         keywords={[

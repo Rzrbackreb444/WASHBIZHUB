@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import { Link } from "wouter";
-import { SeoHead } from "@/components/SeoHead";
+import { SEOHead } from "@/components/SEOHead";
 import { getStateData, getAllStates, type StateData } from "@/data/state-laundromat-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -102,7 +102,7 @@ function StatePage({ stateData }: StatePageProps) {
 
   return (
     <>
-      <SeoHead
+      <SEOHead
         title={`Sell Your Laundromat in ${stateData.name} | ${stateData.avgSalePrice} Avg Sale | WashBizHub`}
         description={`List your ${stateData.name} laundromat for sale. ${stateData.laundromatCount} laundromats, ${stateData.avgSalePrice} average sale price, ${stateData.marketGrowth} market growth. Free listing, 120+ active buyers.`}
         keywords={[
