@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { SEO } from "@/components/SEO";
+import { AutoSEO } from "@/components/AutoSEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -274,31 +274,12 @@ export default function CalculatorsHub() {
 
   return (
     <>
-      <SEO
-        title="50+ Laundromat Calculators - Valuation, ROI, TPD & More | WashBizHub"
-        description="Free laundromat calculators for valuation, ROI analysis, TPD, utilities, financing, and operations. Professional tools trusted by 5,600+ laundromat operators and investors."
-        canonicalUrl="/calculators"
-        ogType="website"
-        keywords={[
-          "laundromat calculator",
-          "laundry business ROI calculator",
-          "laundromat valuation calculator",
-          "coin laundry startup cost calculator",
-          "laundromat operating expense calculator",
-          "SDE multiple laundromat",
-          "laundromat investment calculator",
-          "TPD calculator laundromat",
-          "laundromat utility calculator",
-          "laundromat loan calculator",
-          "CLEANBI location score",
-          "laundromat break even calculator"
-        ]}
+      <AutoSEO 
+        faqs={calculatorFaqs}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Calculators", url: "/calculators" }
         ]}
-        structuredData={softwareApplicationSchema}
-        faqs={calculatorFaqs}
       />
 
       <div className="min-h-screen bg-background">
