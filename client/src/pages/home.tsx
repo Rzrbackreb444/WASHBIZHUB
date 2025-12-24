@@ -1122,16 +1122,28 @@ export default function Home() {
           </div>
         </section>
 
-        {/* DEAL RISK CALCULATOR - Hidden, using premium layout */}
-        <section className="py-16 bg-muted/20 hidden" data-testid="section-deal-calculator">
+        {/* INTERACTIVE DEAL RISK CALCULATOR - Try before you buy */}
+        <section className="py-16 bg-muted/20" data-testid="section-deal-calculator">
           <div className="max-w-2xl mx-auto px-6 lg:px-8">
-            <Card className="p-6 md:p-8 bg-card border-2 border-accent/30">
+            <div className="text-center mb-8">
+              <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]" data-testid="badge-try-it">
+                <Calculator className="w-3 h-3 mr-1.5" />
+                Try It Now
+              </Badge>
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2" data-testid="text-calc-heading">
+                Is That Deal Worth It?
+              </h2>
+              <p className="text-muted-foreground">
+                Enter a deal you're considering and get an instant reality check
+              </p>
+            </div>
+            <Card className="p-6 md:p-8 bg-card border-2 border-[#C8A661]/30 shadow-lg">
               <div className="flex items-center gap-2 mb-4 justify-center">
                 <AlertTriangle className="w-5 h-5 text-[#C8A661]" />
                 <h3 className="text-xl font-bold text-foreground">Quick Deal Check</h3>
               </div>
               <p className="text-muted-foreground text-center mb-6">
-                Is the asking price reasonable? Find out in 10 seconds.
+                See if the asking price is reasonable in 10 seconds
               </p>
               
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
@@ -1184,8 +1196,16 @@ export default function Home() {
               )}
               
               <p className="text-xs text-muted-foreground text-center mt-4">
-                Based on industry-standard valuation multiples. For a complete analysis, use our full valuation calculator.
+                Based on industry-standard valuation multiples (2.5-4x gross revenue).
               </p>
+              <div className="mt-6 pt-4 border-t border-border/50 text-center">
+                <Link href="/calculators">
+                  <Button variant="outline" size="sm" className="border-[#C8A661]/40 text-[#C8A661]" data-testid="button-full-calculators">
+                    Explore All 50+ Calculators
+                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </Link>
+              </div>
             </Card>
           </div>
         </section>
@@ -1285,37 +1305,55 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOT MARKETS CAROUSEL - Hidden, using premium layout */}
-        <section className="py-12 bg-background border-t border-border/50 hidden" data-testid="section-hot-markets">
+        {/* HOT MARKETS CAROUSEL - Live market intelligence */}
+        <section className="py-12 bg-background border-t border-border/50" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="flex items-center gap-2 mb-6 justify-center">
-              <Flame className="w-5 h-5 text-[#C8A661]" />
+            <div className="text-center mb-6">
+              <Badge variant="outline" className="mb-3 border-red-500/40 text-red-500 bg-red-500/10" data-testid="badge-hot-markets">
+                <Flame className="w-3 h-3 mr-1.5" />
+                Live Intelligence
+              </Badge>
               <h3 className="text-xl font-bold text-foreground">Hot Markets This Week</h3>
+              <p className="text-sm text-muted-foreground mt-1">Based on CLEANBI scores and investor activity</p>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
               {hotMarkets.map((market, idx) => (
-                <Card 
-                  key={idx} 
-                  className="flex-shrink-0 w-64 p-4 bg-card border border-border/50 snap-start"
-                  data-testid={`hot-market-${idx}`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-foreground">{market.city}</span>
-                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
-                      {market.score}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{market.insight}</p>
-                  <div className="flex items-center gap-1 mt-2 text-green-500 text-xs">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>Trending</span>
-                  </div>
-                </Card>
+                <Link key={idx} href={`/cleanbi-explorer?address=${encodeURIComponent(market.city)}`}>
+                  <Card 
+                    className="flex-shrink-0 w-64 p-4 bg-card border border-border/50 snap-start hover:border-[#C8A661]/50 hover-elevate cursor-pointer transition-all"
+                    data-testid={`hot-market-${idx}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-foreground">{market.city}</span>
+                      <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                        {market.score}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{market.insight}</p>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-1 text-green-500 text-xs">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>Trending</span>
+                      </div>
+                      <span className="text-xs text-[#C8A661] font-medium flex items-center gap-1">
+                        Analyze <ArrowRight className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </Card>
+                </Link>
               ))}
             </div>
             <p className="text-xs text-muted-foreground text-center mt-4">
               Based on aggregate CLEANBI scores and search volume. Updated weekly.
             </p>
+            <div className="mt-6 text-center">
+              <Link href="/cleanbi-explorer">
+                <Button variant="outline" size="sm" className="border-[#C8A661]/40 text-[#C8A661]" data-testid="button-analyze-location">
+                  <MapPin className="w-4 h-4 mr-1.5" />
+                  Analyze Any Location Free
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 
