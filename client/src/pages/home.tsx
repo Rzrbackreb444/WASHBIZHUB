@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SEO } from "@/components/SEO";
+import { AutoSEO } from "@/components/AutoSEO";
 import { PremiumHero } from "@/components/PremiumHero";
 import { CredibilityBar } from "@/components/CredibilityBar";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
@@ -689,86 +689,8 @@ export default function Home() {
   
   return (
     <>
-      <SEO
-        title="Laundromat For Sale | Buy a Laundromat | WashBizHub - #1 Laundromat Business Platform"
-        description="Find laundromats for sale, calculate ROI & valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling & operating laundromats. 73,000+ professionals. Free tools."
-        canonicalUrl="/"
-        ogType="website"
-        keywords={[
-          // PRIMARY KEYPHRASES (high commercial intent)
-          "laundromat for sale",
-          "buy a laundromat",
-          "laundromats for sale near me",
-          "laundromat business for sale",
-          
-          // SECONDARY KEYPHRASES
-          "laundromat business",
-          "laundromat valuation",
-          "laundromat investment",
-          "laundromat ROI calculator",
-          "coin laundry for sale",
-          "coin laundry business",
-          
-          // LONG-TAIL KEYPHRASES
-          "how to buy a laundromat",
-          "is a laundromat a good investment",
-          "laundromat due diligence checklist",
-          "laundromat location analysis",
-          "laundromat startup costs",
-          "how much does a laundromat cost",
-          "laundromat profit margins",
-          "best locations for laundromat",
-          
-          // LOCATION ANALYSIS KEYPHRASES
-          "laundromat site selection",
-          "laundromat foot traffic analysis",
-          "laundromat competition analysis",
-          "laundromat demographics analysis",
-          "location intelligence laundromat",
-          "laundromat market analysis",
-          "laundromat competitor mapping",
-          "rental density laundromat",
-          "walk score laundromat location",
-          
-          // LSI/SEMANTIC KEYWORDS
-          "self service laundry business",
-          "commercial laundry equipment",
-          "laundromat management software",
-          "laundromat business plan",
-          "laundromat financing options",
-          "SBA loan laundromat",
-          "laundromat owner income",
-          "laundry business opportunity",
-          
-          // TEMPLATE VAULT KEYPHRASES
-          "laundromat business plan template",
-          "laundromat due diligence checklist",
-          "laundromat lease checklist",
-          "laundromat LOI template",
-          "laundromat acquisition templates",
-          "laundromat operations manual",
-          "laundromat employee handbook",
-          "laundromat financial model",
-          
-          // BRANDED TERMS
-          "CLEANBI location score",
-          "CLEANBI location intelligence",
-          "WashBizHub marketplace",
-          "laundromat calculators",
-          "laundromat industry resources"
-        ]}
-        structuredData={structuredData}
-        speakableSelectors={[
-          "h1", 
-          "h2", 
-          ".speakable", 
-          "[data-testid='text-choose-path-heading']",
-          "[data-testid='section-testimonials'] h2"
-        ]}
-        breadcrumbs={[
-          { name: "Home", url: "/" }
-        ]}
-        dateModified={new Date().toISOString().split('T')[0]}
+      <AutoSEO 
+        faqs={homeFaqs}
       />
       
       <div className="min-h-screen bg-white">
