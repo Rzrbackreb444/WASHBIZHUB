@@ -364,16 +364,81 @@ export async function submitContentToIndexNow(content: {
 /**
  * IndexNow endpoints - try multiple for redundancy
  * Note: All these endpoints share the same IndexNow protocol
+ * Bing/IndexNow.org has strict rate limits - uses throttled queue
  */
 const INDEXNOW_ENDPOINTS = [
-  { name: "Yandex", url: "https://yandex.com/indexnow" },
-  { name: "Seznam", url: "https://search.seznam.cz/indexnow" },
-  { name: "Bing/IndexNow.org", url: "https://api.indexnow.org/indexnow" },
-  { name: "Naver", url: "https://searchadvisor.naver.com/indexnow" },
+  { name: "Yandex", url: "https://yandex.com/indexnow", throttle: false },
+  { name: "Seznam", url: "https://search.seznam.cz/indexnow", throttle: false },
+  { name: "Naver", url: "https://searchadvisor.naver.com/indexnow", throttle: false },
+  { name: "Bing", url: "https://api.indexnow.org/indexnow", throttle: true },
 ];
 
+// Bing rate limiter - max 5 requests per minute to avoid 429s
+const bingRateLimiter = {
+  queue: [] as { url: string; apiKey: string; resolve: (v: boolean) => void }[],
+  isProcessing: false,
+  lastRequestTime: 0,
+  minDelayMs: 12000, // 5 requests per minute = 12 second gap
+  
+  async enqueue(url: string, apiKey: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.queue.push({ url, apiKey, resolve });
+      this.processQueue();
+    });
+  },
+  
+  async processQueue(): Promise<void> {
+    if (this.isProcessing || this.queue.length === 0) return;
+    this.isProcessing = true;
+    
+    while (this.queue.length > 0) {
+      const now = Date.now();
+      const timeSinceLast = now - this.lastRequestTime;
+      
+      if (timeSinceLast < this.minDelayMs) {
+        await new Promise(r => setTimeout(r, this.minDelayMs - timeSinceLast));
+      }
+      
+      const item = this.queue.shift();
+      if (!item) break;
+      
+      try {
+        const hostname = new URL(item.url).hostname;
+        const payload = {
+          host: hostname,
+          key: item.apiKey,
+          keyLocation: `https://${hostname}/${item.apiKey}.txt`,
+          urlList: [item.url],
+        };
+        
+        const response = await fetch("https://api.indexnow.org/indexnow", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        
+        this.lastRequestTime = Date.now();
+        
+        if (response.ok || response.status === 200 || response.status === 202) {
+          console.log(`✅ IndexNow (Bing) success: ${item.url}`);
+          item.resolve(true);
+        } else {
+          console.log(`⚠️ IndexNow (Bing) failed: ${response.status}`);
+          item.resolve(false);
+        }
+      } catch (error) {
+        console.log(`⚠️ IndexNow (Bing) error: ${error instanceof Error ? error.message : 'Unknown'}`);
+        item.resolve(false);
+      }
+    }
+    
+    this.isProcessing = false;
+  }
+};
+
 /**
- * Submit URL using IndexNow protocol (Bing, Yahoo, Yandex, DuckDuckGo, Seznam, Naver)
+ * Submit URL using IndexNow protocol (Yandex, Seznam, Naver, Bing)
+ * Bing uses throttled queue to avoid 429 rate limits
  * Tries multiple endpoints for redundancy - success on ANY endpoint counts as success
  */
 export async function submitViaIndexNow(
@@ -385,11 +450,11 @@ export async function submitViaIndexNow(
   
   const results: Record<string, boolean> = {};
   let anySuccess = false;
-  const messages: string[] = [];
   
-  // Try all endpoints in parallel for speed
+  // Submit to non-throttled endpoints in parallel
+  const fastEndpoints = INDEXNOW_ENDPOINTS.filter(e => !e.throttle);
   await Promise.all(
-    INDEXNOW_ENDPOINTS.map(async (endpoint) => {
+    fastEndpoints.map(async (endpoint) => {
       try {
         const payload = {
           host: hostname,
@@ -400,9 +465,7 @@ export async function submitViaIndexNow(
 
         const response = await fetch(endpoint.url, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
 
@@ -412,7 +475,6 @@ export async function submitViaIndexNow(
           console.log(`✅ IndexNow (${endpoint.name}) success: ${url}`);
         } else {
           results[endpoint.name] = false;
-          const errorText = await response.text();
           console.log(`⚠️ IndexNow (${endpoint.name}) failed: ${response.status}`);
         }
       } catch (error) {
@@ -422,6 +484,12 @@ export async function submitViaIndexNow(
     })
   );
   
+  // Queue Bing request (throttled)
+  bingRateLimiter.enqueue(url, apiKey).then(success => {
+    results["Bing"] = success;
+    if (success) anySuccess = true;
+  });
+  
   const successfulEngines = Object.entries(results)
     .filter(([_, success]) => success)
     .map(([name]) => name);
@@ -429,13 +497,13 @@ export async function submitViaIndexNow(
   if (anySuccess) {
     return {
       success: true,
-      message: `URL indexed via: ${successfulEngines.join(", ")}`,
+      message: `URL indexed via: ${successfulEngines.join(", ")} (Bing queued)`,
       details: results,
     };
   } else {
     return {
       success: false,
-      message: "All IndexNow endpoints failed - key may need propagation time",
+      message: "IndexNow endpoints failed - key may need propagation time",
       details: results,
     };
   }

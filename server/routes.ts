@@ -21,6 +21,7 @@ import bulkAnalysisRoutes from "./bulk-analysis-routes";
 import ownerAnalyticsRoutes from "./owner-analytics-routes";
 import { registerSitemapRoutes } from "./sitemap-routes";
 import { registerEngagementRoutes } from "./engagement-routes";
+import { registerBookStudioChatRoutes } from "./book-studio-chat";
 import { registerMarketingLoyaltyRoutes } from "./marketing-loyalty-routes";
 import seoCommandCenterRoutes from "./seo-command-center";
 import routeOptimizationRoutes from "./routes/route-optimization";
@@ -603,6 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ==================== SEO & ENGAGEMENT ROUTES ====================
   registerSitemapRoutes(app);
   registerEngagementRoutes(app);
+  registerBookStudioChatRoutes(app);
   registerMarketingLoyaltyRoutes(app);
   
   // ==================== ADMIN DASHBOARD ====================
