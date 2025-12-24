@@ -19,6 +19,17 @@ import {
   Loader2, Sparkles, TrendingUp, AlertCircle, Briefcase, PiggyBank
 } from "lucide-react";
 import { RoadshowCard } from "@/components/RoadshowPromo";
+import {
+  FuturisticCard,
+  GlassmorphismCard,
+  GoldBorderCard,
+  AnimatedCounter,
+  ProgressRing,
+  TechLabel,
+  PremiumBadge,
+  HexGrid,
+  GlowOrb
+} from "@/components/premium-components";
 
 const STATES = [
   "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
@@ -540,98 +551,137 @@ export default function FundingWizard() {
           description="View your matched laundromat funding partners based on your profile."
           canonicalUrl="/funding-wizard"
         />
-        <div className="min-h-screen bg-background py-12">
-          <div className="max-w-4xl mx-auto px-4">
+        <div className="min-h-screen bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] py-12 relative overflow-hidden">
+          <HexGrid opacity={0.02} />
+          <div className="absolute top-10 right-10 opacity-10 pointer-events-none">
+            <GlowOrb size="lg" color="gold" />
+          </div>
+          <div className="absolute bottom-10 left-10 opacity-10 pointer-events-none">
+            <GlowOrb size="md" color="green" />
+          </div>
+          
+          <div className="max-w-4xl mx-auto px-4 relative z-10">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/10 mb-4">
-                <CheckCircle2 className="w-8 h-8 text-green-500" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 mb-4">
+                <CheckCircle2 className="w-8 h-8 text-green-400" />
               </div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
+              <h1 className="text-3xl font-bold text-white mb-2">
                 You're Matched with {matchedPartners.length} Partners!
               </h1>
-              <p className="text-muted-foreground max-w-lg mx-auto">
+              <p className="text-gray-400 max-w-lg mx-auto">
                 Based on your profile, here are your best funding options ranked by match score.
               </p>
             </div>
 
             <div className="grid gap-4 mb-8">
               {matchedPartners.map((partner, index) => (
-                <Card key={partner.name} className={`border-2 ${index === 0 ? "border-[#C8A661]" : "border-border"}`}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {index === 0 && (
-                            <Badge className="bg-[#C8A661] text-white">
+                index === 0 ? (
+                  <GoldBorderCard key={partner.name} variant="thick" animated>
+                    <div className="bg-gradient-to-br from-[#0A1628] to-[#1a2a4a] p-6 rounded-xl">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <PremiumBadge variant="elite" size="sm">
                               <Star className="w-3 h-3 mr-1 fill-current" />
                               Best Match
-                            </Badge>
-                          )}
-                          <Badge variant="outline" className="text-green-500 border-green-500/30">
-                            {partner.matchScore}% Match
-                          </Badge>
+                            </PremiumBadge>
+                            <TechLabel variant="success">{partner.matchScore}% Match</TechLabel>
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-1">{partner.name}</h3>
+                          <p className="text-sm text-[#C8A661] mb-2">{partner.type}</p>
+                          <p className="text-gray-400 mb-3">{partner.reason}</p>
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-[#C8A661]" />
+                            <span className="text-sm font-medium text-white">{partner.specialFeature}</span>
+                          </div>
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-1">{partner.name}</h3>
-                        <p className="text-sm text-[#C8A661] mb-2">{partner.type}</p>
-                        <p className="text-muted-foreground mb-3">{partner.reason}</p>
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-[#C8A661]" />
-                          <span className="text-sm font-medium">{partner.specialFeature}</span>
+                        <div className="flex flex-col items-end gap-3">
+                          <ProgressRing value={partner.matchScore} size={56} strokeWidth={4} color="#22C55E" />
+                          <Button className="bg-[#C8A661] text-[#0A1628]" asChild>
+                            <Link href={partner.link} data-testid={`button-partner-${partner.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                              Apply Now
+                              <ArrowRight className="w-4 h-4 ml-2" />
+                            </Link>
+                          </Button>
                         </div>
                       </div>
-                      <Button asChild className="flex-shrink-0">
-                        <Link href={partner.link} data-testid={`button-partner-${partner.name.toLowerCase().replace(/\s+/g, '-')}`}>
-                          Apply Now
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </GoldBorderCard>
+                ) : (
+                  <FuturisticCard key={partner.name} glowColor="cyan">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <TechLabel variant="info">{partner.matchScore}% Match</TechLabel>
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-1">{partner.name}</h3>
+                          <p className="text-sm text-cyan-400 mb-2">{partner.type}</p>
+                          <p className="text-gray-400 mb-3">{partner.reason}</p>
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-cyan-400" />
+                            <span className="text-sm font-medium text-white">{partner.specialFeature}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-3">
+                          <ProgressRing value={partner.matchScore} size={48} strokeWidth={3} color="#06B6D4" />
+                          <Button variant="outline" className="border-cyan-500/30 text-cyan-400" asChild>
+                            <Link href={partner.link} data-testid={`button-partner-${partner.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                              Apply Now
+                              <ArrowRight className="w-4 h-4 ml-2" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </FuturisticCard>
+                )
               ))}
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 mb-8">
-              <Card className="border-green-500/20 bg-green-500/5">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-500">87%</div>
-                  <div className="text-sm text-muted-foreground">Avg approval rate</div>
-                </CardContent>
-              </Card>
-              <Card className="border-[#C8A661]/20 bg-[#C8A661]/5">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-[#C8A661]">14 days</div>
-                  <div className="text-sm text-muted-foreground">Avg funding time</div>
-                </CardContent>
-              </Card>
-              <Card className="border-blue-500/20 bg-blue-500/5">
-                <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-500">$0</div>
-                  <div className="text-sm text-muted-foreground">Application fees</div>
-                </CardContent>
-              </Card>
+              <FuturisticCard glowColor="green">
+                <div className="p-4 text-center">
+                  <div className="text-2xl font-bold text-green-400"><AnimatedCounter value={87} duration={1000} />%</div>
+                  <div className="text-sm text-gray-500">Avg approval rate</div>
+                </div>
+              </FuturisticCard>
+              <FuturisticCard glowColor="gold">
+                <div className="p-4 text-center">
+                  <div className="text-2xl font-bold text-[#C8A661]"><AnimatedCounter value={14} duration={1000} /> days</div>
+                  <div className="text-sm text-gray-500">Avg funding time</div>
+                </div>
+              </FuturisticCard>
+              <FuturisticCard glowColor="cyan">
+                <div className="p-4 text-center">
+                  <div className="text-2xl font-bold text-cyan-400">$0</div>
+                  <div className="text-sm text-gray-500">Application fees</div>
+                </div>
+              </FuturisticCard>
             </div>
 
             <RoadshowCard className="mb-8" />
 
-            <div className="text-center">
-              <p className="text-muted-foreground mb-4">
-                Want personalized guidance? Our experts can help you navigate the funding process.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button variant="outline" asChild>
-                  <Link href="/funding" data-testid="link-all-partners">
-                    View All Partners
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/ai-council" data-testid="link-ai-council">
-                    <Star className="w-4 h-4 mr-2" />
-                    Talk to AI Council
-                  </Link>
-                </Button>
+            <GlassmorphismCard intensity="light" glowColor="gold">
+              <div className="p-6 text-center">
+                <p className="text-gray-400 mb-4">
+                  Want personalized guidance? Our experts can help you navigate the funding process.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Button variant="outline" className="border-white/20 text-white" asChild>
+                    <Link href="/funding" data-testid="link-all-partners">
+                      View All Partners
+                    </Link>
+                  </Button>
+                  <Button className="bg-[#C8A661] text-[#0A1628]" asChild>
+                    <Link href="/ai-council" data-testid="link-ai-council">
+                      <Star className="w-4 h-4 mr-2" />
+                      Talk to AI Council
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </div>
+            </GlassmorphismCard>
           </div>
         </div>
       </>
@@ -645,47 +695,57 @@ export default function FundingWizard() {
         description="Answer a few questions and get matched with WashBizHub's 7 pre-vetted lending partners. Up to $50M funding, rates from 0.5-2%, 500+ credit OK."
         canonicalUrl="/funding-wizard"
       />
-      <div className="min-h-screen bg-background py-12">
-        <div className="max-w-2xl mx-auto px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] py-12 relative overflow-hidden">
+        <HexGrid opacity={0.02} />
+        <div className="absolute top-20 right-20 opacity-10 pointer-events-none">
+          <GlowOrb size="lg" color="gold" />
+        </div>
+        
+        <div className="max-w-2xl mx-auto px-4 relative z-10">
           <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-4 border-[#C8A661]/50 text-[#C8A661]">
+            <PremiumBadge variant="gold" size="md" animated className="mb-4">
               <Sparkles className="w-3 h-3 mr-1" />
               Pre-Vetted Partners Only
-            </Badge>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+            </PremiumBadge>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
               Get Matched with Funding Partners
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-gray-400">
               5-minute questionnaire • Up to $50M • Rates from 0.5-2%
             </p>
           </div>
 
           <div className="mb-8">
-            <div className="flex justify-between text-sm text-muted-foreground mb-2">
+            <div className="flex justify-between text-sm text-gray-400 mb-2">
               <span>Step {step} of {totalSteps}</span>
               <span>{Math.round(progress)}% Complete</span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#C8A661] to-green-400 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
 
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle>
-                {step === 1 && "Funding Needs"}
-                {step === 2 && "Business Profile"}
-                {step === 3 && "Personal Qualifications"}
-                {step === 4 && "Contact Information"}
-                {step === 5 && "Review & Submit"}
-              </CardTitle>
-              <CardDescription>
-                {step === 1 && "Tell us what you're looking to fund"}
-                {step === 2 && "Help us understand your business"}
-                {step === 3 && "A few quick qualification questions"}
-                {step === 4 && "How can our partners reach you?"}
-                {step === 5 && "Almost there! Review your information"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <GlassmorphismCard intensity="medium" glowColor="gold">
+            <div className="p-6">
+              <div className="mb-4">
+                <h2 className="text-xl font-bold text-white">
+                  {step === 1 && "Funding Needs"}
+                  {step === 2 && "Business Profile"}
+                  {step === 3 && "Personal Qualifications"}
+                  {step === 4 && "Contact Information"}
+                  {step === 5 && "Review & Submit"}
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  {step === 1 && "Tell us what you're looking to fund"}
+                  {step === 2 && "Help us understand your business"}
+                  {step === 3 && "A few quick qualification questions"}
+                  {step === 4 && "How can our partners reach you?"}
+                  {step === 5 && "Almost there! Review your information"}
+                </p>
+              </div>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={step}
@@ -698,9 +758,10 @@ export default function FundingWizard() {
                 </motion.div>
               </AnimatePresence>
 
-              <div className="flex justify-between mt-8 pt-6 border-t">
+              <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
                 <Button
                   variant="outline"
+                  className="border-white/20 text-white"
                   onClick={() => setStep(step - 1)}
                   disabled={step === 1}
                   data-testid="button-back"
@@ -713,6 +774,7 @@ export default function FundingWizard() {
                   <Button
                     onClick={() => setStep(step + 1)}
                     disabled={!canProceed()}
+                    className="bg-[#C8A661] text-[#0A1628]"
                     data-testid="button-next"
                   >
                     Next
@@ -722,7 +784,7 @@ export default function FundingWizard() {
                   <Button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="bg-[#C8A661] hover:bg-[#B8963D]"
+                    className="bg-[#C8A661] text-[#0A1628]"
                     data-testid="button-submit"
                   >
                     {isSubmitting ? (
@@ -739,10 +801,10 @@ export default function FundingWizard() {
                   </Button>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassmorphismCard>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+          <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-green-500" />
               <span>No credit check</span>

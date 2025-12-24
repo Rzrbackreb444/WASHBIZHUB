@@ -55,6 +55,19 @@ import { useAuth } from "@/hooks/useAuth";
 import type { LarrysContentItem } from "@shared/schema";
 import { format } from "date-fns";
 import {
+  FuturisticCard,
+  GlassmorphismCard,
+  GoldBorderCard,
+  AnimatedCounter,
+  ProgressRing,
+  LiveIndicator,
+  TechLabel,
+  PremiumBadge,
+  HexGrid,
+  GlowOrb,
+  DataPanel
+} from "@/components/premium-components";
+import {
   Crown,
   FileText,
   BookOpen,
@@ -328,39 +341,48 @@ export default function LarrysContentEmpire() {
         description="Create, polish, and monetize premium content with AI assistance. Larry's unified platform for blogs, courses, books, consultations, and digital products."
         canonicalUrl="/larrys-content-empire"
       />
-      <div className="min-h-screen bg-background" data-testid="page-larrys-content-empire">
-        <div className="border-b bg-gradient-to-r from-[#0A1628] via-[#1a2d4a] to-[#0A1628]">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a]" data-testid="page-larrys-content-empire">
+        <div className="relative border-b border-[#C8A661]/20 overflow-hidden">
+          <HexGrid opacity={0.03} />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#C8A661]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="max-w-7xl mx-auto px-4 py-8 relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <img src={larryPhoto} alt="Larry Larsen" className="w-16 h-16 rounded-full border-2 border-[#C8A661] shadow-lg" />
-                  <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#C8A661] to-[#E8C681] rounded-full p-1">
-                    <Crown className="w-3 h-3 text-[#0A1628]" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#C8A661] to-purple-500 rounded-full blur opacity-40" />
+                  <img src={larryPhoto} alt="Larry Larsen" className="relative w-20 h-20 rounded-full border-2 border-[#C8A661] shadow-xl" />
+                  <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#C8A661] to-[#E8C681] rounded-full p-1.5 shadow-lg shadow-[#C8A661]/30">
+                    <Crown className="w-4 h-4 text-[#0A1628]" />
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                     Larry's Content Empire
-                    <Badge className="bg-gradient-to-r from-[#C8A661] to-[#E8C681] text-[#0A1628] font-semibold">
+                    <PremiumBadge variant="elite" size="sm" animated>
                       <Sparkles className="w-3 h-3 mr-1" />
                       Pro Suite
-                    </Badge>
+                    </PremiumBadge>
                   </h1>
-                  <p className="text-gray-300 text-sm">Create premium content. AI makes it flawless. Monetize everything.</p>
+                  <p className="text-gray-400 text-sm mt-1">Create premium content. AI makes it flawless. Monetize everything.</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <LiveIndicator status="online" />
+                    <span className="text-xs text-gray-500">System Active</span>
+                  </div>
                 </div>
               </div>
               <div className="flex-1" />
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" onClick={() => setIsPolishOpen(true)} className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10" data-testid="button-ai-polish">
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" onClick={() => setIsPolishOpen(true)} className="border-purple-500/40 text-purple-400 bg-purple-500/10" data-testid="button-ai-polish">
                   <Wand2 className="w-4 h-4 mr-2" />
                   AI Polish
                 </Button>
-                <Button variant="outline" onClick={() => setIsSeoOpen(true)} className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10" data-testid="button-seo-check">
+                <Button variant="outline" onClick={() => setIsSeoOpen(true)} className="border-cyan-500/40 text-cyan-400 bg-cyan-500/10" data-testid="button-seo-check">
                   <Target className="w-4 h-4 mr-2" />
                   SEO Check
                 </Button>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-gradient-to-r from-[#C8A661] to-[#E8C681] hover:from-[#B8964F] hover:to-[#D8B671] text-[#0A1628] font-semibold" data-testid="button-create-content">
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#C8A661] text-[#0A1628] font-semibold shadow-lg shadow-[#C8A661]/30" data-testid="button-create-content">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Content
                 </Button>
@@ -396,88 +418,91 @@ export default function LarrysContentEmpire() {
 
             <TabsContent value="dashboard" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border-emerald-500/20">
-                  <CardContent className="pt-6">
+                <FuturisticCard glowColor="green">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total Revenue</p>
-                        <p className="text-3xl font-bold text-emerald-600">${totalRevenue.toLocaleString()}</p>
-                        <p className="text-xs text-emerald-600 flex items-center mt-1">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          +23% this month
+                        <p className="text-sm text-gray-400">Total Revenue</p>
+                        <p className="text-3xl font-bold text-green-400">
+                          $<AnimatedCounter value={totalRevenue} duration={1500} />
                         </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <TechLabel variant="success">+23%</TechLabel>
+                          <span className="text-xs text-gray-500">this month</span>
+                        </div>
                       </div>
-                      <div className="p-3 bg-emerald-500/20 rounded-full">
-                        <DollarSign className="w-6 h-6 text-emerald-600" />
+                      <div className="p-3 bg-green-500/20 rounded-full border border-green-500/30">
+                        <DollarSign className="w-6 h-6 text-green-400" />
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20">
-                  <CardContent className="pt-6">
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="cyan">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total Views</p>
-                        <p className="text-3xl font-bold text-blue-600">{totalViews.toLocaleString()}</p>
-                        <p className="text-xs text-blue-600 flex items-center mt-1">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          +18% this month
+                        <p className="text-sm text-gray-400">Total Views</p>
+                        <p className="text-3xl font-bold text-cyan-400">
+                          <AnimatedCounter value={totalViews} duration={1500} />
                         </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <TechLabel variant="info">+18%</TechLabel>
+                          <span className="text-xs text-gray-500">this month</span>
+                        </div>
                       </div>
-                      <div className="p-3 bg-blue-500/20 rounded-full">
-                        <Eye className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 bg-cyan-500/20 rounded-full border border-cyan-500/30">
+                        <Eye className="w-6 h-6 text-cyan-400" />
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20">
-                  <CardContent className="pt-6">
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="purple">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Published Items</p>
-                        <p className="text-3xl font-bold text-purple-600">{publishedCount}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {contentItems.filter(c => c.status === "draft").length} drafts pending
+                        <p className="text-sm text-gray-400">Published Items</p>
+                        <p className="text-3xl font-bold text-purple-400">
+                          <AnimatedCounter value={publishedCount} duration={1000} />
                         </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <TechLabel variant="warning">{contentItems.filter(c => c.status === "draft").length} drafts</TechLabel>
+                        </div>
                       </div>
-                      <div className="p-3 bg-purple-500/20 rounded-full">
-                        <Send className="w-6 h-6 text-purple-600" />
+                      <div className="p-3 bg-purple-500/20 rounded-full border border-purple-500/30">
+                        <Send className="w-6 h-6 text-purple-400" />
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
-                  <CardContent className="pt-6">
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="gold">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Avg SEO Score</p>
-                        <p className="text-3xl font-bold text-amber-600">{avgSeoScore}/100</p>
-                        <p className="text-xs text-amber-600 flex items-center mt-1">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Excellent rating
+                        <p className="text-sm text-gray-400">Avg SEO Score</p>
+                        <p className="text-3xl font-bold text-[#C8A661]">
+                          <AnimatedCounter value={avgSeoScore} duration={1000} />/100
                         </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <TechLabel variant="success">Excellent</TechLabel>
+                        </div>
                       </div>
-                      <div className="p-3 bg-amber-500/20 rounded-full">
-                        <Target className="w-6 h-6 text-amber-600" />
-                      </div>
+                      <ProgressRing value={avgSeoScore} size={56} strokeWidth={4} color="#C8A661" />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </FuturisticCard>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                <GlassmorphismCard intensity="light" glowColor="gold" className="lg:col-span-2">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-2">
                       <Zap className="w-5 h-5 text-[#C8A661]" />
-                      Quick Create
-                    </CardTitle>
-                    <CardDescription>Jump directly into creating any content type</CardDescription>
-                  </CardHeader>
-                  <CardContent>
+                      <h3 className="text-lg font-bold text-white">Quick Create</h3>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-4">Jump directly into creating any content type</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {CONTENT_TYPES.slice(0, 8).map(type => (
-                        <Button key={type.id} variant="outline" className="h-auto py-4 flex-col gap-2 hover:border-[#C8A661]/50" asChild data-testid={`button-quick-${type.id}`}>
+                        <Button key={type.id} variant="outline" className="h-auto py-4 flex-col gap-2 border-white/10 bg-white/5 text-white" asChild data-testid={`button-quick-${type.id}`}>
                           <Link href={type.link}>
                             <div className={`p-2 rounded-lg ${type.bgColor}`}>
                               <type.icon className={`w-5 h-5 ${type.color}`} />
@@ -487,58 +512,56 @@ export default function LarrysContentEmpire() {
                         </Button>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </GlassmorphismCard>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CalendarIcon className="w-5 h-5 text-indigo-500" />
-                      Upcoming Consultations
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {consultations.filter(c => c.status === "scheduled" || c.status === "in-progress").slice(0, 3).map(consult => (
-                      <div key={consult.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                        <div className="p-2 bg-indigo-500/10 rounded-full">
-                          {consult.type === "video" ? <VideoIcon className="w-4 h-4 text-indigo-500" /> : <Phone className="w-4 h-4 text-indigo-500" />}
+                <GlassmorphismCard intensity="light" glowColor="purple">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <CalendarIcon className="w-5 h-5 text-purple-400" />
+                      <h3 className="text-lg font-bold text-white">Upcoming Consultations</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {consultations.filter(c => c.status === "scheduled" || c.status === "in-progress").slice(0, 3).map(consult => (
+                        <div key={consult.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                          <div className="p-2 bg-purple-500/20 rounded-full border border-purple-500/30">
+                            {consult.type === "video" ? <VideoIcon className="w-4 h-4 text-purple-400" /> : <Phone className="w-4 h-4 text-purple-400" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white truncate">{consult.clientName}</p>
+                            <p className="text-xs text-gray-500">{consult.scheduledAt ? format(new Date(consult.scheduledAt), 'MMM d, yyyy h:mm a') : 'TBD'}</p>
+                          </div>
+                          {getConsultStatusBadge(consult.status)}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{consult.clientName}</p>
-                          <p className="text-xs text-muted-foreground">{consult.scheduledAt ? format(new Date(consult.scheduledAt), 'MMM d, yyyy h:mm a') : 'TBD'}</p>
-                        </div>
-                        {getConsultStatusBadge(consult.status)}
-                      </div>
-                    ))}
-                    <Button variant="outline" className="w-full" onClick={() => setMainTab("consultations")} data-testid="button-view-all-consults">
-                      View All Consultations
-                    </Button>
-                  </CardContent>
-                </Card>
+                      ))}
+                      <Button variant="outline" className="w-full border-white/20 text-white bg-white/5" onClick={() => setMainTab("consultations")} data-testid="button-view-all-consults">
+                        View All Consultations
+                      </Button>
+                    </div>
+                  </div>
+                </GlassmorphismCard>
               </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <GlassmorphismCard intensity="light" glowColor="gold">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
                     <FileText className="w-5 h-5 text-[#C8A661]" />
-                    Recent Content
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                    <h3 className="text-lg font-bold text-white">Recent Content</h3>
+                  </div>
                   <div className="space-y-3">
                     {contentItems.slice(0, 4).map(item => {
                       const typeConfig = getTypeConfig(item.type);
                       return (
-                        <div key={item.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div key={item.id} className="flex items-center gap-4 p-3 rounded-lg bg-white/5 border border-white/10 transition-colors">
                           <div className={`p-2 rounded-lg ${typeConfig.bgColor}`}>
                             <typeConfig.icon className={`w-5 h-5 ${typeConfig.color}`} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-medium truncate">{item.title}</h3>
+                              <h3 className="font-medium text-white truncate">{item.title}</h3>
                               {getStatusBadge(item.status)}
                             </div>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                            <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
                               <span className="flex items-center gap-1">
                                 <Eye className="w-3 h-3" />
                                 {item.views.toLocaleString()}
@@ -555,7 +578,7 @@ export default function LarrysContentEmpire() {
                               )}
                             </div>
                           </div>
-                          <Button size="sm" variant="ghost" asChild>
+                          <Button size="sm" variant="ghost" className="text-white" asChild>
                             <Link href={typeConfig.link}>
                               <Edit className="w-4 h-4" />
                             </Link>
@@ -564,37 +587,35 @@ export default function LarrysContentEmpire() {
                       );
                     })}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </GlassmorphismCard>
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <CardTitle className="flex items-center gap-2">
+              <GlassmorphismCard intensity="light" glowColor="gold">
+                <div className="p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
                       <Layers className="w-5 h-5 text-[#C8A661]" />
                       Content Library
-                    </CardTitle>
+                    </h3>
                     <div className="flex items-center gap-2">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                         <Input 
                           placeholder="Search content..." 
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 w-64"
+                          className="pl-9 w-64 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
                           data-testid="input-search-content"
                         />
                       </div>
-                      <Button onClick={() => setIsCreateOpen(true)} className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
+                      <Button onClick={() => setIsCreateOpen(true)} className="bg-[#C8A661] text-[#0A1628]">
                         <Plus className="w-4 h-4 mr-2" />
                         New
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
                   <Tabs value={contentTab} onValueChange={setContentTab}>
                     <TabsList className="mb-4 flex-wrap h-auto gap-1">
                       <TabsTrigger value="all">All</TabsTrigger>
@@ -730,45 +751,45 @@ export default function LarrysContentEmpire() {
                       </div>
                     </ScrollArea>
                   </Tabs>
-                </CardContent>
-              </Card>
+                </div>
+              </GlassmorphismCard>
             </TabsContent>
 
             <TabsContent value="consultations" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 border-indigo-500/20">
-                  <CardContent className="pt-6">
+                <FuturisticCard glowColor="cyan">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Pending Bookings</p>
-                        <p className="text-3xl font-bold text-indigo-600">{pendingConsults}</p>
+                        <p className="text-sm text-gray-400">Pending Bookings</p>
+                        <p className="text-3xl font-bold text-cyan-400"><AnimatedCounter value={pendingConsults} duration={800} /></p>
                       </div>
-                      <Clock className="w-8 h-8 text-indigo-500/50" />
+                      <Clock className="w-8 h-8 text-cyan-500/50" />
                     </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border-emerald-500/20">
-                  <CardContent className="pt-6">
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="green">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Upcoming This Week</p>
-                        <p className="text-3xl font-bold text-emerald-600">{upcomingConsults}</p>
+                        <p className="text-sm text-gray-400">Upcoming This Week</p>
+                        <p className="text-3xl font-bold text-green-400"><AnimatedCounter value={upcomingConsults} duration={800} /></p>
                       </div>
-                      <CalendarIcon className="w-8 h-8 text-emerald-500/50" />
+                      <CalendarIcon className="w-8 h-8 text-green-500/50" />
                     </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20">
-                  <CardContent className="pt-6">
+                  </div>
+                </FuturisticCard>
+                <FuturisticCard glowColor="gold">
+                  <div className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Consultation Revenue</p>
-                        <p className="text-3xl font-bold text-amber-600">${consultations.filter(c => c.paid).reduce((sum, c) => sum + parseFloat(c.price || "0"), 0).toLocaleString()}</p>
+                        <p className="text-sm text-gray-400">Consultation Revenue</p>
+                        <p className="text-3xl font-bold text-[#C8A661]">${consultations.filter(c => c.paid).reduce((sum, c) => sum + parseFloat(c.price || "0"), 0).toLocaleString()}</p>
                       </div>
-                      <DollarSign className="w-8 h-8 text-amber-500/50" />
+                      <DollarSign className="w-8 h-8 text-[#C8A661]/50" />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </FuturisticCard>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
