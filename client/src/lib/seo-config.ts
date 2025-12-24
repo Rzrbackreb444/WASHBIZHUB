@@ -399,3 +399,347 @@ export function generateAggregateRatingSchema(
     }
   };
 }
+
+// ===== CANONICAL URL HANDLING =====
+export const CANONICAL_PARAM_ALLOWLIST = ["state", "city", "type", "brand", "id", "category", "slug"];
+export const STRIP_PARAMS = ["page", "sort", "order", "filter", "search", "q", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "ref", "fbclid", "gclid", "msclkid", "_ga"];
+
+export function buildCanonicalUrl(pathname: string, searchParams?: URLSearchParams): string {
+  if (!searchParams || searchParams.toString() === "") {
+    return `${BASE_URL}${pathname}`;
+  }
+  
+  const allowedParams = new URLSearchParams();
+  const sortedKeys = Array.from(CANONICAL_PARAM_ALLOWLIST).sort();
+  
+  for (const key of sortedKeys) {
+    const value = searchParams.get(key);
+    if (value) {
+      allowedParams.set(key, value);
+    }
+  }
+  
+  const paramString = allowedParams.toString();
+  return paramString ? `${BASE_URL}${pathname}?${paramString}` : `${BASE_URL}${pathname}`;
+}
+
+// ===== NOINDEX ROUTES =====
+export const NOINDEX_ROUTES = [
+  "/admin",
+  "/admin/analytics",
+  "/admin/users", 
+  "/admin/settings",
+  "/admin/blog",
+  "/admin/marketplace",
+  "/admin/promo-codes",
+  "/admin/ads",
+  "/admin/resources",
+  "/admin/newsletter",
+  "/admin/feedback-dashboard",
+  "/admin/forum",
+  "/admin/courses",
+  "/settings",
+  "/user-dashboard",
+  "/messages",
+  "/bookings",
+  "/booking-management",
+  "/account-subscription",
+  "/checkout",
+  "/signup",
+  "/login",
+  "/callback",
+  "/auth",
+  "/owner-command-center",
+  "/buyer-dashboard",
+  "/broker-dashboard",
+  "/investor-dashboard",
+  "/service-guy-admin",
+  "/distributor-command-center",
+  "/enterprise-onboarding",
+  "/enterprise-branding",
+  "/publishing-dashboard",
+  "/pos-command-center",
+  "/pos-suite",
+  "/iot-dashboard",
+  "/route-optimization",
+  "/delivery-route-optimizer",
+  "/laundry-order-portal",
+  "/customer-portal",
+  "/booking-management",
+];
+
+export function shouldNoIndex(pathname: string): boolean {
+  if (NOINDEX_ROUTES.includes(pathname)) return true;
+  if (pathname.startsWith("/admin")) return true;
+  if (pathname.includes("/edit")) return true;
+  if (pathname.includes("/draft")) return true;
+  return false;
+}
+
+// ===== COMPLETE ROUTE SEO CONFIG =====
+export interface RouteSEOConfig {
+  title: string;
+  description: string;
+  keywords?: string[];
+  pageType?: 'website' | 'article' | 'product' | 'software' | 'course' | 'howto' | 'faq' | 'localbusiness';
+  noIndex?: boolean;
+  canonicalPath?: string;
+}
+
+export const ROUTE_SEO_MAP: Record<string, RouteSEOConfig> = {
+  "/": PAGE_CONFIGS.home,
+  "/cleanbi-explorer": PAGE_CONFIGS.cleanbiExplorer,
+  "/cleanbi-auto": {
+    title: "CLEANBI Auto-Analysis - Instant Property Intelligence",
+    description: "Automated location scoring for laundromat investors. Enter any address and receive comprehensive analysis including demographics, competition mapping, and ROI projections within seconds.",
+    keywords: ["automatic laundromat analysis", "property intelligence", "laundromat investment tool"],
+    pageType: "software"
+  },
+  "/pricing": PAGE_CONFIGS.pricing,
+  "/courses": PAGE_CONFIGS.courses,
+  "/laundromat-listings": PAGE_CONFIGS.listings,
+  "/marketplace": {
+    title: "Laundromat Marketplace - Buy & Sell Coin Laundries",
+    description: "Browse 500+ verified laundromat listings. Each listing includes CLEANBI scores, financials, equipment details, and seller information. Find your next investment today.",
+    keywords: ["laundromat marketplace", "laundromats for sale", "buy coin laundry", "laundromat listings"],
+    pageType: "website"
+  },
+  "/calculators": PAGE_CONFIGS.calculators,
+  "/blog": PAGE_CONFIGS.blog,
+  "/about-us": PAGE_CONFIGS.aboutUs,
+  "/equipment-marketplace": PAGE_CONFIGS.equipmentMarketplace,
+  "/directory": PAGE_CONFIGS.directory,
+  "/service-guy-ai": PAGE_CONFIGS.serviceGuy,
+  "/buy-laundromat": {
+    title: "How to Buy a Laundromat - Complete Buyer's Guide 2025",
+    description: "Step-by-step guide to purchasing your first laundromat. Learn due diligence, valuation methods, financing options, lease negotiation, and avoid the top 10 buyer mistakes.",
+    keywords: ["how to buy a laundromat", "laundromat buying guide", "purchase coin laundry"],
+    pageType: "howto"
+  },
+  "/funding": {
+    title: "Laundromat Financing & Funding Options - SBA, Equipment Loans",
+    description: "Explore financing options for laundromat purchases and equipment upgrades. Compare SBA loans, equipment financing, investor funding, and alternative lending.",
+    keywords: ["laundromat financing", "SBA loan laundromat", "coin laundry equipment financing"],
+    pageType: "website"
+  },
+  "/funding-wizard": {
+    title: "Funding Matcher - Get Matched with Laundromat Lenders",
+    description: "Answer 5 quick questions and get matched with pre-vetted lenders specializing in laundromat acquisitions. Compare rates from SBA lenders and equipment financiers.",
+    keywords: ["laundromat loan", "funding for laundromat", "laundromat lender matching"],
+    pageType: "software"
+  },
+  "/consultation": {
+    title: "Expert Laundromat Consulting - Book a Call with Experts",
+    description: "Get personalized advice from industry veterans. Consulting covers acquisitions, due diligence, operations optimization, exit strategies, and turnarounds.",
+    keywords: ["laundromat consulting", "coin laundry consultant", "laundromat acquisition advisor"],
+    pageType: "localbusiness"
+  },
+  "/error-codes": {
+    title: "Commercial Washer & Dryer Error Code Database",
+    description: "Comprehensive error code database for Dexter, Speed Queen, Continental, Huebsch, Maytag, and LG commercial laundry equipment. Find causes and solutions for every fault code.",
+    keywords: ["Dexter washer error codes", "Speed Queen fault codes", "commercial dryer error codes"],
+    pageType: "website"
+  },
+  "/brokers": {
+    title: "Verified Laundromat Brokers Directory",
+    description: "Find trusted laundromat business brokers in your area. Our verified directory includes broker credentials, transaction history, specialties, and client reviews.",
+    keywords: ["laundromat broker", "coin laundry business broker", "laundromat selling agent"],
+    pageType: "website"
+  },
+  "/laundromats-for-sale": {
+    title: "Laundromats For Sale - Browse All Active Listings",
+    description: "Complete directory of laundromats currently for sale across the United States. Filter by state, price range, revenue, and CLEANBI score. Updated daily.",
+    keywords: ["laundromats for sale", "coin laundry business for sale", "laundromat listings USA"],
+    pageType: "website"
+  },
+  "/laundromat-for-sale": {
+    title: "Find Laundromats For Sale Near You - Local Listings",
+    description: "Discover laundromat opportunities in your local market. Each listing includes detailed financials, equipment inventory, lease info, and CLEANBI location score.",
+    keywords: ["laundromat for sale near me", "local coin laundry for sale", "laundromat opportunity"],
+    pageType: "website"
+  },
+  "/laundromat-valuation": {
+    title: "Free Laundromat Valuation Calculator - Get Instant Business Value",
+    description: "Calculate the fair market value of any laundromat using industry-standard SDE multiples. Considers revenue, expenses, equipment age, lease terms, and location quality.",
+    keywords: ["laundromat valuation", "coin laundry business value", "how much is laundromat worth"],
+    pageType: "software"
+  },
+  "/how-to-start-laundromat": {
+    title: "How to Start a Laundromat Business - Complete 2025 Guide",
+    description: "Everything you need to know about starting a laundromat from scratch. Covers site selection, equipment purchasing, financing, buildout costs, and projected ROI.",
+    keywords: ["how to start a laundromat", "laundromat startup guide", "open coin laundry"],
+    pageType: "howto"
+  },
+  "/vault": {
+    title: "Template Vault - Business Documents & Checklists",
+    description: "Download professionally crafted laundromat business templates including LOI templates, due diligence checklists, lease analysis worksheets, and financial models.",
+    keywords: ["laundromat templates", "due diligence checklist", "LOI template", "business plan template"],
+    pageType: "product"
+  },
+  "/products": {
+    title: "AI Consultation Council - Multi-Expert Deal Analysis",
+    description: "Get AI-powered analysis from virtual expert panels. Our AI consultation council provides diverse perspectives on your laundromat deals and investment decisions.",
+    keywords: ["AI laundromat consulting", "virtual expert panel", "deal analysis AI"],
+    pageType: "software"
+  },
+  "/ask-larry": {
+    title: "Ask Larry - AI-Powered Laundromat Q&A",
+    description: "Get instant answers to your laundromat questions from our AI trained on 40+ years of industry expertise. Available 24/7 for all your coin laundry queries.",
+    keywords: ["laundromat questions", "coin laundry advice", "Ask Larry AI"],
+    pageType: "software"
+  },
+  "/resources": {
+    title: "Laundromat Resources Library - Guides, Tools & Downloads",
+    description: "Comprehensive resource library for laundromat professionals. Access guides, calculators, templates, market reports, and industry research all in one place.",
+    keywords: ["laundromat resources", "coin laundry guides", "industry downloads"],
+    pageType: "website"
+  },
+  "/network": {
+    title: "Laundromat Owner Network - Connect with Industry Peers",
+    description: "Join the largest online community of laundromat owners, operators, and investors. Share experiences, get advice, and build relationships with industry peers.",
+    keywords: ["laundromat community", "coin laundry forum", "owner network"],
+    pageType: "website"
+  },
+  "/larrys-academy": {
+    title: "Larry's Academy - Master Laundromat Business Success",
+    description: "Comprehensive laundromat education program. Learn acquisition strategies, operational excellence, and wealth building through coin laundry ownership.",
+    keywords: ["laundromat training program", "coin laundry academy", "industry education"],
+    pageType: "course"
+  },
+  "/larrys-content-empire": {
+    title: "Larry's Content Empire - Premium Industry Content Hub",
+    description: "Access exclusive content library featuring courses, templates, guides, and consulting sessions. Premium resources for serious laundromat investors and operators.",
+    keywords: ["Larry content", "laundromat premium resources", "industry expert content"],
+    pageType: "product"
+  },
+  "/book-studio": {
+    title: "Book Studio - AI-Powered Content Creation",
+    description: "Create professional laundromat industry content with AI assistance. Generate business plans, marketing materials, operational guides, and training documents.",
+    keywords: ["laundromat content creation", "business document generator"],
+    pageType: "software"
+  },
+  "/equipment-wizard": {
+    title: "Equipment Wizard - Commercial Laundry Equipment Guide",
+    description: "Find the perfect commercial laundry equipment for your needs. Compare brands, capacities, and prices. Get personalized recommendations based on your facility size.",
+    keywords: ["commercial washer selection", "laundromat equipment guide", "Speed Queen vs Dexter"],
+    pageType: "software"
+  },
+  "/equipment-guides": {
+    title: "Commercial Laundry Equipment Guides & Manuals",
+    description: "Complete guides for Speed Queen, Dexter, Continental, Huebsch, and Maytag commercial laundry equipment. Installation, maintenance, and troubleshooting resources.",
+    keywords: ["commercial washer guide", "laundromat equipment manual", "dryer maintenance"],
+    pageType: "article"
+  },
+  "/parts-catalogue": {
+    title: "Commercial Laundry Parts Catalogue",
+    description: "Find replacement parts for all major commercial washer and dryer brands. OEM and aftermarket parts with pricing and availability information.",
+    keywords: ["commercial laundry parts", "washer replacement parts", "dryer parts"],
+    pageType: "product"
+  },
+  "/insurance-partners": {
+    title: "Laundromat Insurance Partners - Coverage Options",
+    description: "Find specialized insurance coverage for your laundromat business. Compare quotes from carriers who understand coin laundry industry risks and requirements.",
+    keywords: ["laundromat insurance", "coin laundry coverage", "commercial laundry insurance"],
+    pageType: "website"
+  },
+  "/investors": {
+    title: "Laundromat Investment Opportunities",
+    description: "Explore passive laundromat investment opportunities. Connect with operators seeking capital and learn about syndication, partnerships, and investment structures.",
+    keywords: ["laundromat investment", "passive coin laundry income", "laundromat syndication"],
+    pageType: "website"
+  },
+  "/list-business": {
+    title: "List Your Laundromat For Sale - Sell Your Business",
+    description: "List your laundromat on the largest industry marketplace. Reach qualified buyers, get your CLEANBI score, and sell faster with professional exposure.",
+    keywords: ["sell laundromat", "list coin laundry for sale", "sell business"],
+    pageType: "website"
+  },
+  "/list-your-laundromat": {
+    title: "Sell Your Laundromat - Free Listing Submission",
+    description: "Ready to sell? Create a free listing for your laundromat. Include photos, financials, and equipment details to attract serious buyers nationwide.",
+    keywords: ["sell my laundromat", "laundromat listing", "coin laundry sale"],
+    pageType: "website"
+  },
+  "/ai-content-studio": {
+    title: "AI Content Studio - Marketing Content Generator",
+    description: "Generate professional marketing content for your laundromat using AI. Create social posts, flyers, signage, email campaigns, and promotional materials.",
+    keywords: ["laundromat marketing", "AI content generator", "coin laundry advertising"],
+    pageType: "software"
+  },
+  "/ai-media-studio": {
+    title: "AI Media Studio - Visual Content Creation",
+    description: "Create professional images, graphics, and visual content for your laundromat marketing. AI-powered design tools for signage, social media, and promotions.",
+    keywords: ["laundromat graphics", "AI image generator", "marketing visuals"],
+    pageType: "software"
+  },
+  "/design-studio": {
+    title: "Laundromat Design Studio - Floor Plan & Layout Tools",
+    description: "Design your laundromat layout with our interactive floor planning tools. Optimize machine placement, traffic flow, and space utilization for maximum revenue.",
+    keywords: ["laundromat floor plan", "coin laundry layout", "equipment placement"],
+    pageType: "software"
+  },
+  "/website-builder": {
+    title: "Laundromat Website Builder - Professional Sites in Minutes",
+    description: "Create a professional website for your laundromat in minutes. Mobile-friendly templates designed specifically for coin laundry businesses.",
+    keywords: ["laundromat website", "coin laundry web design", "business website builder"],
+    pageType: "software"
+  },
+  "/calculators-suite": {
+    title: "Complete Laundromat Calculator Suite - All Financial Tools",
+    description: "Access every laundromat calculator in one place. ROI, valuation, utility costs, labor optimization, break-even, equipment ROI, and more.",
+    keywords: ["laundromat calculators", "financial analysis tools", "coin laundry ROI"],
+    pageType: "software"
+  },
+  "/bulk-analysis": {
+    title: "Bulk CLEANBI Analysis - Score Multiple Locations",
+    description: "Analyze multiple laundromat locations simultaneously with bulk CLEANBI scoring. Perfect for investors evaluating portfolios or expansion opportunities.",
+    keywords: ["bulk location analysis", "multi-site evaluation", "portfolio analysis"],
+    pageType: "software"
+  },
+  "/marketing-loyalty": {
+    title: "Laundromat Marketing & Loyalty Programs",
+    description: "Build customer loyalty and drive repeat visits with proven marketing strategies. Learn loyalty programs, digital marketing, and customer retention tactics.",
+    keywords: ["laundromat marketing", "customer loyalty", "coin laundry promotions"],
+    pageType: "article"
+  },
+  "/industry-events": {
+    title: "Laundromat Industry Events & Trade Shows",
+    description: "Stay updated on upcoming laundromat industry events, trade shows, conferences, and networking opportunities. Find CLA events, equipment expos, and local meetups.",
+    keywords: ["laundromat trade show", "CLA conference", "industry events"],
+    pageType: "website"
+  },
+};
+
+export function getRouteSEO(pathname: string): RouteSEOConfig {
+  if (ROUTE_SEO_MAP[pathname]) {
+    return { ...ROUTE_SEO_MAP[pathname], noIndex: shouldNoIndex(pathname) };
+  }
+  
+  for (const [route, config] of Object.entries(ROUTE_SEO_MAP)) {
+    if (route.includes("[") && pathname.match(new RegExp("^" + route.replace(/\[.*?\]/g, "[^/]+") + "$"))) {
+      return { ...config, noIndex: shouldNoIndex(pathname) };
+    }
+  }
+  
+  if (shouldNoIndex(pathname)) {
+    return {
+      title: "WashBizHub",
+      description: "Laundromat industry tools and resources",
+      noIndex: true
+    };
+  }
+  
+  const segments = pathname.split("/").filter(Boolean);
+  const lastSegment = segments[segments.length - 1] || "page";
+  const formattedName = lastSegment
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+  
+  return {
+    title: `${formattedName} - Laundromat Tools & Resources | WashBizHub`,
+    description: `${formattedName} - Professional laundromat industry tools and resources. Part of WashBizHub, the #1 platform for laundromat investors, owners, and operators.`,
+    keywords: ["laundromat", "coin laundry", formattedName.toLowerCase(), "WashBizHub"],
+    pageType: "website",
+    noIndex: false
+  };
+}
