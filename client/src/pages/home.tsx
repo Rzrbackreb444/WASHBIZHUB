@@ -690,7 +690,7 @@ export default function Home() {
   return (
     <>
       <AutoSEO 
-        faqs={homeFaqs}
+        faqs={homepageFaqs}
       />
       
       <div className="min-h-screen bg-white">
