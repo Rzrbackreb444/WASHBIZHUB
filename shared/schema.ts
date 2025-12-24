@@ -19849,5 +19849,204 @@ export type InsertContentDocument = z.infer<typeof insertContentDocumentSchema>;
 export type ContentDocument = typeof contentDocuments.$inferSelect;
 
 // ============================================================================
+// BOOK STUDIO CHAT & ANALYSIS - Larry's Writing Consultation System
+// ============================================================================
+
+// Book Uploads - Manuscripts uploaded for analysis
+export const bookUploads = pgTable("book_uploads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => bookProjects.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  fileName: varchar("file_name", { length: 500 }).notNull(),
+  fileType: varchar("file_type", { length: 50 }).notNull(), // "pdf", "docx", "txt", "md"
+  fileSize: integer("file_size").notNull(),
+  storageUrl: text("storage_url").notNull(),
+  
+  // Processing status
+  status: varchar("status", { length: 50 }).default("pending").notNull(), // "pending", "processing", "analyzed", "failed"
+  extractedText: text("extracted_text"),
+  wordCount: integer("word_count"),
+  pageCount: integer("page_count"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  processedAt: timestamp("processed_at"),
+}, (table) => ({
+  userIdIdx: index("book_uploads_user_id_idx").on(table.userId),
+  projectIdIdx: index("book_uploads_project_id_idx").on(table.projectId),
+  statusIdx: index("book_uploads_status_idx").on(table.status),
+}));
+
+export const insertBookUploadSchema = createInsertSchema(bookUploads).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+export type InsertBookUpload = z.infer<typeof insertBookUploadSchema>;
+export type BookUpload = typeof bookUploads.$inferSelect;
+
+// Book Analyses - AI analysis results for uploaded content
+export const bookAnalyses = pgTable("book_analyses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  uploadId: varchar("upload_id").references(() => bookUploads.id, { onDelete: "cascade" }),
+  projectId: varchar("project_id").references(() => bookProjects.id, { onDelete: "cascade" }),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  analysisType: varchar("analysis_type", { length: 100 }).notNull(), // "full", "structure", "tone", "market", "audience"
+  aiProvider: varchar("ai_provider", { length: 50 }).default("openai"), // "openai", "anthropic", "gemini"
+  
+  // Analysis Results
+  overallScore: integer("overall_score"), // 0-100
+  recommendations: jsonb("recommendations").$type<Array<{
+    category: string;
+    title: string;
+    description: string;
+    priority: "high" | "medium" | "low";
+    actionable: string;
+  }>>(),
+  
+  structureAnalysis: jsonb("structure_analysis").$type<{
+    chapterBreakdown: string[];
+    pacing: string;
+    arcAnalysis: string;
+  }>(),
+  
+  toneAnalysis: jsonb("tone_analysis").$type<{
+    overallTone: string;
+    voiceConsistency: number;
+    readabilityLevel: string;
+    suggestions: string[];
+  }>(),
+  
+  marketAnalysis: jsonb("market_analysis").$type<{
+    targetGenre: string;
+    comparableTitles: string[];
+    marketFit: string;
+    positioning: string;
+  }>(),
+  
+  rawResponse: text("raw_response"),
+  
+  status: varchar("status", { length: 50 }).default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+}, (table) => ({
+  userIdIdx: index("book_analyses_user_id_idx").on(table.userId),
+  uploadIdIdx: index("book_analyses_upload_id_idx").on(table.uploadId),
+  projectIdIdx: index("book_analyses_project_id_idx").on(table.projectId),
+}));
+
+export const insertBookAnalysisSchema = createInsertSchema(bookAnalyses).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+export type InsertBookAnalysis = z.infer<typeof insertBookAnalysisSchema>;
+export type BookAnalysis = typeof bookAnalyses.$inferSelect;
+
+// Larry Chat Threads - Consultation sessions with Larry
+export const larryChatThreads = pgTable("larry_chat_threads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => bookProjects.id, { onDelete: "cascade" }),
+  uploadId: varchar("upload_id").references(() => bookUploads.id, { onDelete: "set null" }),
+  analysisId: varchar("analysis_id").references(() => bookAnalyses.id, { onDelete: "set null" }),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  title: varchar("title", { length: 500 }).default("New Conversation"),
+  context: text("context"), // Initial context from analysis
+  
+  status: varchar("status", { length: 50 }).default("active"), // "active", "archived", "resolved"
+  unreadCount: integer("unread_count").default(0),
+  lastMessageAt: timestamp("last_message_at"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("larry_chat_threads_user_id_idx").on(table.userId),
+  projectIdIdx: index("larry_chat_threads_project_id_idx").on(table.projectId),
+}));
+
+export const insertLarryChatThreadSchema = createInsertSchema(larryChatThreads).omit({
+  id: true,
+  unreadCount: true,
+  lastMessageAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertLarryChatThread = z.infer<typeof insertLarryChatThreadSchema>;
+export type LarryChatThread = typeof larryChatThreads.$inferSelect;
+
+// Larry Chat Messages - Individual messages in a thread
+export const larryChatMessages = pgTable("larry_chat_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  threadId: varchar("thread_id").references(() => larryChatThreads.id, { onDelete: "cascade" }).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  
+  role: varchar("role", { length: 20 }).notNull(), // "user", "larry", "system"
+  content: text("content").notNull(),
+  
+  // For Larry's recommendations
+  recommendation: jsonb("recommendation").$type<{
+    category: string;
+    actionItems: string[];
+    resources: string[];
+  }>(),
+  
+  // Message metadata
+  isRead: boolean("is_read").default(false),
+  attachments: jsonb("attachments").$type<Array<{
+    type: string;
+    url: string;
+    name: string;
+  }>>(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  threadIdIdx: index("larry_chat_messages_thread_id_idx").on(table.threadId),
+  createdAtIdx: index("larry_chat_messages_created_at_idx").on(table.createdAt),
+}));
+
+export const insertLarryChatMessageSchema = createInsertSchema(larryChatMessages).omit({
+  id: true,
+  isRead: true,
+  createdAt: true,
+});
+export type InsertLarryChatMessage = z.infer<typeof insertLarryChatMessageSchema>;
+export type LarryChatMessage = typeof larryChatMessages.$inferSelect;
+
+// Book Studio Notifications - In-app notifications for chat/analysis
+export const bookNotifications = pgTable("book_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  type: varchar("type", { length: 50 }).notNull(), // "analysis_complete", "larry_message", "upload_processed"
+  title: varchar("title", { length: 500 }).notNull(),
+  message: text("message").notNull(),
+  
+  // Related entities
+  threadId: varchar("thread_id").references(() => larryChatThreads.id, { onDelete: "cascade" }),
+  uploadId: varchar("upload_id").references(() => bookUploads.id, { onDelete: "cascade" }),
+  analysisId: varchar("analysis_id").references(() => bookAnalyses.id, { onDelete: "cascade" }),
+  projectId: varchar("project_id").references(() => bookProjects.id, { onDelete: "cascade" }),
+  
+  isRead: boolean("is_read").default(false),
+  emailSent: boolean("email_sent").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("book_notifications_user_id_idx").on(table.userId),
+  isReadIdx: index("book_notifications_is_read_idx").on(table.isRead),
+}));
+
+export const insertBookNotificationSchema = createInsertSchema(bookNotifications).omit({
+  id: true,
+  isRead: true,
+  emailSent: true,
+  createdAt: true,
+});
+export type InsertBookNotification = z.infer<typeof insertBookNotificationSchema>;
+export type BookNotification = typeof bookNotifications.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
