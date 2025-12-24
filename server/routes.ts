@@ -9442,6 +9442,46 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
+  // GET /api/subscriptions/invoices - Get real invoice history from Stripe
+  app.get("/api/subscriptions/invoices", requireAuth, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(503).json({ message: "Payment service unavailable" });
+      }
+      
+      const currentUser = await getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const customerId = currentUser.user.stripeCustomerId;
+      if (!customerId) {
+        // No Stripe customer - return empty invoices
+        return res.json({ invoices: [], hasStripeCustomer: false });
+      }
+
+      // Fetch real invoices from Stripe
+      const stripeInvoices = await stripe.invoices.list({
+        customer: customerId,
+        limit: 20,
+      });
+
+      const invoices = stripeInvoices.data.map((inv) => ({
+        id: inv.id,
+        date: new Date(inv.created * 1000).toISOString(),
+        amount: (inv.amount_paid || 0) / 100,
+        status: inv.status === "paid" ? "paid" : inv.status === "open" ? "pending" : "failed",
+        pdfUrl: inv.invoice_pdf || "#",
+        description: inv.description || `Invoice ${inv.number || inv.id}`,
+      }));
+
+      res.json({ invoices, hasStripeCustomer: true });
+    } catch (error: any) {
+      console.error("Invoices fetch error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== ONBOARDING ====================
 
   // GET /api/onboarding/state - Get user's onboarding state

@@ -10,7 +10,8 @@ import { OAuth2Client } from "google-auth-library";
 const ADMIN_EMAILS = [
   "nick@washbizhub.com",
   "rzrbackreb444@gmail.com",
-  "thelaundromatfb@gmail.com"
+  "thelaundromatfb@gmail.com",
+  "larry@washbizhub.com"
 ];
 
 function isAdminEmail(email: string): boolean {

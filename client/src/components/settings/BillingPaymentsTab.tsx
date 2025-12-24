@@ -44,11 +44,17 @@ interface BillingProps {
 export default function BillingPaymentsTab({ user }: BillingProps) {
   const { toast } = useToast();
 
-  const invoices: Invoice[] = [
-    { id: "inv_001", date: "2024-12-01", amount: 499, status: "paid", pdfUrl: "#" },
-    { id: "inv_002", date: "2024-11-01", amount: 499, status: "paid", pdfUrl: "#" },
-    { id: "inv_003", date: "2024-10-01", amount: 249, status: "paid", pdfUrl: "#" },
-  ];
+  // Fetch real invoices from Stripe
+  const { data: invoiceData, isLoading: invoicesLoading } = useQuery<{
+    invoices: Invoice[];
+    hasStripeCustomer: boolean;
+  }>({
+    queryKey: ["/api/subscriptions/invoices"],
+    enabled: !!user,
+  });
+
+  const invoices = invoiceData?.invoices || [];
+  const hasStripeCustomer = invoiceData?.hasStripeCustomer || false;
 
   const usage: UsageData = {
     apiCalls: { used: 12450, limit: 50000 },
@@ -192,7 +198,12 @@ export default function BillingPaymentsTab({ user }: BillingProps) {
           <CardDescription>View and download past invoices</CardDescription>
         </CardHeader>
         <CardContent>
-          {invoices.length > 0 ? (
+          {invoicesLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-muted-foreground" />
+              <p className="text-muted-foreground">Loading invoices...</p>
+            </div>
+          ) : invoices.length > 0 ? (
             <div className="space-y-3">
               {invoices.map((invoice) => (
                 <div
@@ -224,13 +235,16 @@ export default function BillingPaymentsTab({ user }: BillingProps) {
                       {invoice.status === "failed" && <AlertCircle className="w-3 h-3 mr-1" />}
                       {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                     </Badge>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      data-testid={`button-download-invoice-${invoice.id}`}
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
+                    {invoice.pdfUrl && invoice.pdfUrl !== "#" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(invoice.pdfUrl, "_blank")}
+                        data-testid={`button-download-invoice-${invoice.id}`}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -239,6 +253,7 @@ export default function BillingPaymentsTab({ user }: BillingProps) {
             <div className="text-center py-8 text-muted-foreground">
               <Receipt className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No invoices yet</p>
+              <p className="text-sm mt-1">Invoices will appear here after you subscribe</p>
             </div>
           )}
         </CardContent>
