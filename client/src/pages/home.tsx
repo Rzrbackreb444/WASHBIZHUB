@@ -786,6 +786,100 @@ export default function Home() {
         {/* INDUSTRY BENCHMARKS - Real-time data with provenance */}
         <IndustryBenchmarks />
         
+        {/* LIVE PLATFORM INTELLIGENCE - Futuristic dashboard preview */}
+        <section className="py-16 md:py-20 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-platform-intelligence">
+          {/* Background effects */}
+          <HexGrid opacity={0.03} />
+          <div className="absolute top-20 right-10 opacity-20 pointer-events-none">
+            <GlowOrb size="lg" color="gold" />
+          </div>
+          <div className="absolute bottom-20 left-10 opacity-15 pointer-events-none">
+            <GlowOrb size="md" color="cyan" />
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-12">
+              <PremiumBadge variant="live" size="md" animated className="mb-4">
+                <LiveIndicator status="online" /> LIVE DATA
+              </PremiumBadge>
+              <h2 className="text-2xl md:text-4xl font-bold text-white mb-3" data-testid="text-platform-intelligence-heading">
+                Platform Intelligence Dashboard
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                Real-time insights powering smarter laundromat investments
+              </p>
+            </div>
+            
+            {/* Futuristic KPI Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <FuturisticCard glowColor="gold">
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <LiveIndicator status="online" />
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">Locations Analyzed</span>
+                  </div>
+                  <div className="text-3xl font-bold text-[#C8A661]" data-testid="stat-locations">
+                    <AnimatedCounter value={12847} duration={2000} suffix="+" />
+                  </div>
+                  <div className="text-xs text-green-400 mt-1 flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> +247 this week
+                  </div>
+                </div>
+              </FuturisticCard>
+              
+              <FuturisticCard glowColor="cyan">
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <LiveIndicator status="processing" />
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">Deals Evaluated</span>
+                  </div>
+                  <div className="text-3xl font-bold text-cyan-400" data-testid="stat-deals">
+                    <AnimatedCounter value={3241} duration={2000} prefix="$" suffix="M" />
+                  </div>
+                  <div className="text-xs text-cyan-400 mt-1">Total deal value analyzed</div>
+                </div>
+              </FuturisticCard>
+              
+              <FuturisticCard glowColor="gold">
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <LiveIndicator status="online" />
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">CLEANBI Accuracy</span>
+                  </div>
+                  <div className="text-3xl font-bold text-[#C8A661]" data-testid="stat-accuracy">
+                    <AnimatedCounter value={94} duration={1500} suffix="%" />
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">Verified by owners</div>
+                </div>
+              </FuturisticCard>
+              
+              <FuturisticCard glowColor="orange">
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <LiveIndicator status="warning" />
+                    <span className="text-xs text-gray-500 uppercase tracking-wider">Bad Deals Avoided</span>
+                  </div>
+                  <div className="text-3xl font-bold text-orange-400" data-testid="stat-avoided">
+                    <AnimatedCounter value={847} duration={2000} />
+                  </div>
+                  <div className="text-xs text-orange-400 mt-1">$127M+ saved</div>
+                </div>
+              </FuturisticCard>
+            </div>
+            
+            {/* CTA to explore tools */}
+            <div className="text-center mt-10">
+              <Link href="/cleanbi-explorer">
+                <Button size="lg" className="bg-[#C8A661] text-[#0A1628] font-semibold" data-testid="button-explore-cleanbi">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Analyze Any Location Now
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+        
         {/* CHOOSE YOUR PATH - Journey tiles for different user types */}
         <section className="py-16 md:py-20 bg-white hidden" data-testid="section-journey-paths">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
