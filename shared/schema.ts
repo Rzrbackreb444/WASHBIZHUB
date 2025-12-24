@@ -19814,5 +19814,40 @@ export type InsertContentPurchase = z.infer<typeof insertContentPurchaseSchema>;
 export type ContentPurchase = typeof contentPurchases.$inferSelect;
 
 // ============================================================================
+// CONTENT EDITOR - Block-based Document Editing with Collaboration
+// ============================================================================
+
+export const contentDocuments = pgTable("content_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  authorId: varchar("author_id").notNull(),
+  authorEmail: varchar("author_email", { length: 255 }).notNull(),
+  
+  title: text("title").notNull(),
+  slug: text("slug").notNull(),
+  blocks: jsonb("blocks").notNull().default([]),
+  
+  status: varchar("status", { length: 20 }).default("draft").notNull(),
+  
+  collaboratorIds: text("collaborator_ids").array().default([]),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  authorIdIdx: index("content_documents_author_id_idx").on(table.authorId),
+  authorEmailIdx: index("content_documents_author_email_idx").on(table.authorEmail),
+  statusIdx: index("content_documents_status_idx").on(table.status),
+  slugIdx: uniqueIndex("content_documents_slug_idx").on(table.slug),
+}));
+
+export const insertContentDocumentSchema = createInsertSchema(contentDocuments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertContentDocument = z.infer<typeof insertContentDocumentSchema>;
+export type ContentDocument = typeof contentDocuments.$inferSelect;
+
+// ============================================================================
 // END OF SCHEMA - Complete Platform with Industry-Leading Features
 // ============================================================================
