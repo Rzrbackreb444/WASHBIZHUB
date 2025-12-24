@@ -655,6 +655,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/media-studio", aiMediaStudioRoutes);
   console.log("✅ AI Media Studio routes registered");
   
+  // ==================== ENTITLEMENTS & SUBSCRIPTIONS ====================
+  const { registerEntitlementRoutes } = await import("./routes/entitlements");
+  registerEntitlementRoutes(app);
+  
+  // ==================== CONTENT EDITOR ====================
+  const { registerContentRoutes } = await import("./routes/content");
+  registerContentRoutes(app);
+  
   // ==================== LARRY'S COMMAND CENTER ====================
   const larryConsultationsRoutes = (await import("./routes/larry-consultations")).default;
   app.use("/api/larry", larryConsultationsRoutes);

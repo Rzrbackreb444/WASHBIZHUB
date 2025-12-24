@@ -276,6 +276,7 @@ const AIBookSuite = lazy(() => import("@/pages/ai-book-suite"));
 const AICommandCenter = lazy(() => import("@/pages/ai-command-center"));
 const BookStudio = lazy(() => import("@/pages/book-studio"));
 const AIMediaStudio = lazy(() => import("@/pages/ai-media-studio"));
+const ContentEditor = lazy(() => import("@/pages/content-editor"));
 const LarrysCommandCenter = lazy(() => import("@/pages/larrys-command-center"));
 const LarrysContentEmpire = lazy(() => import("@/pages/larrys-content-empire"));
 const LarrysEditor = lazy(() => import("@/pages/larrys-editor"));
@@ -756,7 +757,12 @@ function Router() {
       </Route>
       <Route path="/content-editor">
         <Suspense fallback={<LoadingFallback />}>
-          <LarrysEditor />
+          <ContentEditor />
+        </Suspense>
+      </Route>
+      <Route path="/content-editor/:id">
+        <Suspense fallback={<LoadingFallback />}>
+          <ContentEditor />
         </Suspense>
       </Route>
       <Route path="/ask-larry">

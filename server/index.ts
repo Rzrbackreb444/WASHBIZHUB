@@ -1369,6 +1369,10 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+  
+  // Setup real-time collaboration WebSocket server
+  const { setupCollaborationServer } = await import("./collaboration");
+  setupCollaborationServer(server);
 
   // Seed website templates if needed
   async function seedTemplatesIfNeeded() {
