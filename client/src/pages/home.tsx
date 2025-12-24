@@ -17,6 +17,7 @@ import {
   HexGrid,
   GlowOrb,
   AnimatedCounter,
+  ProgressRing,
   ENTERPRISE_COLORS,
   PremiumButton,
   ArtDecoDivider,
@@ -865,6 +866,87 @@ export default function Home() {
                   <div className="text-xs text-orange-400 mt-1">$127M+ saved</div>
                 </div>
               </FuturisticCard>
+            </div>
+            
+            {/* Interactive Demo Row */}
+            <div className="grid md:grid-cols-2 gap-6 mt-10">
+              {/* Deal Calculator Demo */}
+              <DataPanel 
+                title="Quick Deal Calculator" 
+                subtitle="Try it now - no signup required"
+                icon={<Calculator className="w-5 h-5 text-[#C8A661]" />}
+                glowColor="gold"
+                live
+              >
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Asking Price</label>
+                      <div className="bg-[#0A1628] border border-white/10 rounded-lg p-3">
+                        <span className="text-xl font-bold text-white">$285,000</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Monthly Revenue</label>
+                      <div className="bg-[#0A1628] border border-white/10 rounded-lg p-3">
+                        <span className="text-xl font-bold text-cyan-400">$18,500</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-500/10 to-green-500/5 border border-green-500/20 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">Estimated Valuation</span>
+                      <span className="text-2xl font-bold text-green-400">$310,000 - $340,000</span>
+                    </div>
+                    <div className="text-xs text-green-400/80 mt-1">Asking price is 8-16% below market value</div>
+                  </div>
+                  <Link href="/calculator">
+                    <Button className="w-full bg-[#C8A661] text-[#0A1628] font-semibold" data-testid="button-try-calculator">
+                      Open Full Calculator
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </DataPanel>
+              
+              {/* Hot Markets Radar */}
+              <DataPanel 
+                title="Hot Markets Radar" 
+                subtitle="Top opportunities this week"
+                icon={<Flame className="w-5 h-5 text-orange-400" />}
+                glowColor="orange"
+                live
+              >
+                <div className="p-4 space-y-3">
+                  {[
+                    { city: "Dallas, TX", score: 87, trend: "+12%", deals: 23 },
+                    { city: "Phoenix, AZ", score: 84, trend: "+8%", deals: 18 },
+                    { city: "Houston, TX", score: 81, trend: "+15%", deals: 31 },
+                  ].map((market, i) => (
+                    <Link key={i} href={`/cleanbi-explorer?city=${encodeURIComponent(market.city)}`}>
+                      <div className="flex items-center justify-between bg-[#0A1628] hover:bg-[#0A1628]/80 border border-white/10 rounded-lg p-3 cursor-pointer transition-colors" data-testid={`market-card-${i}`}>
+                        <div className="flex items-center gap-3">
+                          <ProgressRing value={market.score} size="sm" color={i === 0 ? "gold" : i === 1 ? "cyan" : "orange"} />
+                          <div>
+                            <div className="font-semibold text-white">{market.city}</div>
+                            <div className="text-xs text-gray-500">{market.deals} active deals</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-green-400 font-bold">{market.trend}</div>
+                          <div className="text-xs text-gray-500">vs last month</div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                  <Link href="/cleanbi-explorer">
+                    <Button variant="outline" className="w-full border-orange-500/30 text-orange-400" data-testid="button-view-all-markets">
+                      View All Markets
+                      <MapPin className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                </div>
+              </DataPanel>
             </div>
             
             {/* CTA to explore tools */}
