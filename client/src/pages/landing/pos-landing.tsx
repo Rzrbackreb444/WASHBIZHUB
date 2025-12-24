@@ -1,4 +1,4 @@
-import { SeoHead } from "@/components/SeoHead";
+import { SEOHead } from "@/components/SEOHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ export default function PosLanding() {
 
   return (
     <>
-      <SeoHead
+      <SEOHead
         title="POS System for Laundromats - Per-Pound Pricing & IoT"
         description="Modern cloud-based POS system for laundromats. Support per-pound pricing, multiple payment types, real-time analytics, and IoT machine monitoring."
         keywords={[
