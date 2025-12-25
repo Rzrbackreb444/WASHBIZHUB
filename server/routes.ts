@@ -691,26 +691,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
   
   // ==================== AUTHENTICATION SETUP ====================
-  // Primary: Google OAuth (direct integration)
-  // Fallback: Replit Auth (if Google fails)
+  // Using ONLY Google OAuth for professional appearance (no Replit Auth fallback)
   
-  // Setup Google OAuth (primary auth method)
+  // Setup Google OAuth (primary and only auth method)
   await setupGoogleAuth(app);
   
   // Setup RISC (Cross-Account Protection) event receiver
   setupRISCEventReceiver(app);
   
-  // Setup Replit Auth as fallback (supports Google, GitHub, X, Apple, email)
-  await setupReplitAuth(app);
-  registerReplitAuthRoutes(app);
-  
-  // Fallback auth route - redirects to Replit Auth with transparency
-  app.get("/api/auth/fallback", (req, res) => {
-    const reason = req.query.reason || "primary_auth_unavailable";
-    console.log(`🔄 Auth fallback triggered: ${reason}`);
-    // Redirect to Replit Auth with message parameter for transparency
-    res.redirect(`/api/login?fallback=true&reason=${encodeURIComponent(String(reason))}`);
-  });
+  // NOTE: Replit Auth disabled for professional appearance
+  // User preference: Direct Google OAuth looks more legitimate for B2B platform
+  // await setupReplitAuth(app);
+  // registerReplitAuthRoutes(app);
   
   // ==================== EMAIL/PASSWORD AUTH ====================
   // Mounted after session middleware is initialized
