@@ -189,7 +189,7 @@ export async function setupGoogleAuth(app: Express) {
     })(req, res, next);
   });
 
-  // Callback handler with dynamic URL and fallback to Replit Auth on failure
+  // Callback handler with dynamic URL - NO FALLBACK to keep Google-only auth
   app.get("/api/auth/google/callback", (req: Request, res: Response, next: NextFunction) => {
     const callbackUrl = getCallbackUrl(req);
     console.log(`🔐 Google OAuth callback received at: ${callbackUrl}`);
@@ -200,14 +200,15 @@ export async function setupGoogleAuth(app: Express) {
     })(req, res, (err: any) => {
       if (err) {
         console.error("Google OAuth callback error:", err);
-        // Redirect to fallback with transparent messaging
-        return res.redirect("/api/auth/fallback?reason=google_oauth_error&message=Google+login+encountered+an+issue.+Using+backup+login.");
+        // Show error page instead of falling back to Replit Auth
+        const errorMsg = encodeURIComponent(err.message || "Google login failed. Please try again.");
+        return res.redirect(`/?auth_error=${errorMsg}`);
       }
       
       // Check if authentication was successful
       if (!req.user) {
-        console.log("🔄 Google OAuth did not return user, using fallback auth");
-        return res.redirect("/api/auth/fallback?reason=google_no_user&message=Google+login+incomplete.+Using+backup+login.");
+        console.log("❌ Google OAuth did not return user");
+        return res.redirect("/?auth_error=Login+incomplete.+Please+try+again.");
       }
       
       res.redirect("/auth/callback");
