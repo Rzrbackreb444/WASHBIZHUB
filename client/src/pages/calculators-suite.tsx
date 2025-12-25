@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { AuthGuard } from "@/components/AuthGuard";
-import { FeatureGate } from "@/components/monetization/FeatureGate";
+import { useSmartGating } from "@/hooks/useSmartGating";
+import { BlurredContent } from "@/components/TeaserResultsOverlay";
+import { UsageLimitBanner } from "@/components/UsageLimitBanner";
+import { UpgradePromptModal } from "@/components/UpgradePromptModal";
+import { FeatureGate } from "@/components/monetization";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,7 +20,7 @@ import {
   Calculator, DollarSign, TrendingUp, Zap, Building2, 
   BarChart3, Lightbulb, Wallet, ChevronRight, Share2,
   Download, Crown, Sparkles, Target, Clock, Users,
-  ArrowRight, Check, Star, Shield, Gauge, Lock, Loader2, Mail, Gift
+  ArrowRight, Check, Star, Shield, Gauge
 } from "lucide-react";
 
 // CLEANBI Grade Conversion (A, B, C only per project standards)
@@ -54,142 +57,41 @@ const CATEGORY_COLORS = {
   planning: "from-violet-500 to-purple-500",
 };
 
-// Email Capture Overlay Component
-function EmailCaptureOverlay({ onUnlock }: { onUnlock: () => void }) {
-  const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim() || !firstName.trim()) {
-      toast({
-        title: "Required Fields",
-        description: "Please enter your name and email to continue.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await apiRequest("POST", "/api/newsletter/subscribe", {
-        email: email.trim(),
-        firstName: firstName.trim(),
-        primaryIndustry: "laundromat_calculators",
-        industries: ["laundromat_calculators"],
-        source: "calculators_suite_unlock",
-        leadMagnet: "full_calculator_results"
-      });
-
-      localStorage.setItem('calc_unlocked', email.trim());
-      localStorage.setItem('calc_unlocked_time', Date.now().toString());
-      onUnlock();
-      toast({
-        title: "Results Unlocked!",
-        description: "You now have full access to all calculator results.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-t from-[#001F3F] via-[#001F3F]/95 to-transparent rounded-xl backdrop-blur-sm">
-      <div className="w-full max-w-md p-6 text-center">
-        <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-[#39CCCC]/20 flex items-center justify-center">
-          <Lock className="w-8 h-8 text-[#39CCCC]" />
-        </div>
-        <h3 className="text-xl font-bold text-white mb-2">Unlock Full Results</h3>
-        <p className="text-white/70 text-sm mb-4">
-          Enter your email to see detailed calculations, AI insights, and CLEANBI grades.
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-              data-testid="input-calc-firstname"
-            />
-            <Input
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 flex-1"
-              data-testid="input-calc-email"
-            />
-          </div>
-          
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-full bg-[#39CCCC] hover:bg-[#39CCCC]/80 text-[#001F3F] font-bold"
-            data-testid="button-unlock-results"
-          >
-            {isSubmitting ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Unlocking...</>
-            ) : (
-              <><Gift className="w-4 h-4 mr-2" /> Unlock Free Results</>
-            )}
-          </Button>
-        </form>
-
-        <p className="mt-3 text-white/50 text-xs">
-          Get industry insights delivered to your inbox. Unsubscribe anytime.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function CalculatorsSuite() {
   const { toast } = useToast();
   const [activeCalc, setActiveCalc] = useState("cleanbi");
-  const [hasUnlockedResults, setHasUnlockedResults] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [hasCalculated, setHasCalculated] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Check localStorage for existing unlock
-  useEffect(() => {
-    const storedUnlock = localStorage.getItem('calc_unlocked');
-    if (storedUnlock) {
-      setHasUnlockedResults(true);
-    }
-  }, []);
+  const {
+    canAccess,
+    isTeaser,
+    currentTier,
+    usageInfo,
+    incrementUsage,
+    showUpgradePrompt,
+    setShowUpgradePrompt,
+    blurResults
+  } = useSmartGating('calculator');
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({ title: "Link Copied!", description: "Share this calculator with others" });
   };
 
-  const handleUnlock = () => {
-    setHasUnlockedResults(true);
-  };
-
-  // Track when user has interacted with calculator inputs
-  const handleInteraction = () => {
-    if (!hasInteracted) {
-      setHasInteracted(true);
+  const handleCalculate = () => {
+    if (!canAccess) {
+      setShowUpgradePrompt(true);
+      return;
     }
+    incrementUsage();
+    setHasCalculated(true);
   };
 
   const selectedCalc = CALCULATORS.find(c => c.id === activeCalc)!;
 
   return (
-    <AuthGuard title="Sign In to Access Calculator Suite" description="Sign in to access this calculator and track your usage.">
+    <>
       <SEO
         title="Laundromat ROI Calculator & Business Tools | Free CLEANBI Score, Valuation & Profit Calculators | WashBizHub"
         description="Free laundromat calculators: ROI, valuation, break-even, machine yield, CLEANBI score. Calculate investment returns, pricing, and profitability. Industry-standard tools."
@@ -339,6 +241,17 @@ export default function CalculatorsSuite() {
           </div>
         </section>
 
+        {/* Usage Banner */}
+        <section className="px-6">
+          <div className="mx-auto max-w-7xl mb-6">
+            <UsageLimitBanner 
+              usageInfo={usageInfo} 
+              currentTier={currentTier} 
+              featureName="calculations"
+            />
+          </div>
+        </section>
+
         {/* Calculator Grid */}
         <section className="px-6 pb-8">
           <div className="mx-auto max-w-7xl">
@@ -413,21 +326,27 @@ export default function CalculatorsSuite() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-6 relative" ref={resultsRef}>
-                    <div onClick={handleInteraction}>
-                      {activeCalc === "cleanbi" && <CLEANBICalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "roi" && <ROICalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "yield" && <MachineYieldCalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "breakeven" && <BreakEvenCalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "energy" && <EnergyCostCalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "pricing" && <PricingOptimizer isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "expansion" && <ExpansionPlanner isLocked={!hasUnlockedResults && hasInteracted} />}
-                      {activeCalc === "financing" && <FinancingCalculator isLocked={!hasUnlockedResults && hasInteracted} />}
-                    </div>
-                    
-                    {/* Email capture overlay - shows after user interacts with inputs */}
-                    {!hasUnlockedResults && hasInteracted && (
-                      <EmailCaptureOverlay onUnlock={handleUnlock} />
-                    )}
+                    <BlurredContent 
+                      isBlurred={blurResults && isTeaser && hasCalculated}
+                      overlayProps={{
+                        title: "Unlock Full Results",
+                        description: "See detailed projections, CLEANBI grades, and AI insights",
+                        ctaText: "Get Full Access",
+                        onUnlock: () => setShowUpgradePrompt(true),
+                        showLoginPrompt: currentTier === 'teaser'
+                      }}
+                    >
+                      <div>
+                        {activeCalc === "cleanbi" && <CLEANBICalculator isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "roi" && <ROICalculator isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "yield" && <MachineYieldCalculator isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "breakeven" && <BreakEvenCalculator isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "energy" && <EnergyCostCalculator isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "pricing" && <PricingOptimizer isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "expansion" && <ExpansionPlanner isLocked={false} onCalculate={handleCalculate} />}
+                        {activeCalc === "financing" && <FinancingCalculator isLocked={false} onCalculate={handleCalculate} />}
+                      </div>
+                    </BlurredContent>
                   </CardContent>
                 </Card>
               </div>
@@ -519,13 +438,21 @@ export default function CalculatorsSuite() {
           </div>
         </section>
       </div>
-    </AuthGuard>
+
+      {/* Upgrade Modal */}
+      <UpgradePromptModal
+        open={showUpgradePrompt}
+        onOpenChange={setShowUpgradePrompt}
+        featureName="Calculator Suite"
+        currentTier={currentTier}
+      />
+    </>
   );
 }
 
 // ==================== CALCULATOR COMPONENTS ====================
 
-function CLEANBICalculator({ isLocked = false }: { isLocked?: boolean }) {
+function CLEANBICalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     revenue: 25000,
     machines: 30,
@@ -639,7 +566,7 @@ function CLEANBICalculator({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function ROICalculator({ isLocked = false }: { isLocked?: boolean }) {
+function ROICalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     purchasePrice: 400000,
     downPayment: 100000,
@@ -725,7 +652,7 @@ function ROICalculator({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function MachineYieldCalculator({ isLocked = false }: { isLocked?: boolean }) {
+function MachineYieldCalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     machines: 30,
     cyclesPerDay: 6,
@@ -796,7 +723,7 @@ function MachineYieldCalculator({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function BreakEvenCalculator({ isLocked = false }: { isLocked?: boolean }) {
+function BreakEvenCalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     fixedCosts: 8000,
     variableCostPerCycle: 0.50,
@@ -865,7 +792,7 @@ function BreakEvenCalculator({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function EnergyCostCalculator({ isLocked = false }: { isLocked?: boolean }) {
+function EnergyCostCalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     kwhPerMonth: 15000,
     electricRate: 0.12,
@@ -957,7 +884,7 @@ function EnergyCostCalculator({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function PricingOptimizer({ isLocked = false }: { isLocked?: boolean }) {
+function PricingOptimizer({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     currentWashPrice: 4.00,
     currentDryPrice: 3.00,
@@ -1034,7 +961,7 @@ function PricingOptimizer({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function ExpansionPlanner({ isLocked = false }: { isLocked?: boolean }) {
+function ExpansionPlanner({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     currentStores: 1,
     currentRevenue: 25000,
@@ -1110,7 +1037,7 @@ function ExpansionPlanner({ isLocked = false }: { isLocked?: boolean }) {
   );
 }
 
-function FinancingCalculator({ isLocked = false }: { isLocked?: boolean }) {
+function FinancingCalculator({ isLocked = false, onCalculate }: { isLocked?: boolean; onCalculate?: () => void }) {
   const [values, setValues] = useState({
     loanAmount: 200000,
     interestRate: 7,
