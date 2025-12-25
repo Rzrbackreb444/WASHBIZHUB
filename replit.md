@@ -76,6 +76,15 @@ The frontend is built with Vite, TanStack Query, and PWA support. The backend us
 - **User Library:** Unified asset management page for purchased templates, calculator history, and course progress. Session-based storage for resuming work.
 - **Book Studio (Illustrated Books):** Professional-grade book creation with AI-powered illustrated children's book support. Features 8 art styles (watercolor, cartoon, digital painting, pencil sketch, flat design, storybook classic, whimsical, anime), age range selection (0-3 through adult), character management for visual consistency, page-by-page illustration generation via DALL-E 3, storyboard planning with Gemini AI, text positioning controls, and KDP-ready export. Supports both traditional text-based chapters and fully illustrated picture books.
 - **AI Consultation Council:** Multi-expert AI panel on Products page with 7 interactive demos. Features Larry Larsen (laundromat expert), market analysts, and financial experts for comprehensive deal analysis with tiered subscriptions (Free: 10 msgs/mo, Pro: 500/mo, Enterprise: unlimited).
+- **Power Tools Hub (/tools):** Unified showcase of ALL platform tools organized into 6 categories: Location Intelligence, Financial Calculators, Templates & Documents, Education & Training, Operator Tools, and Marketplace & Funding. Features tier badges (Free/Pro/Enterprise), tool descriptions, and clear upgrade paths.
+- **Smart Feature Gating System:** Value-first "give the taste, gate the meal" approach with 4 tiers:
+  - **Teaser (anonymous):** 1 try, partial/blurred results, upgrade prompts
+  - **Free (signed in):** 3-5 uses/month per feature, full results, monthly reset
+  - **Pro ($29/mo):** Unlimited access, exports, saves, advanced features
+  - **Enterprise ($99/mo):** API access, team features, white-label options
+  - Implementation: `useSmartGating` hook, `SmartFeatureGate` component, localStorage usage tracking
+- **Cross-Sell Integration (RelatedTools):** Context-aware component suggesting related tools based on current page. Three variants: card (full), inline (compact), minimal (links). Mapped relationships for 15+ tools.
+- **StickyUpgradeBanner:** Persistent bottom banner for teaser/free users showing usage limits and gold CTA button. Dismissible with 24-hour reset, framer-motion animations.
 - **Larry's Content Empire:** Comprehensive premium content creation and monetization platform for Larry Larsen to drive traffic and revenue. Features:
   - **Unified Dashboard:** All content types (blogs, courses, books, documents, products, landing pages, consultations) in one command center
   - **AI Enhancement Suite:** Content Polisher (grammar, tone, professionalism), SEO/AEO Analyzer (scores + actionable suggestions), E-E-A-T Checker (Google quality signals)
