@@ -136,13 +136,13 @@ export function DueDiligenceChecklist({ cleanbiScore, grade, address, isSubscrib
         <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
           <div className="text-center p-6">
             <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Starter Feature</h3>
+            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
             <p className="text-muted-foreground mb-4">
-              Due diligence checklists require a Starter subscription
+              Due diligence checklists require a Pro subscription
             </p>
             <Button onClick={onUpgradeClick} className="gap-2">
               <Crown className="h-4 w-4" />
-              Upgrade to Starter
+              Upgrade to Pro
             </Button>
           </div>
         </div>

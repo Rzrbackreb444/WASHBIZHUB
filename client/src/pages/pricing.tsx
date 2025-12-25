@@ -61,32 +61,43 @@ export default function Pricing() {
   };
 
   const freeFeatures = [
-    "3 CLEANBI location analyses",
-    "Browse marketplace listings",
+    "3 CLEANBI analyses",
+    "Basic calculators (5)",
+    "Limited template access",
+    "Marketplace browsing",
     "View 7 Lease Red Flags",
-    "Access blog & help center",
-    "Calculator previews"
+    "Access blog & help center"
   ];
 
   const allAccessFeatures = [
     "Unlimited CLEANBI analyses",
-    "Full Calculator Suite (50+ tools)",
-    "All Courses & Training",
-    "Complete Template Vault",
+    "All Calculators (50+)",
+    "Unlimited PDF Exports",
+    "Template Vault access",
     "AI Business Plan Generator",
-    "Design Studio (2D/3D)",
     "Service Guy AI diagnostics",
-    "POS Command Center",
-    "Priority support"
+    "Priority support",
+    "30-day money-back guarantee"
   ];
 
   const enterpriseFeatures = [
-    "Everything in All-Access",
-    "API access for integrations",
+    "Everything in Pro",
+    "Full API access",
     "White-label reports",
     "Multi-location management",
     "Team seats (up to 10)",
-    "Dedicated account manager"
+    "24/7 Dedicated Support",
+    "Custom training"
+  ];
+
+  const comparisonFeatures = [
+    { name: "CLEANBI Analyses", free: "3 analyses", pro: "Unlimited", enterprise: "Unlimited" },
+    { name: "Calculators", free: "Basic (5)", pro: "All (50+)", enterprise: "All + Custom" },
+    { name: "Template Vault", free: "Limited", pro: "Full Access", enterprise: "Full Access" },
+    { name: "PDF Exports", free: "None", pro: "Unlimited", enterprise: "Unlimited" },
+    { name: "API Access", free: "None", pro: "None", enterprise: "Full Access" },
+    { name: "Reports", free: "Standard", pro: "Advanced", enterprise: "White-label" },
+    { name: "Support", free: "Help Center", pro: "Priority", enterprise: "24/7 Dedicated" },
   ];
 
   const faqs = [
@@ -104,7 +115,7 @@ export default function Pricing() {
     },
     {
       question: "Which plan should I choose?",
-      answer: "Free is great for exploring. All-Access is perfect for serious buyers, operators, and investors who want complete tools and training. Enterprise is for multi-unit owners and brokers needing API access and team features."
+      answer: "Free is great for exploring. Pro is perfect for serious buyers, operators, and investors who want complete tools and training. Enterprise is for multi-unit owners and brokers needing API access and team features."
     }
   ];
 
@@ -115,13 +126,13 @@ export default function Pricing() {
     { icon: Clock, label: "Cancel anytime" }
   ];
 
-  const monthlyPrice = 149;
-  const annualMonthly = 124;
-  const annualTotal = 1490;
+  const monthlyPrice = 29;
+  const annualMonthly = 24;
+  const annualTotal = 288;
   const savings = Math.round(((monthlyPrice * 12 - annualTotal) / (monthlyPrice * 12)) * 100);
 
-  const enterpriseMonthly = 299;
-  const enterpriseAnnual = 249;
+  const enterpriseMonthly = 99;
+  const enterpriseAnnual = 89;
 
   return (
     <>
@@ -153,7 +164,8 @@ export default function Pricing() {
             </h1>
             
             <p className="text-lg text-white/80 max-w-xl mx-auto mb-8">
-              No hidden fees. No surprises. Just the tools you need to succeed in the laundromat business.
+              Choose the plan that's right for your stage of the laundromat journey. 
+              <span className="block mt-2 font-semibold text-[#C8A661]">Used by 5,000+ brokers and operators.</span>
             </p>
 
             {/* Annual/Monthly Toggle */}
@@ -221,12 +233,12 @@ export default function Pricing() {
 
               {/* All-Access Tier - Popular */}
               <Card 
-                className="relative border-2 border-[#C8A661] shadow-lg"
+                className="relative border-2 border-[#C8A661] shadow-lg scale-105 z-10"
                 data-testid="card-all-access"
               >
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-[#C8A661] text-white border-0 px-3">
-                    <Star className="h-3 w-3 mr-1" />
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-[#C8A661] text-white border-0 px-4 py-1 shadow-lg">
+                    <Star className="h-3 w-3 mr-1.5 fill-current" />
                     Most Popular
                   </Badge>
                 </div>
@@ -235,38 +247,38 @@ export default function Pricing() {
                   <div className="mx-auto mb-3 p-2.5 rounded-lg bg-[#C8A661]/20 w-fit">
                     <Sparkles className="h-6 w-6 text-[#C8A661]" />
                   </div>
-                  <CardTitle className="text-xl">All-Access</CardTitle>
-                  <p className="text-sm text-muted-foreground">Complete toolkit</p>
+                  <CardTitle className="text-xl">Pro</CardTitle>
+                  <p className="text-sm text-muted-foreground">Complete toolkit for serious buyers</p>
                   
                   <div className="my-4">
-                    <span className="text-4xl font-bold">
+                    <span className="text-5xl font-bold">
                       ${isAnnual ? annualMonthly : monthlyPrice}
                     </span>
-                    <span className="text-muted-foreground">/mo</span>
+                    <span className="text-muted-foreground font-medium">/mo</span>
                     {isAnnual && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ${annualTotal}/year (billed annually)
+                      <p className="text-xs text-[#C8A661] font-semibold mt-2">
+                        Save ${ (monthlyPrice - annualMonthly) * 12 } per year
                       </p>
                     )}
                   </div>
                   
                   <Button 
-                    className="w-full bg-[#C8A661] text-white"
+                    className="w-full bg-[#C8A661] text-white hover:bg-[#B8964F] shadow-md h-11"
                     onClick={() => handleCheckout('business')}
                     disabled={checkoutMutation.isPending}
-                    data-testid="button-all-access"
+                    data-testid="button-upgrade-pro"
                   >
-                    {checkoutMutation.isPending ? "Loading..." : "Get All-Access"}
+                    {checkoutMutation.isPending ? "Processing..." : "Upgrade to Pro"}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2">
-                  <ul className="space-y-2.5 text-sm">
+                  <ul className="space-y-3 text-sm">
                     {allAccessFeatures.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2">
+                      <li key={i} className="flex items-start gap-2.5">
                         <Check className="h-4 w-4 text-[#C8A661] shrink-0 mt-0.5" />
-                        <span>{f}</span>
+                        <span className="leading-tight">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -276,11 +288,11 @@ export default function Pricing() {
               {/* Enterprise Tier */}
               <Card className="relative" data-testid="card-enterprise">
                 <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 w-fit">
-                    <Shield className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <div className="mx-auto mb-3 p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 w-fit">
+                    <Building2 className="h-6 w-6 text-slate-600 dark:text-slate-400" />
                   </div>
                   <CardTitle className="text-xl">Enterprise</CardTitle>
-                  <p className="text-sm text-muted-foreground">For teams & brokers</p>
+                  <p className="text-sm text-muted-foreground">For multi-unit owners & brokers</p>
                   
                   <div className="my-4">
                     <span className="text-4xl font-bold">
@@ -291,25 +303,56 @@ export default function Pricing() {
                   
                   <Button 
                     variant="outline"
-                    className="w-full"
+                    className="w-full h-11 border-slate-200 dark:border-slate-800"
                     onClick={() => handleCheckout('enterprise')}
-                    data-testid="button-enterprise"
+                    data-testid="button-go-enterprise"
                   >
-                    Contact Sales
+                    Go Enterprise
                   </Button>
                 </CardHeader>
                 
                 <CardContent className="pt-2">
-                  <ul className="space-y-2.5 text-sm">
+                  <ul className="space-y-3 text-sm">
                     {enterpriseFeatures.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
-                        <span>{f}</span>
+                      <li key={i} className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-slate-600 shrink-0 mt-0.5" />
+                        <span className="leading-tight">{f}</span>
                       </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Comparison Table */}
+            <div className="mt-24">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">Compare Tiers</h2>
+                <p className="text-muted-foreground">See which plan fits your laundromat goals</p>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-muted/50">
+                      <th className="p-5 font-semibold text-sm border-b">Feature</th>
+                      <th className="p-5 font-semibold text-sm border-b text-center">Free</th>
+                      <th className="p-5 font-semibold text-sm border-b text-center bg-primary/5">Pro</th>
+                      <th className="p-5 font-semibold text-sm border-b text-center">Enterprise</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparisonFeatures.map((feature, idx) => (
+                      <tr key={idx} className="group hover:bg-muted/30 transition-colors">
+                        <td className="p-5 text-sm font-medium border-b">{feature.name}</td>
+                        <td className="p-5 text-sm text-center border-b text-muted-foreground">{feature.free}</td>
+                        <td className="p-5 text-sm text-center border-b font-medium bg-primary/5">{feature.pro}</td>
+                        <td className="p-5 text-sm text-center border-b text-muted-foreground">{feature.enterprise}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Trust Badges */}

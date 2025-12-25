@@ -132,8 +132,8 @@ const CALCULATOR_CATEGORIES: CalculatorCategory[] = [
 
 const TIER_CONFIG = {
   free: { label: "Free", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" },
-  pro: { label: "Pro", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" },
-  business: { label: "Business", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400" },
+  pro: { label: "Pro", color: "bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/30" },
+  business: { label: "Pro", color: "bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/30" }, // Mapping business to Pro
 };
 
 export default function CalculatorsHub() {
@@ -418,20 +418,26 @@ export default function CalculatorsHub() {
 
         {/* Upgrade CTA */}
         {!canAccessTier("pro") && (
-          <section className="py-10 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-t">
+          <section className="py-12 bg-gradient-to-r from-[#C8A661]/20 to-background border-t border-[#C8A661]/20">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-              <Crown className="w-10 h-10 text-[#C8A661] mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-3">Unlock All Calculators</h2>
-              <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
-                Upgrade to Pro or Business to access advanced calculators including AI-powered analysis, 
-                Monte Carlo simulations, and multi-scenario modeling.
+              <div className="inline-flex p-3 rounded-2xl bg-[#C8A661] mb-6 shadow-lg shadow-[#C8A661]/20">
+                <Crown className="w-8 h-8 text-[#0A1628]" />
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Unlock 50+ Professional Calculators</h2>
+              <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+                Stop guessing and start analyzing. Upgrade to Pro to access our full suite of 
+                advanced calculators, Monte Carlo simulations, and AI-powered equipment appraisal.
+                <span className="block mt-2 font-semibold text-[#C8A661]">Used by 500+ successful laundromat investors.</span>
               </p>
-              <Link href="/pricing">
-                <Button size="lg" className="gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628]">
-                  View Pricing
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
+              <div className="flex flex-col items-center gap-4">
+                <Link href="/pricing">
+                  <Button size="lg" className="gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-12 px-10 font-bold text-lg shadow-md">
+                    Upgrade to Pro — $29/mo
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <p className="text-sm text-muted-foreground">30-day money-back guarantee • Cancel anytime</p>
+              </div>
             </div>
           </section>
         )}
