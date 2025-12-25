@@ -26,6 +26,7 @@ import { PageTransition } from "@/components/PageTransition";
 import AdminBar from "@/components/AdminBar";
 import { TrialBanner } from "@/components/monetization";
 import { ExitIntentModal } from "@/components/ExitIntentModal";
+import { StickyUpgradeBanner } from "@/components/StickyUpgradeBanner";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
@@ -542,6 +543,9 @@ const RouteOptimization = lazy(() => import("@/pages/route-optimization"));
 const DriverMobile = lazy(() => import("@/pages/driver-mobile"));
 const CustomerTracking = lazy(() => import("@/pages/customer-tracking"));
 
+// Power Tools Hub
+const ToolsHub = lazy(() => import("@/pages/tools-hub"));
+
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
@@ -649,6 +653,11 @@ function Router() {
       <Route path="/products">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <ProductsHub />
+        </Suspense>
+      </Route>
+      <Route path="/tools">
+        <Suspense fallback={<FullPageLoadingFallback />}>
+          <ToolsHub />
         </Suspense>
       </Route>
       <Route path="/list-your-laundromat">
@@ -2486,6 +2495,7 @@ function AppContent() {
       </div>
       {!hideChatWidget && <DeferredAIChatWidget />}
       <FloatingFeedbackButton />
+      <StickyUpgradeBanner position="bottom" dismissible={true} />
     </>
   );
 }
