@@ -40,7 +40,8 @@ import {
   ShopSection,
   CommunitySection,
   CTASection,
-  PremiumFooter
+  PremiumFooter,
+  HowItWorks
 } from "@/components/PremiumHomeSections";
 import { IndustryPulse, IndustryPulseMini } from "@/components/IndustryPulse";
 import { JourneyProgress } from "@/components/JourneyProgress";
@@ -60,6 +61,185 @@ import {
   MapPin, Shield, Zap, FileText
 } from "lucide-react";
 import { RoadshowBanner } from "@/components/RoadshowPromo";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+// Enhanced testimonials data with more details
+const enhancedTestimonials = [
+  {
+    id: "testimonial-mike",
+    quote: "CLEANBI saved me from a $180K mistake. The location I was about to buy scored a 42 - turns out there were 6 competitors within 2 miles I didn't know about.",
+    name: "Mike R.",
+    role: "First-Time Buyer",
+    location: "Dallas, TX",
+    highlight: "$180K saved",
+    initials: "MR"
+  },
+  {
+    id: "testimonial-sarah",
+    quote: "I've bought 3 laundromats using WashBizHub. The scoring system is scary accurate - my highest scoring location is now my best performer.",
+    name: "Sarah L.",
+    role: "Multi-Location Operator",
+    location: "Phoenix, AZ", 
+    highlight: "3 locations",
+    initials: "SL"
+  },
+  {
+    id: "testimonial-james",
+    quote: "As a broker, I use CLEANBI for every listing. It gives my buyers confidence and speeds up deals. Worth every penny of the Pro subscription.",
+    name: "James T.",
+    role: "Equipment Broker",
+    location: "Atlanta, GA",
+    highlight: "12 deals closed",
+    initials: "JT"
+  }
+];
+
+// Industry partner logos for "Trusted By" section
+const industryPartners = [
+  { id: "cla", name: "CLA", fullName: "Coin Laundry Association" },
+  { id: "ibisworld", name: "IBISWorld", fullName: "Industry Research" },
+  { id: "bizbuysell", name: "BizBuySell", fullName: "Business Marketplace" },
+  { id: "dexter", name: "Dexter", fullName: "Commercial Equipment" },
+  { id: "continental", name: "Continental Girbau", fullName: "Industrial Laundry" }
+];
+
+// Trust badges with key platform stats
+const trustBadges = [
+  { id: "professionals", value: "73,000+", label: "Professionals", icon: Users },
+  { id: "tools", value: "50+", label: "Expert Tools", icon: Settings },
+  { id: "states", value: "All 50", label: "States", icon: MapPin }
+];
+
+// Enhanced Social Proof Section Component
+const EnhancedSocialProofSection = memo(function EnhancedSocialProofSection() {
+  return (
+    <section className="py-16 md:py-20 bg-muted/30 border-t border-b border-border" data-testid="section-enhanced-social-proof">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]" data-testid="badge-social-proof">
+            <Star className="w-3 h-3 mr-1.5" />
+            Trusted by Industry Leaders
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3" data-testid="text-social-proof-heading">
+            Real Results from Real Investors
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto" data-testid="text-social-proof-subheading">
+            Join 73,000+ laundromat professionals who trust WashBizHub for data-driven decisions
+          </p>
+        </div>
+
+        {/* Trust Badges Row */}
+        <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-12" data-testid="trust-badges-row">
+          {trustBadges.map((badge) => {
+            const Icon = badge.icon;
+            return (
+              <div 
+                key={badge.id}
+                className="flex items-center gap-2 px-4 py-2 bg-card border rounded-full shadow-sm"
+                data-testid={`trust-badge-${badge.id}`}
+              >
+                <div className="h-8 w-8 rounded-full bg-[#0A1628] flex items-center justify-center">
+                  <Icon className="h-4 w-4 text-[#C8A661]" />
+                </div>
+                <div className="text-left">
+                  <div className="text-lg font-bold text-[#C8A661]" data-testid={`trust-badge-value-${badge.id}`}>{badge.value}</div>
+                  <div className="text-xs text-muted-foreground">{badge.label}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Testimonials Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12" data-testid="testimonials-grid">
+          {enhancedTestimonials.map((testimonial) => (
+            <Card 
+              key={testimonial.id}
+              className="bg-card border shadow-sm overflow-hidden hover-elevate"
+              data-testid={`card-${testimonial.id}`}
+            >
+              <div className="h-1 bg-[#C8A661]" />
+              <CardContent className="p-6">
+                {/* Rating Stars */}
+                <div className="flex items-center gap-1 mb-3" data-testid={`rating-${testimonial.id}`}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                
+                {/* Highlight Badge */}
+                <Badge 
+                  className="mb-3 bg-[#C8A661]/10 text-[#C8A661] border-[#C8A661]/20"
+                  data-testid={`highlight-${testimonial.id}`}
+                >
+                  {testimonial.highlight}
+                </Badge>
+                
+                {/* Quote */}
+                <p 
+                  className="text-muted-foreground mb-4 leading-relaxed"
+                  data-testid={`quote-${testimonial.id}`}
+                >
+                  "{testimonial.quote}"
+                </p>
+                
+                {/* Author */}
+                <div className="flex items-center gap-3 pt-4 border-t border-border">
+                  <Avatar className="h-10 w-10" data-testid={`avatar-${testimonial.id}`}>
+                    <AvatarFallback className="bg-[#0A1628] text-[#C8A661] font-semibold text-sm">
+                      {testimonial.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground" data-testid={`name-${testimonial.id}`}>
+                      {testimonial.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground" data-testid={`role-${testimonial.id}`}>
+                      {testimonial.role}
+                    </p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {testimonial.location}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Trusted By / As Featured In Section */}
+        <div className="text-center" data-testid="trusted-by-section">
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-6">
+            As Featured In
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10" data-testid="partner-logos-row">
+            {industryPartners.map((partner) => (
+              <div 
+                key={partner.id}
+                className="group flex flex-col items-center gap-1 px-4 py-3 rounded-lg hover:bg-muted/50 transition-colors"
+                data-testid={`partner-logo-${partner.id}`}
+              >
+                <div className="h-10 w-10 rounded-lg bg-[#0A1628] flex items-center justify-center mb-1">
+                  <span className="text-[#C8A661] font-bold text-xs">
+                    {partner.name.substring(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-sm font-semibold text-foreground group-hover:text-[#C8A661] transition-colors">
+                  {partner.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground hidden md:block">
+                  {partner.fullName}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+});
 
 // Testimonials data
 const testimonials = [
@@ -699,6 +879,12 @@ export default function Home() {
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
+        
+        {/* ENHANCED SOCIAL PROOF - Testimonials, Partner Logos, Trust Badges */}
+        <EnhancedSocialProofSection />
+        
+        {/* HOW IT WORKS - 4-step process to success */}
+        <HowItWorks />
         
         {/* HOUSTON ROADSHOW ANNOUNCEMENT - Live event promotion */}
         <RoadshowBanner />

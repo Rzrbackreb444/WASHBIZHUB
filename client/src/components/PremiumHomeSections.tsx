@@ -226,6 +226,111 @@ export const FeaturesSection = memo(function FeaturesSection() {
 
 FeaturesSection.displayName = 'FeaturesSection';
 
+const HOW_IT_WORKS_STEPS = [
+  {
+    step: 1,
+    title: "Score",
+    description: "Analyze any location with CLEANBI's 17-factor scoring algorithm",
+    icon: Target,
+    link: "/cleanbi-explorer",
+    cta: "Analyze Location"
+  },
+  {
+    step: 2,
+    title: "Improve",
+    description: "Get AI recommendations and professional tools to maximize ROI",
+    icon: TrendingUp,
+    link: "/calculator",
+    cta: "View Tools"
+  },
+  {
+    step: 3,
+    title: "Fund",
+    description: "Connect with vetted lenders offering up to $750K in financing",
+    icon: DollarSign,
+    link: "/startup-funding",
+    cta: "Explore Funding"
+  },
+  {
+    step: 4,
+    title: "Consult",
+    description: "Expert guidance from industry veteran Larry Larsen",
+    icon: Users,
+    link: "/consultation",
+    cta: "Book Consultation"
+  }
+];
+
+export const HowItWorks = memo(function HowItWorks() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [, setLocation] = useLocation();
+  
+  return (
+    <section className="py-16 md:py-20 bg-muted/30" data-testid="section-how-it-works">
+      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
+            <Sparkles className="w-3 h-3 mr-1.5" />
+            How It Works
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3" data-testid="text-how-it-works-heading">
+            Your Path to Laundromat Success
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Four simple steps from location analysis to profitable ownership
+          </p>
+        </div>
+        
+        <motion.div 
+          ref={ref}
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
+        >
+          {HOW_IT_WORKS_STEPS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <motion.div key={item.step} variants={cardItem}>
+                <Card 
+                  className="bg-card border shadow-sm overflow-hidden h-full cursor-pointer group hover-elevate"
+                  onClick={() => setLocation(item.link)}
+                  data-testid={`card-how-it-works-step-${item.step}`}
+                >
+                  <div className="h-1 bg-[#C8A661]" />
+                  <div className="p-6 md:p-8">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="h-12 w-12 rounded-lg bg-[#0A1628] flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-6 w-6 text-[#C8A661]" />
+                      </div>
+                      <div className="flex items-center justify-center h-8 w-8 rounded-full bg-[#C8A661]/10 text-[#C8A661] font-bold text-sm">
+                        {item.step}
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-2" data-testid={`text-step-${item.step}-title`}>
+                      {item.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-4 leading-relaxed" data-testid={`text-step-${item.step}-description`}>
+                      {item.description}
+                    </p>
+                    <div className="flex items-center text-[#C8A661] text-sm font-semibold group-hover:translate-x-1 transition-transform">
+                      {item.cta}
+                      <ArrowRight className="ml-1.5 h-4 w-4" />
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </section>
+  );
+});
+
+HowItWorks.displayName = 'HowItWorks';
+
 export function TrustSignalsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
