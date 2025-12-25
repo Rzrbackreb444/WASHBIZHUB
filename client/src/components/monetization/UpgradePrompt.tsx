@@ -24,7 +24,7 @@ interface UpgradePromptProps {
 
 export function UpgradePrompt({
   variant = "card",
-  suggestedTier = "starter",
+  suggestedTier = "pro",
   feature,
   title,
   description,

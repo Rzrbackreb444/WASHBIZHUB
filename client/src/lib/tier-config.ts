@@ -4,7 +4,7 @@ import {
   Award, Sparkles, Target, BarChart3, Users, Clock
 } from "lucide-react";
 
-export type PlatformTier = 'free' | 'pro' | 'business' | 'enterprise';
+export type PlatformTier = 'free' | 'pro' | 'enterprise';
 export type ListingTier = 'free' | 'basic' | 'showcase' | 'diamond';
 
 export interface TierFeature {
@@ -94,19 +94,15 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     popular: false,
     features: [
       { text: '3 CLEANBI analyses total', included: true, highlight: true },
+      { text: 'Basic investment calculators', included: true, highlight: true },
+      { text: 'Limited template access', included: true },
       { text: 'Browse marketplace listings', included: true },
       { text: 'Read forum discussions', included: true },
-      { text: 'View funding hub directory', included: true },
       { text: 'Blog & help center access', included: true },
-      { text: 'Street View & competitor count', included: true },
-      { text: 'Basic calculator previews', included: true },
-      { text: 'Template Vault previews only', included: true },
-      { text: 'Lease Red Flags (7 alerts)', included: true },
       { text: 'Unlimited CLEANBI analyses', included: false },
       { text: 'Full Calculator Suite', included: false },
       { text: 'Template Vault full access', included: false },
-      { text: 'Book & Courses access', included: false },
-      { text: 'Forum posting & community', included: false },
+      { text: 'PDF exports', included: false },
     ],
     limits: {
       cleanbiAnalyses: 3,
@@ -120,30 +116,22 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
   pro: {
     id: 'pro',
     name: 'Pro',
-    tagline: 'For serious buyers',
-    description: 'Unlimited CLEANBI analyses, full calculator suite, and community access',
-    price: 49,
-    priceAnnual: 490,
+    tagline: 'For serious investors',
+    description: 'Unlimited CLEANBI analyses, full calculator suite, and PDF exports',
+    price: 29,
+    priceAnnual: 288,
     icon: Zap,
     iconBg: 'bg-blue-100 dark:bg-blue-900/30',
     iconColor: 'text-blue-600 dark:text-blue-400',
-    popular: false,
+    popular: true,
     features: [
       { text: 'Unlimited CLEANBI analyses', included: true, highlight: true },
       { text: 'Full Calculator Suite (50+ tools)', included: true, highlight: true },
-      { text: 'Template Vault (5 templates)', included: true },
-      { text: 'Lease Red Flags Checklist (50+)', included: true },
+      { text: 'Unlimited PDF exports', included: true },
+      { text: 'Template Vault full access', included: true },
+      { text: 'Priority email support', included: true },
       { text: 'Forum posting & community', included: true },
-      { text: 'Save unlimited reports', included: true },
-      { text: 'Export to PDF', included: true },
-      { text: 'Browse marketplace listings', included: true },
-      { text: 'View funding hub directory', included: true },
-      { text: 'Blog & help center access', included: true },
-      { text: 'Full Template Vault access', included: false },
-      { text: 'Book & Courses access', included: false },
-      { text: 'Service Guy AI', included: false },
-      { text: 'Design Studio', included: false },
-      { text: 'AI Business Plan Generator', included: false },
+      { text: 'Save $60/yr vs monthly', included: true, highlight: true },
     ],
     limits: {
       cleanbiAnalyses: 'unlimited',
@@ -151,42 +139,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       savedReports: 'unlimited',
       teamMembers: 1,
     },
-    cta: 'Go Pro',
-    ctaVariant: 'default',
-  },
-  business: {
-    id: 'business',
-    name: 'Business',
-    tagline: 'For operators & investors',
-    description: 'Everything in Pro plus courses, AI tools, POS system, and operator features',
-    price: 149,
-    priceAnnual: 1490,
-    icon: Star,
-    iconBg: 'bg-[#C8A661]/20',
-    iconColor: 'text-[#C8A661]',
-    popular: true,
-    features: [
-      { text: 'Everything in Pro', included: true },
-      { text: 'Complete Book & All Courses', included: true, highlight: true },
-      { text: 'Full Template Vault (all templates)', included: true, highlight: true },
-      { text: 'Service Guy AI diagnostics', included: true, highlight: true },
-      { text: 'Design Studio (2D/3D floor plans)', included: true },
-      { text: 'POS Command Center', included: true },
-      { text: 'AI Business Plan Generator', included: true },
-      { text: 'AI Consultation Council', included: true },
-      { text: 'Due Diligence & LOI Templates', included: true },
-      { text: 'Monte Carlo simulations', included: true },
-      { text: 'Bulk location analysis', included: true },
-      { text: 'Website builder', included: true },
-      { text: 'Priority email support', included: true },
-    ],
-    limits: {
-      cleanbiAnalyses: 'unlimited',
-      apiCalls: 500,
-      savedReports: 'unlimited',
-      teamMembers: 3,
-    },
-    cta: 'Get Business',
+    cta: 'Upgrade to Pro',
     ctaVariant: 'default',
     badge: 'MOST POPULAR',
     badgeColor: 'bg-[#C8A661] text-white',
@@ -194,23 +147,22 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
   enterprise: {
     id: 'enterprise',
     name: 'Enterprise',
-    tagline: 'For multi-unit & brokers',
-    description: 'Custom solutions for portfolios, brokerages, and enterprise teams',
-    price: 0,
-    priceAnnual: 0,
+    tagline: 'For brokers & firms',
+    description: 'Everything in Pro plus API access, white-label reports, and dedicated support',
+    price: 99,
+    priceAnnual: 1068,
     icon: Crown,
     iconBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
     iconColor: 'text-white',
     popular: false,
     features: [
-      { text: 'Everything in Business', included: true },
+      { text: 'Everything in Pro', included: true },
+      { text: 'API access for integrations', included: true, highlight: true },
       { text: 'White-label reports & branding', included: true, highlight: true },
-      { text: 'Unlimited API access', included: true, highlight: true },
-      { text: 'Dedicated account manager', included: true, highlight: true },
+      { text: 'Priority phone support', included: true, highlight: true },
+      { text: 'Dedicated account manager', included: true },
       { text: 'Team collaboration (10+ seats)', included: true },
-      { text: 'Custom integrations', included: true },
-      { text: 'Priority phone support', included: true },
-      { text: 'Volume discounts', included: true },
+      { text: 'Used by 500+ brokers', included: true, highlight: true },
     ],
     limits: {
       cleanbiAnalyses: 'unlimited',
@@ -218,7 +170,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
       savedReports: 'unlimited',
       teamMembers: 'unlimited',
     },
-    cta: 'Contact Sales',
+    cta: 'Go Enterprise',
     ctaVariant: 'outline',
     badge: 'ENTERPRISE',
     badgeColor: 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white',
@@ -431,14 +383,14 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
   },
 };
 
-export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'pro', 'business', 'enterprise'];
+export const PLATFORM_TIER_ORDER: PlatformTier[] = ['free', 'pro', 'enterprise'];
 export const LISTING_TIER_ORDER: ListingTier[] = ['free', 'basic', 'showcase', 'diamond'];
 
 export function getPlatformTier(tierId: string): PlatformTierConfig | undefined {
   // Handle legacy tier names
-  if (tierId === 'starter') return PLATFORM_TIERS['pro'];
-  if (tierId === 'all_access') return PLATFORM_TIERS['enterprise'];
-  if (tierId === 'accelerate' || tierId === 'scale') return PLATFORM_TIERS['business'];
+  if (tierId === 'starter' || tierId === 'business') return PLATFORM_TIERS['pro'];
+  if (tierId === 'all_access') return PLATFORM_TIERS['pro'];
+  if (tierId === 'accelerate' || tierId === 'scale') return PLATFORM_TIERS['pro'];
   if (tierId === 'summit') return PLATFORM_TIERS['enterprise'];
   return PLATFORM_TIERS[tierId as PlatformTier];
 }

@@ -577,17 +577,17 @@ export default function Home() {
         },
         {
           "@type": "Offer",
-          "itemOffered": { "@type": "Service", "name": "Starter Location Analysis" },
+          "itemOffered": { "@type": "Service", "name": "Pro Location Analysis" },
           "price": "29",
           "priceCurrency": "USD",
-          "description": "Unlimited analyses with walk/transit scores"
+          "description": "Unlimited analyses, 50+ calculators, PDF exports, and template vault access"
         },
         {
           "@type": "Offer",
-          "itemOffered": { "@type": "Service", "name": "Pro Location Analysis" },
+          "itemOffered": { "@type": "Service", "name": "Enterprise Location Analysis" },
           "price": "99",
           "priceCurrency": "USD",
-          "description": "Full analysis with catchment area and utility costs"
+          "description": "API access, white-label reports, and priority support"
         }
       ]
     }

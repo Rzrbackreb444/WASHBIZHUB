@@ -2720,7 +2720,7 @@ function CleanBIExplorerContent() {
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
         feature="CLEANBI Explorer"
-        suggestedTier="starter"
+        suggestedTier="pro"
         title="Unlock Unlimited CLEANBI Analyses"
         description="Get unlimited location analyses, 3D aerial views, competitor intel, and PDF exports."
       />
@@ -2729,9 +2729,9 @@ function CleanBIExplorerContent() {
         open={showPostAnalysisModal}
         onOpenChange={setShowPostAnalysisModal}
         feature="CLEANBI Explorer"
-        suggestedTier="starter"
+        suggestedTier="pro"
         title="You've Used All 3 Free Analyses!"
-        description="Great job exploring! Upgrade to Starter for unlimited analyses, PDF exports, competitor intel, and more."
+        description="Great job exploring! Upgrade to Pro for unlimited analyses, PDF exports, competitor intel, and more."
       />
 
       {/* Mobile Loading Overlay - Only shows on mobile during hydration */}

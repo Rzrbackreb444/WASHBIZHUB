@@ -627,12 +627,12 @@ export const PRICING_FAQ_SCHEMA = generateFAQSchema([
     answer: "The Free tier includes 3 CLEANBI location analyses, Service Guy AI (2 messages), basic calculators, Design Studio 2D, access to the 2,200+ error code database, community forum with 73K+ members, and educational content. No credit card required to get started."
   },
   {
-    question: "What's included in the Starter plan?",
-    answer: "Starter ($29/mo) includes unlimited CLEANBI analyses, full calculator hub access, The Laundromat Bible book, all video courses, forum posting privileges, and email support. All paid plans include a 30-day money-back guarantee."
+    question: "What's included in the Pro plan?",
+    answer: "Pro ($29/mo) includes unlimited CLEANBI analyses, full calculator hub access, The Laundromat Bible book, all video courses, forum posting privileges, and email support. All paid plans include a 30-day money-back guarantee."
   },
   {
-    question: "What's included in the Pro plan?",
-    answer: "Pro ($99/mo) includes everything in Starter plus Monte Carlo simulation, API access, PDF report exports, advanced ROI calculators, bulk analysis tools, and priority support. Perfect for investors and multi-location operators."
+    question: "What's included in the Enterprise plan?",
+    answer: "Enterprise ($99/mo) includes everything in Pro plus white-label reports, API access, PDF report exports, advanced ROI calculators, bulk analysis tools, and priority support. Perfect for investors and multi-location operators."
   },
   {
     question: "How much can I save with WashBizHub tools?",

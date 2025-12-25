@@ -24,48 +24,55 @@ interface UpgradeModalProps {
 
 // Default tier config for safety
 const DEFAULT_TIER_CONFIG = {
-  name: "Business",
-  tagline: "Everything you need",
-  price: 149,
-  iconBg: "bg-amber-100 dark:bg-amber-900/30",
-  iconColor: "text-amber-600 dark:text-amber-400",
+  name: "Pro",
+  tagline: "Everything you need to succeed",
+  price: 29,
+  iconBg: "bg-[#C8A661]/10",
+  iconColor: "text-[#C8A661]",
   popular: true
 };
 
 const TIER_ICONS = {
   free: Zap,
-  all_access: Crown,
+  pro: Crown,
+  enterprise: Building2,
 };
 
 const UPGRADE_BENEFITS = {
-  all_access: [
+  pro: [
     { icon: MapPin, text: "Unlimited CLEANBI location analyses" },
-    { icon: Calculator, text: "80+ professional calculators & AI insights" },
-    { icon: TrendingUp, text: "Full Design Studio & website builder" },
-    { icon: Users, text: "Community access & forum posting" },
-    { icon: Shield, text: "PDF exports, courses & priority support" },
+    { icon: Calculator, text: "All 50+ professional calculators" },
+    { icon: Shield, text: "Unlimited PDF exports & reports" },
+    { icon: TrendingUp, text: "Template Vault full access" },
+    { icon: Star, text: "Priority support & forum posting" },
   ],
+  enterprise: [
+    { icon: Building2, text: "API access for integrations" },
+    { icon: Shield, text: "White-label reports & branding" },
+    { icon: Users, text: "Team collaboration (10+ seats)" },
+    { icon: Star, text: "Dedicated account manager" },
+  ]
 };
 
 export function UpgradeModal({
   open,
   onOpenChange,
   feature,
-  suggestedTier = "all_access",
+  suggestedTier = "pro",
   title,
   description
 }: UpgradeModalProps) {
   const { tier: currentTier } = useSubscription();
   const { user } = useAuth();
   const { toast } = useToast();
-  // Always suggest all_access since that's our main paid tier
-  const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier === 'free' ? 'all_access' : (suggestedTier || 'all_access'));
+  // Always suggest pro since that's our main paid tier
+  const [selectedTier, setSelectedTier] = useState<PlatformTier>(suggestedTier === 'free' ? 'pro' : (suggestedTier || 'pro'));
   const [isLoading, setIsLoading] = useState(false);
   
   // Safely get tier config with fallback
-  const tierConfig = PLATFORM_TIERS[selectedTier] || PLATFORM_TIERS.all_access || DEFAULT_TIER_CONFIG;
+  const tierConfig = PLATFORM_TIERS[selectedTier] || PLATFORM_TIERS.pro;
   const TierIcon = TIER_ICONS[selectedTier] || Crown;
-  const benefits = UPGRADE_BENEFITS.all_access;
+  const benefits = UPGRADE_BENEFITS[selectedTier] || UPGRADE_BENEFITS.pro;
 
   const handleUpgradeClick = async () => {
     setIsLoading(true);
@@ -125,7 +132,7 @@ export function UpgradeModal({
   };
 
   const currentTierPrice = PLATFORM_TIERS[currentTier as PlatformTier]?.price || 0;
-  const availableTiers: PlatformTier[] = (["all_access"] as PlatformTier[]).filter(
+  const availableTiers: PlatformTier[] = (["pro", "enterprise"] as PlatformTier[]).filter(
     t => {
       const config = PLATFORM_TIERS[t];
       return config && config.price > currentTierPrice;
