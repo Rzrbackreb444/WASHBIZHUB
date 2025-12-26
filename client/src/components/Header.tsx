@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings as SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library, Target, BarChart3, Footprints, Eye, Brain, Map, Award, Layers } from "lucide-react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,116 +30,134 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 
-const navLinks = [
-  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, icon: Search },
-  { href: "/marketplace", label: "Marketplace", featured: false, icon: ShoppingBag },
-  { href: "/design-studio", label: "Design Studio", featured: false, icon: Palette },
-  { href: "/service-guy-ai", label: "Service Guy AI", featured: false, icon: Bot },
-  { href: "/pricing", label: "Pricing", featured: true, icon: DollarSign },
-];
+function useLucideIcons() {
+  return useMemo(() => {
+    const icons = require("lucide-react");
+    return icons;
+  }, []);
+}
 
-const calculatorItems = [
-  { href: "/calculators", label: "Calculator Suite", description: "50+ professional tools in 6 categories", icon: Calculator, featured: true },
-  { href: "/valuation-calculator", label: "Valuation", description: "4 methods to value a laundromat", icon: DollarSign },
-  { href: "/roi-calculator", label: "ROI Analysis", description: "5-year investment projections", icon: Calculator },
-  { href: "/tpd-calculator", label: "TPD", description: "Turns per day & revenue", icon: Calculator },
-  { href: "/loan-calculator", label: "Loan", description: "Amortization & payments", icon: Calculator },
-  { href: "/cleanbi-calculator", label: "CLEANBI Score", description: "17-factor location analysis", icon: Calculator },
-];
+function useNavData() {
+  const icons = useLucideIcons();
+  
+  return useMemo(() => {
+    const { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings: SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library, Target, BarChart3, Footprints, Eye, Brain, Map, Award, Layers } = icons;
+    
+    const navLinks = [
+      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, icon: Search },
+      { href: "/marketplace", label: "Marketplace", featured: false, icon: ShoppingBag },
+      { href: "/design-studio", label: "Design Studio", featured: false, icon: Palette },
+      { href: "/service-guy-ai", label: "Service Guy AI", featured: false, icon: Bot },
+      { href: "/pricing", label: "Pricing", featured: true, icon: DollarSign },
+    ];
 
-// CLEANBI Explorer feature showcase for header dropdown
-const cleanbiFeatures = {
-  analysis: [
-    { label: "17-Factor Scoring", description: "Proprietary weighted algorithm", icon: Target },
-    { label: "Competition Intel", description: "Nearby competitor mapping", icon: Users },
-    { label: "Demographics", description: "Census & population data", icon: BarChart3 },
-    { label: "Walk Score", description: "Walkability & transit scores", icon: Footprints },
-  ],
-  views: [
-    { label: "Street View", description: "Google Street View integration", icon: Eye },
-    { label: "3D Aerial Flyover", description: "Satellite & aerial imagery", icon: Globe },
-    { label: "Interactive Map", description: "Competitor radius overlay", icon: Map },
-  ],
-  tools: [
-    { label: "AI Investment Memo", description: "GPT-powered insights", icon: Brain },
-    { label: "PDF Reports", description: "Export & share analysis", icon: FileText },
-    { label: "Saved Locations", description: "Track multiple addresses", icon: Bookmark },
-  ],
-  enterprise: [
-    { label: "Broker API", description: "Integrate into your platform", icon: Zap },
-    { label: "White-Label Reports", description: "Your branding, our data", icon: Award },
-    { label: "Bulk Analysis", description: "Analyze 100+ locations", icon: Layers },
-  ],
-};
+    const calculatorItems = [
+      { href: "/calculators", label: "Calculator Suite", description: "50+ professional tools in 6 categories", icon: Calculator, featured: true },
+      { href: "/valuation-calculator", label: "Valuation", description: "4 methods to value a laundromat", icon: DollarSign },
+      { href: "/roi-calculator", label: "ROI Analysis", description: "5-year investment projections", icon: Calculator },
+      { href: "/tpd-calculator", label: "TPD", description: "Turns per day & revenue", icon: Calculator },
+      { href: "/loan-calculator", label: "Loan", description: "Amortization & payments", icon: Calculator },
+      { href: "/cleanbi-calculator", label: "CLEANBI Score", description: "17-factor location analysis", icon: Calculator },
+    ];
 
-const megaMenuSections = [
-  {
-    id: "discover",
-    title: "Discover",
-    icon: Search,
-    items: [
-      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, description: "AI-powered location analysis", icon: Search },
-      { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale", icon: ShoppingBag },
-      { href: "/brokers", label: "Find a Broker", featured: true, description: "Verified laundromat brokers", icon: Users },
-      { href: "/directory", label: "Business Directory", description: "Find vendors & services", icon: Store },
-    ]
-  },
-  {
-    id: "equipment",
-    title: "Equipment",
-    icon: Wrench,
-    items: [
-      { href: "/equipment", label: "Equipment Hub", featured: true, description: "Dexter & Continental Girbau", icon: Wrench },
-      { href: "/equipment-builder", label: "Get Equipment Quotes", description: "585+ distributors", icon: Store },
-      { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options", icon: DollarSign },
-    ]
-  },
-  {
-    id: "tools",
-    title: "Tools",
-    icon: Calculator,
-    items: [
-      { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's it worth?", icon: Calculator },
-      { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
-      { href: "/design-studio", label: "Design Studio", description: "2D/3D floor plans", icon: Palette },
-    ]
-  },
-  {
-    id: "templates",
-    title: "Templates",
-    icon: FolderOpen,
-    items: [
-      { href: "/template-vault", label: "Template Vault", featured: true, description: "Professional business templates", icon: FolderOpen },
-      { href: "/vault/business-plan", label: "AI Business Plan", description: "Generate with CLEANBI data", icon: FileText },
-      { href: "/vault/lease-checklist", label: "Lease Red Flags", featured: true, description: "Larry's 50+ trap alerts", icon: AlertTriangle },
-      { href: "/my-library", label: "My Library", description: "Your purchased assets", icon: Library },
-    ]
-  },
-  {
-    id: "resources",
-    title: "Learn",
-    icon: Star,
-    items: [
-      { href: "/blog", label: "Blog", description: "Expert insights & news", icon: Star },
-      { href: "/forum", label: "Community Forum", description: "Ask questions, share tips", icon: User },
-      { href: "/book", label: "The Bible", description: "Complete guide", icon: Star },
-    ]
-  },
-  {
-    id: "connect",
-    title: "Connect",
-    icon: Bot,
-    items: [
-      { href: "/service-guy-ai", label: "Service Guy AI", featured: true, description: "AI equipment diagnostics", icon: Bot },
-      { href: "/consultation", label: "Book a Consultation", description: "Expert advice", icon: User },
-      { href: "/brokers", label: "Brokers", description: "Verified professionals", icon: Store },
-    ]
-  }
-];
+    const cleanbiFeatures = {
+      analysis: [
+        { label: "17-Factor Scoring", description: "Proprietary weighted algorithm", icon: Target },
+        { label: "Competition Intel", description: "Nearby competitor mapping", icon: Users },
+        { label: "Demographics", description: "Census & population data", icon: BarChart3 },
+        { label: "Walk Score", description: "Walkability & transit scores", icon: Footprints },
+      ],
+      views: [
+        { label: "Street View", description: "Google Street View integration", icon: Eye },
+        { label: "3D Aerial Flyover", description: "Satellite & aerial imagery", icon: Globe },
+        { label: "Interactive Map", description: "Competitor radius overlay", icon: Map },
+      ],
+      tools: [
+        { label: "AI Investment Memo", description: "GPT-powered insights", icon: Brain },
+        { label: "PDF Reports", description: "Export & share analysis", icon: FileText },
+        { label: "Saved Locations", description: "Track multiple addresses", icon: Bookmark },
+      ],
+      enterprise: [
+        { label: "Broker API", description: "Integrate into your platform", icon: Zap },
+        { label: "White-Label Reports", description: "Your branding, our data", icon: Award },
+        { label: "Bulk Analysis", description: "Analyze 100+ locations", icon: Layers },
+      ],
+    };
+
+    const megaMenuSections = [
+      {
+        id: "discover",
+        title: "Discover",
+        icon: Search,
+        items: [
+          { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, description: "AI-powered location analysis", icon: Search },
+          { href: "/buy-laundromat", label: "Buy a Laundromat", description: "Browse listings for sale", icon: ShoppingBag },
+          { href: "/brokers", label: "Find a Broker", featured: true, description: "Verified laundromat brokers", icon: Users },
+          { href: "/directory", label: "Business Directory", description: "Find vendors & services", icon: Store },
+        ]
+      },
+      {
+        id: "equipment",
+        title: "Equipment",
+        icon: Wrench,
+        items: [
+          { href: "/equipment", label: "Equipment Hub", featured: true, description: "Dexter & Continental Girbau", icon: Wrench },
+          { href: "/equipment-builder", label: "Get Equipment Quotes", description: "585+ distributors", icon: Store },
+          { href: "/equipment-financing", label: "Equipment Financing", description: "Financing options", icon: DollarSign },
+        ]
+      },
+      {
+        id: "tools",
+        title: "Tools",
+        icon: Calculator,
+        items: [
+          { href: "/valuation-calculator", label: "Valuation Calculator", featured: true, description: "What's it worth?", icon: Calculator },
+          { href: "/calculators", label: "All Calculators", description: "50+ professional tools", icon: Calculator },
+          { href: "/design-studio", label: "Design Studio", description: "2D/3D floor plans", icon: Palette },
+        ]
+      },
+      {
+        id: "templates",
+        title: "Templates",
+        icon: FolderOpen,
+        items: [
+          { href: "/template-vault", label: "Template Vault", featured: true, description: "Professional business templates", icon: FolderOpen },
+          { href: "/vault/business-plan", label: "AI Business Plan", description: "Generate with CLEANBI data", icon: FileText },
+          { href: "/vault/lease-checklist", label: "Lease Red Flags", featured: true, description: "Larry's 50+ trap alerts", icon: AlertTriangle },
+          { href: "/my-library", label: "My Library", description: "Your purchased assets", icon: Library },
+        ]
+      },
+      {
+        id: "resources",
+        title: "Learn",
+        icon: Star,
+        items: [
+          { href: "/blog", label: "Blog", description: "Expert insights & news", icon: Star },
+          { href: "/forum", label: "Community Forum", description: "Ask questions, share tips", icon: User },
+          { href: "/book", label: "The Bible", description: "Complete guide", icon: Star },
+        ]
+      },
+      {
+        id: "connect",
+        title: "Connect",
+        icon: Bot,
+        items: [
+          { href: "/service-guy-ai", label: "Service Guy AI", featured: true, description: "AI equipment diagnostics", icon: Bot },
+          { href: "/consultation", label: "Book a Consultation", description: "Expert advice", icon: User },
+          { href: "/brokers", label: "Brokers", description: "Verified professionals", icon: Store },
+        ]
+      }
+    ];
+    
+    return { icons, navLinks, calculatorItems, cleanbiFeatures, megaMenuSections };
+  }, [icons]);
+}
 
 // Notification Bell Component for Social Network Features
 function NotificationBell() {
   const { isAuthenticated } = useAuth();
+  const icons = useLucideIcons();
+  const { Heart, MessageSquare, Bookmark, FileText, Bell } = icons;
   
   const { data: notifications } = useQuery<{
     unreadCount: number;
@@ -268,6 +286,8 @@ function NotificationBell() {
 // Saved Items Quick Access
 function SavedItemsDropdown() {
   const { isAuthenticated } = useAuth();
+  const icons = useLucideIcons();
+  const { Bookmark, Search, Calculator, Heart, FileText } = icons;
   
   const { data: savedItems } = useQuery<{
     savedSearches: number;
@@ -364,6 +384,8 @@ function SavedItemsDropdown() {
 function UserDropdown() {
   const { user } = useAuth();
   const { signOut, isSigningOut } = useSignOut();
+  const icons = useLucideIcons();
+  const { LogOut, User, ChevronDown, LayoutDashboard, Settings: SettingsIcon, CreditCard } = icons;
   
   const userInitials = user?.firstName 
     ? user.firstName.charAt(0).toUpperCase() 
@@ -497,6 +519,10 @@ export function Header() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { signOut, isSigningOut } = useSignOut();
   const { openAuthModal } = useAuthModal();
+  
+  const icons = useLucideIcons();
+  const { icons: navIcons, navLinks, calculatorItems, cleanbiFeatures, megaMenuSections } = useNavData();
+  const { LogIn, LogOut, User, ChevronDown, ChevronRight, Settings: SettingsIcon, Zap, Search, Wrench, Store, Calculator, LayoutDashboard, Palette, Bot, DollarSign, ShoppingBag, Star, CreditCard, Globe, Package, Truck, BookOpen, Users, Bell, Heart, Bookmark, FileText, MessageSquare, UserPlus, FolderOpen, AlertTriangle, Library, Target, BarChart3, Footprints, Eye, Brain, Map, Award, Layers } = icons;
 
   useEffect(() => {
     const handleScroll = () => {

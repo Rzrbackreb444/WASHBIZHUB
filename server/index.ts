@@ -10,6 +10,7 @@ import { registerPromoCodeRoutes } from "./promo-code-routes";
 import blogRoutes, { adminBlogRoutes } from "./blog-routes";
 import feedbackRoutes from "./routes/feedback";
 import referralRoutes from "./routes/referrals";
+import platformDataRoutes from "./platform-data-routes";
 // Cloudflare auth removed - using Google OAuth + Email OTP only
 import { setupVite, serveStatic, log } from "./vite";
 import Stripe from "stripe";
@@ -85,6 +86,12 @@ app.use(compression({
   filter: (req, res) => {
     // Don't compress if client doesn't accept it
     if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Skip compression for Vite HMR and websocket-related requests
+    const url = req.url || '';
+    if (url.includes('/@vite') || url.includes('/@react-refresh') || url.includes('/__vite') || 
+        req.headers.upgrade === 'websocket') {
       return false;
     }
     // Use compression's default filter
@@ -1350,6 +1357,7 @@ app.use((req, res, next) => {
   adminBlogRoutes(app);
   app.use('/api/feedback', feedbackRoutes);
   app.use('/api/referrals', referralRoutes);
+  app.use('/api/platform-data', platformDataRoutes);
   // Auth: Google OAuth + Email OTP (Cloudflare removed)
   console.log('✅ Authentication: Google OAuth + Email OTP enabled');
 

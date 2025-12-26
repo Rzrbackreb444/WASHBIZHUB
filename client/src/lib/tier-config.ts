@@ -1,8 +1,34 @@
-import { 
-  Gift, Zap, Star, Crown, Building2, Rocket, 
-  Eye, TrendingUp, Search, FileText, Video, Shield,
-  Award, Sparkles, Target, BarChart3, Users, Clock
-} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+export type IconName = 'Gift' | 'Zap' | 'Star' | 'Crown' | 'Building2' | 'Rocket' | 
+  'Eye' | 'TrendingUp' | 'Search' | 'FileText' | 'Video' | 'Shield' |
+  'Award' | 'Sparkles' | 'Target' | 'BarChart3' | 'Users' | 'Clock';
+
+const iconCache: Map<IconName, LucideIcon> = new Map();
+
+export async function getIcon(name: IconName): Promise<LucideIcon> {
+  if (iconCache.has(name)) {
+    return iconCache.get(name)!;
+  }
+  const icons = await import("lucide-react");
+  const icon = icons[name] as LucideIcon;
+  iconCache.set(name, icon);
+  return icon;
+}
+
+export function getIconSync(name: IconName): LucideIcon | null {
+  if (iconCache.has(name)) {
+    return iconCache.get(name)!;
+  }
+  try {
+    const icons = require("lucide-react");
+    const icon = icons[name] as LucideIcon;
+    iconCache.set(name, icon);
+    return icon;
+  } catch {
+    return null;
+  }
+}
 
 export type PlatformTier = 'free' | 'pro' | 'enterprise';
 export type ListingTier = 'free' | 'basic' | 'showcase' | 'diamond';
@@ -20,7 +46,7 @@ export interface PlatformTierConfig {
   description: string;
   price: number;
   priceAnnual: number;
-  icon: typeof Gift;
+  iconName: IconName;
   iconBg: string;
   iconColor: string;
   popular: boolean;
@@ -44,7 +70,7 @@ export interface ConsultingAddon {
   description: string;
   price: number;
   priceType: 'one-time' | 'monthly' | 'starting';
-  icon: typeof Gift;
+  iconName: IconName;
   iconBg: string;
   iconColor: string;
   features: string[];
@@ -58,7 +84,7 @@ export interface ListingTierConfig {
   tagline: string;
   description: string;
   price: number;
-  icon: typeof Gift;
+  iconName: IconName;
   iconBg: string;
   iconColor: string;
   popular: boolean;
@@ -88,7 +114,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     description: 'Explore the platform with essential tools and 3 free CLEANBI analyses',
     price: 0,
     priceAnnual: 0,
-    icon: Gift,
+    iconName: 'Gift',
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
     iconColor: 'text-emerald-600 dark:text-emerald-400',
     popular: false,
@@ -120,7 +146,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     description: 'Unlimited CLEANBI analyses, full calculator suite, and PDF exports',
     price: 29,
     priceAnnual: 288,
-    icon: Zap,
+    iconName: 'Zap',
     iconBg: 'bg-blue-100 dark:bg-blue-900/30',
     iconColor: 'text-blue-600 dark:text-blue-400',
     popular: true,
@@ -151,7 +177,7 @@ export const PLATFORM_TIERS: Record<PlatformTier, PlatformTierConfig> = {
     description: 'Everything in Pro plus API access, white-label reports, and dedicated support',
     price: 99,
     priceAnnual: 1068,
-    icon: Crown,
+    iconName: 'Crown',
     iconBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
     iconColor: 'text-white',
     popular: false,
@@ -185,7 +211,7 @@ export const CONSULTING_ADDONS: ConsultingAddon[] = [
     description: 'Deep-dive consultation with expert analysis and actionable deliverables',
     price: 750,
     priceType: 'one-time',
-    icon: Target,
+    iconName: 'Target',
     iconBg: 'bg-blue-100 dark:bg-blue-900/30',
     iconColor: 'text-blue-600 dark:text-blue-400',
     features: [
@@ -205,7 +231,7 @@ export const CONSULTING_ADDONS: ConsultingAddon[] = [
     description: 'Dedicated advisor access for continuous guidance on your laundromat journey',
     price: 1500,
     priceType: 'monthly',
-    icon: Users,
+    iconName: 'Users',
     iconBg: 'bg-purple-100 dark:bg-purple-900/30',
     iconColor: 'text-purple-600 dark:text-purple-400',
     features: [
@@ -225,7 +251,7 @@ export const CONSULTING_ADDONS: ConsultingAddon[] = [
     description: 'Comprehensive hands-on support from search to close',
     price: 5000,
     priceType: 'starting',
-    icon: Crown,
+    iconName: 'Crown',
     iconBg: 'bg-gradient-to-br from-[#0A1628] to-[#1e3a5f]',
     iconColor: 'text-[#C8A661]',
     features: [
@@ -248,7 +274,7 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     tagline: 'Get discovered',
     description: 'Standard listing visibility for your laundromat',
     price: 0,
-    icon: Eye,
+    iconName: 'Eye',
     iconBg: 'bg-slate-100 dark:bg-slate-800',
     iconColor: 'text-slate-600 dark:text-slate-400',
     popular: false,
@@ -281,7 +307,7 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     tagline: '2x more visibility',
     description: 'Stand out with enhanced listing features and analytics',
     price: 49,
-    icon: TrendingUp,
+    iconName: 'TrendingUp',
     iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
     iconColor: 'text-emerald-600 dark:text-emerald-400',
     popular: false,
@@ -315,7 +341,7 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     tagline: 'Auto-Featured Premium',
     description: 'Auto-featured in homepage carousel with priority placement',
     price: 149,
-    icon: Star,
+    iconName: 'Star',
     iconBg: 'bg-[#C8A661]/20',
     iconColor: 'text-[#C8A661]',
     popular: true,
@@ -351,7 +377,7 @@ export const LISTING_TIERS: Record<ListingTier, ListingTierConfig> = {
     tagline: 'Maximum Visibility VIP',
     description: 'Full auto-features: carousel, AI blog, Google indexing, concierge service',
     price: 499,
-    icon: Rocket,
+    iconName: 'Rocket',
     iconBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
     iconColor: 'text-white',
     popular: false,
@@ -463,3 +489,36 @@ export const LISTING_PRICING_FAQS = [
     answer: "Buyers love seeing a professional CLEANBI analysis. It provides third-party validation of location quality, competition analysis, and growth potential - building buyer confidence and often leading to faster sales at better prices."
   }
 ];
+
+import { useEffect, useState, ComponentType, createElement } from "react";
+import type { LucideProps } from "lucide-react";
+
+export function useTierIcon(iconName: IconName): LucideIcon | null {
+  const [IconComponent, setIconComponent] = useState<LucideIcon | null>(null);
+  
+  useEffect(() => {
+    let mounted = true;
+    getIcon(iconName).then((icon) => {
+      if (mounted) setIconComponent(() => icon);
+    });
+    return () => { mounted = false; };
+  }, [iconName]);
+  
+  return IconComponent;
+}
+
+export function TierIcon({ 
+  iconName, 
+  className = "", 
+  fallback = null 
+}: { 
+  iconName: IconName; 
+  className?: string;
+  fallback?: JSX.Element | null;
+}): JSX.Element | null {
+  const Icon = useTierIcon(iconName);
+  
+  if (!Icon) return fallback;
+  
+  return createElement(Icon, { className });
+}
