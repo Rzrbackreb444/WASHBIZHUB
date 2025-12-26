@@ -1,4 +1,4 @@
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,7 +121,7 @@ export default function ROICalculatorLanding() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Laundromat ROI Calculator - Free Investment Returns Analysis | WashBizHub"
         description="Calculate your laundromat investment returns with our free ROI calculator. Get 5-year cash flow projections, cap rate analysis, and cash-on-cash returns. Used by 73,000+ investors."
         keywords={[

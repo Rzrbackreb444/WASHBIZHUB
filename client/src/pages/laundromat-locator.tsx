@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,7 +140,7 @@ export default function LaundromatLocator() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Laundromat Locator - Find Laundromats Near You | WashBizHub"
         description="Find laundromats near you. Search by city, state, or zip code. View hours, phone, and get directions. Free to list your laundromat business."
         keywords={[

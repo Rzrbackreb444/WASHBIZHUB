@@ -11,7 +11,7 @@ import { FileText, Sparkles, Plus, Loader2, ArrowRight, WashingMachine, Wrench, 
 import { Badge } from "@/components/ui/badge";
 import { useBlogPosts, useCreateBlogPost, useGenerateBlogContent } from "@/hooks/use-blog";
 import { useToast } from "@/hooks/use-toast";
-import { AutoSEO } from "@/components/AutoSEO";
+import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import { defaultBlogImages, laundromatImages, getBlogVarietyImage } from "@/lib/laundromat-images";
 import { equipmentBlogs } from "@/data/equipment-blogs";
@@ -198,8 +198,13 @@ export default function Blog() {
 
   return (
     <>
-      <AutoSEO 
-        faqs={blogFaqs}
+      <SEO 
+        title="WashBizHub Blog | Laundromat Industry News, Tips & Expert Articles" 
+        description="Expert laundromat articles: operations, profitability, maintenance, marketing. Industry news from 73,000+ professionals. Free tips and guides."
+        keywords={seoKeywords} 
+        canonicalUrl="/blog"
+        structuredData={structuredData}
+        speakableSelectors={["h1", ".blog-post-title", "[data-testid='text-blog-title']"]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Blog", url: "/blog" }
