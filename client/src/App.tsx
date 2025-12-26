@@ -27,6 +27,7 @@ import AdminBar from "@/components/AdminBar";
 import { TrialBanner } from "@/components/monetization";
 import { ExitIntentModal } from "@/components/ExitIntentModal";
 import { StickyUpgradeBanner } from "@/components/StickyUpgradeBanner";
+import { FloatingCTA } from "@/components/EmailCaptureModal";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
@@ -2517,6 +2518,7 @@ function App() {
                             <AppContent />
                             <Toaster />
                             <ExitIntentModal />
+                            <FloatingCTA />
                           </AuthModalProvider>
                         </SignOutConfirmationProvider>
                       </TooltipProvider>
@@ -2536,6 +2538,7 @@ function App() {
                           <AppContent />
                           <Toaster />
                           <ExitIntentModal />
+                          <FloatingCTA />
                         </AuthModalProvider>
                       </SignOutConfirmationProvider>
                     </TooltipProvider>
