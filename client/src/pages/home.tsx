@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AutoSEO } from "@/components/AutoSEO";
-import { PremiumHero } from "@/components/PremiumHero";
+import { FastHero } from "@/components/FastHero";
 import { CredibilityBar } from "@/components/CredibilityBar";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
 import { EquipmentCarousel } from "@/components/EquipmentCarousel";
@@ -875,7 +875,7 @@ export default function Home() {
       
       <div className="min-h-screen bg-white">
         {/* PREMIUM HERO - With hero image background */}
-        <PremiumHero />
+        <FastHero />
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
