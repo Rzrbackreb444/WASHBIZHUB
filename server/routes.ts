@@ -134,6 +134,15 @@ import {
   logDiagnosticAccess, 
   obfuscateContent 
 } from "./middleware/anti-scraping";
+import {
+  getIndustryBenchmarks,
+  getLocationMarketInsights,
+  getEquipmentPricing,
+  getFundingRates,
+  enrichListing,
+  enrichAllListings,
+  startDataRefreshScheduler
+} from "./platform-data-engine";
 import { 
   submitAllToGoogle, 
   submitAllViaIndexNow,
@@ -1367,6 +1376,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== HOMEPAGE DATA ====================
   
+  // ========================================
+  // PLATFORM DATA ENGINE - Dynamic Data APIs
+  // ========================================
+  
+  // Industry benchmarks with real AI-researched data
+  app.get("/api/platform-data/benchmarks", async (_req, res) => {
+    try {
+      const benchmarks = await getIndustryBenchmarks();
+      res.json(benchmarks);
+    } catch (error: any) {
+      console.error("Error fetching industry benchmarks:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Market insights for a specific location
+  app.get("/api/platform-data/market-insights/:city/:state", async (req, res) => {
+    try {
+      const { city, state } = req.params;
+      const insights = await getLocationMarketInsights(city, state);
+      res.json(insights);
+    } catch (error: any) {
+      console.error("Error fetching market insights:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Equipment pricing data
+  app.get("/api/platform-data/equipment-pricing/:type", async (req, res) => {
+    try {
+      const { type } = req.params;
+      const pricing = await getEquipmentPricing(type);
+      res.json(pricing);
+    } catch (error: any) {
+      console.error("Error fetching equipment pricing:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Funding rates from partners
+  app.get("/api/platform-data/funding-rates", async (_req, res) => {
+    try {
+      const rates = await getFundingRates();
+      res.json(rates);
+    } catch (error: any) {
+      console.error("Error fetching funding rates:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Enrich a specific listing
+  app.post("/api/platform-data/enrich-listing/:id", requireAdmin, async (req, res) => {
+    try {
+      const listingId = parseInt(req.params.id);
+      const enrichedData = await enrichListing(listingId);
+      res.json({ success: true, data: enrichedData });
+    } catch (error: any) {
+      console.error("Error enriching listing:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Batch enrich all listings (admin only)
+  app.post("/api/platform-data/enrich-all", requireAdmin, async (_req, res) => {
+    try {
+      const result = await enrichAllListings();
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error batch enriching listings:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/homepage/stats", async (_req, res) => {
     try {
       const [listingCount] = await db
