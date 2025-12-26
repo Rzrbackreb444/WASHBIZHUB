@@ -219,6 +219,7 @@ const Academy = lazy(() => import("@/pages/academy"));
 const ForensicAcademy = lazy(() => import("@/pages/forensic-academy"));
 const AboutUs = lazy(() => import("@/pages/about-us"));
 const WhyWashBizHub = lazy(() => import("@/pages/why-washbizhub"));
+const DemoShowcase = lazy(() => import("@/pages/demo-showcase"));
 
 // ============================================================================
 // LAZY IMPORTS - Code split by feature area for optimal chunking
@@ -815,6 +816,11 @@ function Router() {
       <Route path="/features" component={PlatformDirectory} />
       <Route path="/all-features" component={PlatformDirectory} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
+      <Route path="/demo-showcase">
+        <Suspense fallback={<LoadingFallback />}>
+          <DemoShowcase />
+        </Suspense>
+      </Route>
 
       {/* SEO Landing Pages (Multi-keyword optimization) */}
       <Route path="/laundromat-valuation">
