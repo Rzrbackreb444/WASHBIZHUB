@@ -18,7 +18,7 @@
 import { enrichWithCensusData, CensusData, calculateLaundryDemandIndex, getMarketScoreFromCensus } from './census-data-service';
 import { enrichWithAttomData, AttomEnrichmentResult } from './attom-data-service';
 import { db } from './db';
-import { laundromatListings, cleanbiReports } from '../shared/schema';
+import { listings } from '../shared/schema';
 import { eq, isNull, lt, sql } from 'drizzle-orm';
 import OpenAI from 'openai';
 
@@ -132,8 +132,8 @@ export async function enrichListing(listingId: number): Promise<EnrichedListingD
   try {
     const [listing] = await db
       .select()
-      .from(laundromatListings)
-      .where(eq(laundromatListings.id, listingId))
+      .from(listings)
+      .where(eq(listings.id, listingId))
       .limit(1);
 
     if (!listing) return null;
@@ -175,12 +175,12 @@ export async function enrichListing(listingId: number): Promise<EnrichedListingD
 
     // Update listing with enriched data
     await db
-      .update(laundromatListings)
+      .update(listings)
       .set({
         // Store enriched data in metadata or specific columns if available
         updatedAt: new Date()
       })
-      .where(eq(laundromatListings.id, listingId));
+      .where(eq(listings.id, listingId));
 
     console.log(`✅ Enriched listing ${listingId}: Market Score ${marketScore}, Demand Index ${laundryDemandIndex}`);
     return enrichedData;
@@ -200,8 +200,8 @@ export async function enrichAllListings(): Promise<{ success: number; failed: nu
 
   try {
     const listings = await db
-      .select({ id: laundromatListings.id })
-      .from(laundromatListings)
+      .select({ id: listings.id })
+      .from(listings)
       .limit(50); // Process in batches
 
     for (const listing of listings) {
