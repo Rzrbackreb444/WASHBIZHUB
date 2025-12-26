@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, Search, ShoppingCart, Package, Truck, Wrench, Table2, Box, Award } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { ExternalLink, Search, Star, ShoppingCart, Package, Truck, Wrench, Table2, Box, Award } from "lucide-react";
 import industrialMachines from "@assets/dexter_laundromat_corner_shot_1765330859864.jpg";
 import dexterStock from "@assets/Dexter_Laundromat_Stock_photo_1765330872542.jpg";
 

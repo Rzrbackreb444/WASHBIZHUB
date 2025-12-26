@@ -1,6 +1,5 @@
-import { useSmartGating } from "@/hooks/useSmartGating";
-import { UsageLimitBanner } from "@/components/UsageLimitBanner";
-import { UpgradePromptModal } from "@/components/UpgradePromptModal";
+import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization";
 import { PremiumCalculatorEngine } from "@/components/PremiumCalculatorEngine";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -280,16 +279,10 @@ export default function ValuationCalculator() {
     console.log('Valuation saved:', data);
   };
 
-  const {
-    currentTier,
-    usageInfo,
-    showUpgradePrompt,
-    setShowUpgradePrompt,
-  } = useSmartGating('calculator');
-
   return (
-    <>
-      <SEO
+    <AuthGuard title="Sign In to Use Valuation Calculator" description="Sign in to access this calculator and track your usage.">
+      <FeatureGate feature="calculators-advanced">
+        <SEO
         title="Laundromat Valuation Calculator - Free Business Appraisal Tool 2025 | WashBizHub"
         description="Calculate how much a laundromat is worth using 4 professional valuation methods: Revenue Multiple (2.5-4.5x), EBITDA Multiple (3.5-6.5x), Cap Rate, and Asset-Based. Free appraisal tool trusted by 11,000+ buyers and sellers."
         canonicalUrl="/valuation-calculator"
@@ -339,15 +332,6 @@ export default function ValuationCalculator() {
         </div>
       </div>
 
-      {/* Usage Banner */}
-      <div className="mx-auto max-w-7xl px-6 py-4">
-        <UsageLimitBanner 
-          usageInfo={usageInfo} 
-          currentTier={currentTier} 
-          featureName="valuations"
-        />
-      </div>
-
       {/* Dataset Schema for AEO */}
       <DatasetSchema
         name="Laundromat Valuation Data"
@@ -373,14 +357,7 @@ export default function ValuationCalculator() {
       <div className="mx-auto max-w-4xl px-6 py-8">
         <ValuationDisclaimer />
       </div>
-
-      {/* Upgrade Modal */}
-      <UpgradePromptModal
-        open={showUpgradePrompt}
-        onOpenChange={setShowUpgradePrompt}
-        featureName="Valuation Calculator"
-        currentTier={currentTier}
-      />
-    </>
+      </FeatureGate>
+    </AuthGuard>
   );
 }

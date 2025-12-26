@@ -9,8 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, ChevronLeft, Users, Award, Zap, DollarSign, Leaf, Shield, Factory, Wrench, ArrowRight, ExternalLink, CheckCircle2, Target, TrendingUp } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { ChevronRight, ChevronLeft, Users, Star, Award, Zap, DollarSign, Leaf, Shield, Factory, Wrench, ArrowRight, ExternalLink, CheckCircle2, Target, TrendingUp } from "lucide-react";
 import { SiMeta, SiFacebook } from "react-icons/si";
 import { Link } from "wouter";
 

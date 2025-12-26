@@ -3,8 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Search, MapPin, CheckCircle, ChevronDown } from 'lucide-react';
-import { Star } from "@/lib/icon-registry";
+import { Search, MapPin, CheckCircle, Star, ChevronDown } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import {

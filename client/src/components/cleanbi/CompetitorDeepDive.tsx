@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Building2, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink, Lock, Crown } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Building2, Star, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink, Lock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -221,13 +220,13 @@ export function CompetitorDeepDive({ competitors, userAddress, isLoading, isSubs
         <div className="absolute inset-0 backdrop-blur-sm bg-background/80 z-10 flex items-center justify-center">
           <div className="text-center p-6">
             <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Pro Feature</h3>
+            <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
             <p className="text-muted-foreground mb-4">
-              Deep competitor analysis requires a Pro subscription
+              Deep competitor analysis requires a Starter subscription
             </p>
             <Button onClick={onUpgradeClick} className="gap-2">
               <Crown className="h-4 w-4" />
-              Upgrade to Pro
+              Upgrade to Starter
             </Button>
           </div>
         </div>

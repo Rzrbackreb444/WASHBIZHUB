@@ -175,17 +175,6 @@ import { AnalysisReportGenerator } from "@/components/cleanbi/AnalysisReportGene
 import { AnalysisSocialShare } from "@/components/cleanbi/AnalysisSocialShare";
 import { useLocationDesign } from "@/contexts/LocationDesignContext";
 import { RequestProfessionalAnalysisCTA } from "@/components/consultation/RequestProfessionalAnalysisCTA";
-import {
-  ParticleField,
-  Scene3D,
-  AIOrchestrationPanel,
-  LivePulse,
-  ScrollReveal,
-  HolographicCard,
-  AnimatedCounter as ExperienceAnimatedCounter,
-  GlowingBorder,
-  TypewriterText,
-} from "@/components/experience";
 import heroImage from "@assets/laundromat_aerial_view_hd_1765733630757.jpg";
 
 declare global {
@@ -2731,7 +2720,7 @@ function CleanBIExplorerContent() {
         open={showUpgradeModal}
         onOpenChange={setShowUpgradeModal}
         feature="CLEANBI Explorer"
-        suggestedTier="pro"
+        suggestedTier="starter"
         title="Unlock Unlimited CLEANBI Analyses"
         description="Get unlimited location analyses, 3D aerial views, competitor intel, and PDF exports."
       />
@@ -2740,9 +2729,9 @@ function CleanBIExplorerContent() {
         open={showPostAnalysisModal}
         onOpenChange={setShowPostAnalysisModal}
         feature="CLEANBI Explorer"
-        suggestedTier="pro"
+        suggestedTier="starter"
         title="You've Used All 3 Free Analyses!"
-        description="Great job exploring! Upgrade to Pro for unlimited analyses, PDF exports, competitor intel, and more."
+        description="Great job exploring! Upgrade to Starter for unlimited analyses, PDF exports, competitor intel, and more."
       />
 
       {/* Mobile Loading Overlay - Only shows on mobile during hydration */}
@@ -2759,9 +2748,6 @@ function CleanBIExplorerContent() {
         <div className="absolute inset-0 pointer-events-none opacity-[0.03]">
           <HexGrid color={ENTERPRISE_COLORS.gold} />
         </div>
-        
-        {/* Particle Field - immersive hero effect */}
-        <ParticleField count={30} color="#C8A661" className="opacity-40" />
         
         {/* Subtle corner glow effects */}
         <div className="absolute top-0 right-0 w-96 h-96 pointer-events-none">
@@ -3342,9 +3328,8 @@ function CleanBIExplorerContent() {
                 transition={{ duration: 0.3 }}
                 className="p-4"
               >
-                {/* Hero Card with Gold Accent - wrapped in ScrollReveal */}
-                <ScrollReveal direction="up">
-                <HolographicCard>
+                {/* Hero Card with Gold Accent */}
+                <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
                   {/* Gold Top Bar */}
                   <div className="h-1 bg-[#C8A661]" />
                   
@@ -3381,25 +3366,22 @@ function CleanBIExplorerContent() {
                       </div>
                     </div>
                     
-                    <GlowingBorder color="#C8A661" intensity={0.6}>
-                      <Button 
-                        onClick={() => {
-                          const addressInput = document.querySelector('[data-testid="input-explorer-address"]') as HTMLInputElement;
-                          if (addressInput) {
-                            addressInput.focus();
-                            addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                          }
-                        }}
-                        className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-11 text-sm font-semibold shadow-lg"
-                        data-testid="button-click-to-analyze"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        Click to Analyze
-                      </Button>
-                    </GlowingBorder>
+                    <Button 
+                      onClick={() => {
+                        const addressInput = document.querySelector('[data-testid="input-explorer-address"]') as HTMLInputElement;
+                        if (addressInput) {
+                          addressInput.focus();
+                          addressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                      className="w-full bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-11 text-sm font-semibold shadow-lg"
+                      data-testid="button-click-to-analyze"
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      Click to Analyze
+                    </Button>
                   </div>
-                </HolographicCard>
-                </ScrollReveal>
+                </div>
               </motion.div>
             )}
             </AnimatePresence>
@@ -3460,13 +3442,6 @@ function CleanBIExplorerContent() {
                     <p className="text-xs text-white/50">Gathering demographics, competitors & walkability data...</p>
                   </div>
                 </div>
-                
-                {/* AI Orchestration Panel - shows active AI models */}
-                <AIOrchestrationPanel 
-                  activeModels={["gemini", "openai"]}
-                  currentModel="gemini"
-                  className="mt-4"
-                />
               </motion.div>
             )}
             </AnimatePresence>
@@ -3482,8 +3457,7 @@ function CleanBIExplorerContent() {
                 className="border-b border-white/10"
                 data-testid="analysis-result-panel"
               >
-                {/* Premium Score Hero Section - with HolographicCard */}
-                <HolographicCard className="mx-4 mt-4">
+                {/* Premium Score Hero Section */}
                 <motion.div 
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -3598,69 +3572,67 @@ function CleanBIExplorerContent() {
                       transition={{ delay: 0.55, duration: 0.3 }}
                       className="flex flex-col gap-2 mt-2"
                     >
-                      <GlowingBorder color="#C8A661" intensity={0.5}>
-                        <Button
-                          size="default"
-                          className="w-full min-h-11 gap-2 bg-gradient-to-r from-[#C8A661] to-[#B8955A] text-[#001F3F] hover:from-[#D4B872] hover:to-[#C8A661] font-bold shadow-lg"
-                          onClick={() => {
-                            const nearestCompetitor = competitors.length > 0 
-                              ? Math.min(...competitors.map(c => c.distance)) 
-                              : 2.0;
-                            const marketSaturation: "Low" | "Medium" | "High" = 
-                              analysisResult.competitorCount <= 2 ? "Low" :
-                              analysisResult.competitorCount <= 5 ? "Medium" : "High";
-                            
-                            const locationData = {
-                              address: analysisResult.address,
-                              coordinates: { lat: analysisResult.lat, lng: analysisResult.lng },
-                              cleanbiScore: analysisResult.cleanbiScore,
-                              grade: (analysisResult.grade === "A" || analysisResult.grade === "B" || analysisResult.grade === "C" 
-                                ? analysisResult.grade 
-                                : "Needs Work") as "A" | "B" | "C" | "Needs Work",
-                              demographics: {
-                                medianIncome: analysisResult.medianIncome || 65000,
-                                populationDensity: analysisResult.populationDensity || 5000,
-                                renterPercentage: 45,
-                                householdSize: 2.5,
-                              },
-                              competition: {
-                                count: analysisResult.competitorCount || 0,
-                                nearestDistance: nearestCompetitor,
-                                marketSaturation,
-                              },
-                              traffic: {
-                                score: analysisResult.trafficScore || 50,
-                                dailyTraffic: (analysisResult.trafficScore || 50) * 200,
-                                peakHours: ["8AM-10AM", "5PM-7PM"],
-                              },
-                              accessibility: {
-                                walkScore: analysisResult.walkScore || 50,
-                                transitScore: analysisResult.transitScore || 30,
-                                parkingAvailable: true,
-                              },
-                              economics: {
-                                avgRent: 25,
-                                utilityMultiplier: 1.0,
-                                laborCost: 15,
-                              },
-                              opportunityLevel: analysisResult.opportunityLevel || "moderate",
-                              revenueMultiplier: 1.0,
-                              analyzedAt: new Date().toISOString(),
-                            };
-                            
-                            linkLocationToDesign(locationData);
-                            toast({ 
-                              title: "Location Linked!", 
-                              description: "Opening Design Studio with location data..." 
-                            });
-                            setLocation("/design-studio");
-                          }}
-                          data-testid="button-design-for-location"
-                        >
-                          <Ruler className="w-4 h-4" />
-                          Design for this Location
-                        </Button>
-                      </GlowingBorder>
+                      <Button
+                        size="default"
+                        className="w-full min-h-11 gap-2 bg-gradient-to-r from-[#C8A661] to-[#B8955A] text-[#001F3F] hover:from-[#D4B872] hover:to-[#C8A661] font-bold shadow-lg"
+                        onClick={() => {
+                          const nearestCompetitor = competitors.length > 0 
+                            ? Math.min(...competitors.map(c => c.distance)) 
+                            : 2.0;
+                          const marketSaturation: "Low" | "Medium" | "High" = 
+                            analysisResult.competitorCount <= 2 ? "Low" :
+                            analysisResult.competitorCount <= 5 ? "Medium" : "High";
+                          
+                          const locationData = {
+                            address: analysisResult.address,
+                            coordinates: { lat: analysisResult.lat, lng: analysisResult.lng },
+                            cleanbiScore: analysisResult.cleanbiScore,
+                            grade: (analysisResult.grade === "A" || analysisResult.grade === "B" || analysisResult.grade === "C" 
+                              ? analysisResult.grade 
+                              : "Needs Work") as "A" | "B" | "C" | "Needs Work",
+                            demographics: {
+                              medianIncome: analysisResult.medianIncome || 65000,
+                              populationDensity: analysisResult.populationDensity || 5000,
+                              renterPercentage: 45,
+                              householdSize: 2.5,
+                            },
+                            competition: {
+                              count: analysisResult.competitorCount || 0,
+                              nearestDistance: nearestCompetitor,
+                              marketSaturation,
+                            },
+                            traffic: {
+                              score: analysisResult.trafficScore || 50,
+                              dailyTraffic: (analysisResult.trafficScore || 50) * 200,
+                              peakHours: ["8AM-10AM", "5PM-7PM"],
+                            },
+                            accessibility: {
+                              walkScore: analysisResult.walkScore || 50,
+                              transitScore: analysisResult.transitScore || 30,
+                              parkingAvailable: true,
+                            },
+                            economics: {
+                              avgRent: 25,
+                              utilityMultiplier: 1.0,
+                              laborCost: 15,
+                            },
+                            opportunityLevel: analysisResult.opportunityLevel || "moderate",
+                            revenueMultiplier: 1.0,
+                            analyzedAt: new Date().toISOString(),
+                          };
+                          
+                          linkLocationToDesign(locationData);
+                          toast({ 
+                            title: "Location Linked!", 
+                            description: "Opening Design Studio with location data..." 
+                          });
+                          setLocation("/design-studio");
+                        }}
+                        data-testid="button-design-for-location"
+                      >
+                        <Ruler className="w-4 h-4" />
+                        Design for this Location
+                      </Button>
                       
                       <RequestProfessionalAnalysisCTA
                         variant="button"
@@ -3688,7 +3660,6 @@ function CleanBIExplorerContent() {
                     </motion.div>
                   </div>
                 </motion.div>
-                </HolographicCard>
 
                 {/* Tabs Section */}
                 <div className="px-3 pb-2">
@@ -3740,12 +3711,10 @@ function CleanBIExplorerContent() {
                         <span className="text-xs font-semibold text-white/80">Executive Summary</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {/* CLEANBI Score with Delta - using ExperienceAnimatedCounter */}
+                        {/* CLEANBI Score with Delta */}
                         <div className="bg-white/5 rounded-md p-2 text-center" data-testid="kpi-cleanbi-score">
                           <div className="flex items-center justify-center gap-1">
-                            <span className="text-xl font-bold text-[#C8A661]">
-                              <ExperienceAnimatedCounter value={analysisResult.cleanbiScore} duration={1.5} />
-                            </span>
+                            <span className="text-xl font-bold text-[#C8A661]">{analysisResult.cleanbiScore}</span>
                             <Badge 
                               className={`text-[8px] px-1 py-0 ${getMarketMedianDelta(analysisResult.cleanbiScore).value >= 0 ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}`}
                               variant="outline"
@@ -5897,24 +5866,19 @@ function CleanBIExplorerContent() {
                       </Badge>
                     </div>
 
-                    {/* AI Summary Card with TypewriterText */}
-                    <HolographicCard className="mb-4">
-                      <div className="p-4" data-testid="ai-summary-card">
-                        <div className="flex items-center gap-2 mb-2">
-                          <LivePulse color="#C8A661" size={8} />
-                          <span className="text-xs text-[#C8A661] font-medium uppercase tracking-wider">AI Analysis</span>
-                        </div>
-                        <p className="text-sm text-white/90 leading-relaxed">
-                          <TypewriterText 
-                            text={generateAINarrative(analysisResult, competitors)}
-                            speed={20}
-                          />
-                        </p>
-                      </div>
-                    </HolographicCard>
+                    {/* AI Summary Card */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gradient-to-br from-[#C8A661]/10 to-transparent rounded-lg p-4 border border-[#C8A661]/20 mb-4"
+                      data-testid="ai-summary-card"
+                    >
+                      <p className="text-sm text-white/90 leading-relaxed">
+                        {generateAINarrative(analysisResult, competitors)}
+                      </p>
+                    </motion.div>
 
-                    {/* TOP OPPORTUNITIES SECTION - with ScrollReveal */}
-                    <ScrollReveal direction="up" delay={0.2}>
+                    {/* TOP OPPORTUNITIES SECTION */}
                     <div className="mb-5" data-testid="opportunities-section">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-6 h-6 rounded-md bg-green-500/20 flex items-center justify-center">
@@ -5981,10 +5945,8 @@ function CleanBIExplorerContent() {
                         )}
                       </div>
                     </div>
-                    </ScrollReveal>
 
-                    {/* RISK ALERTS SECTION - with ScrollReveal */}
-                    <ScrollReveal direction="up" delay={0.3}>
+                    {/* RISK ALERTS SECTION */}
                     <div className="mb-5" data-testid="risks-section">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="w-6 h-6 rounded-md bg-amber-500/20 flex items-center justify-center">
@@ -6062,7 +6024,6 @@ function CleanBIExplorerContent() {
                         )}
                       </div>
                     </div>
-                    </ScrollReveal>
 
                     {/* TIER-BASED UPSELL */}
                     {userTier === "free" && (

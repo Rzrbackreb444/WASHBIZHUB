@@ -26,9 +26,6 @@ import { PageTransition } from "@/components/PageTransition";
 import AdminBar from "@/components/AdminBar";
 import { TrialBanner } from "@/components/monetization";
 import { ExitIntentModal } from "@/components/ExitIntentModal";
-import { StickyUpgradeBanner } from "@/components/StickyUpgradeBanner";
-import { FloatingCTA } from "@/components/EmailCaptureModal";
-import { LiveActivityNotification } from "@/components/ConversionOptimization";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
@@ -219,7 +216,6 @@ const Academy = lazy(() => import("@/pages/academy"));
 const ForensicAcademy = lazy(() => import("@/pages/forensic-academy"));
 const AboutUs = lazy(() => import("@/pages/about-us"));
 const WhyWashBizHub = lazy(() => import("@/pages/why-washbizhub"));
-const DemoShowcase = lazy(() => import("@/pages/demo-showcase"));
 
 // ============================================================================
 // LAZY IMPORTS - Code split by feature area for optimal chunking
@@ -546,9 +542,6 @@ const RouteOptimization = lazy(() => import("@/pages/route-optimization"));
 const DriverMobile = lazy(() => import("@/pages/driver-mobile"));
 const CustomerTracking = lazy(() => import("@/pages/customer-tracking"));
 
-// Power Tools Hub
-const ToolsHub = lazy(() => import("@/pages/tools-hub"));
-
 // Other Pages
 const Book = lazy(() => import("@/pages/book"));
 const BookAdPreview = lazy(() => import("@/pages/book-ad-preview"));
@@ -656,11 +649,6 @@ function Router() {
       <Route path="/products">
         <Suspense fallback={<FullPageLoadingFallback />}>
           <ProductsHub />
-        </Suspense>
-      </Route>
-      <Route path="/tools">
-        <Suspense fallback={<FullPageLoadingFallback />}>
-          <ToolsHub />
         </Suspense>
       </Route>
       <Route path="/list-your-laundromat">
@@ -816,11 +804,6 @@ function Router() {
       <Route path="/features" component={PlatformDirectory} />
       <Route path="/all-features" component={PlatformDirectory} />
       <Route path="/why-washbizhub" component={WhyWashBizHub} />
-      <Route path="/demo-showcase">
-        <Suspense fallback={<LoadingFallback />}>
-          <DemoShowcase />
-        </Suspense>
-      </Route>
 
       {/* SEO Landing Pages (Multi-keyword optimization) */}
       <Route path="/laundromat-valuation">
@@ -2503,7 +2486,6 @@ function AppContent() {
       </div>
       {!hideChatWidget && <DeferredAIChatWidget />}
       <FloatingFeedbackButton />
-      <StickyUpgradeBanner position="bottom" dismissible={true} />
     </>
   );
 }
@@ -2525,8 +2507,6 @@ function App() {
                             <AppContent />
                             <Toaster />
                             <ExitIntentModal />
-                            <FloatingCTA />
-                            <LiveActivityNotification />
                           </AuthModalProvider>
                         </SignOutConfirmationProvider>
                       </TooltipProvider>
@@ -2546,8 +2526,6 @@ function App() {
                           <AppContent />
                           <Toaster />
                           <ExitIntentModal />
-                          <FloatingCTA />
-                          <LiveActivityNotification />
                         </AuthModalProvider>
                       </SignOutConfirmationProvider>
                     </TooltipProvider>

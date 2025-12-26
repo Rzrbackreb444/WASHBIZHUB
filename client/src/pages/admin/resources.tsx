@@ -12,8 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, FileText, Crown } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Pencil, Trash2, Plus, FileText, Star, Crown } from "lucide-react";
 
 interface Resource {
   id: string;

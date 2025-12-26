@@ -2,8 +2,7 @@ import { useState } from "react";
 import ContentEditable from "react-contenteditable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, DollarSign, Image as ImageIcon } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Star, Clock, DollarSign, Image as ImageIcon } from "lucide-react";
 import type { Block } from "./DroppableCanvas";
 
 interface BlockPreviewProps {

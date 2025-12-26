@@ -1,19 +1,37 @@
-// Navigation configuration using icon name strings to avoid module-level icon resolution issues
-// Icons are resolved at render time using the NavIcon component
+import { 
+  Search, 
+  Wrench, 
+  Store, 
+  Calculator, 
+  LayoutDashboard, 
+  Palette, 
+  Bot, 
+  DollarSign, 
+  ShoppingBag, 
+  Star, 
+  Users,
+  BookOpen,
+  MessageSquare,
+  GraduationCap,
+  Network,
+  Phone,
+  FileText,
+  Building2,
+  Zap,
+  TrendingUp,
+  Gauge,
+  Receipt,
+  type LucideIcon
+} from "lucide-react";
 
-export type IconName = 
-  | 'Search' | 'Wrench' | 'Store' | 'Calculator' | 'LayoutDashboard' 
-  | 'Palette' | 'Bot' | 'DollarSign' | 'ShoppingBag' | 'Star' 
-  | 'Users' | 'BookOpen' | 'MessageSquare' | 'GraduationCap' | 'Network'
-  | 'Phone' | 'FileText' | 'Building2' | 'Zap' | 'TrendingUp' | 'Gauge' | 'Receipt';
-
+// Use the same tier types as useSubscription.ts for consistency
 export type SubscriptionTier = 'free' | 'pro' | 'business' | 'enterprise';
 
 export interface NavItem {
   href: string;
   label: string;
   description: string;
-  iconName: IconName;
+  icon: LucideIcon;
   tier?: SubscriptionTier;
   featured?: boolean;
 }
@@ -21,7 +39,7 @@ export interface NavItem {
 export interface NavSection {
   id: string;
   title: string;
-  iconName: IconName;
+  icon: LucideIcon;
   items: NavItem[];
 }
 
@@ -29,20 +47,20 @@ export const cleanbiNavItem: NavItem = {
   href: "/cleanbi-explorer",
   label: "CLEANBI",
   description: "AI location intelligence",
-  iconName: "Search",
+  icon: Search,
   featured: true,
 };
 
 export const solutionsSection: NavSection = {
   id: "solutions",
   title: "Solutions",
-  iconName: "Zap",
+  icon: Zap,
   items: [
     {
       href: "/pos-command-center",
       label: "POS Command Center",
       description: "Operations dashboard",
-      iconName: "LayoutDashboard",
+      icon: LayoutDashboard,
       tier: "pro",
       featured: true,
     },
@@ -50,14 +68,14 @@ export const solutionsSection: NavSection = {
       href: "/website-builder",
       label: "Website Builder",
       description: "Build your laundromat site",
-      iconName: "Building2",
+      icon: Building2,
       tier: "pro",
     },
     {
       href: "/service-guy-ai",
       label: "Service Guy AI",
       description: "Equipment diagnostics",
-      iconName: "Bot",
+      icon: Bot,
       tier: "pro",
       featured: true,
     },
@@ -65,13 +83,13 @@ export const solutionsSection: NavSection = {
       href: "/dashboard",
       label: "My Dashboard",
       description: "Your command center",
-      iconName: "LayoutDashboard",
+      icon: LayoutDashboard,
     },
     {
       href: "/design-studio",
       label: "Design Studio",
       description: "2D/3D floor plans",
-      iconName: "Palette",
+      icon: Palette,
     },
   ],
 };
@@ -79,38 +97,38 @@ export const solutionsSection: NavSection = {
 export const marketplaceSection: NavSection = {
   id: "marketplace",
   title: "Marketplace",
-  iconName: "ShoppingBag",
+  icon: ShoppingBag,
   items: [
     {
       href: "/buy-laundromat",
       label: "Buy a Laundromat",
       description: "Browse listings",
-      iconName: "ShoppingBag",
+      icon: ShoppingBag,
       featured: true,
     },
     {
       href: "/equipment-marketplace",
       label: "Equipment Hub",
       description: "Buy/sell equipment",
-      iconName: "Wrench",
+      icon: Wrench,
     },
     {
       href: "/sell-your-laundromat",
       label: "Sell Your Laundromat",
       description: "List your business",
-      iconName: "Store",
+      icon: Store,
     },
     {
       href: "/brokers",
       label: "Broker Directory",
       description: "Find verified brokers",
-      iconName: "Users",
+      icon: Users,
     },
     {
       href: "/directory",
       label: "Business Directory",
       description: "Vendors & services",
-      iconName: "Building2",
+      icon: Building2,
     },
   ],
 };
@@ -118,38 +136,38 @@ export const marketplaceSection: NavSection = {
 export const toolsSection: NavSection = {
   id: "tools",
   title: "Tools",
-  iconName: "Calculator",
+  icon: Calculator,
   items: [
     {
       href: "/calculators",
       label: "Calculator Suite",
       description: "80+ professional tools",
-      iconName: "Calculator",
+      icon: Calculator,
       featured: true,
     },
     {
       href: "/valuation-calculator",
       label: "Valuation Calculator",
       description: "What's it worth?",
-      iconName: "DollarSign",
+      icon: DollarSign,
     },
     {
       href: "/roi-calculator",
       label: "ROI Calculator",
       description: "Investment returns",
-      iconName: "TrendingUp",
+      icon: TrendingUp,
     },
     {
       href: "/utility-bill-auditor",
       label: "Utility Auditor",
       description: "Reduce costs",
-      iconName: "Receipt",
+      icon: Receipt,
     },
     {
       href: "/tpd-calculator",
       label: "TPD Calculator",
       description: "Turns per day",
-      iconName: "Gauge",
+      icon: Gauge,
     },
   ],
 };
@@ -157,33 +175,33 @@ export const toolsSection: NavSection = {
 export const communitySection: NavSection = {
   id: "community",
   title: "Community",
-  iconName: "Users",
+  icon: Users,
   items: [
     {
       href: "/forum",
       label: "Community Forum",
       description: "Ask questions",
-      iconName: "MessageSquare",
+      icon: MessageSquare,
       featured: true,
     },
     {
       href: "/courses",
       label: "Courses",
       description: "Learn the business",
-      iconName: "GraduationCap",
+      icon: GraduationCap,
       tier: "pro",
     },
     {
       href: "/network",
       label: "Member Network",
       description: "Connect with owners",
-      iconName: "Network",
+      icon: Network,
     },
     {
       href: "/consultation",
       label: "Book Consultation",
       description: "Expert advice",
-      iconName: "Phone",
+      icon: Phone,
     },
   ],
 };
@@ -191,32 +209,32 @@ export const communitySection: NavSection = {
 export const resourcesSection: NavSection = {
   id: "resources",
   title: "Resources",
-  iconName: "BookOpen",
+  icon: BookOpen,
   items: [
     {
       href: "/book",
       label: "Laundromat Bible",
       description: "Complete guide",
-      iconName: "BookOpen",
+      icon: BookOpen,
       featured: true,
     },
     {
       href: "/blog",
       label: "Blog",
       description: "Industry insights",
-      iconName: "FileText",
+      icon: FileText,
     },
     {
       href: "/guides",
       label: "Resource Library",
       description: "Guides & templates",
-      iconName: "FileText",
+      icon: FileText,
     },
     {
       href: "/about-us",
       label: "About Us",
       description: "Our mission",
-      iconName: "Star",
+      icon: Star,
     },
   ],
 };

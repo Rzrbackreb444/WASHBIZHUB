@@ -9,8 +9,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { FeatureGate } from "@/components/monetization/FeatureGate";
-import { Book, Lock, CheckCircle, ChevronRight, Calculator, Shield, Zap, Award } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Book, Lock, CheckCircle, ChevronRight, Calculator, Star, Shield, Zap, Award } from "lucide-react";
 
 interface BookChapter {
   id: string;

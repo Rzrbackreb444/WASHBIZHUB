@@ -40,56 +40,91 @@ interface MenuSection {
 
 const mobilePillars: MenuSection[] = [
   {
-    id: "buy",
-    title: "Buy",
+    id: "platform",
+    title: "Platform",
+    icon: Zap,
+    items: [
+      // Launch Online
+      { href: "/website-builder", label: "Website Builder", icon: Store, featured: true, description: "Build your site" },
+      { href: "/seo-command-center", label: "SEO Dashboard", icon: TrendingUp, description: "Search optimization" },
+      // Run In-Store
+      { href: "/pos-command-center", label: "POS System", icon: Smartphone, featured: true, description: "Point of sale" },
+      { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, description: "KPIs & operations" },
+      { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
+      { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "2D/3D planning" },
+      { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true, description: "Expert diagnostics" },
+      // Grow Traffic
+      { href: "/seo-command-center?tab=rankings", label: "Rank Tracking", icon: LineChart, description: "Position monitoring" },
+      { href: "/seo-command-center?tab=citations", label: "Local Citations", icon: MapPin, description: "Local presence" },
+    ]
+  },
+  {
+    id: "calculators",
+    title: "Calculators",
+    icon: Calculator,
+    items: [
+      { href: "/calculators", label: "Calculator Suite", icon: Calculator, featured: true, description: "All calculators" },
+      { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, description: "4 methods" },
+      { href: "/roi-calculator", label: "ROI", icon: TrendingUp, description: "5-year projections" },
+      { href: "/loan-calculator", label: "Loan", icon: BarChart3, description: "Amortization" },
+      { href: "/utility-calculator", label: "Utility", icon: Zap, description: "UPG benchmarking" },
+      { href: "/labor-calculator", label: "Labor", icon: Users, description: "Staffing" },
+      { href: "/tpd-calculator", label: "TPD", icon: LineChart, description: "Turns per day" },
+    ]
+  },
+  {
+    id: "marketplace",
+    title: "Marketplace",
     icon: ShoppingBag,
     items: [
       { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, featured: true, description: "Browse listings" },
-      { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, featured: true, description: "Location intelligence" },
       { href: "/brokers", label: "Find a Broker", icon: Users, description: "Verified brokers" },
-      { href: "/funding", label: "Funding Options", icon: Landmark, description: "SBA loans & financing" },
-      { href: "/roi-calculator", label: "ROI Calculator", icon: TrendingUp, description: "5-year projections" },
-      { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, description: "4 methods" },
-    ]
-  },
-  {
-    id: "operate",
-    title: "Operate",
-    icon: LayoutDashboard,
-    items: [
-      { href: "/pos-command-center", label: "POS Command Center", icon: Smartphone, featured: true, description: "Sales & transactions" },
-      { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutDashboard, description: "KPIs & operations" },
+      { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Star, description: "Sell your business" },
       { href: "/equipment", label: "Equipment Hub", icon: Package, featured: true, description: "Dexter & CG" },
-      { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, description: "AI diagnostics" },
-      { href: "/design-studio-pro", label: "Design Studio", icon: Palette, description: "2D/3D planning" },
-      { href: "/machine-booking", label: "Machine Booking", icon: Calendar, description: "Reservations" },
-      { href: "/utility-calculator", label: "Utility Calculator", icon: BarChart3, description: "UPG benchmarking" },
-    ]
-  },
-  {
-    id: "sell",
-    title: "Sell",
-    icon: Star,
-    items: [
-      { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Star, featured: true, description: "Sell your business" },
-      { href: "/valuation-calculator", label: "Valuation Calculator", icon: DollarSign, featured: true, description: "Know your worth" },
-      { href: "/brokers", label: "Find a Broker", icon: Users, description: "Connect with brokers" },
-      { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Wrench, description: "List equipment" },
+      { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Wrench, description: "Used & new" },
       { href: "/directory", label: "Vendor Directory", icon: ClipboardList, description: "Service providers" },
     ]
   },
   {
-    id: "learn",
-    title: "Learn",
-    icon: GraduationCap,
+    id: "templates",
+    title: "Templates",
+    icon: FolderOpen,
     items: [
-      { href: "/laundromat-expert", label: "Laundromat Expert AI", icon: Bot, featured: true, description: "AI consultant" },
-      { href: "/courses", label: "Courses & Training", icon: GraduationCap, description: "Learn from experts" },
-      { href: "/laundromat-bible", label: "Laundromat Bible", icon: BookOpen, featured: true, description: "Complete guide" },
-      { href: "/forum", label: "Community Forum", icon: Users, description: "73K+ owners" },
+      { href: "/template-vault", label: "Template Vault", icon: FolderOpen, featured: true, description: "All templates" },
+      { href: "/vault/business-plan", label: "AI Business Plan", icon: FileText, featured: true, description: "Generate with AI" },
+      { href: "/vault/lease-checklist", label: "Lease Red Flags", icon: AlertTriangle, description: "50+ trap alerts" },
+      { href: "/vault/due-diligence", label: "Due Diligence", icon: ClipboardList, description: "100-point checklist" },
+      { href: "/my-library", label: "My Library", icon: Library, description: "Your assets" },
+    ]
+  },
+  {
+    id: "resources",
+    title: "Resources",
+    icon: BookOpen,
+    items: [
+      { href: "/forum", label: "Community Forum", icon: Users, featured: true, description: "73K+ owners" },
+      { href: "/consultation", label: "Consultations", icon: Phone, featured: true, description: "Expert advice" },
       { href: "/blog", label: "Blog", icon: Star, description: "News & insights" },
-      { href: "/consultation", label: "Consultations", icon: Phone, description: "Expert advice" },
+      { href: "/events", label: "Events", icon: Calendar, description: "Trade shows" },
+      { href: "/courses", label: "Courses", icon: GraduationCap, description: "Training" },
+      { href: "/help-center", label: "Help Center", icon: HelpCircle, description: "FAQs & support" },
+      { href: "/larry-larsen", label: "Larry Larsen Expert", icon: Award, description: "50+ years" },
+      { href: "/insurance-partners", label: "Insurance", icon: Shield, description: "Coverage options" },
       { href: "/about-us", label: "About Us", icon: Info, description: "Our mission" },
+    ]
+  },
+  {
+    id: "funding",
+    title: "Funding",
+    icon: Landmark,
+    items: [
+      { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, featured: true, description: "First laundromat" },
+      { href: "/funding?tab=acquisitions", label: "Buy a Laundromat", icon: Briefcase, description: "SBA loans" },
+      { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, description: "Washers & dryers" },
+      { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Building2, description: "Property financing" },
+      { href: "/funding?tab=fastcash", label: "Fast Cash", icon: Zap, description: "Same-day funding" },
+      { href: "/funding/national-business-capital", label: "National Business Capital", icon: Landmark, description: "SBA $100K-$10M" },
+      { href: "/funding/preferred-funding-group", label: "Preferred Funding", icon: CreditCard, description: "Up to $500K" },
     ]
   },
 ];

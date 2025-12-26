@@ -187,9 +187,9 @@ const templates: TemplateCard[] = [
 
 const tierConfig = {
   free: { label: "Free", color: "bg-emerald-500", icon: CheckCircle },
-  pro: { label: "Pro", color: "bg-[#C8A661]", icon: Zap },
-  business: { label: "Pro", color: "bg-[#C8A661]", icon: Crown }, // Mapping business to Pro for now as per requirements
-  enterprise: { label: "Enterprise", color: "bg-slate-700", icon: Building2 },
+  pro: { label: "Pro", color: "bg-blue-500", icon: Zap },
+  business: { label: "Business", color: "bg-purple-500", icon: Crown },
+  enterprise: { label: "Enterprise", color: "bg-amber-500", icon: Building2 },
 };
 
 const categoryConfig = {
@@ -512,34 +512,27 @@ export default function TemplateVault() {
           </Tabs>
 
           {/* Upgrade CTA */}
-          {!canAccessTier("pro") && (
-            <Card className="mt-12 bg-gradient-to-r from-[#C8A661]/20 to-background border-[#C8A661]/30 overflow-hidden relative group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Crown className="w-32 h-32 text-[#C8A661]" />
-              </div>
-              <CardContent className="py-10 relative z-10">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-[#C8A661] shadow-lg shadow-[#C8A661]/20">
-                      <Zap className="w-8 h-8 text-[#0A1628]" />
+          {!canAccessTier("business") && (
+            <Card className="mt-12 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+              <CardContent className="py-8">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-primary/20">
+                      <Crown className="w-8 h-8 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold mb-2">Upgrade to Pro for Full Access</h3>
-                      <p className="text-muted-foreground text-lg max-w-lg">
-                        Unlock all 50+ templates, Larry's Trap Alerts, and unlimited CLEANBI analyses. 
-                        <span className="block mt-1 font-semibold text-[#C8A661]">Join 500+ successful brokers & operators.</span>
+                      <h3 className="text-xl font-bold">Unlock All Templates</h3>
+                      <p className="text-muted-foreground">
+                        Get unlimited access to all templates, Larry's trap alerts, and CLEANBI integration
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-3">
-                    <Link href="/pricing">
-                      <Button size="lg" className="gap-2 bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] h-12 px-8 font-bold text-lg" data-testid="button-upgrade-vault">
-                        Upgrade to Pro
-                        <ArrowRight className="w-5 h-5" />
-                      </Button>
-                    </Link>
-                    <p className="text-xs text-muted-foreground">Only $29/mo — Cancel anytime</p>
-                  </div>
+                  <Link href="/pricing">
+                    <Button size="lg" className="gap-2" data-testid="button-upgrade-vault">
+                      View Plans
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

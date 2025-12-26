@@ -8,15 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import {
-  ParticleField,
-  AIOrchestrationPanel,
-  ScrollReveal,
-  HolographicCard,
-  AnimatedCounter,
-  LivePulse,
-  AIModelBadge
-} from "@/components/experience";
-import {
   Map, Calculator, BookOpen, Wrench, LayoutGrid, FileText,
   ArrowRight, Play, Star, Check, Sparkles, TrendingUp,
   Users, Building2, Zap, Crown, Lock, Search, DollarSign,
@@ -743,69 +734,59 @@ function InteractiveDemos() {
   return (
     <section className="py-16 bg-muted/30">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <ScrollReveal>
-          <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
-              <LivePulse color="#C8A661" size={6} className="mr-2" />
-              <Eye className="h-3 w-3 mr-1" />
-              Interactive Demos
-            </Badge>
-            <h2 className="text-3xl font-bold mb-2">Try Before You Buy</h2>
-            <p className="text-muted-foreground">
-              Experience each product right here. No signup required.
-            </p>
-          </div>
-        </ScrollReveal>
+        <div className="text-center mb-8">
+          <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]">
+            <Eye className="h-3 w-3 mr-1" />
+            Interactive Demos
+          </Badge>
+          <h2 className="text-3xl font-bold mb-2">Try Before You Buy</h2>
+          <p className="text-muted-foreground">
+            Experience each product right here. No signup required.
+          </p>
+        </div>
         
         {/* Demo Tabs */}
-        <ScrollReveal delay={0.1}>
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {demos.map((demo) => {
-              const Icon = demo.icon;
-              return (
-                <Button
-                  key={demo.id}
-                  variant={activeDemo === demo.id ? "default" : "outline"}
-                  onClick={() => setActiveDemo(demo.id)}
-                  className={activeDemo === demo.id ? demo.color : ""}
-                  data-testid={`demo-tab-${demo.id}`}
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {demo.name}
-                </Button>
-              );
-            })}
-          </div>
-        </ScrollReveal>
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {demos.map((demo) => {
+            const Icon = demo.icon;
+            return (
+              <Button
+                key={demo.id}
+                variant={activeDemo === demo.id ? "default" : "outline"}
+                onClick={() => setActiveDemo(demo.id)}
+                className={activeDemo === demo.id ? demo.color : ""}
+                data-testid={`demo-tab-${demo.id}`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {demo.name}
+              </Button>
+            );
+          })}
+        </div>
         
         {/* Demo Content */}
-        <ScrollReveal delay={0.2}>
-          <HolographicCard className="max-w-2xl mx-auto">
-            <div className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                {demos.find(d => d.id === activeDemo)?.icon && (
-                  (() => {
-                    const Icon = demos.find(d => d.id === activeDemo)!.icon;
-                    return <Icon className="h-5 w-5 text-[#C8A661]" />;
-                  })()
-                )}
-                <h3 className="text-lg font-semibold text-white">
-                  {demos.find(d => d.id === activeDemo)?.name} Demo
-                </h3>
-                <LivePulse color="#22C55E" size={6} className="ml-auto" />
-              </div>
-              <div className="text-white">
-                {activeDemo === "cleanbi" && <CLEANBIDemo />}
-                {activeDemo === "calculators" && <CalculatorDemo />}
-                {activeDemo === "book-studio" && <BookStudioDemo />}
-                {activeDemo === "service-guy" && <ServiceGuyDemo />}
-                {activeDemo === "design-studio" && <DesignStudioDemo />}
-                {activeDemo === "template-vault" && <TemplateVaultDemo />}
-                {activeDemo === "ai-consultation" && <AIConsultationDemo />}
-              </div>
-            </div>
-          </HolographicCard>
-        </ScrollReveal>
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {demos.find(d => d.id === activeDemo)?.icon && (
+                (() => {
+                  const Icon = demos.find(d => d.id === activeDemo)!.icon;
+                  return <Icon className="h-5 w-5" />;
+                })()
+              )}
+              {demos.find(d => d.id === activeDemo)?.name} Demo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeDemo === "cleanbi" && <CLEANBIDemo />}
+            {activeDemo === "calculators" && <CalculatorDemo />}
+            {activeDemo === "book-studio" && <BookStudioDemo />}
+            {activeDemo === "service-guy" && <ServiceGuyDemo />}
+            {activeDemo === "design-studio" && <DesignStudioDemo />}
+            {activeDemo === "template-vault" && <TemplateVaultDemo />}
+            {activeDemo === "ai-consultation" && <AIConsultationDemo />}
+          </CardContent>
+        </Card>
       </div>
     </section>
   );
@@ -815,109 +796,105 @@ function InteractiveDemos() {
 // PRODUCT CARD COMPONENT
 // ============================================
 
-function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
+function ProductCard({ product }: { product: Product }) {
   const Icon = product.icon;
   
   return (
-    <ScrollReveal delay={index * 0.1}>
-      <HolographicCard className="h-full">
-        <div 
-          className={`relative h-full ${product.popular ? 'ring-2 ring-[#C8A661]' : ''}`}
-          data-testid={`card-product-${product.id}`}
-        >
-          {product.popular && (
-            <div className="absolute top-0 right-0 z-20">
-              <Badge className="rounded-none rounded-bl-lg bg-[#C8A661] text-white border-0">
-                <LivePulse color="#fff" size={6} className="mr-1.5" />
-                <Star className="h-3 w-3 mr-1" />
-                Popular
-              </Badge>
-            </div>
-          )}
-          
-          <div className="p-6 space-y-4">
-            <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-lg ${product.color} text-white shrink-0`}>
-                <Icon className="h-6 w-6" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-white">{product.name}</h3>
-                <p className="text-sm text-white/60">{product.tagline}</p>
-              </div>
-            </div>
-            
-            <p className="text-sm text-white/70">
-              {product.description}
-            </p>
-            
-            {/* Price */}
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-[#C8A661]">{product.price}</span>
-              {product.priceNote && (
-                <span className="text-sm text-white/60">{product.priceNote}</span>
-              )}
-            </div>
-            
-            {/* Key Features */}
-            <div className="space-y-1.5">
-              {product.features.slice(0, 4).map((feature, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm text-white/80">
-                  <Check className="h-3.5 w-3.5 text-green-400 shrink-0" />
-                  <span>{feature}</span>
-                </div>
-              ))}
-              {product.features.length > 4 && (
-                <p className="text-xs text-white/50 pl-5">
-                  +{product.features.length - 4} more features
-                </p>
-              )}
-            </div>
-            
-            {/* Demo Features */}
-            <div className="bg-white/5 rounded-lg p-3 space-y-1.5 border border-white/10">
-              <p className="text-xs font-medium text-[#C8A661] uppercase tracking-wide flex items-center gap-2">
-                <LivePulse color="#C8A661" size={6} />
-                Try the Demo
-              </p>
-              {product.demoFeatures.map((feature, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm text-white/70">
-                  <Play className="h-3 w-3 text-[#C8A661] shrink-0" />
-                  <span>{feature}</span>
-                </div>
-              ))}
-            </div>
-            
-            {/* For Who */}
-            <div className="flex flex-wrap gap-1.5">
-              {product.forWho.map((who, i) => (
-                <Badge key={i} variant="secondary" className="text-xs bg-white/10 text-white/80 border-white/20">
-                  {who}
-                </Badge>
-              ))}
-            </div>
-            
-            {/* CTAs */}
-            <div className="flex gap-2 pt-2">
-              <Link href={product.demoLink} className="flex-1">
-                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" data-testid={`button-demo-${product.id}`}>
-                  <Play className="h-4 w-4 mr-2" />
-                  Try Demo
-                </Button>
-              </Link>
-              <Link href={product.purchaseLink} className="flex-1">
-                <Button 
-                  className={`w-full ${product.popular ? 'bg-[#C8A661] hover:bg-[#B8964F]' : 'bg-white/10 hover:bg-white/20'}`}
-                  data-testid={`button-buy-${product.id}`}
-                >
-                  Get Access
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
+    <Card 
+      className={`relative overflow-hidden ${product.popular ? 'border-2 border-[#C8A661]' : ''}`}
+      data-testid={`card-product-${product.id}`}
+    >
+      {product.popular && (
+        <div className="absolute top-0 right-0">
+          <Badge className="rounded-none rounded-bl-lg bg-[#C8A661] text-white border-0">
+            <Star className="h-3 w-3 mr-1" />
+            Popular
+          </Badge>
+        </div>
+      )}
+      
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-4">
+          <div className={`p-3 rounded-lg ${product.color} text-white shrink-0`}>
+            <Icon className="h-6 w-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg">{product.name}</CardTitle>
+            <p className="text-sm text-muted-foreground">{product.tagline}</p>
           </div>
         </div>
-      </HolographicCard>
-    </ScrollReveal>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          {product.description}
+        </p>
+        
+        {/* Price */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold">{product.price}</span>
+          {product.priceNote && (
+            <span className="text-sm text-muted-foreground">{product.priceNote}</span>
+          )}
+        </div>
+        
+        {/* Key Features */}
+        <div className="space-y-1.5">
+          {product.features.slice(0, 4).map((feature, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <Check className="h-3.5 w-3.5 text-green-600 shrink-0" />
+              <span>{feature}</span>
+            </div>
+          ))}
+          {product.features.length > 4 && (
+            <p className="text-xs text-muted-foreground pl-5">
+              +{product.features.length - 4} more features
+            </p>
+          )}
+        </div>
+        
+        {/* Demo Features */}
+        <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Try the Demo
+          </p>
+          {product.demoFeatures.map((feature, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <Play className="h-3 w-3 text-[#C8A661] shrink-0" />
+              <span>{feature}</span>
+            </div>
+          ))}
+        </div>
+        
+        {/* For Who */}
+        <div className="flex flex-wrap gap-1.5">
+          {product.forWho.map((who, i) => (
+            <Badge key={i} variant="secondary" className="text-xs">
+              {who}
+            </Badge>
+          ))}
+        </div>
+        
+        {/* CTAs */}
+        <div className="flex gap-2 pt-2">
+          <Link href={product.demoLink} className="flex-1">
+            <Button variant="outline" className="w-full" data-testid={`button-demo-${product.id}`}>
+              <Play className="h-4 w-4 mr-2" />
+              Try Demo
+            </Button>
+          </Link>
+          <Link href={product.purchaseLink} className="flex-1">
+            <Button 
+              className={`w-full ${product.popular ? 'bg-[#C8A661]' : ''}`}
+              data-testid={`button-buy-${product.id}`}
+            >
+              Get Access
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -941,92 +918,64 @@ export default function Products() {
 
       <div className="min-h-screen bg-background">
         {/* Hero */}
-        <section className="py-16 bg-[#0A1628] relative overflow-hidden">
-          <ParticleField count={60} color="#C8A661" size={3} speed={0.8} />
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center relative z-10">
-            <ScrollReveal>
-              <Badge variant="outline" className="mb-6 border-[#C8A661]/40 text-[#C8A661]">
-                <LivePulse color="#C8A661" size={6} className="mr-2" />
-                Products
-              </Badge>
-            </ScrollReveal>
+        <section className="py-16 bg-[#0A1628]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+            <Badge variant="outline" className="mb-6 border-[#C8A661]/40 text-[#C8A661]">
+              Products
+            </Badge>
             
-            <ScrollReveal delay={0.1}>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-                Tools That <span className="text-[#C8A661]">Drive Results</span>
-              </h1>
-            </ScrollReveal>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              Tools That <span className="text-[#C8A661]">Drive Results</span>
+            </h1>
             
-            <ScrollReveal delay={0.2}>
-              <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
-                Every product has a free demo. Try before you buy. See exactly what you're getting.
-              </p>
-            </ScrollReveal>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
+              Every product has a free demo. Try before you buy. See exactly what you're getting.
+            </p>
             
-            {/* Stats with AnimatedCounter */}
-            <ScrollReveal delay={0.3}>
-              <div className="flex flex-wrap justify-center gap-8 text-white/70 mb-10">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={7} duration={1.5} />
-                  </div>
-                  <div className="text-sm">Products</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={50} suffix="+" duration={1.5} />
-                  </div>
-                  <div className="text-sm">Tools</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={73} suffix="K+" duration={1.5} />
-                  </div>
-                  <div className="text-sm">Users</div>
-                </div>
+            {/* Stats */}
+            <div className="flex flex-wrap justify-center gap-8 text-white/70">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">7</div>
+                <div className="text-sm">Products</div>
               </div>
-            </ScrollReveal>
-
-            {/* AI Orchestration Panel */}
-            <ScrollReveal delay={0.4}>
-              <div className="max-w-md mx-auto">
-                <AIOrchestrationPanel
-                  activeModels={["openai", "anthropic", "gemini", "perplexity", "grok"]}
-                  className="shadow-2xl"
-                />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">50+</div>
+                <div className="text-sm">Tools</div>
               </div>
-            </ScrollReveal>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">73K+</div>
+                <div className="text-sm">Users</div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Filter Tabs */}
-        <section className="py-8 border-b bg-[#0A1628]/50">
+        <section className="py-8 border-b">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <ScrollReveal>
-              <div className="flex flex-wrap justify-center gap-2">
-                {audiences.map((audience) => (
-                  <Button
-                    key={audience}
-                    variant={filter === audience ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFilter(audience)}
-                    className={filter === audience ? "bg-[#C8A661] hover:bg-[#B8964F]" : "border-white/20 text-white/80 hover:bg-white/10"}
-                    data-testid={`button-filter-${audience.toLowerCase()}`}
-                  >
-                    {audience === "all" ? "All Products" : `For ${audience}`}
-                  </Button>
-                ))}
-              </div>
-            </ScrollReveal>
+            <div className="flex flex-wrap justify-center gap-2">
+              {audiences.map((audience) => (
+                <Button
+                  key={audience}
+                  variant={filter === audience ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilter(audience)}
+                  className={filter === audience ? "bg-[#C8A661]" : ""}
+                  data-testid={`button-filter-${audience.toLowerCase()}`}
+                >
+                  {audience === "all" ? "All Products" : `For ${audience}`}
+                </Button>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Products Grid */}
-        <section className="py-12 bg-[#0A1628]">
+        <section className="py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -1036,97 +985,83 @@ export default function Products() {
         <InteractiveDemos />
 
         {/* All-Access Bundle */}
-        <section className="py-16 bg-[#0A1628] relative overflow-hidden">
-          <ParticleField count={30} color="#C8A661" size={2} speed={0.5} />
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-            <ScrollReveal>
-              <HolographicCard className="overflow-hidden">
-                <div className="bg-gradient-to-r from-[#C8A661] to-[#B8964F] text-white p-6 text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Crown className="h-6 w-6" />
-                    <span className="text-lg font-bold">All-Access Bundle</span>
-                    <LivePulse color="#fff" size={8} className="ml-2" />
-                  </div>
-                  <p className="text-white/90">
-                    Get everything for one price. Best value for serious professionals.
-                  </p>
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <Card className="border-2 border-[#C8A661] overflow-hidden">
+              <div className="bg-[#C8A661] text-white p-6 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Crown className="h-6 w-6" />
+                  <span className="text-lg font-bold">All-Access Bundle</span>
                 </div>
-                
-                <div className="p-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-semibold mb-4 text-white">Includes All 7 Products:</h3>
-                      <div className="space-y-2">
-                        {PRODUCTS.map((product) => (
-                          <div key={product.id} className="flex items-center gap-2 text-sm text-white/80">
-                            <Check className="h-4 w-4 text-[#C8A661]" />
-                            <span>{product.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col justify-center text-center md:text-left">
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-2 justify-center md:justify-start">
-                          <span className="text-4xl font-bold text-[#C8A661]">
-                            $<AnimatedCounter value={124} duration={1.5} />
-                          </span>
-                          <span className="text-white/60">/mo</span>
+                <p className="text-white/90">
+                  Get everything for one price. Best value for serious professionals.
+                </p>
+              </div>
+              
+              <CardContent className="p-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-4">Includes All 7 Products:</h3>
+                    <div className="space-y-2">
+                      {PRODUCTS.map((product) => (
+                        <div key={product.id} className="flex items-center gap-2 text-sm">
+                          <Check className="h-4 w-4 text-[#C8A661]" />
+                          <span>{product.name}</span>
                         </div>
-                        <p className="text-sm text-white/60">
-                          Billed annually ($1,490/year)
-                        </p>
-                        <p className="text-sm text-green-400 font-medium mt-1">
-                          Save $298 vs buying individually
-                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col justify-center text-center md:text-left">
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-2 justify-center md:justify-start">
+                        <span className="text-4xl font-bold">$124</span>
+                        <span className="text-muted-foreground">/mo</span>
                       </div>
-                      
-                      <Link href="/pricing">
-                        <Button 
-                          size="lg" 
-                          className="w-full bg-[#C8A661] hover:bg-[#B8964F]"
-                          data-testid="button-all-access"
-                        >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Get All-Access
-                        </Button>
-                      </Link>
-                      
-                      <p className="text-xs text-white/50 mt-3 text-center">
-                        30-day money-back guarantee
+                      <p className="text-sm text-muted-foreground">
+                        Billed annually ($1,490/year)
+                      </p>
+                      <p className="text-sm text-green-600 font-medium mt-1">
+                        Save $298 vs buying individually
                       </p>
                     </div>
+                    
+                    <Link href="/pricing">
+                      <Button 
+                        size="lg" 
+                        className="w-full bg-[#C8A661]"
+                        data-testid="button-all-access"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Get All-Access
+                      </Button>
+                    </Link>
+                    
+                    <p className="text-xs text-muted-foreground mt-3 text-center">
+                      30-day money-back guarantee
+                    </p>
                   </div>
                 </div>
-              </HolographicCard>
-            </ScrollReveal>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="py-16 bg-gradient-to-b from-[#0A1628] to-[#0d1f3a] relative overflow-hidden">
-          <ParticleField count={25} color="#C8A661" size={2} speed={0.6} />
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center relative z-10">
-            <ScrollReveal>
-              <h2 className="text-2xl font-bold text-white mb-4">
-                Not sure where to start?
-              </h2>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <p className="text-white/70 mb-6">
-                Try our most popular tool - CLEANBI Explorer. Analyze any address for free.
-              </p>
-            </ScrollReveal>
-            <ScrollReveal delay={0.2}>
-              <Link href="/cleanbi-explorer">
-                <Button size="lg" className="bg-[#C8A661] hover:bg-[#B8964F]" data-testid="button-try-cleanbi">
-                  <LivePulse color="#fff" size={8} className="mr-2" />
-                  <Map className="h-4 w-4 mr-2" />
-                  Try CLEANBI Free
-                </Button>
-              </Link>
-            </ScrollReveal>
+        <section className="py-16 bg-[#0A1628]">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Not sure where to start?
+            </h2>
+            <p className="text-white/70 mb-6">
+              Try our most popular tool - CLEANBI Explorer. Analyze any address for free.
+            </p>
+            <Link href="/cleanbi-explorer">
+              <Button size="lg" className="bg-[#C8A661]" data-testid="button-try-cleanbi">
+                <Map className="h-4 w-4 mr-2" />
+                Try CLEANBI Free
+              </Button>
+            </Link>
           </div>
         </section>
       </div>

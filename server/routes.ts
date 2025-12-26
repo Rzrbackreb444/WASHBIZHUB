@@ -134,15 +134,6 @@ import {
   logDiagnosticAccess, 
   obfuscateContent 
 } from "./middleware/anti-scraping";
-import {
-  getIndustryBenchmarks,
-  getLocationMarketInsights,
-  getEquipmentPricing,
-  getFundingRates,
-  enrichListing,
-  enrichAllListings,
-  startDataRefreshScheduler
-} from "./platform-data-engine";
 import { 
   submitAllToGoogle, 
   submitAllViaIndexNow,
@@ -700,18 +691,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
   
   // ==================== AUTHENTICATION SETUP ====================
-  // Using ONLY Google OAuth for professional appearance (no Replit Auth fallback)
+  // Primary: Google OAuth (direct integration)
+  // Fallback: Replit Auth (if Google fails)
   
-  // Setup Google OAuth (primary and only auth method)
+  // Setup Google OAuth (primary auth method)
   await setupGoogleAuth(app);
   
   // Setup RISC (Cross-Account Protection) event receiver
   setupRISCEventReceiver(app);
   
-  // NOTE: Replit Auth disabled for professional appearance
-  // User preference: Direct Google OAuth looks more legitimate for B2B platform
-  // await setupReplitAuth(app);
-  // registerReplitAuthRoutes(app);
+  // Setup Replit Auth as fallback (supports Google, GitHub, X, Apple, email)
+  await setupReplitAuth(app);
+  registerReplitAuthRoutes(app);
+  
+  // Fallback auth route - redirects to Replit Auth with transparency
+  app.get("/api/auth/fallback", (req, res) => {
+    const reason = req.query.reason || "primary_auth_unavailable";
+    console.log(`🔄 Auth fallback triggered: ${reason}`);
+    // Redirect to Replit Auth with message parameter for transparency
+    res.redirect(`/api/login?fallback=true&reason=${encodeURIComponent(String(reason))}`);
+  });
   
   // ==================== EMAIL/PASSWORD AUTH ====================
   // Mounted after session middleware is initialized
@@ -1376,79 +1375,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ==================== HOMEPAGE DATA ====================
   
-  // ========================================
-  // PLATFORM DATA ENGINE - Dynamic Data APIs
-  // ========================================
-  
-  // Industry benchmarks with real AI-researched data
-  app.get("/api/platform-data/benchmarks", async (_req, res) => {
-    try {
-      const benchmarks = await getIndustryBenchmarks();
-      res.json(benchmarks);
-    } catch (error: any) {
-      console.error("Error fetching industry benchmarks:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Market insights for a specific location
-  app.get("/api/platform-data/market-insights/:city/:state", async (req, res) => {
-    try {
-      const { city, state } = req.params;
-      const insights = await getLocationMarketInsights(city, state);
-      res.json(insights);
-    } catch (error: any) {
-      console.error("Error fetching market insights:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Equipment pricing data
-  app.get("/api/platform-data/equipment-pricing/:type", async (req, res) => {
-    try {
-      const { type } = req.params;
-      const pricing = await getEquipmentPricing(type);
-      res.json(pricing);
-    } catch (error: any) {
-      console.error("Error fetching equipment pricing:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Funding rates from partners
-  app.get("/api/platform-data/funding-rates", async (_req, res) => {
-    try {
-      const rates = await getFundingRates();
-      res.json(rates);
-    } catch (error: any) {
-      console.error("Error fetching funding rates:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Enrich a specific listing
-  app.post("/api/platform-data/enrich-listing/:id", requireAdmin, async (req, res) => {
-    try {
-      const listingId = parseInt(req.params.id);
-      const enrichedData = await enrichListing(listingId);
-      res.json({ success: true, data: enrichedData });
-    } catch (error: any) {
-      console.error("Error enriching listing:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Batch enrich all listings (admin only)
-  app.post("/api/platform-data/enrich-all", requireAdmin, async (_req, res) => {
-    try {
-      const result = await enrichAllListings();
-      res.json(result);
-    } catch (error: any) {
-      console.error("Error batch enriching listings:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
   app.get("/api/homepage/stats", async (_req, res) => {
     try {
       const [listingCount] = await db
@@ -11718,18 +11644,18 @@ IMPORTANT DISCLAIMER TO INCLUDE:
         },
       ];
 
-      // Smart query-type based routing using unified AI router
-      // Routes to optimal provider based on content: diagnostics→Gemini, business→OpenAI, complex→Anthropic
-      const { unifiedAIRouter } = await import("./services/ai-router");
+      // Tier-based AI model routing with automatic fallback
+      // Enterprise → Claude (preferred), Pro → GPT-4 (preferred), Free/Guest → Gemini (preferred)
+      // All tiers fall back to: Gemini → OpenAI → Anthropic → Perplexity → Grok
+      let preferredProvider: AIProvider = "gemini"; // Default for guests/free
       
-      // Detect query type from user message for intelligent routing
-      const queryType = unifiedAIRouter.detectQueryType(message);
-      console.log(`🧠 AI Router detected query type: ${queryType}`);
-      
-      // Use unified router which handles query-type based provider selection and fallbacks
-      const response = await unifiedAIRouter.chat(messages, {
-        forceQueryType: queryType,
-      });
+      if (tier === "enterprise") {
+        preferredProvider = "anthropic"; // Claude Opus for enterprise
+      } else if (tier === "pro") {
+        preferredProvider = "openai"; // GPT-4 for pro
+      }
+
+      const response = await aiProviderService.generateWithFallback(preferredProvider, messages);
 
       // CRITICAL: Only increment quota AFTER successful generation
       if (user) {
@@ -11867,187 +11793,16 @@ You learn and improve from every interaction across the WashBizHub platform.`;
         { role: "user" as const, content: message },
       ];
 
-      // Use unified router with OpenAI preference for expert knowledge
-      const { unifiedAIRouter } = await import("./services/ai-router");
-      const response = await unifiedAIRouter.chat(messages, {
-        forceQueryType: "laundromat_expert",
-      });
+      const response = await aiProviderService.generateWithFallback("gemini", messages);
 
       res.json({
         response: response.content,
         provider: response.provider,
         model: response.model,
-        queryType: response.queryType,
       });
     } catch (error: any) {
       console.error("Laundromat Expert chat error:", error);
       res.status(500).json({ error: error.message || "Failed to generate response" });
-    }
-  });
-
-  // POST /api/ai/service-guy - Service Guy AI for equipment diagnostics (rate limited)
-  app.post("/api/ai/service-guy", rateLimiter("/api/ai/service-guy", 15, 60), async (req, res) => {
-    try {
-      const { errorCode, manufacturer, machineType, symptoms, message, conversationHistory } = req.body;
-
-      if (!errorCode && !symptoms && !message) {
-        return res.status(400).json({ error: "Error code, symptoms, or message is required" });
-      }
-
-      const { unifiedAIRouter } = await import("./services/ai-router");
-
-      // If it's a simple diagnostic query (error code + optional details)
-      if (errorCode) {
-        const response = await unifiedAIRouter.diagnoseEquipment(
-          errorCode,
-          manufacturer,
-          machineType,
-          symptoms
-        );
-
-        return res.json({
-          response: response.content,
-          provider: response.provider,
-          model: response.model,
-          queryType: response.queryType,
-        });
-      }
-
-      // For conversational diagnostic queries
-      const serviceGuyPrompt = `You are Service Guy AI, an expert commercial laundry equipment technician with 30+ years of hands-on experience.
-
-EXPERTISE:
-- All major brands: Dexter, Speed Queen, Huebsch, Maytag, Wascomat, Continental Girbau, UniMac, Milnor, ADC, Ipso
-- Machine types: Washers, dryers, washer-extractors, stack units, ironers, folders
-- Error codes: Complete diagnostic database of 2,200+ codes
-- Repairs: Step-by-step procedures, parts identification, troubleshooting
-
-RESPONSE FORMAT:
-1. Identify the issue or error code
-2. Explain what it means and severity (Critical/High/Medium/Low)
-3. List possible causes in order of likelihood
-4. Provide step-by-step troubleshooting
-5. Recommend parts if needed (with typical price ranges)
-6. Estimate repair difficulty (DIY / Intermediate / Professional)
-7. Include safety warnings where applicable
-
-SAFETY DISCLAIMER:
-Always remind users to disconnect power before servicing and recommend professional help for gas, electrical, or complex repairs.
-
-Be concise, practical, and thorough. Use your extensive experience to provide real-world insights.`;
-
-      const messages = [
-        { role: "system" as const, content: serviceGuyPrompt },
-        ...(conversationHistory || []).map((m: any) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-        { role: "user" as const, content: message || symptoms || "" },
-      ];
-
-      const response = await unifiedAIRouter.chat(messages, {
-        forceQueryType: "service_guy",
-      });
-
-      res.json({
-        response: response.content,
-        provider: response.provider,
-        model: response.model,
-        queryType: response.queryType,
-      });
-    } catch (error: any) {
-      console.error("Service Guy AI error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate diagnostic response" });
-    }
-  });
-
-  // POST /api/ai/cleanbi-analysis - CLEANBI business analysis (rate limited)
-  app.post("/api/ai/cleanbi-analysis", rateLimiter("/api/ai/cleanbi-analysis", 10, 60), async (req, res) => {
-    try {
-      const { scores, context, question } = req.body;
-
-      if (!scores && !question) {
-        return res.status(400).json({ error: "CLEANBI scores or question required" });
-      }
-
-      const { unifiedAIRouter } = await import("./services/ai-router");
-
-      // If scores are provided, use specialized analysis
-      if (scores) {
-        const response = await unifiedAIRouter.analyzeBusiness(scores, context);
-        return res.json({
-          response: response.content,
-          provider: response.provider,
-          model: response.model,
-          queryType: response.queryType,
-        });
-      }
-
-      // For general business analysis questions
-      const response = await unifiedAIRouter.chat([
-        { 
-          role: "system", 
-          content: "You are a CLEANBI business analyst specializing in laundromat business intelligence. Provide data-driven insights for business analysis, financial projections, and market research."
-        },
-        { role: "user", content: question },
-      ], {
-        forceQueryType: "business_analysis",
-      });
-
-      res.json({
-        response: response.content,
-        provider: response.provider,
-        model: response.model,
-        queryType: response.queryType,
-      });
-    } catch (error: any) {
-      console.error("CLEANBI analysis error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate analysis" });
-    }
-  });
-
-  // POST /api/ai/business-plan - Business plan generation (rate limited)
-  app.post("/api/ai/business-plan", rateLimiter("/api/ai/business-plan", 5, 60), async (req, res) => {
-    try {
-      const { section, businessDetails, question } = req.body;
-
-      if (!section && !question) {
-        return res.status(400).json({ error: "Section name or question required" });
-      }
-
-      const { unifiedAIRouter } = await import("./services/ai-router");
-
-      // If generating a specific business plan section
-      if (section && businessDetails) {
-        const response = await unifiedAIRouter.generateBusinessPlan(section, businessDetails);
-        return res.json({
-          response: response.content,
-          provider: response.provider,
-          model: response.model,
-          queryType: response.queryType,
-        });
-      }
-
-      // For general business planning questions
-      const response = await unifiedAIRouter.chat([
-        { 
-          role: "system", 
-          content: "You are a business planning expert specializing in laundromat and commercial laundry businesses. Provide detailed, investor-ready guidance on business strategy, market analysis, and growth planning."
-        },
-        { role: "user", content: question },
-      ], {
-        forceQueryType: "business_plan",
-      });
-
-      res.json({
-        response: response.content,
-        provider: response.provider,
-        model: response.model,
-        queryType: response.queryType,
-      });
-    } catch (error: any) {
-      console.error("Business plan error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate business plan content" });
     }
   });
 

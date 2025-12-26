@@ -4,8 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'wouter';
-import { BookOpen, Users, Clock, GraduationCap, Filter, Award, CheckCircle, Loader2 } from 'lucide-react';
-import { Star } from "@/lib/icon-registry";
+import { BookOpen, Users, Clock, GraduationCap, Filter, Award, Star, CheckCircle, Loader2 } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import {
