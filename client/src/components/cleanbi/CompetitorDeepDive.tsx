@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Building2, Star, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink, Lock, Crown } from "lucide-react";
+import { Building2, Clock, Phone, Globe, MapPin, Users, TrendingUp, ChevronDown, ChevronUp, ExternalLink, Lock, Crown } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

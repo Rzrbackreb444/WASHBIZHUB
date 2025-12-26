@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Store, Package, CheckCircle, Star, Ban } from "lucide-react";
+import { Store, Package, CheckCircle, Ban } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 
 export default function AdminMarketplace() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Bell, MessageSquare, Users, Star, Package, FileText, Trophy, Settings, CheckCheck } from "lucide-react";
+import { Bell, MessageSquare, Users, Package, FileText, Trophy, Settings, CheckCheck } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
