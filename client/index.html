@@ -442,6 +442,27 @@
     </noscript>
     
     <div id="root"></div>
+    <!-- Vite HMR console noise suppression for Replit environment -->
+    <script>
+      (function() {
+        // In Replit's proxy environment, HMR websockets fail but the app works fine
+        // This suppresses the repetitive "[vite] connecting..." console noise
+        if (window.location.hostname.includes('.repl.') || window.location.hostname.includes('.replit.') || window.location.hostname.includes('.picard.')) {
+          const originalDebug = console.debug;
+          const originalLog = console.log;
+          const hmrPatterns = ['[vite] connecting', '[vite] server connection lost'];
+          
+          console.debug = function(...args) {
+            if (args.some(arg => typeof arg === 'string' && hmrPatterns.some(p => arg.includes(p)))) return;
+            originalDebug.apply(console, args);
+          };
+          console.log = function(...args) {
+            if (args.some(arg => typeof arg === 'string' && hmrPatterns.some(p => arg.includes(p)))) return;
+            originalLog.apply(console, args);
+          };
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
