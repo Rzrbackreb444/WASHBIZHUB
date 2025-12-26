@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, Clock, MapPin, Zap, Shield, Award } from "lucide-react";
@@ -43,14 +43,18 @@ export function LiveActivityNotification({
 }: LiveActivityNotificationProps) {
   const [notification, setNotification] = useState<ReturnType<typeof generateNotification> | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
 
     const showNotification = () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
       setNotification(generateNotification());
       setIsVisible(true);
-      setTimeout(() => setIsVisible(false), 5000);
+      hideTimeoutRef.current = setTimeout(() => setIsVisible(false), 5000);
     };
 
     const initialDelay = setTimeout(showNotification, 8000);
@@ -59,6 +63,9 @@ export function LiveActivityNotification({
     return () => {
       clearTimeout(initialDelay);
       clearInterval(timer);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
     };
   }, [enabled, interval]);
 
