@@ -7,7 +7,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { TRUST_SIGNALS, RATINGS } from '@/lib/seo-config';
-import { Shield, Users, MapPin, Award, Star, CheckCircle } from 'lucide-react';
+import { Shield, Users, MapPin, Award, CheckCircle } from 'lucide-react';
+import { Star } from "@/lib/icon-registry";
 
 interface TrustBadgesProps {
   variant?: 'compact' | 'full' | 'inline';

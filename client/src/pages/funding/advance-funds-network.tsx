@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Building2, Clock, Zap, ArrowRight, DollarSign, FileText, TrendingUp, Briefcase, Star, Timer, Shield } from 'lucide-react';
+import { CheckCircle, Building2, Clock, Zap, ArrowRight, DollarSign, FileText, TrendingUp, Briefcase, Timer, Shield } from 'lucide-react';
+import { Star } from "@/lib/icon-registry";
 import { SEO } from '@/components/SEO';
 import { Link } from 'wouter';
 

@@ -14,7 +14,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { MapPin, Search, Filter, Clock, Phone, Navigation2, Plus, Building2, CheckCircle, Loader2, Star } from "lucide-react";
+import { MapPin, Search, Filter, Clock, Phone, Navigation2, Plus, Building2, CheckCircle, Loader2 } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import type { Laundromat } from "@shared/schema";
 
 interface LaundromatWithDistance extends Laundromat {

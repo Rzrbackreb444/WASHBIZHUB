@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon, Sparkles } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { LazyRadarChart } from "./LazyRadarChart";

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
+import { ArrowRight, Play, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/big_dexter_laundromat_1765733391377.jpg";

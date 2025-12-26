@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Search, ShoppingCart, Star, Package, ExternalLink, Zap, Wrench, Store, Truck } from "lucide-react";
+import { Search, ShoppingCart, Package, ExternalLink, Zap, Wrench, Store, Truck } from "lucide-react";
+import { Star } from "@/lib/icon-registry";
 import { useToast } from "@/hooks/use-toast";
 
 interface AmazonProduct {

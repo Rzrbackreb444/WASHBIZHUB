@@ -2,7 +2,8 @@ import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, DollarSign, Lightbulb, CreditCard, Building2, ArrowRight, Clock, Shield, Users, Zap, Star } from 'lucide-react';
+import { CheckCircle, DollarSign, Lightbulb, CreditCard, Building2, ArrowRight, Clock, Shield, Users, Zap } from 'lucide-react';
+import { Star } from "@/lib/icon-registry";
 import { SEO } from '@/components/SEO';
 import { TrustSignals, FundingDisclaimer, ConsultationCTA } from "@/components/FundingEEAT";
 
