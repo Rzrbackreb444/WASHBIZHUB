@@ -2,8 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { MapPin, TrendingUp, Users, Building2, ArrowRight } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { MapPin, TrendingUp, Users, Building2, ArrowRight, Star } from "lucide-react";
 
 interface MarketScore {
   city: string;

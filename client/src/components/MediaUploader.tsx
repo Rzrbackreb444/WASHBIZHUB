@@ -2,8 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Upload, X, Image as ImageIcon, Film, FileText, GripVertical } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Upload, X, Star, Image as ImageIcon, Film, FileText, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DndContext,

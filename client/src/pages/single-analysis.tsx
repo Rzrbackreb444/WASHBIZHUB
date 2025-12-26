@@ -434,26 +434,26 @@ export default function SingleAnalysis() {
           </div>
         </section>
 
-        {/* Upsell to Pro */}
+        {/* Upsell to Business */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <Card className="bg-gradient-to-r from-[#C8A661]/20 via-background to-[#C8A661]/10 border-[#C8A661]/20">
+            <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 border-primary/20">
               <CardContent className="py-8">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-[#C8A661]/20 flex items-center justify-center">
-                      <Crown className="w-8 h-8 text-[#C8A661]" />
+                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                      <Crown className="w-8 h-8 text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold">Need Unlimited Analyses?</h3>
-                      <p className="text-muted-foreground text-lg">
-                        Pro members get unlimited CLEANBI reports, all 50+ calculators, template vault, and more for just $29/mo.
+                      <h3 className="text-xl font-bold">Need Unlimited Analyses?</h3>
+                      <p className="text-muted-foreground">
+                        Business members get unlimited CLEANBI reports, all calculators, courses, and more for just $149/mo.
                       </p>
                     </div>
                   </div>
-                  <Button asChild size="lg" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-bold">
+                  <Button asChild size="lg">
                     <Link href="/pricing">
-                      Upgrade to Pro <ChevronRight className="w-4 h-4 ml-1" />
+                      View Business <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </Button>
                 </div>

@@ -5,8 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Users, TrendingUp, Award, FileText } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { ArrowLeft, Star, Users, TrendingUp, Award, FileText } from "lucide-react";
 import type { Resource } from "@shared/schema";
 
 export default function ResourceDetail() {

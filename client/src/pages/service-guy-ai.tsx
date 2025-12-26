@@ -16,17 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { 
-  ParticleField, 
-  AIOrchestrationPanel, 
-  LivePulse, 
-  ScrollReveal, 
-  HolographicCard, 
-  AnimatedCounter, 
-  TypewriterText, 
-  AIModelBadge, 
-  DataStream 
-} from "@/components/experience";
-import { 
   Wrench, 
   Search, 
   FileText, 
@@ -1885,15 +1874,14 @@ export default function ServiceGuyAI() {
         }}
       />
 
-      {/* Dramatic Hero Section with Particle Effects */}
+      {/* Dramatic Hero Section */}
       <section className="relative w-full h-[500px] md:h-[600px] overflow-hidden" data-testid="section-hero">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/70 to-[#0A1628]/50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-[#0A1628]/40" />
-        <ParticleField count={60} color="#C8A661" speed={0.8} size={3} />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
         
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
           <div className="max-w-3xl">
@@ -1972,45 +1960,36 @@ export default function ServiceGuyAI() {
           </p>
         </div>
 
-        <ScrollReveal direction="up" delay={0.1}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <HolographicCard className="text-center p-4">
-              <div className="flex justify-center mb-2">
-                <Search className="w-8 h-8 text-[#C8A661]" />
-              </div>
-              <div className="text-sm font-medium text-white">Search Error Codes</div>
-              <div className="text-xs text-white/60 mt-1">
-                <AnimatedCounter value={2200} suffix="+" duration={2} /> codes
-              </div>
-            </HolographicCard>
-            <HolographicCard className="text-center p-4">
-              <div className="flex justify-center mb-2">
-                <Zap className="w-8 h-8 text-[#C8A661]" />
-              </div>
-              <div className="text-sm font-medium text-white">AI Diagnose Symptoms</div>
-              <div className="text-xs text-white/60 mt-1">
-                <LivePulse color="#22C55E" size={6} className="inline-block mr-1" />
-                Real-time analysis
-              </div>
-            </HolographicCard>
-            <HolographicCard className="text-center p-4">
-              <div className="flex justify-center mb-2">
-                <Settings className="w-8 h-8 text-[#C8A661]" />
-              </div>
-              <div className="text-sm font-medium text-white">
-                <AnimatedCounter value={35} suffix="+" duration={1.5} /> Manufacturers
-              </div>
-              <div className="text-xs text-white/60 mt-1">All major brands</div>
-            </HolographicCard>
-            <HolographicCard className="text-center p-4">
-              <div className="flex justify-center mb-2">
-                <Clock className="w-8 h-8 text-[#C8A661]" />
-              </div>
-              <div className="text-sm font-medium text-white">24/7 Available</div>
-              <div className="text-xs text-white/60 mt-1">Always ready to help</div>
-            </HolographicCard>
-          </div>
-        </ScrollReveal>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <Card className="text-center p-4 hover-elevate">
+            <div className="flex justify-center mb-2">
+              <Search className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">Search Error Codes</div>
+            <div className="text-xs text-muted-foreground mt-1">Instant lookup</div>
+          </Card>
+          <Card className="text-center p-4 hover-elevate">
+            <div className="flex justify-center mb-2">
+              <Zap className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">AI Diagnose Symptoms</div>
+            <div className="text-xs text-muted-foreground mt-1">Describe the problem</div>
+          </Card>
+          <Card className="text-center p-4 hover-elevate">
+            <div className="flex justify-center mb-2">
+              <Settings className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">35+ Manufacturers</div>
+            <div className="text-xs text-muted-foreground mt-1">All major brands</div>
+          </Card>
+          <Card className="text-center p-4 hover-elevate">
+            <div className="flex justify-center mb-2">
+              <Clock className="w-8 h-8 text-[#C8A661]" />
+            </div>
+            <div className="text-sm font-medium">24/7 Available</div>
+            <div className="text-xs text-muted-foreground mt-1">Always ready to help</div>
+          </Card>
+        </div>
 
         {/* Premium Subscription Banner */}
         <Card className="mb-12 border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 overflow-visible">
@@ -2949,36 +2928,26 @@ export default function ServiceGuyAI() {
           </TabsContent>
 
           <TabsContent id="ai-diagnose-section" value="ai-diagnose" className="space-y-6">
-            {/* Decorative Banner with Steel Drum Image and DataStream */}
-            <ScrollReveal direction="up">
-              <div className="relative rounded-lg overflow-hidden h-32 md:h-40" data-testid="section-ai-diagnose-banner">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${steelDrumImage})` }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/70 to-transparent" />
-                <DataStream direction="up" color="#C8A661" className="inset-0 h-full w-full opacity-40" />
-                <div className="relative h-full flex items-center px-6 md:px-8">
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
-                      Know Your Machine Inside & Out
-                    </h3>
-                    <p className="text-gray-300 text-sm md:text-base">
-                      AI-powered analysis of symptoms, parts, and repair strategies
-                    </p>
-                  </div>
-                  <div className="hidden md:block">
-                    <AIOrchestrationPanel 
-                      activeModels={['gemini', 'openai']} 
-                      className="w-64"
-                    />
-                  </div>
+            {/* Decorative Banner with Steel Drum Image */}
+            <div className="relative rounded-lg overflow-hidden h-32 md:h-40" data-testid="section-ai-diagnose-banner">
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${steelDrumImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/70 to-transparent" />
+              <div className="relative h-full flex items-center px-6 md:px-8">
+                <div>
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
+                    Know Your Machine Inside & Out
+                  </h3>
+                  <p className="text-gray-300 text-sm md:text-base">
+                    AI-powered analysis of symptoms, parts, and repair strategies
+                  </p>
                 </div>
               </div>
-            </ScrollReveal>
+            </div>
 
-            <ScrollReveal direction="up" delay={0.1}>
-              <Card>
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="w-5 h-5 text-primary" />
@@ -3046,45 +3015,25 @@ export default function ServiceGuyAI() {
               </CardContent>
               {isAnalyzing && (
                 <CardFooter className="flex-col items-start">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h4 className="font-semibold">AI Diagnosis:</h4>
-                    <div className="flex items-center gap-2">
-                      <AIModelBadge model="gemini" isActive={true} size="sm" />
-                      <AIModelBadge model="openai" isActive={false} size="sm" />
-                    </div>
-                  </div>
-                  <HolographicCard className="w-full p-4">
-                    <div className="flex items-center gap-2 text-sm text-white/80 mb-2">
-                      <LivePulse color="#4285F4" size={8} />
-                      <span>Analyzing symptoms with Gemini Vision...</span>
-                    </div>
-                    <AIDiagnoseSkeleton />
-                  </HolographicCard>
+                  <h4 className="font-semibold mb-2">AI Diagnosis:</h4>
+                  <AIDiagnoseSkeleton />
                 </CardFooter>
               )}
               {!isAnalyzing && aiDiagnosis && (
                 <CardFooter className="flex-col items-start">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h4 className="font-semibold">AI Diagnosis:</h4>
-                    <AIModelBadge model="openai" isActive={false} size="sm" />
+                  <h4 className="font-semibold mb-2">AI Diagnosis:</h4>
+                  <div className="bg-muted rounded-lg p-4 w-full whitespace-pre-wrap text-sm">
+                    {aiDiagnosis}
                   </div>
-                  <HolographicCard className="w-full p-4">
-                    <div className="text-white/90 whitespace-pre-wrap text-sm">
-                      <TypewriterText text={aiDiagnosis} speed={10} />
-                    </div>
-                  </HolographicCard>
                 </CardFooter>
               )}
             </Card>
-            </ScrollReveal>
 
-            <ScrollReveal direction="up" delay={0.2}>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Camera className="w-5 h-5 text-primary" />
                   Photo Diagnosis
-                  <AIModelBadge model="gemini" isActive={false} size="sm" className="ml-2" />
                 </CardTitle>
                 <CardDescription>
                   Take a photo of the equipment display, error code, or damaged part for AI analysis
@@ -3206,10 +3155,8 @@ export default function ServiceGuyAI() {
                 )}
               </CardContent>
             </Card>
-            </ScrollReveal>
 
             {photoDiagnosisResult && (
-              <ScrollReveal direction="up" delay={0.3}>
               <Card data-testid="card-photo-diagnosis">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-4">
@@ -3379,7 +3326,6 @@ export default function ServiceGuyAI() {
                   </div>
                 </CardContent>
               </Card>
-              </ScrollReveal>
             )}
           </TabsContent>
 

@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'wouter';
-import { MapPin, DollarSign, TrendingUp, Zap } from 'lucide-react';
-import { Star } from "@/lib/icon-registry";
+import { MapPin, DollarSign, TrendingUp, Zap, Star } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import {

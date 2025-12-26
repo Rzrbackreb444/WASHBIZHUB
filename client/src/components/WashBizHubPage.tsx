@@ -1,7 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
-import { Globe, Users, Zap, Award, ChevronRight } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Globe, Users, Zap, Award, Star, ChevronRight } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import {

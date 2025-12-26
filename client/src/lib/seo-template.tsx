@@ -690,7 +690,7 @@ export const PAGE_SEO_CONFIGS: Record<string, PageSEOConfig> = {
     directAnswer: "Use CLEANBI Explorer to instantly score any laundromat location. It analyzes demographics, competition, traffic patterns, and 50+ data points to reveal hidden investment opportunities.",
     faqs: [
       { q: "What is a CLEANBI score?", a: "CLEANBI is a proprietary scoring system that rates laundromat locations from A to C based on demographics, competition, traffic, accessibility, economic factors, and location quality." },
-      { q: "Is CLEANBI free to use?", a: "Yes, you get 3 free CLEANBI analyses. Unlimited analyses are available with Pro ($29/mo) or Enterprise ($99/mo) subscriptions." },
+      { q: "Is CLEANBI free to use?", a: "Yes, you get 3 free CLEANBI analyses. Unlimited analyses are available with Starter ($29/mo) or Pro ($99/mo) subscriptions." },
       { q: "What data does CLEANBI analyze?", a: "CLEANBI analyzes 6 key factors: Demographics (population, income, renters), Competition (nearby laundromats), Traffic (foot/vehicle), Accessibility (parking, transit), Economic indicators, and Location Quality." }
     ]
   },
@@ -784,11 +784,11 @@ export const PAGE_SEO_CONFIGS: Record<string, PageSEOConfig> = {
   },
   pricing: {
     title: "WashBizHub Pricing - Free to Pro Plans | Laundromat Tools",
-    description: "Choose your WashBizHub plan: Free (3 CLEANBI analyses), Pro ($29/mo - unlimited CLEANBI, calculators), or Enterprise ($99/mo - API access, white-label reports). 30-day money-back guarantee.",
+    description: "Choose your WashBizHub plan: Free (3 CLEANBI analyses), Starter ($29/mo - unlimited CLEANBI, calculators), or Pro ($99/mo - API access, Monte Carlo). 30-day money-back guarantee.",
     focusKeyphrase: "laundromat software pricing",
     keywords: ["WashBizHub pricing", "CLEANBI pricing", "laundromat calculator subscription", "laundromat software cost"],
     primaryQuestion: "How much does WashBizHub cost?",
-    directAnswer: "WashBizHub offers Free (3 CLEANBI analyses), Pro ($29/mo for unlimited CLEANBI + calculators), and Enterprise ($99/mo with API access). All paid plans include a 30-day money-back guarantee."
+    directAnswer: "WashBizHub offers Free (3 CLEANBI analyses), Starter ($29/mo for unlimited CLEANBI + calculators), and Pro ($99/mo with API access). All paid plans include a 30-day money-back guarantee."
   },
   calculatorsSuite: {
     title: "Professional Laundromat Calculators - Free Business Tools | WashBizHub",

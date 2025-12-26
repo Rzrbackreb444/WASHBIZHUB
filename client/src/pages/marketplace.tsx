@@ -2,8 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { ShoppingBag, Star, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import heroImage from "@assets/AdobeStock_711286802_1765733834364.jpeg";
 import { Link } from "wouter";

@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, ShoppingCart, Package, TrendingUp, Zap } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { Search, ShoppingCart, Package, Star, TrendingUp, Zap } from "lucide-react";
 import { SUPERSTORE_TAXONOMY } from "@shared/superstore-taxonomy";
 
 interface AmazonProduct {

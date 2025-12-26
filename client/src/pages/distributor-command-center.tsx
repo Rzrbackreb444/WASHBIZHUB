@@ -15,7 +15,7 @@ import {
   LiveIndicator,
   TechLabel,
   MiniGauge,
-  AnimatedCounter as PremiumAnimatedCounter,
+  AnimatedCounter,
   HexGrid,
   ScanLine,
   GlowOrb,
@@ -28,16 +28,6 @@ import {
   PremiumBadge,
   PremiumSectionHeader,
 } from "@/components/premium-components";
-import {
-  ParticleField,
-  LivePulse,
-  ScrollReveal,
-  HolographicCard,
-  AnimatedCounter,
-  DataStream,
-  MetricCard,
-  GlowingBorder,
-} from "@/components/experience";
 import { 
   Building2, 
   Cpu, 
@@ -288,68 +278,49 @@ export default function DistributorCommandCenter() {
           </div>
         </div>
 
-        <div className="max-w-[1800px] mx-auto px-6 py-6 relative">
-          {/* Subtle ParticleField background for tech aesthetic */}
-          <ParticleField count={25} color="#C8A661" speed={0.5} size={1.5} className="opacity-40" />
-          
-          {/* DataStream effects in corners */}
-          <DataStream direction="up" color="#C8A661" className="left-0 top-0 w-24 h-full opacity-20" />
-          <DataStream direction="down" color="#22C55E" className="right-0 top-0 w-24 h-full opacity-20" />
-
+        <div className="max-w-[1800px] mx-auto px-6 py-6">
           {/* Executive KPI Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6 relative z-10">
-            <ScrollReveal delay={0.1}>
-              <HolographicCard className="h-full">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Cpu className="w-5 h-5 text-[#C8A661]" />
-                    <div className="flex items-center gap-1.5">
-                      <LivePulse color="#22C55E" size={6} />
-                      <Badge className="bg-green-500/20 text-green-400 text-[10px]">LIVE</Badge>
-                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 text-[10px]">LIVE</Badge>
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.totalMachines} duration={1.5} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{mockFleetData.totalMachines.toLocaleString()}</div>
                   <div className="text-xs text-gray-500">Total Fleet</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.15}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Activity className="w-5 h-5 text-green-400" />
-                    <div className="flex items-center gap-1.5">
-                      <LivePulse color="#22C55E" size={6} />
-                      <span className="text-xs text-green-400 font-bold">{mockFleetData.avgUptime}%</span>
-                    </div>
+                    <span className="text-xs text-green-400 font-bold">{mockFleetData.avgUptime}%</span>
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.online} duration={1.5} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{mockFleetData.online.toLocaleString()}</div>
                   <div className="text-xs text-gray-500">Online Now</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.2}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <AlertTriangle className="w-5 h-5 text-amber-400" />
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.maintenance} duration={1.5} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{mockFleetData.maintenance}</div>
                   <div className="text-xs text-gray-500">Need Service</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.25}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <DollarSign className="w-5 h-5 text-emerald-400" />
@@ -358,16 +329,14 @@ export default function DistributorCommandCenter() {
                       12%
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.revenueMTD} prefix="$" duration={2} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{formatCurrency(mockFleetData.revenueMTD)}</div>
                   <div className="text-xs text-gray-500">Revenue MTD</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.3}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Package className="w-5 h-5 text-purple-400" />
@@ -376,45 +345,38 @@ export default function DistributorCommandCenter() {
                       8%
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.partsRevenueMTD} prefix="$" duration={2} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{formatCurrency(mockFleetData.partsRevenueMTD)}</div>
                   <div className="text-xs text-gray-500">Parts Revenue</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.35}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Users className="w-5 h-5 text-blue-400" />
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.customers} duration={1.5} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{mockFleetData.customers}</div>
                   <div className="text-xs text-gray-500">Customers</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.4}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Wrench className="w-5 h-5 text-orange-400" />
-                    <LivePulse color="#F97316" size={6} />
                   </div>
-                  <div className="text-2xl font-bold text-white">
-                    <AnimatedCounter value={mockFleetData.serviceCallsToday} duration={1.5} />
-                  </div>
+                  <div className="text-2xl font-bold text-white">{mockFleetData.serviceCallsToday}</div>
                   <div className="text-xs text-gray-500">Calls Today</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
 
-            <ScrollReveal delay={0.45}>
-              <HolographicCard className="h-full">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+              <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Clock className="w-5 h-5 text-cyan-400" />
@@ -422,8 +384,8 @@ export default function DistributorCommandCenter() {
                   <div className="text-2xl font-bold text-white">{mockFleetData.avgResponseTime}h</div>
                   <div className="text-xs text-gray-500">Avg Response</div>
                 </CardContent>
-              </HolographicCard>
-            </ScrollReveal>
+              </Card>
+            </motion.div>
           </div>
 
           {/* Main Tabs */}
@@ -452,138 +414,126 @@ export default function DistributorCommandCenter() {
             </TabsList>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-6 relative z-10">
+            <TabsContent value="overview" className="space-y-6">
               <div className="grid lg:grid-cols-3 gap-6">
                 {/* Critical Alerts */}
-                <ScrollReveal delay={0.1} className="lg:col-span-2">
-                  <HolographicCard className="h-full">
-                    <div className="h-1 bg-gradient-to-r from-red-500 via-amber-500 to-green-500" />
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <CardTitle className="text-lg text-white flex items-center gap-2">
-                          <AlertTriangle className="w-5 h-5 text-red-400" />
-                          Active Alerts
-                          <LivePulse color="#EF4444" size={8} />
-                        </CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30">
-                            {mockAlerts.filter(a => a.type === 'critical').length} Critical
-                          </Badge>
-                          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
-                            {mockAlerts.filter(a => a.type === 'warning').length} Warning
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3 max-h-[400px] overflow-y-auto">
-                      <AnimatePresence>
-                        {mockAlerts.map((alert, index) => (
-                          <motion.div
-                            key={alert.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className={`flex items-start gap-3 p-4 rounded-xl border ${
-                              alert.type === 'critical' ? 'bg-red-500/5 border-red-500/20' :
-                              alert.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20' :
-                              'bg-blue-500/5 border-blue-500/20'
-                            }`}
-                          >
-                            <div className={`w-3 h-3 rounded-full mt-1.5 ${
-                              alert.type === 'critical' ? 'bg-red-500 animate-pulse' :
-                              alert.type === 'warning' ? 'bg-amber-500' :
-                              'bg-blue-500'
-                            }`} />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className="font-semibold text-sm text-white">{alert.machine}</span>
-                                <span className="text-xs text-gray-500">•</span>
-                                <span className="text-xs text-gray-400">{alert.customer}</span>
-                                <span className="text-xs text-gray-500">•</span>
-                                <span className="text-xs text-gray-500">{alert.location}</span>
-                              </div>
-                              <p className="text-sm text-gray-300">{alert.message}</p>
-                              <div className="flex items-center gap-3 mt-2">
-                                <span className="text-xs text-gray-500">{alert.time}</span>
-                                {alert.acknowledged && (
-                                  <Badge variant="outline" className="text-[10px] border-green-500/30 text-green-400">
-                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                    Acknowledged
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline" className="border-white/10 text-gray-400 hover:text-white hover:bg-white/5 text-xs">
-                                <Eye className="w-3 h-3 mr-1" />
-                                View
-                              </Button>
-                              {!alert.acknowledged && (
-                                <GlowingBorder color="#C8A661" className="rounded-md">
-                                  <Button size="sm" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0a0f1a] text-xs">
-                                    Dispatch
-                                  </Button>
-                                </GlowingBorder>
-                              )}
-                            </div>
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </CardContent>
-                  </HolographicCard>
-                </ScrollReveal>
-
-                {/* Brand Distribution */}
-                <ScrollReveal delay={0.2}>
-                  <HolographicCard className="h-full">
-                    <div className="h-1 bg-gradient-to-r from-[#C8A661] to-[#8B7355]" />
-                    <CardHeader className="pb-3">
+                <Card className="lg:col-span-2 bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-red-500 via-amber-500 to-green-500" />
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
                       <CardTitle className="text-lg text-white flex items-center gap-2">
-                        Fleet by Brand
-                        <LivePulse color="#C8A661" size={6} />
+                        <AlertTriangle className="w-5 h-5 text-red-400" />
+                        Active Alerts
                       </CardTitle>
-                      <CardDescription className="text-gray-500">Equipment distribution across manufacturers</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {mockFleetData.brands.map((brand, index) => (
-                        <motion.div 
-                          key={brand.name} 
-                          className="space-y-2"
-                          initial={{ opacity: 0, x: 20 }}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="destructive" className="bg-red-500/20 text-red-400 border-red-500/30">
+                          {mockAlerts.filter(a => a.type === 'critical').length} Critical
+                        </Badge>
+                        <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30">
+                          {mockAlerts.filter(a => a.type === 'warning').length} Warning
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3 max-h-[400px] overflow-y-auto">
+                    <AnimatePresence>
+                      {mockAlerts.map((alert, index) => (
+                        <motion.div
+                          key={alert.id}
+                          initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
+                          className={`flex items-start gap-3 p-4 rounded-xl border ${
+                            alert.type === 'critical' ? 'bg-red-500/5 border-red-500/20' :
+                            alert.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20' :
+                            'bg-blue-500/5 border-blue-500/20'
+                          }`}
                         >
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: brand.color }} />
-                              <span className="font-medium text-white">{brand.name}</span>
+                          <div className={`w-3 h-3 rounded-full mt-1.5 ${
+                            alert.type === 'critical' ? 'bg-red-500 animate-pulse' :
+                            alert.type === 'warning' ? 'bg-amber-500' :
+                            'bg-blue-500'
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-sm text-white">{alert.machine}</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-400">{alert.customer}</span>
+                              <span className="text-xs text-gray-500">•</span>
+                              <span className="text-xs text-gray-500">{alert.location}</span>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <span className="text-gray-400">
-                                <AnimatedCounter value={brand.count} duration={1.5} />
-                              </span>
-                              <span className="text-xs text-gray-500">{formatCurrency(brand.revenue)}</span>
+                            <p className="text-sm text-gray-300">{alert.message}</p>
+                            <div className="flex items-center gap-3 mt-2">
+                              <span className="text-xs text-gray-500">{alert.time}</span>
+                              {alert.acknowledged && (
+                                <Badge variant="outline" className="text-[10px] border-green-500/30 text-green-400">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  Acknowledged
+                                </Badge>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                              <motion.div 
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: brand.color }}
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(brand.online / brand.count) * 100}%` }}
-                                transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                              />
-                            </div>
-                            <span className="text-xs text-green-400 font-medium w-12 text-right">
-                              {Math.round((brand.online / brand.count) * 100)}%
-                            </span>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" className="border-white/10 text-gray-400 hover:text-white hover:bg-white/5 text-xs">
+                              <Eye className="w-3 h-3 mr-1" />
+                              View
+                            </Button>
+                            {!alert.acknowledged && (
+                              <Button size="sm" className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0a0f1a] text-xs">
+                                Dispatch
+                              </Button>
+                            )}
                           </div>
                         </motion.div>
                       ))}
-                    </CardContent>
-                  </HolographicCard>
-                </ScrollReveal>
+                    </AnimatePresence>
+                  </CardContent>
+                </Card>
+
+                {/* Brand Distribution */}
+                <Card className="bg-gradient-to-br from-[#1a1f2e] to-[#0f1420] border-white/5 shadow-xl overflow-hidden">
+                  <div className="h-1 bg-gradient-to-r from-[#C8A661] to-[#8B7355]" />
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg text-white">Fleet by Brand</CardTitle>
+                    <CardDescription className="text-gray-500">Equipment distribution across manufacturers</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {mockFleetData.brands.map((brand, index) => (
+                      <motion.div 
+                        key={brand.name} 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: brand.color }} />
+                            <span className="font-medium text-white">{brand.name}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-gray-400">{brand.count.toLocaleString()}</span>
+                            <span className="text-xs text-gray-500">{formatCurrency(brand.revenue)}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                            <motion.div 
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: brand.color }}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(brand.online / brand.count) * 100}%` }}
+                              transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                            />
+                          </div>
+                          <span className="text-xs text-green-400 font-medium w-12 text-right">
+                            {Math.round((brand.online / brand.count) * 100)}%
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Recent Calls & Parts Intelligence */}

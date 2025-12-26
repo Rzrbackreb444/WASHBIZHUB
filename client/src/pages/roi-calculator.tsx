@@ -1,6 +1,5 @@
-import { useSmartGating } from "@/hooks/useSmartGating";
-import { UsageLimitBanner } from "@/components/UsageLimitBanner";
-import { UpgradePromptModal } from "@/components/UpgradePromptModal";
+import { AuthGuard } from "@/components/AuthGuard";
+import { FeatureGate } from "@/components/monetization";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -324,16 +323,10 @@ const proTips = [
 ];
 
 export default function ROICalculator() {
-  const {
-    currentTier,
-    usageInfo,
-    showUpgradePrompt,
-    setShowUpgradePrompt,
-  } = useSmartGating('calculator');
-
   return (
-    <>
-      <SEO
+    <AuthGuard title="Sign In to Use ROI Calculator" description="Sign in to access this calculator and track your usage.">
+      <FeatureGate feature="calculators-advanced">
+        <SEO
           title="Laundromat ROI Calculator - Free Investment Return Tool 2025 | WashBizHub"
           description="Calculate laundromat ROI for free with our professional investment return calculator. Instantly project cash-on-cash returns, break-even timeline, 5-year ROI, and annual cash flow. Used by 14,000+ investors."
           canonicalUrl="/roi-calculator"
@@ -381,15 +374,6 @@ export default function ROICalculator() {
               { name: "ROI Calculator", url: "/roi-calculator" }
             ]} />
           </div>
-        </div>
-
-        {/* Usage Banner */}
-        <div className="mx-auto max-w-7xl px-6 py-4">
-          <UsageLimitBanner 
-            usageInfo={usageInfo} 
-            currentTier={currentTier} 
-            featureName="ROI calculations"
-          />
         </div>
 
         <PremiumCalculatorEngine config={roiCalculatorConfig} />
@@ -473,14 +457,7 @@ export default function ROICalculator() {
             </div>
           </div>
         </section>
-
-      {/* Upgrade Modal */}
-      <UpgradePromptModal
-        open={showUpgradePrompt}
-        onOpenChange={setShowUpgradePrompt}
-        featureName="ROI Calculator"
-        currentTier={currentTier}
-      />
-    </>
+      </FeatureGate>
+    </AuthGuard>
   );
 }

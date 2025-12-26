@@ -1,12 +1,10 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield, Brain, Cpu } from "lucide-react";
-import { Star } from "@/lib/icon-registry";
+import { ArrowRight, Play, Star, TrendingUp, MapPin, DollarSign, Users, BarChart3, Navigation, Shield } from "lucide-react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useMemo, useEffect, useState } from "react";
 import heroImage from "@assets/big_dexter_laundromat_1765733391377.jpg";
 import twinCitiesInterior from "@assets/Twin_Cities_Laundromat_1764705357211.jpg";
-import { ParticleField, Scene3D, AIOrchestrationPanel, LivePulse, DataStream, AnimatedCounter } from "@/components/experience";
 
 // SSR-safe hook to detect mobile devices for performance optimization
 function useIsMobile() {
@@ -116,7 +114,7 @@ export function PremiumHero() {
         <meta itemProp="operatingSystem" content="Web" />
         <span itemProp="description">CLEANBI analyzes demographics, competition density, foot traffic patterns, and 50+ data points to provide investment-grade scores for laundromat locations. Trusted by 73,000+ industry professionals for location intelligence, market analysis, and due diligence.</span>
       </div>
-      {/* Premium image background with immersive effects */}
+      {/* Premium image background */}
       <div className="absolute inset-0">
         {/* Static image background for all devices - faster loading than video */}
         <div 
@@ -134,25 +132,14 @@ export function PremiumHero() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
         {/* Additional bottom gradient for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/85 via-transparent to-transparent" />
-        
-        {/* Immersive particle effects */}
-        <ParticleField count={40} color="#C8A661" speed={0.8} size={3} />
-        
-        {/* 3D scene overlay - subtle floating orbs */}
-        <Scene3D variant="minimal" primaryColor="#C8A661" className="opacity-40" />
-        
-        {/* Data streams for tech feel */}
-        <DataStream direction="up" color="#C8A661" className="left-4 top-0 h-full w-8 opacity-30" />
-        <DataStream direction="down" color="#C8A661" className="right-4 top-0 h-full w-8 opacity-30" />
-        
         {/* Gold accent glow - enhanced */}
         <div 
           className="absolute top-1/4 right-0 w-2/3 h-2/3"
-          style={{ background: 'radial-gradient(ellipse at 70% 40%, rgba(200,166,97,0.15) 0%, transparent 60%)' }}
+          style={{ background: 'radial-gradient(ellipse at 70% 40%, rgba(200,166,97,0.12) 0%, transparent 60%)' }}
         />
         <div 
           className="absolute bottom-0 left-0 w-1/2 h-1/2"
-          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(200,166,97,0.1) 0%, transparent 50%)' }}
+          style={{ background: 'radial-gradient(circle at 20% 80%, rgba(200,166,97,0.08) 0%, transparent 50%)' }}
         />
         {/* Subtle vignette effect */}
         <div 
@@ -160,20 +147,6 @@ export function PremiumHero() {
           style={{ boxShadow: 'inset 0 0 150px 50px rgba(10,22,40,0.4)' }}
         />
       </div>
-      
-      {/* AI Orchestration Panel - floating indicator */}
-      <motion.div 
-        className="absolute top-24 right-4 lg:right-8 z-30 hidden md:block"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.5, duration: 0.8 }}
-      >
-        <AIOrchestrationPanel 
-          activeModels={["openai", "gemini"]} 
-          currentModel="gemini"
-          className="w-64"
-        />
-      </motion.div>
       <motion.div 
         className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         style={{ opacity }}
