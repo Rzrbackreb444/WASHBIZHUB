@@ -26,9 +26,8 @@ import {
   MessageSquare, Settings, FileDown, Printer, Share2, Eye, ChevronRight,
   ChevronDown, ChevronUp, ChevronLeft, GripVertical, X, MoreVertical, FileImage, Video, Mic,
   Play, Pause, RotateCcw, Clock, Users, Target, TrendingUp, Star,
-  Palette, Layers, Grid, BookCopy, Library, FolderOpen, FilePlus, Bot
+  Palette, Layers, Grid, BookCopy, Library, FolderOpen, FilePlus
 } from "lucide-react";
-import { LarryChat } from "@/components/book-studio/LarryChat";
 
 interface Chapter {
   id: string;
@@ -894,7 +893,7 @@ export default function BookStudio() {
         <div className="flex h-[calc(100vh-100px)]">
           <div className="w-64 border-r border-slate-700 bg-slate-900/50 flex flex-col">
             <Tabs value={sidebarTab} onValueChange={setSidebarTab} className="flex-1 flex flex-col">
-              <TabsList className="w-full rounded-none bg-slate-800 border-b border-slate-700 grid grid-cols-5">
+              <TabsList className="w-full rounded-none bg-slate-800 border-b border-slate-700 grid grid-cols-4">
                 <TabsTrigger value="chapters" className="text-xs px-1">Chapters</TabsTrigger>
                 <TabsTrigger value="outline" className="text-xs px-1">Outline</TabsTrigger>
                 <TabsTrigger value="collab" className="text-xs px-1 relative">
@@ -905,10 +904,6 @@ export default function BookStudio() {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="activity" className="text-xs px-1">Activity</TabsTrigger>
-                <TabsTrigger value="larry" className="text-xs px-1 relative">
-                  <Bot className="w-3 h-3 mr-1" />
-                  Larry
-                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="chapters" className="flex-1 m-0 overflow-hidden">
@@ -1592,11 +1587,6 @@ export default function BookStudio() {
                     </div>
                   </div>
                 </ScrollArea>
-              </TabsContent>
-
-              {/* Larry Chat Tab */}
-              <TabsContent value="larry" className="flex-1 m-0 overflow-hidden">
-                <LarryChat projectId={project.id} />
               </TabsContent>
             </Tabs>
           </div>
