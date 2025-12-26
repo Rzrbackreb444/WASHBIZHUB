@@ -28,6 +28,7 @@ import { TrialBanner } from "@/components/monetization";
 import { ExitIntentModal } from "@/components/ExitIntentModal";
 import { StickyUpgradeBanner } from "@/components/StickyUpgradeBanner";
 import { FloatingCTA } from "@/components/EmailCaptureModal";
+import { LiveActivityNotification } from "@/components/ConversionOptimization";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
@@ -2519,6 +2520,7 @@ function App() {
                             <Toaster />
                             <ExitIntentModal />
                             <FloatingCTA />
+                            <LiveActivityNotification />
                           </AuthModalProvider>
                         </SignOutConfirmationProvider>
                       </TooltipProvider>
@@ -2539,6 +2541,7 @@ function App() {
                           <Toaster />
                           <ExitIntentModal />
                           <FloatingCTA />
+                          <LiveActivityNotification />
                         </AuthModalProvider>
                       </SignOutConfirmationProvider>
                     </TooltipProvider>
