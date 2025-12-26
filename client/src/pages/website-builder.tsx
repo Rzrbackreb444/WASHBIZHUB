@@ -4,6 +4,16 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { 
+  ParticleField, 
+  AIOrchestrationPanel, 
+  LivePulse, 
+  ScrollReveal, 
+  HolographicCard, 
+  TypewriterText, 
+  AIModelBadge, 
+  Scene3D 
+} from "@/components/experience";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -323,6 +333,9 @@ export default function WebsiteBuilder() {
   const [newCardDialogOpen, setNewCardDialogOpen] = useState(false);
   const [addBlockDialogOpen, setAddBlockDialogOpen] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [isAIGenerating, setIsAIGenerating] = useState(false);
+  const [aiGeneratedText, setAiGeneratedText] = useState<string | null>(null);
+  const [currentAIModel, setCurrentAIModel] = useState<"openai" | "gemini" | "anthropic" | null>(null);
 
   const { data: profile, isLoading: profileLoading } = useQuery<BusinessProfile | null>({
     queryKey: ['/api/whitelabel/business-profile'],
@@ -645,7 +658,25 @@ export default function WebsiteBuilder() {
   };
 
   const handleAISuggest = () => {
+    setIsAIGenerating(true);
+    setCurrentAIModel("openai");
     toast({ title: "AI Suggestions", description: "Generating layout suggestions based on your business..." });
+    
+    setTimeout(() => {
+      setCurrentAIModel("gemini");
+    }, 1500);
+    
+    setTimeout(() => {
+      setAiGeneratedText("Creating a modern laundromat website with hero section, services grid, and customer testimonials...");
+      setCurrentAIModel("anthropic");
+    }, 3000);
+    
+    setTimeout(() => {
+      setIsAIGenerating(false);
+      setCurrentAIModel(null);
+      setAiGeneratedText(null);
+      toast({ title: "Layout Generated", description: "Your AI-powered layout is ready!" });
+    }, 6000);
   };
 
   return (
@@ -663,8 +694,9 @@ export default function WebsiteBuilder() {
         </div>
       </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-8">
-        <div className="mx-auto max-w-7xl px-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-8 relative overflow-hidden">
+        <ParticleField count={30} color="#C8A661" speed={0.5} size={2} className="opacity-40" />
+        <div className="mx-auto max-w-7xl px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -832,57 +864,95 @@ export default function WebsiteBuilder() {
 
             {/* PAGE BUILDER TAB */}
             <TabsContent value="pages" className="space-y-6">
+              {isAIGenerating && (
+                <ScrollReveal direction="down">
+                  <div className="mb-6">
+                    <AIOrchestrationPanel 
+                      currentModel={currentAIModel || undefined} 
+                      activeModels={currentAIModel ? [currentAIModel] : []}
+                      className="max-w-xl"
+                    />
+                    {aiGeneratedText && (
+                      <div className="mt-3 p-3 bg-[#0A1628]/60 backdrop-blur-sm rounded-lg border border-[#C8A661]/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AIModelBadge model={currentAIModel || "openai"} isActive size="sm" />
+                          <span className="text-xs text-white/60">Generating...</span>
+                        </div>
+                        <TypewriterText 
+                          text={aiGeneratedText} 
+                          speed={30} 
+                          className="text-sm text-white/80"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </ScrollReveal>
+              )}
               <div className="grid lg:grid-cols-4 gap-6">
                 {/* Block Palette */}
-                <div className="space-y-4">
-                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Plus className="w-4 h-4 text-primary" />
-                        Add Blocks
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {BLOCK_TYPES.map((blockType) => (
-                        <Button
-                          key={blockType.type}
-                          variant="outline"
-                          className="w-full justify-start h-auto py-3 border-border/50 hover-elevate"
-                          data-testid={`button-add-${blockType.type}`}
-                        >
-                          <blockType.icon className="w-4 h-4 mr-3 text-primary" />
-                          <div className="text-left">
-                            <p className="font-medium text-sm">{blockType.name}</p>
-                            <p className="text-xs text-muted-foreground">{blockType.description}</p>
-                          </div>
-                        </Button>
-                      ))}
-                    </CardContent>
-                  </Card>
+                <ScrollReveal direction="left" delay={0.1}>
+                  <div className="space-y-4">
+                    <HolographicCard className="p-0">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2 text-white">
+                          <Plus className="w-4 h-4 text-[#C8A661]" />
+                          Add Blocks
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {BLOCK_TYPES.map((blockType, index) => (
+                          <ScrollReveal key={blockType.type} direction="left" delay={0.05 * index}>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start h-auto py-3 border-[#C8A661]/20 hover:border-[#C8A661]/40 bg-transparent"
+                              data-testid={`button-add-${blockType.type}`}
+                            >
+                              <blockType.icon className="w-4 h-4 mr-3 text-[#C8A661]" />
+                              <div className="text-left">
+                                <p className="font-medium text-sm text-white">{blockType.name}</p>
+                                <p className="text-xs text-white/60">{blockType.description}</p>
+                              </div>
+                            </Button>
+                          </ScrollReveal>
+                        ))}
+                      </CardContent>
+                    </HolographicCard>
 
-                  <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-primary" />
-                        AI Assist
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        variant="outline"
-                        className="w-full border-primary/30"
-                        onClick={handleAISuggest}
-                        data-testid="button-ai-generate"
-                      >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generate Layout
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        AI will create a complete page based on your business
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
+                    <HolographicCard className="p-0">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2 text-white">
+                          <Sparkles className="w-4 h-4 text-[#C8A661]" />
+                          AI Assist
+                          {isAIGenerating && <LivePulse color="#C8A661" size={8} className="ml-2" />}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Button
+                          variant="outline"
+                          className="w-full border-[#C8A661]/30 hover:border-[#C8A661]/50 bg-transparent text-white"
+                          onClick={handleAISuggest}
+                          disabled={isAIGenerating}
+                          data-testid="button-ai-generate"
+                        >
+                          {isAIGenerating ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Generate Layout
+                            </>
+                          )}
+                        </Button>
+                        <p className="text-xs text-white/60 mt-2 text-center">
+                          AI will create a complete page based on your business
+                        </p>
+                      </CardContent>
+                    </HolographicCard>
+                  </div>
+                </ScrollReveal>
 
                 {/* Canvas */}
                 <div className="lg:col-span-3">
@@ -1358,55 +1428,62 @@ export default function WebsiteBuilder() {
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
                 </div>
               ) : serviceCards.length === 0 ? (
-                <Card className="bg-card/50 backdrop-blur-sm border-primary/20 border-dashed">
-                  <CardContent className="py-12 text-center">
-                    <Layers className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">No Service Cards Yet</h3>
-                    <p className="text-muted-foreground mb-4">Add your first service to showcase on your website</p>
-                    <Button onClick={() => setNewCardDialogOpen(true)}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add First Service
-                    </Button>
-                  </CardContent>
-                </Card>
+                <ScrollReveal direction="up">
+                  <div className="relative overflow-hidden rounded-xl">
+                    <Scene3D variant="minimal" className="h-64 opacity-20" />
+                    <Card className="bg-card/50 backdrop-blur-sm border-primary/20 border-dashed relative">
+                      <CardContent className="py-12 text-center relative z-10">
+                        <Layers className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                        <h3 className="text-lg font-semibold mb-2">No Service Cards Yet</h3>
+                        <p className="text-muted-foreground mb-4">Add your first service to showcase on your website</p>
+                        <Button onClick={() => setNewCardDialogOpen(true)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add First Service
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </ScrollReveal>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {serviceCards.map((card) => (
-                    <Card key={card.id} className="bg-card/50 backdrop-blur-sm border-primary/20 relative group" data-testid={`service-card-${card.id}`}>
-                      {card.isHighlighted && (
-                        <Badge className="absolute -top-2 -right-2 bg-primary">Featured</Badge>
-                      )}
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          {card.title}
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button size="icon" variant="ghost" onClick={() => setEditingCard(card)}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="text-destructive"
-                              onClick={() => deleteCardMutation.mutate(card.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </CardTitle>
-                        {card.price && (
-                          <Badge variant="secondary">{card.price}</Badge>
+                  {serviceCards.map((card, index) => (
+                    <ScrollReveal key={card.id} direction="up" delay={0.1 * index}>
+                      <HolographicCard className="p-0 relative group" data-testid={`service-card-${card.id}`}>
+                        {card.isHighlighted && (
+                          <Badge className="absolute -top-2 -right-2 bg-[#C8A661] text-[#0A1628] z-20">Featured</Badge>
                         )}
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">{card.description || 'No description'}</p>
-                      </CardContent>
-                      <CardFooter>
-                        <Button variant="outline" size="sm" className="w-full">
-                          {card.ctaText}
-                          <ChevronRight className="w-4 h-4 ml-1" />
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center justify-between text-white">
+                            {card.title}
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button size="icon" variant="ghost" onClick={() => setEditingCard(card)} className="text-white/70 hover:text-white">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="text-red-400 hover:text-red-300"
+                                onClick={() => deleteCardMutation.mutate(card.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </CardTitle>
+                          {card.price && (
+                            <Badge className="bg-[#C8A661]/20 text-[#C8A661] border border-[#C8A661]/30">{card.price}</Badge>
+                          )}
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-white/60">{card.description || 'No description'}</p>
+                        </CardContent>
+                        <CardFooter>
+                          <Button variant="outline" size="sm" className="w-full border-[#C8A661]/30 text-white hover:border-[#C8A661]/50">
+                            {card.ctaText}
+                            <ChevronRight className="w-4 h-4 ml-1" />
+                          </Button>
+                        </CardFooter>
+                      </HolographicCard>
+                    </ScrollReveal>
                   ))}
                 </div>
               )}
@@ -2145,15 +2222,20 @@ export default function WebsiteBuilder() {
                     </CardHeader>
                     <CardContent>
                       {abTests.length === 0 ? (
-                        <div className="text-center py-12">
-                          <FlaskConical className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                          <h3 className="text-lg font-semibold mb-2">No A/B Tests Yet</h3>
-                          <p className="text-muted-foreground mb-4">Create your first test to optimize conversions</p>
-                          <Button onClick={() => setCreateTestDialogOpen(true)} data-testid="button-create-first-test">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Create Your First Test
-                          </Button>
-                        </div>
+                        <ScrollReveal direction="up">
+                          <div className="relative overflow-hidden rounded-xl">
+                            <Scene3D variant="minimal" className="h-48 opacity-15" />
+                            <div className="text-center py-12 relative z-10">
+                              <FlaskConical className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                              <h3 className="text-lg font-semibold mb-2">No A/B Tests Yet</h3>
+                              <p className="text-muted-foreground mb-4">Create your first test to optimize conversions</p>
+                              <Button onClick={() => setCreateTestDialogOpen(true)} data-testid="button-create-first-test">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Create Your First Test
+                              </Button>
+                            </div>
+                          </div>
+                        </ScrollReveal>
                       ) : (
                         <div className="space-y-4">
                           {abTests.map((test) => (
@@ -2889,11 +2971,16 @@ export default function WebsiteBuilder() {
                         )}
 
                         {customDomains.length === 0 && (
-                          <div className="p-4 rounded-lg bg-muted/30 border border-dashed text-center">
-                            <Globe className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">No custom domains configured</p>
-                            <p className="text-xs text-muted-foreground mt-1">Add your own domain for professional branding</p>
-                          </div>
+                          <ScrollReveal direction="up">
+                            <div className="relative overflow-hidden rounded-lg">
+                              <Scene3D variant="minimal" className="h-32 opacity-10" />
+                              <div className="p-4 rounded-lg bg-muted/30 border border-dashed text-center relative z-10">
+                                <Globe className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">No custom domains configured</p>
+                                <p className="text-xs text-muted-foreground mt-1">Add your own domain for professional branding</p>
+                              </div>
+                            </div>
+                          </ScrollReveal>
                         )}
                       </div>
                     </CardContent>

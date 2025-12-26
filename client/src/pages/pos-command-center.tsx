@@ -10,6 +10,16 @@ import {
   PremiumWatermark,
   SubscriptionGate,
 } from "@/components/premium-components";
+import {
+  ParticleField,
+  LivePulse,
+  ScrollReveal,
+  HolographicCard,
+  AnimatedCounter,
+  MetricCard,
+  DataStream,
+  GlowingBorder,
+} from "@/components/experience";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -2446,19 +2456,32 @@ export default function POSCommandCenter() {
                   <RefreshCw className="w-4 h-4" />
                 </Button>
                 
-                <Button className="bg-[#C8A661] hover:bg-[#9A7209] text-white h-9" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order">
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden xl:inline">New Order</span>
-                  <span className="xl:hidden">New</span>
-                </Button>
+                <GlowingBorder color="#C8A661" intensity={0.6}>
+                  <Button className="bg-[#C8A661] hover:bg-[#9A7209] text-white h-9 rounded-xl" onClick={() => setNewOrderOpen(true)} data-testid="button-new-order">
+                    <Plus className="w-4 h-4 mr-1" />
+                    <span className="hidden xl:inline">New Order</span>
+                    <span className="xl:hidden">New</span>
+                  </Button>
+                </GlowingBorder>
               </div>
             </div>
           </header>
 
           {/* Dashboard Content - Added padding-bottom for mobile nav */}
-          <main className="flex-1 overflow-auto p-3 lg:p-4 pb-24 lg:pb-4 bg-background">
+          <main className="flex-1 overflow-auto p-3 lg:p-4 pb-24 lg:pb-4 bg-background relative">
+            {/* Subtle particle field background for command center aesthetic */}
             {activeSection === "dashboard" && (
-              <div className="space-y-4 lg:space-y-6">
+              <ParticleField count={20} color="#C8A661" speed={0.5} size={1.5} className="opacity-30" />
+            )}
+            {/* DataStream effects in corners for command center aesthetic */}
+            {activeSection === "dashboard" && (
+              <>
+                <DataStream direction="up" color="#C8A661" className="left-0 top-0 bottom-0 w-8 opacity-20" />
+                <DataStream direction="down" color="#C8A661" className="right-0 top-0 bottom-0 w-8 opacity-20" />
+              </>
+            )}
+            {activeSection === "dashboard" && (
+              <div className="space-y-4 lg:space-y-6 relative z-10">
                 {/* Upgrade Prompt Banner */}
                 {!upgradeBannerDismissed && upgradePromptsData?.prompts?.[0] && (
                   <div 
@@ -2509,10 +2532,14 @@ export default function POSCommandCenter() {
                 )}
 
                 {/* Dashboard Header */}
+                <ScrollReveal direction="up" delay={0}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="text-xl lg:text-2xl font-bold text-foreground">Dashboard Overview</h2>
-                    <p className="text-sm text-muted-foreground">Real-time business intelligence and analytics</p>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <LivePulse color="#22C55E" size={6} />
+                      Real-time business intelligence and analytics
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 
@@ -2537,8 +2564,10 @@ export default function POSCommandCenter() {
                     </Button>
                   </div>
                 </div>
+                </ScrollReveal>
 
-                {/* KPI Strip - Glassmorphism Cards */}
+                {/* KPI Strip - Glassmorphism Cards with AnimatedCounter */}
+                <ScrollReveal direction="up" delay={0.1}>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
                   {/* Revenue Today */}
                   <div className="relative overflow-hidden rounded-xl p-4 bg-gradient-to-br from-[#1e3a5f]/90 to-[#1e3a5f]/70 backdrop-blur-sm border border-[#C8A661]/20 shadow-lg">
@@ -2561,9 +2590,12 @@ export default function POSCommandCenter() {
                           {Math.abs((analyticsKPIs as any)?.today?.revenueChange ?? 0)}%
                         </div>
                       </div>
-                      <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Revenue Today</p>
+                      <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1 flex items-center gap-1">
+                        Revenue Today
+                        <LivePulse color="#C8A661" size={4} />
+                      </p>
                       <p className="text-2xl lg:text-3xl font-black text-[#C8A661]" data-testid="kpi-revenue">
-                        ${((analyticsKPIs as any)?.today?.revenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        $<AnimatedCounter value={Math.round((analyticsKPIs as any)?.today?.revenue ?? 0)} duration={1.5} />
                       </p>
                     </div>
                   </div>
@@ -2589,7 +2621,7 @@ export default function POSCommandCenter() {
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Orders</p>
                     <p className="text-2xl lg:text-3xl font-black text-foreground" data-testid="kpi-orders">
-                      {(analyticsKPIs as any)?.today?.orders ?? dashboardStats.today?.orders ?? 0}
+                      <AnimatedCounter value={(analyticsKPIs as any)?.today?.orders ?? dashboardStats.today?.orders ?? 0} duration={1.5} />
                     </p>
                   </div>
 
@@ -2614,7 +2646,7 @@ export default function POSCommandCenter() {
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Avg Ticket</p>
                     <p className="text-2xl lg:text-3xl font-black text-foreground">
-                      ${((analyticsKPIs as any)?.today?.avgTicket ?? 0).toFixed(2)}
+                      $<AnimatedCounter value={Math.round((analyticsKPIs as any)?.today?.avgTicket ?? 0)} duration={1.5} />
                     </p>
                   </div>
 
@@ -2630,7 +2662,7 @@ export default function POSCommandCenter() {
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Active Customers</p>
                     <p className="text-2xl lg:text-3xl font-black text-foreground" data-testid="kpi-customers">
-                      {(analyticsKPIs as any)?.today?.customers ?? dashboardStats.customers?.active ?? 0}
+                      <AnimatedCounter value={(analyticsKPIs as any)?.today?.customers ?? dashboardStats.customers?.active ?? 0} duration={1.5} />
                     </p>
                   </div>
 
@@ -2646,7 +2678,7 @@ export default function POSCommandCenter() {
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Machine Uptime</p>
                     <p className="text-2xl lg:text-3xl font-black text-foreground">
-                      {((analyticsKPIs as any)?.today?.machineUptime ?? 100).toFixed(0)}%
+                      <AnimatedCounter value={Math.round((analyticsKPIs as any)?.today?.machineUptime ?? 100)} suffix="%" duration={1.5} />
                     </p>
                     <div className="mt-2 h-1.5 bg-muted/50 rounded-full overflow-hidden">
                       <div 
@@ -2670,12 +2702,14 @@ export default function POSCommandCenter() {
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Pending Pickups</p>
                     <p className="text-2xl lg:text-3xl font-black text-foreground">
-                      {dashboardStats.today?.pending ?? 0}
+                      <AnimatedCounter value={dashboardStats.today?.pending ?? 0} duration={1.5} />
                     </p>
                   </div>
                 </div>
+                </ScrollReveal>
 
                 {/* Charts Row 1 - Revenue Trend + Service Type Pie */}
+                <ScrollReveal direction="up" delay={0.2}>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
                   {/* Revenue Trend Area Chart - 60% width */}
                   <div className="lg:col-span-7 bg-card rounded-xl border p-4 lg:p-6 shadow-sm">
@@ -2822,8 +2856,10 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
                 </div>
+                </ScrollReveal>
 
                 {/* Charts Row 2 - Orders Bar + Customer Growth + Machine Utilization */}
+                <ScrollReveal direction="up" delay={0.3}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
                   {/* Orders by Day Bar Chart */}
                   <div className="bg-card rounded-xl border p-4 lg:p-5 shadow-sm">
@@ -2983,24 +3019,29 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
                 </div>
+                </ScrollReveal>
 
                 {/* Bottom Row - Quick Actions + Live Orders + Today's Snapshot */}
+                <ScrollReveal direction="up" delay={0.4}>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
                   {/* Quick Actions Panel */}
-                  <div className="lg:col-span-3 bg-gradient-to-br from-[#1e3a5f] to-[#1e3a5f]/80 rounded-xl border border-[#C8A661]/20 p-4 lg:p-5 shadow-lg">
+                  <HolographicCard className="lg:col-span-3 p-4 lg:p-5">
                     <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
                       <Zap className="w-4 h-4 text-[#C8A661]" />
                       Quick Actions
+                      <LivePulse color="#C8A661" size={5} />
                     </h3>
                     <div className="space-y-3">
-                      <Button 
-                        className="w-full bg-[#C8A661] hover:bg-[#9A7209] text-white font-medium"
-                        onClick={() => setNewOrderOpen(true)}
-                        data-testid="quick-action-new-order"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Order
-                      </Button>
+                      <GlowingBorder color="#C8A661" intensity={0.6}>
+                        <Button 
+                          className="w-full bg-[#C8A661] hover:bg-[#9A7209] text-white font-medium rounded-xl"
+                          onClick={() => setNewOrderOpen(true)}
+                          data-testid="quick-action-new-order"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          New Order
+                        </Button>
+                      </GlowingBorder>
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
                         <Input 
@@ -3023,7 +3064,7 @@ export default function POSCommandCenter() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </HolographicCard>
 
                   {/* Live Orders Table */}
                   <div className="lg:col-span-5 bg-card rounded-xl border shadow-sm">
@@ -3031,6 +3072,7 @@ export default function POSCommandCenter() {
                       <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                         <ShoppingCart className="w-4 h-4 text-[#C8A661]" />
                         Live Orders
+                        <LivePulse color="#22C55E" size={6} />
                       </h3>
                       <Button variant="ghost" size="sm" className="text-[#C8A661] text-xs h-7" onClick={() => setActiveSection("orders")}>
                         View All <ChevronRight className="w-3 h-3 ml-1" />
@@ -3156,6 +3198,7 @@ export default function POSCommandCenter() {
                     </div>
                   </div>
                 </div>
+                </ScrollReveal>
 
                 {/* Recommended Features Section */}
                 {featureRecsData?.recommendations && featureRecsData.recommendations.length > 0 && (
