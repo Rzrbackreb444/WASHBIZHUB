@@ -1,4 +1,4 @@
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,7 +117,7 @@ export default function ValuationCalculatorLanding() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Laundromat Valuation Calculator - Know What It's Worth | WashBizHub"
         description="Calculate the fair market value of any laundromat. Use income approach, SDE multiples, and cap rate analysis. Trusted by 73,000+ investors and brokers."
         keywords={[

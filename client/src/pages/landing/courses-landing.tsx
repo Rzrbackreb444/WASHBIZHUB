@@ -1,4 +1,4 @@
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ export default function CoursesLanding() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Online Courses for Laundromat Business - Interactive Learning"
         description="Master laundromat entrepreneurship with interactive courses on finding deals, operations, scaling. Get certificates, lifetime access, and personal support."
         keywords={[

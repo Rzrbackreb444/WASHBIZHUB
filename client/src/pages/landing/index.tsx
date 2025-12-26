@@ -1,4 +1,4 @@
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -99,7 +99,7 @@ export default function LandingsHub() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Landing Pages - WashBizHub Platform"
         description="Explore all SEO-optimized landing pages: marketplace, POS system, courses, calculators, equipment, and AI consultant. Everything you need for laundromat success."
         keywords={[

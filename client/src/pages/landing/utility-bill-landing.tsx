@@ -1,4 +1,4 @@
-import { SEOHead } from "@/components/SEOHead";
+import { SeoHead } from "@/components/SeoHead";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,7 +117,7 @@ export default function UtilityBillLanding() {
 
   return (
     <>
-      <SEOHead
+      <SeoHead
         title="Laundromat Utility Bill Auditor - Reduce Operating Costs | WashBizHub"
         description="Analyze and reduce your laundromat utility costs with AI-powered bill scanning. Compare against industry benchmarks, find billing errors, and optimize water, gas, and electricity expenses."
         keywords={[

@@ -16,7 +16,7 @@ import {
   MessageSquare, Settings, Zap, Filter, Home, Target, CheckCircle2, 
   ExternalLink, Sparkles, ArrowRight, Crown, Calculator, Briefcase, Loader2, Star
 } from "lucide-react";
-import { AutoSEO } from "@/components/AutoSEO";
+import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import FeaturedListingsCarousel from "@/components/FeaturedListingsCarousel";
 import { ArtDecoDivider, GlassmorphismCard } from "@/components/premium-components";
@@ -204,7 +204,26 @@ export default function LaundromatListings() {
 
   return (
     <>
-      <AutoSEO 
+      <SEO
+        title="Laundromats For Sale | Browse Verified Listings - WashBizHub"
+        description="Find laundromats for sale with verified listings and CLEANBI location scores. Browse coin laundries, wash-dry-fold businesses across the US. Filter by price, location, real estate. Updated daily."
+        canonicalUrl="/laundromat-listings"
+        ogType="website"
+        keywords={[
+          "laundromat for sale",
+          "laundromats for sale near me",
+          "buy laundromat",
+          "laundromat business for sale",
+          "coin laundry for sale",
+          "how to buy a laundromat",
+          "laundromat listings",
+          "laundromat marketplace",
+          "laundromat investment",
+          "CLEANBI score",
+          "laundromat price",
+          "laundromat valuation"
+        ]}
+        structuredData={[listingsStructuredData, marketplaceStructuredData]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Marketplace", url: "/marketplace" },

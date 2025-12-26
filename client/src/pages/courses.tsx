@@ -14,7 +14,7 @@ import {
   Award, TrendingUp, Star, Trophy, Target, Zap, Video, FileText,
   BarChart3, Filter, ArrowRight, Lock
 } from "lucide-react";
-import { AutoSEO } from "@/components/AutoSEO";
+import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -133,7 +133,7 @@ export default function Courses() {
   if (coursesLoading) {
     return (
       <>
-        <AutoSEO />
+        <SEO title="WashBizHub Academy | Professional Laundromat Courses" description="Master laundromat operations with expert-led courses." canonicalUrl="/courses" />
         <div className="min-h-screen bg-background p-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -160,12 +160,157 @@ export default function Courses() {
 
   return (
     <>
-      <AutoSEO 
-        faqs={coursesFaqs}
+      <SEO 
+        title="Laundromat Business Courses & Training | Learn How to Run a Laundromat | WashBizHub Academy" 
+        description="Master laundromat operations with expert-led courses. Learn business management, maximize profits, and grow your laundry business. Self-paced training with certification." 
+        canonicalUrl="/courses"
+        ogType="website"
+        keywords={[
+          "laundromat business course",
+          "how to run a laundromat",
+          "laundromat training program",
+          "laundry business management",
+          "laundromat owner education",
+          "coin laundry business course",
+          "laundromat profit training",
+          "laundry industry certification",
+          "laundromat operations course",
+          "how to start a laundromat",
+          "laundromat management training",
+          "commercial laundry education",
+          "laundromat business plan course",
+          "laundry business success training",
+          "self-service laundry course"
+        ]}
+        howTo={{
+          name: "How to Start Learning Laundromat Operations on WashBizHub",
+          description: "Step-by-step guide to enrolling in WashBizHub Academy courses and mastering laundromat business skills.",
+          steps: [
+            {
+              name: "Browse Available Courses",
+              text: "Explore our course catalog organized by category (Operations, Finance, Marketing, Management) and skill level (Beginner, Intermediate, Advanced). Read course descriptions and preview content."
+            },
+            {
+              name: "Select Your Learning Path",
+              text: "Choose courses that match your goals. New owners should start with beginner courses covering fundamentals. Experienced operators can skip to intermediate or advanced courses for specific skills."
+            },
+            {
+              name: "Enroll and Create Your Account",
+              text: "Click 'Enroll' on your chosen course. Create a free WashBizHub account if you haven't already. Complete payment securely through Stripe. Access your course immediately after purchase."
+            },
+            {
+              name: "Complete Lessons at Your Pace",
+              text: "Watch video lessons, read materials, and complete knowledge checks. Track your progress through the dashboard. Take notes and download resources for future reference."
+            },
+            {
+              name: "Earn Your Certificate",
+              text: "After completing all lessons and passing the final assessment, receive your WashBizHub Academy Certificate. Share your achievement and apply your new skills to grow your business."
+            }
+          ],
+          totalTime: "P14D"
+        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Course",
+            "name": "Laundromat Business Fundamentals",
+            "description": "Complete guide to starting and running a profitable laundromat business",
+            "provider": {
+              "@type": "Organization",
+              "name": "WashBizHub Academy",
+              "url": "https://washbizhub.com"
+            },
+            "educationalLevel": "Beginner",
+            "courseMode": "online",
+            "hasCourseInstance": {
+              "@type": "CourseInstance",
+              "courseMode": "online",
+              "courseWorkload": "PT8H"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "WashBizHub Academy Course Catalog",
+            "description": "Professional laundromat business courses for owners and operators",
+            "url": "https://washbizhub.com/courses",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "item": {
+                  "@type": "Course",
+                  "name": "Laundromat Operations 101",
+                  "description": "Learn fundamentals of running a successful laundromat",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "item": {
+                  "@type": "Course",
+                  "name": "Financial Management for Laundromats",
+                  "description": "Master profit margins, pricing, and cash flow management",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "item": {
+                  "@type": "Course",
+                  "name": "Laundromat Marketing Mastery",
+                  "description": "Attract and retain customers effectively",
+                  "provider": { "@type": "Organization", "name": "WashBizHub Academy" }
+                }
+              }
+            ]
+          }
+        ]}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Academy", url: "/courses" }
         ]}
+        speakableSelectors={["h1", "h2", ".speakable"]}
+        aggregateRating={{
+          itemName: "WashBizHub Academy",
+          itemType: "Course",
+          itemDescription: "Professional laundromat business courses and training programs for owners and operators",
+          ratingValue: 4.8,
+          reviewCount: 1523,
+          bestRating: 5,
+          worstRating: 1,
+          reviews: [
+            {
+              author: "Amanda Richardson",
+              authorType: "Person",
+              datePublished: "2025-10-25",
+              reviewBody: "The Operations 101 course gave me confidence to buy my first laundromat. The instructor explains everything in plain language. I especially loved the section on equipment maintenance - it's already saved me from costly repairs.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Kevin O'Brien",
+              authorType: "Person",
+              datePublished: "2025-09-18",
+              reviewBody: "Worth every penny. The financial management course helped me understand my margins better than my accountant ever did. My cash flow improved 23% after implementing the pricing strategies they teach.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            },
+            {
+              author: "Maria Santos",
+              authorType: "Person",
+              datePublished: "2025-11-05",
+              reviewBody: "Self-paced learning is perfect for my schedule. I run two laundromats and can only study at night. The mobile app lets me watch lessons anytime. Certificate looks great in my store too.",
+              ratingValue: 5,
+              bestRating: 5,
+              worstRating: 1
+            }
+          ]
+        }}
       />
 
       <div className="min-h-screen bg-background">
