@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, memo, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -13,141 +13,22 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { 
-  LogOut, Search, ChevronRight, Sparkles, Globe, Crown,
-  MapPin, Building2, DollarSign, Calculator, Palette,
+  LogOut, Search, ChevronRight, Sparkles,
+  MapPin, Building2, DollarSign, Calculator,
   ShoppingCart, Package, Handshake,
-  BookOpen, GraduationCap, HelpCircle, Wallet,
-  BarChart3, Zap, Landmark, Factory, CreditCard, 
-  Briefcase, TrendingUp, PiggyBank, Receipt, Users,
-  LineChart, PieChart, Calendar, Shield, Monitor, Award, Tag, LayoutGrid, Info
+  BookOpen, GraduationCap, Wallet,
+  BarChart3, Zap, Landmark, Factory,
+  Briefcase, TrendingUp, PiggyBank, Users,
+  LineChart, Monitor, Tag, LayoutGrid, 
+  Globe, Calendar, Award, Crown
 } from "lucide-react";
 import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 import { MobileMenu } from "@/components/MobileMenu";
 import { PersonaSwitcher, PersonaCTA, PersonaNavBanner } from "@/components/PersonaNav";
-import { usePersona, PERSONA_CONFIG } from "@/contexts/PersonaContext";
-
-const PLATFORM_LAUNCH_ONLINE = {
-  title: "Launch Online",
-  subtitle: "Your digital presence, done right",
-  icon: Globe,
-  featured: { href: "/website-builder", label: "Website Builder", desc: "Build a professional site in minutes" },
-  links: [
-    { href: "/website-builder", label: "Website Builder", icon: Globe, desc: "Drag-and-drop site creator" },
-    { href: "/seo-command-center", label: "SEO Dashboard", icon: Search, desc: "Optimize for search engines" },
-  ],
-  hostingFeatures: [
-    "Managed CDN & Edge Caching",
-    "99.9% Uptime Monitoring",
-    "Real-time Visitor Analytics",
-    "Staging Environments",
-    "Multi-site Management"
-  ]
-};
-
-const PLATFORM_RUN_INSTORE = {
-  title: "Run In-Store",
-  subtitle: "Everything to run your operation",
-  icon: Monitor,
-  featured: { href: "/pos-command-center", label: "POS Command Center", desc: "Complete point-of-sale system" },
-  links: [
-    { href: "/pos-command-center", label: "POS System", icon: Monitor, desc: "Sales, customers & transactions" },
-    { href: "/operator-dashboard", label: "Operator Dashboard", icon: LayoutGrid, desc: "KPIs & daily operations" },
-    { href: "/machine-booking", label: "Machine Booking", icon: Calendar, desc: "Online reservations" },
-    { href: "/design-studio-pro", label: "Design Studio", icon: Palette, desc: "2D/3D floor planning" },
-    { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "Equipment diagnostics" },
-  ]
-};
-
-const PLATFORM_GROW_TRAFFIC = {
-  title: "Grow Traffic",
-  subtitle: "Get found by more customers",
-  icon: TrendingUp,
-  featured: { href: "/seo-command-center", label: "SEO Command Center", desc: "All-in-one SEO optimization" },
-  links: [
-    { href: "/seo-command-center", label: "SEO Auto-Fix Engine", icon: Zap, desc: "1-click issue resolution" },
-    { href: "/seo-command-center?tab=rankings", label: "Rank Tracking", icon: LineChart, desc: "Daily position monitoring" },
-    { href: "/seo-command-center?tab=citations", label: "Local Citations", icon: MapPin, desc: "Build local presence" },
-    { href: "/seo-command-center?tab=backlinks", label: "Backlink Builder", icon: Users, desc: "Authority & outreach" },
-    { href: "/seo-command-center?tab=llm", label: "AI Visibility", icon: Sparkles, desc: "Track ChatGPT, Gemini mentions" },
-  ],
-  stat: { value: "219", label: "fixes automated this week" }
-};
-
-const PRODUCTS_INTELLIGENCE = [
-  { href: "/cleanbi-explorer", label: "CLEANBI Explorer", icon: MapPin, desc: "AI-powered location scoring", featured: true },
-  { href: "/command-center", label: "Command Center", icon: LayoutGrid, desc: "Customizable dashboard", featured: true },
-];
-
-const CALCULATORS_LINKS = [
-  { href: "/calculators", label: "Calculator Suite", icon: Calculator, desc: "All professional calculators", featured: true },
-  { href: "/valuation-calculator", label: "Valuation", icon: DollarSign, desc: "4 valuation methods" },
-  { href: "/roi-calculator", label: "ROI", icon: TrendingUp, desc: "5-year projections" },
-  { href: "/loan-calculator", label: "Loan", icon: BarChart3, desc: "Amortization analysis" },
-  { href: "/utility-calculator", label: "Utility", icon: Zap, desc: "UPG benchmarking" },
-  { href: "/labor-calculator", label: "Labor", icon: Users, desc: "Staffing optimization" },
-  { href: "/tpd-calculator", label: "TPD", icon: LineChart, desc: "Turns per day analysis" },
-];
-
-const MARKETPLACE_BUY_LINKS = [
-  { href: "/laundromat-listings", label: "Laundromats for Sale", icon: Building2, desc: "Browse active listings", featured: true },
-  { href: "/brokers", label: "Find a Broker", icon: Users, desc: "Verified industry brokers" },
-];
-
-const ACQUISITION_LENDERS = [
-  { href: "/funding/national-business-capital", label: "National Business Capital", icon: Landmark, desc: "SBA acquisitions $100K-$10M" },
-  { href: "/funding/south-end-capital", label: "South End Capital", icon: Landmark, desc: "SBA preferred lender" },
-  { href: "/funding/rok-financial", label: "ROK Financial", icon: Factory, desc: "75+ lender network" },
-];
-
-const MARKETPLACE_SELL_LINKS = [
-  { href: "/list-on-washbizhub", label: "List on WashBizHub", icon: Sparkles, desc: "Sell your business, equipment, or services" },
-  { href: "/equipment", label: "Equipment Hub", icon: Package, desc: "Dexter & Continental Girbau - Buy, Parts, Service", featured: true },
-  { href: "/equipment-for-sale", label: "Equipment for Sale", icon: Tag, desc: "Used & new equipment marketplace" },
-  { href: "/directory", label: "Vendor Directory", icon: Handshake, desc: "Find service providers" },
-];
-
-const PERSONA_HUB_LINKS = [
-  { href: "/for-buyers", label: "For Buyers", icon: ShoppingCart, desc: "Tools for finding & funding your laundromat", featured: true },
-  { href: "/for-owners", label: "For Owners", icon: Monitor, desc: "Operations, equipment & revenue tools", featured: true },
-  { href: "/for-sellers", label: "For Sellers", icon: Building2, desc: "Valuations, listings & broker connections", featured: true },
-  { href: "/laundromat-expert", label: "Laundromat Expert AI", icon: Sparkles, desc: "Your AI consultant for everything laundromat", featured: true },
-];
-
-const RESOURCES_LINKS = [
-  { href: "/platform-directory", label: "All Features", icon: LayoutGrid, desc: "Explore 100+ platform tools", featured: true },
-  { href: "/laundromat-expert", label: "Laundromat Expert AI", icon: Sparkles, desc: "AI consultant - 50+ years knowledge" },
-  { href: "/forum", label: "Community Forum", icon: Users, desc: "Connect with 73K+ owners" },
-  { href: "/network", label: "Member Network", icon: Users, desc: "Find & connect with professionals" },
-  { href: "/courses", label: "Courses & Training", icon: GraduationCap, desc: "Learn from industry experts" },
-  { href: "/laundromat-bible", label: "Laundromat Bible", icon: BookOpen, desc: "The complete owner's guide" },
-  { href: "/distributor-locator", label: "Distributor Locator", icon: MapPin, desc: "Find equipment dealers" },
-  { href: "/laundromat-locator", label: "Laundromat Locator", icon: MapPin, desc: "Find laundromats near you" },
-  { href: "/service-guy-ai", label: "Service Guy AI", icon: Zap, desc: "AI equipment diagnostics" },
-  { href: "/consultation", label: "Consultations", icon: Handshake, desc: "Expert business advice" },
-  { href: "/blog", label: "Blog", icon: BookOpen, desc: "News & insights" },
-  { href: "/about-us", label: "About Us", icon: Info, desc: "Our mission & team" },
-];
-
-// Funding organized by PURPOSE for guided journey
-const FUNDING_BY_PURPOSE = [
-  { href: "/funding?tab=startup", label: "Startup Funding", icon: PiggyBank, desc: "First laundromat? Start here (680+ credit)", featured: true },
-  { href: "/funding?tab=acquisitions", label: "Buy a Laundromat", icon: Briefcase, desc: "SBA loans, 10-25 year terms" },
-  { href: "/funding?tab=equipment", label: "Equipment Financing", icon: Factory, desc: "Washers, dryers & systems" },
-  { href: "/funding?tab=realestate", label: "Commercial Real Estate", icon: Building2, desc: "Purchase or refinance property" },
-  { href: "/funding?tab=fastcash", label: "Fast Cash / Working Capital", icon: Zap, desc: "Same-day funding, any credit" },
-];
-
-const FUNDING_PARTNERS = [
-  { href: "/funding/preferred-funding-group", label: "Preferred Funding Group", icon: CreditCard, desc: "Personal credit up to $500K" },
-  { href: "/funding/gokapital", label: "GoKapital", icon: Briefcase, desc: "Build business credit" },
-  { href: "/funding/advance-funds-network", label: "Advance Funds Network", icon: TrendingUp, desc: "Same-day funding" },
-  { href: "/funding/david-allen-capital", label: "David Allen Capital", icon: PiggyBank, desc: "Zero-interest early payoff" },
-];
 
 interface NavLinkItem {
   href: string;
   label: string;
-  icon?: React.ComponentType<{ className?: string }>;
   desc?: string;
   featured?: boolean;
 }
@@ -157,25 +38,16 @@ const DropdownLink = memo(function DropdownLink({ href, label, desc, featured }:
     window.location.href = href;
   }, [href]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      window.location.href = href;
-    }
-  }, [href]);
-
   return (
     <button
       type="button"
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      className={`group w-full text-left flex items-center justify-between px-4 py-2.5 rounded-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50 ${
+      className={`group w-full text-left flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8A661]/50 ${
         featured 
           ? 'bg-[#C8A661]/10 hover:bg-[#C8A661]/20' 
           : 'hover:bg-muted'
       }`}
       data-testid={`link-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
-      aria-label={`Navigate to ${label}`}
     >
       <div className="flex-1 min-w-0">
         <span className={`block text-sm font-medium ${featured ? 'text-[#C8A661]' : 'text-foreground'}`}>
@@ -185,18 +57,89 @@ const DropdownLink = memo(function DropdownLink({ href, label, desc, featured }:
           <span className="block text-xs text-muted-foreground mt-0.5">{desc}</span>
         )}
       </div>
-      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
+      <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
     </button>
   );
 });
 
+const BUY_LINKS = {
+  discover: [
+    { href: "/laundromat-listings", label: "Laundromats for Sale", desc: "Browse active listings", featured: true },
+    { href: "/cleanbi-explorer", label: "CLEANBI Explorer", desc: "AI location scoring", featured: true },
+    { href: "/brokers", label: "Find a Broker", desc: "Verified industry brokers" },
+    { href: "/marketplace", label: "Full Marketplace", desc: "All opportunities" },
+  ],
+  calculators: [
+    { href: "/calculators", label: "Calculator Suite", desc: "All professional calculators", featured: true },
+    { href: "/valuation-calculator", label: "Valuation", desc: "4 valuation methods" },
+    { href: "/roi-calculator", label: "ROI", desc: "5-year projections" },
+    { href: "/loan-calculator", label: "Loan", desc: "Amortization analysis" },
+  ],
+  funding: [
+    { href: "/funding", label: "Funding Marketplace", desc: "Compare all lenders", featured: true },
+    { href: "/funding?tab=startup", label: "Startup Funding", desc: "First laundromat" },
+    { href: "/funding?tab=acquisitions", label: "SBA Loans", desc: "Acquisition financing" },
+    { href: "/funding/preferred-funding-group", label: "Preferred Funding", desc: "Up to $500K" },
+  ],
+};
+
+const OPERATE_LINKS = {
+  platform: [
+    { href: "/pos-command-center", label: "POS System", desc: "Point of sale & transactions", featured: true },
+    { href: "/operator-dashboard", label: "Operator Dashboard", desc: "KPIs & daily operations", featured: true },
+    { href: "/machine-booking", label: "Machine Booking", desc: "Online reservations" },
+    { href: "/command-center", label: "Command Center", desc: "Customizable dashboard" },
+  ],
+  tools: [
+    { href: "/service-guy-ai", label: "Service Guy AI", desc: "Equipment diagnostics", featured: true },
+    { href: "/design-studio-pro", label: "Design Studio", desc: "2D/3D floor planning" },
+    { href: "/utility-calculator", label: "Utility Calculator", desc: "UPG benchmarking" },
+    { href: "/labor-calculator", label: "Labor Calculator", desc: "Staffing optimization" },
+  ],
+  growth: [
+    { href: "/website-builder", label: "Website Builder", desc: "Build your site", featured: true },
+    { href: "/seo-command-center", label: "SEO Dashboard", desc: "Search optimization" },
+    { href: "/seo-command-center?tab=citations", label: "Local Citations", desc: "Build local presence" },
+    { href: "/seo-command-center?tab=llm", label: "AI Visibility", desc: "Track ChatGPT mentions" },
+  ],
+};
+
+const SELL_LINKS = {
+  listing: [
+    { href: "/list-on-washbizhub", label: "List Your Business", desc: "Sell on WashBizHub", featured: true },
+    { href: "/valuation-calculator", label: "Get Valuation", desc: "4 valuation methods", featured: true },
+    { href: "/brokers", label: "Connect with Brokers", desc: "Verified industry brokers" },
+  ],
+  equipment: [
+    { href: "/equipment", label: "Equipment Hub", desc: "Dexter & Continental Girbau", featured: true },
+    { href: "/equipment-for-sale", label: "Equipment for Sale", desc: "Used & new marketplace" },
+    { href: "/directory", label: "Vendor Directory", desc: "Service providers" },
+  ],
+};
+
+const LEARN_LINKS = {
+  education: [
+    { href: "/courses", label: "Courses & Training", desc: "Learn from experts", featured: true },
+    { href: "/laundromat-bible", label: "Laundromat Bible", desc: "Complete owner's guide", featured: true },
+    { href: "/blog", label: "Blog", desc: "News & insights" },
+    { href: "/template-vault", label: "Template Vault", desc: "Business documents" },
+  ],
+  experts: [
+    { href: "/laundromat-expert", label: "Laundromat Expert AI", desc: "AI consultant - 50+ years knowledge", featured: true },
+    { href: "/consultation", label: "Consultations", desc: "Expert business advice" },
+    { href: "/larry-larsen", label: "Larry Larsen", desc: "Industry veteran" },
+  ],
+  community: [
+    { href: "/forum", label: "Community Forum", desc: "Connect with 73K+ owners", featured: true },
+    { href: "/network", label: "Member Network", desc: "Find professionals" },
+    { href: "/events", label: "Events", desc: "Trade shows & meetups" },
+  ],
+};
+
 export function NavigationMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
-  const [location] = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const isActive = useMemo(() => (path: string) => location === path, [location]);
 
   return (
     <>
@@ -209,7 +152,7 @@ export function NavigationMenu() {
       </a>
       
       <header className="sticky top-0 z-50">
-        {/* Top utility bar - slim and professional */}
+        {/* Top utility bar */}
         <div className="bg-[#0a1929] text-white/60 border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-8 flex items-center justify-between text-xs">
@@ -244,19 +187,13 @@ export function NavigationMenu() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <Link href="/login">
-                      <span 
-                        className="hover:text-[#C8A661] transition-colors cursor-pointer"
-                        data-testid="link-signin"
-                      >
+                      <span className="hover:text-[#C8A661] transition-colors cursor-pointer" data-testid="link-signin">
                         Sign In
                       </span>
                     </Link>
                     <span className="text-white/30">|</span>
                     <Link href="/signup">
-                      <span 
-                        className="text-[#C8A661] hover:text-[#d4b86a] transition-colors cursor-pointer font-medium"
-                        data-testid="link-signup"
-                      >
+                      <span className="text-[#C8A661] hover:text-[#d4b86a] transition-colors cursor-pointer font-medium" data-testid="link-signup">
                         Sign Up
                       </span>
                     </Link>
@@ -267,390 +204,214 @@ export function NavigationMenu() {
           </div>
         </div>
 
-        {/* Main nav bar - Premium Navy with clear hierarchy */}
+        {/* Main nav bar */}
         <div className="bg-background border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-16 flex items-center justify-between gap-6">
               {/* Logo */}
-              <Link 
-                href="/" 
-                data-testid="link-logo" 
-                className="shrink-0 flex items-center gap-2"
-              >
-                <img 
-                  src={logoUrl} 
-                  alt="WashBizHub" 
-                  className="h-10 w-auto" 
-                  loading="eager"
-                  width={40}
-                  height={40}
-                />
-                <span className="hidden sm:block text-foreground font-bold text-lg tracking-tight">
-                  WashBizHub
-                </span>
+              <Link href="/" data-testid="link-logo" className="shrink-0 flex items-center gap-2">
+                <img src={logoUrl} alt="WashBizHub" className="h-10 w-auto" loading="eager" width={40} height={40} />
+                <span className="hidden sm:block text-foreground font-bold text-lg tracking-tight">WashBizHub</span>
               </Link>
 
-              {/* Desktop navigation - 4 pillars */}
+              {/* Desktop navigation - 4 clean sections */}
               <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
                 <NavMenu>
                   <NavigationMenuList className="gap-0">
-                    {/* Platform - 3-Pillar Mega Menu */}
+                    {/* BUY */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
-                        data-testid="dropdown-platform"
+                        data-testid="dropdown-buy"
                       >
-                        Platform
+                        Buy
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[780px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
+                          transition={{ duration: 0.15 }}
+                          className="w-[640px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          {/* Hero Row */}
-                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-5 py-3 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-lg bg-[#C8A661]/20 flex items-center justify-center">
-                                <Zap className="h-4 w-4 text-[#C8A661]" />
-                              </div>
-                              <div>
-                                <p className="text-white font-semibold text-sm">The Complete Laundromat Platform</p>
-                                <p className="text-white/60 text-xs">Website, POS, SEO & Hosting - all in one place</p>
-                              </div>
-                            </div>
-                            <span className="bg-[#C8A661] text-[#0A1628] text-[10px] font-bold px-2 py-1 rounded-full uppercase">
-                              All-in-One
-                            </span>
+                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-4 py-2.5 flex items-center gap-3">
+                            <ShoppingCart className="h-4 w-4 text-[#C8A661]" />
+                            <span className="text-white font-semibold text-sm">Find & Fund Your Laundromat</span>
                           </div>
-
-                          {/* 3-Column Layout */}
-                          <div className="grid grid-cols-3 gap-0">
-                            {/* Column 1 - Launch Online */}
-                            <div className="p-4 border-r border-border">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="h-6 w-6 rounded bg-[#C8A661]/15 flex items-center justify-center">
-                                  <Globe className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-bold text-[#C8A661] uppercase tracking-wider">
-                                  Launch Online
-                                </span>
+                          <div className="grid grid-cols-3 gap-0 p-1">
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Building2 className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Discover</span>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mb-3">Your digital presence, done right</p>
-                              <div className="space-y-1 mb-3">
-                                {PLATFORM_LAUNCH_ONLINE.links.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
-                              </div>
-                              <div className="bg-muted/50 rounded-lg p-2.5 space-y-1">
-                                <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1.5">Includes Hosting</p>
-                                {PLATFORM_LAUNCH_ONLINE.hostingFeatures.map((feature, i) => (
-                                  <div key={i} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                                    <div className="h-1 w-1 rounded-full bg-[#C8A661]" />
-                                    {feature}
-                                  </div>
-                                ))}
+                              <div className="space-y-0.5">
+                                {BUY_LINKS.discover.map((link) => <DropdownLink key={link.href} {...link} />)}
                               </div>
                             </div>
-                            
-                            {/* Column 2 - Run In-Store */}
-                            <div className="p-4 border-r border-border">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <Monitor className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-bold text-foreground uppercase tracking-wider">
-                                  Run In-Store
-                                </span>
+                            <div className="p-3 border-x border-border">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Calculator className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Analyze</span>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mb-3">Everything to run your operation</p>
-                              <div className="space-y-1">
-                                {PLATFORM_RUN_INSTORE.links.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
+                              <div className="space-y-0.5">
+                                {BUY_LINKS.calculators.map((link) => <DropdownLink key={link.href} {...link} />)}
                               </div>
                             </div>
-                            
-                            {/* Column 3 - Grow Traffic */}
-                            <div className="p-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="h-6 w-6 rounded bg-green-500/15 flex items-center justify-center">
-                                  <TrendingUp className="h-3 w-3 text-green-500" />
-                                </div>
-                                <span className="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">
-                                  Grow Traffic
-                                </span>
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-[#C8A661]/30">
+                                <Landmark className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-[#C8A661] uppercase">Fund</span>
                               </div>
-                              <p className="text-[10px] text-muted-foreground mb-3">Get found by more customers</p>
-                              <div className="space-y-1 mb-3">
-                                {PLATFORM_GROW_TRAFFIC.links.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
+                              <div className="space-y-0.5">
+                                {BUY_LINKS.funding.map((link) => <DropdownLink key={link.href} {...link} />)}
                               </div>
-                              <div className="bg-green-500/10 rounded-lg p-2.5 flex items-center gap-2">
-                                <span className="text-lg font-bold text-green-600 dark:text-green-400">{PLATFORM_GROW_TRAFFIC.stat.value}</span>
-                                <span className="text-[10px] text-green-600/80 dark:text-green-400/80">{PLATFORM_GROW_TRAFFIC.stat.label}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Bottom CTA Bar */}
-                          <div className="bg-muted/50 border-t border-border px-4 py-3 flex items-center justify-between">
-                            <button
-                              onClick={() => window.location.href = '/cleanbi-explorer'}
-                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
-                              data-testid="link-explore-cleanbi"
-                            >
-                              Explore CLEANBI Intelligence
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => window.location.href = '/demo'}
-                                className="h-8"
-                                data-testid="button-book-demo"
-                              >
-                                Book Demo
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => window.location.href = '/pricing'}
-                                className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
-                                data-testid="button-view-pricing"
-                              >
-                                <Crown className="w-3.5 h-3.5 mr-1.5" />
-                                View Pricing
-                              </Button>
                             </div>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Calculators */}
+                    {/* OPERATE */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
-                        data-testid="dropdown-calculators"
+                        data-testid="dropdown-operate"
                       >
-                        Calculators
+                        Operate
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[360px] p-3 bg-popover rounded-xl shadow-xl border border-border"
+                          transition={{ duration: 0.15 }}
+                          className="w-[640px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          <div className="mb-2 pb-2 border-b border-border">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Professional Calculators
-                            </span>
+                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-4 py-2.5 flex items-center gap-3">
+                            <Monitor className="h-4 w-4 text-[#C8A661]" />
+                            <span className="text-white font-semibold text-sm">Run & Grow Your Business</span>
                           </div>
-                          <div className="space-y-1">
-                            {CALCULATORS_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
+                          <div className="grid grid-cols-3 gap-0 p-1">
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <LayoutGrid className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Platform</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {OPERATE_LINKS.platform.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
+                            <div className="p-3 border-x border-border">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Zap className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Tools</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {OPERATE_LINKS.tools.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-green-500/30">
+                                <TrendingUp className="h-3.5 w-3.5 text-green-500" />
+                                <span className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase">Growth</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {OPERATE_LINKS.growth.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Marketplace */}
+                    {/* SELL */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
-                        data-testid="dropdown-marketplace"
+                        data-testid="dropdown-sell"
                       >
-                        Marketplace
+                        Sell
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[680px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
+                          transition={{ duration: 0.15 }}
+                          className="w-[420px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          <div className="grid grid-cols-3 gap-0">
-                            {/* Column 1 - Buy a Laundromat */}
-                            <div className="p-4 border-r border-border">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <Building2 className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Buy a Laundromat
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                {MARKETPLACE_BUY_LINKS.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {/* Column 2 - Financing for Buyers */}
-                            <div className="p-4 border-r border-border">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#C8A661]/30">
-                                <div className="h-6 w-6 rounded bg-[#C8A661]/20 flex items-center justify-center">
-                                  <Landmark className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider">
-                                  Financing for Buyers
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                {ACQUISITION_LENDERS.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {/* Column 3 - Sell & Equipment */}
-                            <div className="p-4">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <Package className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Sell & Equipment
-                                </span>
-                              </div>
-                              <div className="space-y-1">
-                                {MARKETPLACE_SELL_LINKS.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
-                              </div>
-                            </div>
+                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-4 py-2.5 flex items-center gap-3">
+                            <Tag className="h-4 w-4 text-[#C8A661]" />
+                            <span className="text-white font-semibold text-sm">Sell Your Business or Equipment</span>
                           </div>
-                          
-                          {/* Bottom CTA Bar */}
-                          <div className="bg-muted/50 border-t border-border px-4 py-3 flex items-center justify-between">
-                            <button
-                              onClick={() => window.location.href = '/laundromat-listings'}
-                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
-                              data-testid="link-browse-all-listings"
-                            >
-                              Browse All Listings
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                            <Button
-                              size="sm"
-                              onClick={() => window.location.href = '/list-on-washbizhub'}
-                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
-                              data-testid="button-list-your-business"
-                            >
-                              <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                              List Your Business
-                            </Button>
+                          <div className="grid grid-cols-2 gap-0 p-1">
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Building2 className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Business</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {SELL_LINKS.listing.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
+                            <div className="p-3 border-l border-border">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Package className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Equipment</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {SELL_LINKS.equipment.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
-                    {/* Resources */}
+                    {/* LEARN */}
                     <NavigationMenuItem>
                       <NavigationMenuTrigger 
                         className="h-10 px-4 text-sm font-medium bg-transparent text-foreground/80 hover:text-foreground hover:bg-muted data-[state=open]:bg-muted"
-                        data-testid="dropdown-resources"
+                        data-testid="dropdown-learn"
                       >
-                        Resources
+                        Learn
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <motion.div 
                           initial={{ opacity: 0, y: -8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[340px] p-3 bg-popover rounded-xl shadow-xl border border-border"
+                          transition={{ duration: 0.15 }}
+                          className="w-[560px] bg-popover rounded-xl shadow-xl border border-border overflow-hidden"
                         >
-                          <div className="mb-2 pb-2 border-b border-border">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Learn & Grow
-                            </span>
+                          <div className="bg-gradient-to-r from-[#0A1628] to-[#1a2d45] px-4 py-2.5 flex items-center gap-3">
+                            <GraduationCap className="h-4 w-4 text-[#C8A661]" />
+                            <span className="text-white font-semibold text-sm">Learn from Industry Experts</span>
                           </div>
-                          <div className="space-y-1">
-                            {RESOURCES_LINKS.map((link) => (
-                              <DropdownLink key={link.href} {...link} />
-                            ))}
-                          </div>
-                        </motion.div>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-
-                    {/* Funding - Guided by Purpose */}
-                    <NavigationMenuItem>
-                      <NavigationMenuTrigger 
-                        className="h-10 px-4 text-sm font-medium bg-transparent text-[#C8A661] hover:text-[#C8A661] hover:bg-[#C8A661]/10 data-[state=open]:bg-[#C8A661]/10 data-[state=open]:text-[#C8A661]"
-                        data-testid="dropdown-funding"
-                      >
-                        Funding
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <motion.div 
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-[560px] bg-popover rounded-xl shadow-xl border border-[#C8A661]/30 overflow-hidden"
-                        >
-                          {/* 2-Column Layout */}
-                          <div className="grid grid-cols-2 gap-0">
-                            {/* Left Column - What are you funding? */}
-                            <div className="p-4 border-r border-[#C8A661]/20">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#C8A661]/20">
-                                <div className="h-6 w-6 rounded bg-[#C8A661]/20 flex items-center justify-center">
-                                  <DollarSign className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-semibold text-[#C8A661] uppercase tracking-wider">
-                                  What are you funding?
-                                </span>
+                          <div className="grid grid-cols-3 gap-0 p-1">
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <BookOpen className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Education</span>
                               </div>
-                              <div className="space-y-1">
-                                {FUNDING_BY_PURPOSE.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
+                              <div className="space-y-0.5">
+                                {LEARN_LINKS.education.map((link) => <DropdownLink key={link.href} {...link} />)}
                               </div>
                             </div>
-                            
-                            {/* Right Column - Startup & Working Capital */}
-                            <div className="p-4">
-                              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                                <div className="h-6 w-6 rounded bg-[#0A1628] flex items-center justify-center">
-                                  <PiggyBank className="h-3 w-3 text-[#C8A661]" />
-                                </div>
-                                <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                                  Startup & Working Capital
-                                </span>
+                            <div className="p-3 border-x border-border">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-[#C8A661]/30">
+                                <Sparkles className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-[#C8A661] uppercase">Experts</span>
                               </div>
-                              <div className="space-y-1">
-                                {FUNDING_PARTNERS.map((link) => (
-                                  <DropdownLink key={link.href} {...link} />
-                                ))}
+                              <div className="space-y-0.5">
+                                {LEARN_LINKS.experts.map((link) => <DropdownLink key={link.href} {...link} />)}
                               </div>
                             </div>
-                          </div>
-                          
-                          {/* Bottom CTA Bar */}
-                          <div className="bg-[#C8A661]/10 border-t border-[#C8A661]/20 px-4 py-3 flex items-center justify-between">
-                            <button
-                              onClick={() => window.location.href = '/funding'}
-                              className="text-sm font-medium text-[#C8A661] hover:text-[#B8964F] transition-colors flex items-center gap-1.5"
-                              data-testid="link-compare-all-lenders"
-                            >
-                              Compare All Lenders
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                            <Button
-                              size="sm"
-                              onClick={() => window.location.href = '/consultation'}
-                              className="bg-[#C8A661] hover:bg-[#B8964F] text-[#0A1628] font-semibold h-8"
-                              data-testid="button-funding-consultation"
-                            >
-                              <Handshake className="w-3.5 h-3.5 mr-1.5" />
-                              Get Expert Help
-                            </Button>
+                            <div className="p-3">
+                              <div className="flex items-center gap-2 mb-2 pb-1 border-b border-border">
+                                <Users className="h-3.5 w-3.5 text-[#C8A661]" />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">Community</span>
+                              </div>
+                              <div className="space-y-0.5">
+                                {LEARN_LINKS.community.map((link) => <DropdownLink key={link.href} {...link} />)}
+                              </div>
+                            </div>
                           </div>
                         </motion.div>
                       </NavigationMenuContent>
@@ -682,11 +443,7 @@ export function NavigationMenu() {
                 >
                   <Search className="w-4 h-4" />
                 </Button>
-
-                {/* Primary CTA - Persona-aware */}
                 <PersonaCTA />
-
-                {/* Mobile menu */}
                 <MobileMenu />
               </div>
             </div>
@@ -719,7 +476,6 @@ export function NavigationMenu() {
             )}
           </AnimatePresence>
 
-          {/* Persona journey banner */}
           <PersonaNavBanner />
         </div>
       </header>
