@@ -204,6 +204,7 @@ import NotFound from "@/pages/not-found";
 // ============================================================================
 const CleanBI = lazy(() => import("@/pages/cleanbi"));
 const CLEANBIMethodology = lazy(() => import("@/pages/cleanbi-methodology"));
+const DemoShowcase = lazy(() => import("@/pages/demo-showcase"));
 const Pricing = lazy(() => import("@/pages/pricing"));
 const EnterprisePricing = lazy(() => import("@/pages/enterprise-pricing"));
 const EnterpriseBranding = lazy(() => import("@/pages/enterprise-branding"));
@@ -662,6 +663,16 @@ function Router() {
         </Suspense>
       </Route>
       <Route path="/pricing" component={Pricing} />
+      <Route path="/demo">
+        <Suspense fallback={<LoadingFallback />}>
+          <DemoShowcase />
+        </Suspense>
+      </Route>
+      <Route path="/demo-showcase">
+        <Suspense fallback={<LoadingFallback />}>
+          <DemoShowcase />
+        </Suspense>
+      </Route>
       <Route path="/enterprise-pricing">
         <Suspense fallback={<LoadingFallback />}>
           <EnterprisePricing />
