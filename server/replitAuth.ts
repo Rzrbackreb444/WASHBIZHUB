@@ -39,6 +39,7 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: true,
+      sameSite: 'lax', // Required for OAuth redirects
       maxAge: sessionTtl,
     },
   });
