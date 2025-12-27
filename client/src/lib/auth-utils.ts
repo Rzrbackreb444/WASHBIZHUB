@@ -12,6 +12,7 @@ export function redirectToLogin(toast?: (options: { title: string; description: 
     });
   }
   setTimeout(() => {
-    window.location.href = "/api/login";
+    // Use the login page which offers Google OAuth as primary method
+    window.location.href = "/login";
   }, 500);
 }
