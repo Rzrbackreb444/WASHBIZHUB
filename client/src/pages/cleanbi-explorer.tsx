@@ -1573,7 +1573,7 @@ function CleanBIExplorerContent() {
 
   useEffect(() => {
     const loadGoogleMaps = () => {
-      if (window.google && mapRef.current && !mapInstance.current) {
+      if (window.google?.maps && mapRef.current && !mapInstance.current) {
         initializeMap();
       }
     };
@@ -1606,7 +1606,7 @@ function CleanBIExplorerContent() {
   }, [savedAnalyses, showSavedMarkers]);
 
   const initializeMap = () => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !window.google?.maps) return;
 
     const darkStyle = [
       { elementType: "geometry", stylers: [{ color: "#1a1a2e" }] },
