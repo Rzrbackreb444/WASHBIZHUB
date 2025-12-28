@@ -200,17 +200,26 @@ export async function setupGoogleAuth(app: Express) {
     })(req, res, (err: any) => {
       if (err) {
         console.error("Google OAuth callback error:", err);
-        // Redirect to login page with error message instead of confusing fallback auth
         return res.redirect("/login?error=google_auth_failed&message=" + encodeURIComponent("Google login failed. Please try again."));
       }
       
-      // Check if authentication was successful
       if (!req.user) {
         console.log("⚠️ Google OAuth did not return user");
         return res.redirect("/login?error=no_user&message=" + encodeURIComponent("Login incomplete. Please try again."));
       }
       
-      res.redirect("/auth/callback");
+      const user = req.user as any;
+      console.log(`✅ Google OAuth successful for user: ${user.email || user.id}`);
+      
+      // Explicitly save session before redirect to ensure cookie is set
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("Session save error after Google OAuth:", saveErr);
+          return res.redirect("/login?error=session_error&message=" + encodeURIComponent("Session error. Please try again."));
+        }
+        console.log(`✅ Session saved, redirecting to /auth/callback`);
+        res.redirect("/auth/callback");
+      });
     });
   });
 
