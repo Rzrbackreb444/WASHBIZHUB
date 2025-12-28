@@ -95,8 +95,16 @@ app.use(compression({
 // Add caching headers for static assets
 app.use((req, res, next) => {
   const url = req.url;
+  const acceptHeader = req.headers.accept || '';
+  
+  // HTML pages - never cache (users always get latest version after deployments)
+  if (acceptHeader.includes('text/html') || url === '/' || (!url.includes('.') && !url.startsWith('/api'))) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
   // JavaScript and CSS files (with content hashes) - aggressive caching
-  if (url.match(/\.(js|css)(\?.*)?$/)) {
+  else if (url.match(/\.(js|css)(\?.*)?$/)) {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   }
   // Images and fonts - long cache (30 days)
