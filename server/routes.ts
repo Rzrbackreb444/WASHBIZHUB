@@ -724,18 +724,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(bookingRoutes);
   app.use("/api/activity", activityRouter);
   
-  // Get authenticated user data
-  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.sub || (req.user as any)?.claims?.sub;
-      const user = await storage.getUser(userId);
-      console.log(`[AUTH DEBUG] User ${user?.email} tier: "${user?.subscriptionTier}", isPro: ${user?.isPro}`);
-      res.json(user);
-    } catch (error: any) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Note: /api/auth/user is handled by auth-routes.ts (mounted at /api/auth)
+  // This ensures all auth methods (Google OAuth, Email OTP, Replit Auth) use the same endpoint
 
   // ==================== TENANT (Public) ====================
   

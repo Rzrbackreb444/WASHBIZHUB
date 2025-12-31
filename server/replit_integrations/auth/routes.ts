@@ -1,18 +1,9 @@
 import type { Express } from "express";
-import { authStorage } from "./storage";
-import { isAuthenticated } from "./replitAuth";
 
 // Register auth-specific routes
+// Note: /api/auth/user is handled by the main auth-routes.ts (mounted at /api/auth)
+// to ensure all auth methods (Google OAuth, Email OTP, Replit Auth) use the same endpoint
 export function registerAuthRoutes(app: Express): void {
-  // Get current authenticated user
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await authStorage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // No additional routes needed - auth-routes.ts handles /api/auth/user
+  // This prevents duplicate endpoints that could cause auth confusion
 }
