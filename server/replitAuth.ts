@@ -31,16 +31,23 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  // Determine if we should set cross-subdomain cookies for washbizhub.com
+  // Only enable domain cookies in actual Replit deployments where REPLIT_DEPLOYMENT is explicitly set
+  const isProductionDeployment = process.env.REPLIT_DEPLOYMENT === '1';
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    name: 'washbizhub.sid', // Unique session name to avoid conflicts
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: !process.env.REPLIT_DEV_DOMAIN, // Allow insecure in dev
       sameSite: 'lax', // Required for OAuth redirects
       maxAge: sessionTtl,
+      // Set domain for production deployments to share cookies across subdomains
+      ...(isProductionDeployment && { domain: '.washbizhub.com' }),
     },
   });
 }

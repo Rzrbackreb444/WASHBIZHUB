@@ -193,7 +193,10 @@ export function WashBizHubPage({
   containerClassName = '',
   fullWidth = false,
 }: WashBizHubPageProps) {
-  const baseUrl = import.meta.env.VITE_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://washbizhub.com');
+  // ALWAYS use washbizhub.com as the canonical domain to consolidate SEO authority
+  // This prevents duplicate content issues across different deployment domains
+  const CANONICAL_DOMAIN = "https://washbizhub.com";
+  const baseUrl = CANONICAL_DOMAIN;
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const canonical = canonicalUrl ? `${baseUrl}${canonicalUrl}` : `${baseUrl}${currentPath}`;
   const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${baseUrl}${ogImage}`;
