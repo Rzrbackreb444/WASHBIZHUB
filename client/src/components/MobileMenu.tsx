@@ -160,10 +160,10 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
       animate="center"
       exit="exit"
       transition={{ type: "tween", duration: 0.2 }}
-      className="absolute inset-0 flex flex-col"
+      className="absolute inset-0 flex flex-col bg-background"
     >
       {/* Top Utility Strip */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/30">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted/50">
         <div className="flex items-center gap-1">
           <Button 
             variant="ghost" 
@@ -315,9 +315,9 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
       animate="center"
       exit="exit"
       transition={{ type: "tween", duration: 0.2 }}
-      className="absolute inset-0 flex flex-col"
+      className="absolute inset-0 flex flex-col bg-background"
     >
-      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/30">
+      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/50">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goBack} data-testid={`button-back-${section.id}`}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -356,9 +356,9 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
       animate="center"
       exit="exit"
       transition={{ type: "tween", duration: 0.2 }}
-      className="absolute inset-0 flex flex-col"
+      className="absolute inset-0 flex flex-col bg-background"
     >
-      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/30">
+      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/50">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goBack} data-testid="button-back-account">
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -414,9 +414,9 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
       animate="center"
       exit="exit"
       transition={{ type: "tween", duration: 0.2 }}
-      className="absolute inset-0 flex flex-col"
+      className="absolute inset-0 flex flex-col bg-background"
     >
-      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/30">
+      <div className="flex items-center gap-2 px-2 py-2 border-b border-border bg-muted/50">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goBack} data-testid="button-back-notifications">
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -434,7 +434,7 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
   const currentSection = mobileSections.find(s => s.id === currentPanel);
 
   return (
-    <div className="relative h-full overflow-hidden">
+    <div className="relative h-full overflow-hidden bg-background">
       <AnimatePresence mode="popLayout" custom={panelStack.length}>
         {currentPanel === 'main' && renderMainPanel()}
         {currentPanel === 'account' && renderAccountPanel()}
@@ -462,7 +462,7 @@ export function MobileMenu() {
       </SheetTrigger>
       <SheetContent 
         side="right" 
-        className="w-[300px] p-0 flex flex-col [&>button]:hidden"
+        className="w-[300px] p-0 flex flex-col [&>button]:hidden bg-background z-50"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>
