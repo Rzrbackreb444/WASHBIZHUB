@@ -23,6 +23,8 @@ import {
   Bell, Settings, Star, Wrench, MessageSquare
 } from "lucide-react";
 import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
+import customIconUrl from "@assets/generated_images/premium_saas_navigation_icon.png";
+import dashboardBgUrl from "@assets/generated_images/business_dashboard_preview_background.png";
 import { PersonaSwitcher } from "@/components/PersonaNav";
 
 interface NavItem {
@@ -277,12 +279,28 @@ function DesktopPillarDropdown({ pillar, isOpen, onToggle }: { pillar: NavPillar
           className="absolute top-full left-0 mt-2 w-[520px] bg-slate-900 rounded-xl shadow-2xl border border-slate-700 overflow-hidden z-50"
           style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
         >
+          {/* Dashboard preview background for Analysis Hub & Marketplace */}
+          {(pillar.id === 'analysis' || pillar.id === 'marketplace') && (
+            <div 
+              className="absolute inset-0 opacity-[0.15] pointer-events-none"
+              style={{ 
+                backgroundImage: `url(${dashboardBgUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            />
+          )}
           <div 
-            className="px-5 py-3 border-b border-slate-700"
+            className="px-5 py-3 border-b border-slate-700 relative"
             style={{ background: `linear-gradient(135deg, ${pillar.color}20 0%, transparent 100%)` }}
           >
             <div className="flex items-center gap-3">
-              <Icon className="h-5 w-5" style={{ color: pillar.color }} />
+              {/* Custom premium icon for header */}
+              {(pillar.id === 'analysis' || pillar.id === 'marketplace') ? (
+                <img src={customIconUrl} alt="" className="h-5 w-5 rounded-sm" />
+              ) : (
+                <Icon className="h-5 w-5" style={{ color: pillar.color }} />
+              )}
               <div>
                 <h3 className="text-white font-semibold">{pillar.label}</h3>
                 <p className="text-xs text-slate-400">{pillar.tagline}</p>
@@ -290,7 +308,7 @@ function DesktopPillarDropdown({ pillar, isOpen, onToggle }: { pillar: NavPillar
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-0">
+          <div className="grid grid-cols-2 gap-0 relative">
             {pillar.sections.map((section, idx) => (
               <div 
                 key={section.title} 
@@ -321,8 +339,8 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   
   return (
-    <div className="flex flex-col h-full bg-slate-900">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-900">
+    <div className="flex flex-col h-full bg-slate-950">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-950">
         <Link href="/" onClick={onClose}>
           <div className="flex items-center gap-2">
             <img src={logoUrl} alt="WashBizHub" className="h-8 w-auto" />
@@ -334,7 +352,7 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
         </Button>
       </div>
       
-      <ScrollArea className="flex-1 bg-slate-900">
+      <ScrollArea className="flex-1 bg-slate-950">
         <div className="p-4 space-y-2">
           {ALL_PILLARS.map((pillar) => {
             const Icon = pillar.icon;
@@ -365,7 +383,7 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
                 </button>
                 
                 {isExpanded && (
-                  <div className="px-4 pb-4 space-y-4 bg-slate-900">
+                  <div className="px-4 pb-4 space-y-4 bg-slate-950">
                     {pillar.sections.map((section) => (
                       <div key={section.title}>
                         <div className="flex items-center gap-2 mb-2">
@@ -408,7 +426,7 @@ function MobileMenuContent({ onClose }: { onClose: () => void }) {
         </div>
       </ScrollArea>
       
-      <div className="p-4 border-t border-slate-700 bg-slate-900">
+      <div className="p-4 border-t border-slate-700 bg-slate-950">
         {isAuthenticated && user ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-800">
@@ -577,7 +595,7 @@ export function MegaMenu() {
                       <Menu className="h-6 w-6" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-full max-w-sm p-0 border-slate-700 bg-slate-900">
+                  <SheetContent side="right" className="w-full max-w-sm p-0 border-slate-700 bg-slate-950">
                     <MobileMenuContent onClose={() => setMobileOpen(false)} />
                   </SheetContent>
                 </Sheet>
