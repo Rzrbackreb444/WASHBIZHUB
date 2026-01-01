@@ -417,6 +417,18 @@ export function NavigationMenu() {
                       </NavigationMenuContent>
                     </NavigationMenuItem>
 
+                    {/* FundingHub - Direct link */}
+                    <NavigationMenuItem>
+                      <button
+                        onClick={() => window.location.href = '/funding'}
+                        className="h-10 px-4 text-sm font-medium text-[#C8A661] hover:text-[#d4b86a] hover:bg-muted rounded-md inline-flex items-center transition-colors"
+                        data-testid="link-nav-fundinghub"
+                      >
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        FundingHub
+                      </button>
+                    </NavigationMenuItem>
+
                     {/* Pricing - Direct link */}
                     <NavigationMenuItem>
                       <button

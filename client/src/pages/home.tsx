@@ -60,6 +60,7 @@ import {
   MapPin, Shield, Zap, FileText
 } from "lucide-react";
 import { RoadshowBanner } from "@/components/RoadshowPromo";
+import { AAdvantageSpotlight } from "@/components/AAdvantageSpotlight";
 
 // Testimonials data
 const testimonials = [
@@ -777,6 +778,9 @@ export default function Home() {
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
+        
+        {/* AADVANTAGE SPOTLIGHT - Featured partner section */}
+        <AAdvantageSpotlight />
         
         {/* HOUSTON ROADSHOW ANNOUNCEMENT - Live event promotion */}
         <RoadshowBanner />

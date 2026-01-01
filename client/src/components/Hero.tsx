@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Download, CheckCircle, Loader2, Mail, MapPin, Building2, Home as HomeIcon, Sparkles, Star, Users, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
+import { SiFacebook } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
 import { LazyRadarChart } from "./LazyRadarChart";
 import { getGradeInfo } from "@shared/cleanbi-grades";
@@ -267,6 +268,19 @@ export function Hero() {
                 </Button>
               </Link>
             </div>
+
+            {/* Facebook Group CTA */}
+            <a 
+              href="https://facebook.com/groups/thelaundromat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/30 text-[#1877F2] hover:bg-[#1877F2]/20 transition-colors mb-6"
+              data-testid="link-facebook-group-hero"
+            >
+              <SiFacebook className="w-5 h-5" />
+              <span className="font-medium">Join 10,000+ Owners</span>
+              <span className="text-xs opacity-70">WashBizHub Marketplace & Resources</span>
+            </a>
 
             {/* Trust indicators */}
             <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-gray-600">
