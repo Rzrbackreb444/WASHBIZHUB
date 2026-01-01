@@ -488,7 +488,7 @@ export function SectionHeader({ title, subtitle, action, icon: Icon, color = '#8
 }
 
 interface GradeCardProps {
-  grade: 'A' | 'B' | 'C' | 'D' | 'F' | string;
+  grade: 'A' | 'B' | 'C' | 'Needs Work' | string;
   label: string;
   value?: number;
   sublabel?: string;
@@ -496,14 +496,13 @@ interface GradeCardProps {
 
 export function GradeCard({ grade, label, value, sublabel }: GradeCardProps) {
   const gradeStyles: Record<string, { bg: string; text: string; border: string }> = {
-    'A': { bg: 'bg-emerald-500/20', text: 'text-emerald-500', border: 'border-emerald-500/30' },
-    'B': { bg: 'bg-blue-500/20', text: 'text-blue-500', border: 'border-blue-500/30' },
-    'C': { bg: 'bg-amber-500/20', text: 'text-amber-500', border: 'border-amber-500/30' },
-    'D': { bg: 'bg-orange-500/20', text: 'text-orange-500', border: 'border-orange-500/30' },
-    'F': { bg: 'bg-red-500/20', text: 'text-red-500', border: 'border-red-500/30' },
+    'A': { bg: 'bg-[#22C55E]/20', text: 'text-[#22C55E]', border: 'border-[#22C55E]/30' },
+    'B': { bg: 'bg-[#A3E635]/20', text: 'text-[#A3E635]', border: 'border-[#A3E635]/30' },
+    'C': { bg: 'bg-[#FBBF24]/20', text: 'text-[#FBBF24]', border: 'border-[#FBBF24]/30' },
+    'Needs Work': { bg: 'bg-[#C8A661]/20', text: 'text-[#C8A661]', border: 'border-[#C8A661]/30' },
   };
 
-  const style = gradeStyles[grade] || gradeStyles['C'];
+  const style = gradeStyles[grade] || gradeStyles['Needs Work'];
 
   return (
     <div className={cn("rounded-xl p-4 border", style.bg, style.border)} data-testid={`grade-card-${label.toLowerCase().replace(/\s/g, '-')}`}>

@@ -34,8 +34,6 @@ const GRADE_COLORS: Record<string, string> = {
   "A": "#22C55E",
   "B": "#A3E635", 
   "C": "#FBBF24",
-  "D": "#F97316",
-  "F": "#EF4444",
   "Needs Work": "#C8A661"
 };
 

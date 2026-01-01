@@ -32,10 +32,10 @@ const personas: PersonaPath[] = [
     color: "#22C55E",
     gradient: "from-[#22C55E]/20 to-[#22C55E]/5",
     features: [
+      { name: "Funding Wizard", link: "/funding-wizard", icon: DollarSign },
       { name: "CLEANBI Location Scores", link: "/cleanbi-explorer", icon: MapPin },
       { name: "Deal Marketplace", link: "/marketplace", icon: Target },
       { name: "Instant Valuations", link: "/calculators", icon: Calculator },
-      { name: "Funding Wizard", link: "/funding-wizard", icon: DollarSign },
       { name: "AI Business Plan", link: "/business-plan-generator", icon: FileText },
       { name: "Due Diligence Guides", link: "/template-vault", icon: CheckCircle }
     ],
