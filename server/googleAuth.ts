@@ -18,11 +18,22 @@ function isAdminEmail(email: string): boolean {
   return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
+// Production domains that should use canonical callback URLs
+const PRODUCTION_DOMAINS = ['washbizhub.com', 'www.washbizhub.com', 'washbizhub.xyz', 'www.washbizhub.xyz'];
+
 // Get dynamic callback URL based on request
 function getCallbackUrl(req: Request): string {
-  // Use X-Forwarded headers if behind proxy, otherwise use request host
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || req.hostname || '') as string;
+  const hostLower = host.toLowerCase().split(':')[0]; // Remove port if present
+  
+  // For production domains, always use canonical https://washbizhub.com callback
+  // This ensures Google's redirect_uri verification works correctly
+  if (PRODUCTION_DOMAINS.includes(hostLower) || process.env.NODE_ENV === 'production') {
+    return 'https://washbizhub.com/api/auth/google/callback';
+  }
+  
+  // For development/other domains, construct dynamic callback URL
   const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-  const host = req.headers['x-forwarded-host'] || req.headers.host || req.hostname;
   return `${protocol}://${host}/api/auth/google/callback`;
 }
 
@@ -49,8 +60,8 @@ export async function setupGoogleAuth(app: Express) {
     return;
   }
 
-  console.log(`🔐 Setting up Google OAuth with dynamic callback URLs`);
-  console.log(`   Production domains: washbizhub.com, washbizhub.xyz, washbizhub.replit.app`);
+  console.log(`🔐 Setting up Google OAuth with Client ID: ${clientID.substring(0, 20)}...`);
+  console.log(`   Production callback: https://washbizhub.com/api/auth/google/callback`);
 
   // Use passReqToCallback to get dynamic callback URL
   passport.use(
