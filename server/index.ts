@@ -203,20 +203,23 @@ async function syncCLEANBISubscription(subscription: Stripe.Subscription) {
 }
 
 app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), async (req, res) => {
+  // SECURITY: Strictly require webhook secret - reject all requests without valid signature
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret || !webhookSecret.startsWith('whsec_')) {
+    console.error('❌ CRITICAL: STRIPE_WEBHOOK_SECRET not configured or invalid');
+    return res.status(500).send("Webhook secret not configured");
+  }
+
   const sig = req.headers["stripe-signature"];
-  
   if (!sig) {
+    console.error('❌ Webhook rejected: No stripe-signature header');
     return res.status(400).send("No signature");
   }
 
   let event;
   try {
     // req.body is now a Buffer because of express.raw()
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ""
-    );
+    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   } catch (err: any) {
     console.error(`❌ Webhook signature verification failed: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -1236,43 +1239,15 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
   }
 });
 
-// Alias: /api/webhook redirects to /api/webhooks/stripe for Stripe Dashboard compatibility
-// Configure your Stripe webhook endpoint as: https://washbizhub.com/api/webhook
-app.post("/api/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-  
-  if (!sig) {
-    return res.status(400).send("No signature");
-  }
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ""
-    );
-  } catch (err: any) {
-    console.error(`❌ Webhook signature verification failed (alias): ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Forward to the main webhook handler by re-emitting the request
-  // For simplicity, we duplicate the core handling logic here
-  console.log(`📥 Stripe webhook received via /api/webhook: ${event.type}`);
-  
-  // Redirect internally - this is handled by the same logic above
-  // Re-trigger webhook processing for this event
-  req.url = "/api/webhooks/stripe";
-  req.body = Buffer.from(JSON.stringify(event.data.object));
-  
-  // Process the same way as main endpoint
-  if (isEventProcessed(event.id)) {
-    return res.json({ received: true, duplicate: true });
-  }
-  markEventProcessed(event.id);
-  
-  res.json({ received: true, forwarded: true, eventType: event.type });
+// Alias: /api/webhook uses the exact same handler as /api/webhooks/stripe
+// This allows Stripe Dashboard to use either endpoint: https://washbizhub.com/api/webhook
+// The main handler at /api/webhooks/stripe processes all events - we just redirect requests here
+app.post("/api/webhook", express.raw({ type: 'application/json' }), (req, res, next) => {
+  // Log that we received via alias and forward to main handler
+  console.log('📥 Stripe webhook received via /api/webhook alias - forwarding to main handler');
+  req.url = '/api/webhooks/stripe';
+  // Re-dispatch to the main webhook handler
+  app._router.handle(req, res, next);
 });
 
 // Now apply global JSON parsing for all other routes
