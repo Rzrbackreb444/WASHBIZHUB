@@ -5,6 +5,7 @@ import { Link, useLocation } from "wouter";
 import { SEO } from "@/components/SEO";
 import { FAQSection } from "@/components/SuperSEOWrapper";
 import { COMMON_FAQS } from "@/lib/seo-config";
+import { StickyConsultationBar } from "@/components/StickyConsultationBar";
 import { AuthGuard } from "@/components/AuthGuard";
 import {
   PremiumStatCard,
@@ -8944,6 +8945,9 @@ function CleanBIExplorerContent() {
 
         {/* CLEANBI Help Chat Widget */}
         <CLEANBIHelpChat />
+        
+        {/* Sticky Consultation Bar */}
+        <StickyConsultationBar context="cleanbi" />
       </div>
     </>
   );

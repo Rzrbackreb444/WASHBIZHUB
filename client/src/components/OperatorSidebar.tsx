@@ -82,7 +82,7 @@ export function OperatorSidebar({ locationName = "My Laundromat" }: OperatorSide
   const [location] = useLocation();
   
   return (
-    <Sidebar collapsible="icon" className="border-r bg-background z-40">
+    <Sidebar collapsible="icon" className="border-r bg-slate-950 z-40">
       <SidebarHeader className="border-b px-4 py-4">
         <Link href="/operator-dashboard">
           <div className="flex items-center gap-3 cursor-pointer">
