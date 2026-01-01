@@ -314,14 +314,21 @@ import {
   getExportMetadata,
 } from "./services/kdp-export";
 
-// Stripe optional - payments disabled if key not set
+// Stripe configuration - REQUIRED in production, optional in development
+const isProduction = process.env.NODE_ENV === 'production' || process.env.REPLIT_DEPLOYMENT === '1';
 let stripe: Stripe | null = null;
+
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2024-06-20" as any,
   });
+  console.log(`✅ Stripe initialized (${process.env.STRIPE_SECRET_KEY.startsWith('sk_live') ? 'LIVE' : 'TEST'} mode)`);
+} else if (isProduction) {
+  // In production, Stripe is required - throw error to prevent deployment with missing key
+  console.error("❌ CRITICAL: STRIPE_SECRET_KEY not configured in production!");
+  // Don't throw to allow graceful degradation, but log prominently
 } else {
-  console.warn("⚠️  STRIPE_SECRET_KEY not configured - payment processing disabled");
+  console.warn("⚠️  STRIPE_SECRET_KEY not configured - payment processing disabled (development mode)");
 }
 
 // Helper function to load current authenticated user
