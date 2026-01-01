@@ -46,7 +46,7 @@ export const LARRY_LARSEN_PERSONA = {
     "Multi-store owner with 50 years of operational experience"
   ],
   style: "Direct, veteran authority; focuses on mitigating $100k+ operational and lease risks",
-  icon: "👔",
+  icon: "briefcase",
   specialties: [
     "Deep-Dive Due Diligence for Acquisitions",
     "Predatory Lease Mitigation & Negotiation",
@@ -54,6 +54,87 @@ export const LARRY_LARSEN_PERSONA = {
     "Precision Site Selection (Laundry Deserts)",
     "Exit Strategy & Store Valuation Planning"
   ],
+  // Professional Consulting Services & Fees
+  consultingServices: {
+    dueDiligenceAudit: {
+      name: "Due Diligence Audit",
+      description: "Comprehensive 200+ point acquisition audit with Larry's personal review",
+      price: 1500, // $1,500 one-time
+      priceType: "one-time",
+      includes: [
+        "Full financial document review (3 years)",
+        "Lease analysis & red flag identification",
+        "Equipment condition assessment",
+        "Competition & market analysis",
+        "Valuation verification",
+        "Written report with Larry's recommendations",
+        "30-minute follow-up call"
+      ],
+      turnaround: "5-7 business days",
+      stripePriceId: "STRIPE_LARRY_DUE_DILIGENCE_PRICE_ID"
+    },
+    expertConsultation: {
+      name: "Expert Consultation",
+      description: "Direct 1-on-1 strategic consultation with Larry",
+      price: 0, // Included with Premium/Enterprise tier
+      priceType: "premium-included",
+      linkedTier: "enterprise", // Enterprise members get direct access
+      includes: [
+        "Direct access to Larry's expert analysis",
+        "Priority response within 24 hours",
+        "Video call consultations",
+        "Deal negotiation strategy",
+        "Ongoing advisory support"
+      ],
+      turnaround: "24-48 hours response",
+      stripePriceId: null // Included in subscription
+    },
+    quickConsult: {
+      name: "Quick Consult (30 min)",
+      description: "Focused 30-minute call with Larry on specific questions",
+      price: 297,
+      priceType: "one-time",
+      includes: [
+        "30-minute video call",
+        "Focused on your specific situation",
+        "Actionable recommendations",
+        "Recording provided"
+      ],
+      turnaround: "Scheduled within 3-5 days",
+      stripePriceId: "STRIPE_LARRY_QUICK_CONSULT_PRICE_ID"
+    },
+    deepDiveSession: {
+      name: "Deep Dive Session (90 min)",
+      description: "Extended strategy session for complex acquisitions",
+      price: 749,
+      priceType: "one-time",
+      includes: [
+        "90-minute video call",
+        "Pre-call document review",
+        "Comprehensive deal analysis",
+        "Written summary of recommendations",
+        "2 follow-up email questions"
+      ],
+      turnaround: "Scheduled within 5-7 days",
+      stripePriceId: "STRIPE_LARRY_DEEP_DIVE_PRICE_ID"
+    },
+    vipDay: {
+      name: "VIP Day",
+      description: "Full day of Larry's undivided attention on your portfolio",
+      price: 2997,
+      priceType: "one-time",
+      includes: [
+        "4 hours of dedicated consultation",
+        "Multi-property portfolio review",
+        "Full financial modeling session",
+        "Negotiation role-play & prep",
+        "90-day action plan",
+        "30-day email support"
+      ],
+      turnaround: "Scheduled within 2-3 weeks",
+      stripePriceId: "STRIPE_LARRY_VIP_DAY_PRICE_ID"
+    }
+  },
   knowledgeBase: {
     redFlags: [
       "Owner unwilling to show tax returns",
@@ -189,6 +270,128 @@ export interface FootTrafficData {
   estimatedMonthlyCustomers: number;
   conversionRate: number; // % of traffic that enters
 }
+
+// ================================================
+// CONSULTATION TIERS - ALIGNED WITH PRICING PAGE
+// ================================================
+export const CONSULTATION_TIERS: ConsultationTier[] = [
+  {
+    id: 'basic',
+    name: 'CLEANBI Quick Report',
+    price: 49,
+    features: [
+      'CLEANBI Score & Grade',
+      'Basic demographic overview',
+      'Competition count (1-mile radius)',
+      '3-page PDF report'
+    ],
+    includes: {
+      cleanbiScore: true,
+      basicValuation: false,
+      fullCalculators: false,
+      expertCount: 0,
+      competitionHeatmap: false,
+      pricingOptimizer: false,
+      footTrafficAnalysis: false,
+      marketResearch: false,
+      pdfReport: true,
+      liveConsultation: false,
+      posIntegration: false,
+      ongoingSupport: false,
+      daveMenzReview: false
+    },
+    turnaround: '24 hours'
+  },
+  {
+    id: 'professional',
+    name: 'Professional Analysis',
+    price: 149,
+    features: [
+      'Full CLEANBI breakdown (17 factors)',
+      '5-Expert AI Council analysis',
+      'Competition heatmap',
+      'Demographic deep-dive',
+      'ROI projections',
+      '12-page PDF report'
+    ],
+    includes: {
+      cleanbiScore: true,
+      basicValuation: true,
+      fullCalculators: true,
+      expertCount: 5,
+      competitionHeatmap: true,
+      pricingOptimizer: false,
+      footTrafficAnalysis: true,
+      marketResearch: false,
+      pdfReport: true,
+      liveConsultation: false,
+      posIntegration: false,
+      ongoingSupport: false,
+      daveMenzReview: false
+    },
+    turnaround: '2-3 business days',
+    popular: true
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise Deep Dive',
+    price: 499,
+    features: [
+      'Everything in Professional',
+      'Full market research report',
+      'Pricing optimization model',
+      'Equipment ROI analysis',
+      'Expansion recommendations',
+      '25+ page comprehensive report',
+      'Larry Larsen expert review'
+    ],
+    includes: {
+      cleanbiScore: true,
+      basicValuation: true,
+      fullCalculators: true,
+      expertCount: 7,
+      competitionHeatmap: true,
+      pricingOptimizer: true,
+      footTrafficAnalysis: true,
+      marketResearch: true,
+      pdfReport: true,
+      liveConsultation: false,
+      posIntegration: false,
+      ongoingSupport: false,
+      daveMenzReview: true
+    },
+    turnaround: '5-7 business days'
+  },
+  {
+    id: 'premium',
+    name: 'Premium + Larry Consultation',
+    price: 999,
+    features: [
+      'Everything in Enterprise',
+      'Direct access to Larry Larsen',
+      'Live 1-on-1 consultation call',
+      'POS integration analysis',
+      '90-day ongoing support',
+      'Deal negotiation coaching'
+    ],
+    includes: {
+      cleanbiScore: true,
+      basicValuation: true,
+      fullCalculators: true,
+      expertCount: 7,
+      competitionHeatmap: true,
+      pricingOptimizer: true,
+      footTrafficAnalysis: true,
+      marketResearch: true,
+      pdfReport: true,
+      liveConsultation: true,
+      posIntegration: true,
+      ongoingSupport: true,
+      daveMenzReview: true
+    },
+    turnaround: '7-10 business days'
+  }
+];
 
 // Calculate tier-specific consultation
 export function getTierFeatures(tierId: string): ConsultationTier | null {
