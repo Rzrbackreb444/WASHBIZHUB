@@ -7,6 +7,7 @@
  */
 
 import Stripe from 'stripe';
+import { fileURLToPath } from 'url';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY is required');
@@ -419,8 +420,10 @@ export async function syncStripeCatalog(): Promise<SyncResult> {
   return result;
 }
 
-// CLI execution
-if (require.main === module) {
+// CLI execution - ES module compatible
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+
+if (isMainModule) {
   syncStripeCatalog()
     .then(result => {
       if (result.errors.length > 0) {
