@@ -33,151 +33,51 @@ export interface ConsultationTier {
   popular?: boolean;
 }
 
-export const CONSULTATION_TIERS: ConsultationTier[] = [
-  {
-    id: "basic",
-    name: "Quick Analysis",
-    price: 49,
-    features: [
-      "CLEANBI Score with breakdown",
-      "Basic valuation estimate",
-      "1 AI Market Analyst review",
-      "Competition count within 1 mile",
-      "Email delivery within 1 hour"
-    ],
-    includes: {
-      cleanbiScore: true,
-      basicValuation: true,
-      fullCalculators: false,
-      expertCount: 1,
-      competitionHeatmap: false,
-      pricingOptimizer: false,
-      footTrafficAnalysis: false,
-      marketResearch: false,
-      pdfReport: false,
-      liveConsultation: false,
-      posIntegration: false,
-      ongoingSupport: false,
-      daveMenzReview: false
-    },
-    turnaround: "1 hour"
-  },
-  {
-    id: "professional",
-    name: "Full Council Review",
-    price: 149,
-    popular: true,
-    features: [
-      "Everything in Quick Analysis",
-      "Full 5-Expert AI Council",
-      "Complete calculator suite (ROI, Cash Flow, Breakeven)",
-      "Detailed competition analysis",
-      "Professional PDF report",
-      "Investment recommendation with action items"
-    ],
-    includes: {
-      cleanbiScore: true,
-      basicValuation: true,
-      fullCalculators: true,
-      expertCount: 5,
-      competitionHeatmap: false,
-      pricingOptimizer: false,
-      footTrafficAnalysis: false,
-      marketResearch: false,
-      pdfReport: true,
-      liveConsultation: false,
-      posIntegration: false,
-      ongoingSupport: false,
-      daveMenzReview: false
-    },
-    turnaround: "2 hours"
-  },
-  {
-    id: "enterprise",
-    name: "Deep Dive Analysis",
-    price: 499,
-    features: [
-      "Everything in Full Council Review",
-      "Competition heatmap visualization",
-      "Dynamic pricing optimizer (time-of-day)",
-      "Foot traffic analysis",
-      "Market saturation research",
-      "Equipment ROI projections",
-      "5-year cash flow forecast",
-      "Larry Larsen expert review"
-    ],
-    includes: {
-      cleanbiScore: true,
-      basicValuation: true,
-      fullCalculators: true,
-      expertCount: 6,
-      competitionHeatmap: true,
-      pricingOptimizer: true,
-      footTrafficAnalysis: true,
-      marketResearch: true,
-      pdfReport: true,
-      liveConsultation: false,
-      posIntegration: false,
-      ongoingSupport: false,
-      daveMenzReview: true
-    },
-    turnaround: "24 hours"
-  },
-  {
-    id: "premium",
-    name: "Executive Package",
-    price: 999,
-    features: [
-      "Everything in Deep Dive Analysis",
-      "30-minute live consultation call",
-      "POS Command Center integration",
-      "Custom pricing strategy",
-      "Ongoing 30-day support",
-      "Priority response",
-      "Quarterly market updates",
-      "Direct access to Larry Larsen"
-    ],
-    includes: {
-      cleanbiScore: true,
-      basicValuation: true,
-      fullCalculators: true,
-      expertCount: 6,
-      competitionHeatmap: true,
-      pricingOptimizer: true,
-      footTrafficAnalysis: true,
-      marketResearch: true,
-      pdfReport: true,
-      liveConsultation: true,
-      posIntegration: true,
-      ongoingSupport: true,
-      daveMenzReview: true
-    },
-    turnaround: "48 hours"
-  }
-];
+
+  export const LARRY_LARSEN_PERSONA = {
+  name: "Larry Larsen",
+  title: "50-Year Industry Veteran & Risk Strategist",
+  company: "Laundromat Larry Consulting",
+  expertise: "Five decades of laundromat ownership, high-stakes consulting, and industry education",
+  credentials: [
+    "Known industry-wide as 'Laundromat Larry'",
+    "Directly consulted on 500+ laundromat acquisitions",
+    "Trusted strategic advisor to the WashBizHub community",
+    "Multi-store owner with 50 years of operational experience"
+  ],
+  style: "Direct, veteran authority; focuses on mitigating $100k+ operational and lease risks",
+  icon: "👔",
+  specialties: [
+    "Deep-Dive Due Diligence for Acquisitions",
+    "Predatory Lease Mitigation & Negotiation",
+    "Utility-to-Revenue 'Fluff' Detection",
+    "Precision Site Selection (Laundry Deserts)",
+    "Exit Strategy & Store Valuation Planning"
+  ]
+};
 
 // Larry Larsen Expert Persona - "Laundromat" Larry
 export const LARRY_LARSEN_PERSONA = {
   name: "Larry Larsen",
-  title: "Industry Expert & Consultant",
+  title: "50-Year Industry Veteran & Risk Strategist",
   company: "Laundromat Larry Consulting",
-  expertise: "30+ years laundromat ownership, consulting, and industry education",
+  expertise: "Five decades of laundromat ownership, high-stakes consulting, and industry education",
   credentials: [
     "Known industry-wide as 'Laundromat Larry'",
-    "Consulted on 500+ laundromat acquisitions",
-    "Trusted advisor to WashBizHub community",
-    "Multi-store owner and operator"
+    "Directly consulted on 500+ laundromat acquisitions",
+    "Trusted strategic advisor to the WashBizHub community",
+    "Multi-store owner with 50 years of operational experience"
   ],
-  style: "Practical, experienced, tells it like it is, focuses on real-world operations",
+  style: "Direct, veteran authority; focuses on mitigating $100k+ operational and lease risks",
   icon: "👔",
   specialties: [
-    "Due diligence for acquisitions",
-    "Operational efficiency improvements",
-    "Equipment selection and negotiation",
-    "Lease negotiation strategies",
-    "Exit strategy planning",
-    "Multi-store expansion"
-  ],
+    "Deep-Dive Due Diligence for Acquisitions",
+    "Predatory Lease Mitigation & Negotiation",
+    "Utility-to-Revenue 'Fluff' Detection",
+    "Precision Site Selection (Laundry Deserts)",
+    "Exit Strategy & Store Valuation Planning"
+  ]
+};
   knowledgeBase: {
     redFlags: [
       "Owner unwilling to show tax returns",
