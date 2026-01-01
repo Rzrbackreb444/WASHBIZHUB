@@ -8579,6 +8579,73 @@ Submitted: ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })
     }
   });
 
+  // ==================== STRIPE CATALOG SYNC (ADMIN) ====================
+
+  app.post("/api/admin/stripe/sync-catalog", requireAdmin, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+
+      const { syncStripeCatalog } = await import("./stripe-catalog-sync");
+      const result = await syncStripeCatalog();
+      
+      res.json({
+        success: result.errors.length === 0,
+        summary: {
+          productsCreated: result.productsCreated,
+          productsUpdated: result.productsUpdated,
+          pricesCreated: result.pricesCreated,
+          pricesUpdated: result.pricesUpdated,
+          errors: result.errors,
+        },
+        envVars: result.envVars,
+        message: result.errors.length === 0 
+          ? "Stripe catalog synced successfully!" 
+          : `Synced with ${result.errors.length} errors`,
+      });
+    } catch (error: any) {
+      console.error("Stripe catalog sync error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/admin/stripe/catalog", requireAdmin, async (req: any, res) => {
+    try {
+      if (!stripe) {
+        return res.status(500).json({ error: "Stripe not configured" });
+      }
+
+      // Fetch all active products and prices from Stripe
+      const [products, prices] = await Promise.all([
+        stripe.products.list({ active: true, limit: 100 }),
+        stripe.prices.list({ active: true, limit: 100 }),
+      ]);
+
+      res.json({
+        products: products.data.map(p => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          metadata: p.metadata,
+          active: p.active,
+        })),
+        prices: prices.data.map(p => ({
+          id: p.id,
+          productId: p.product,
+          unitAmount: p.unit_amount,
+          currency: p.currency,
+          recurring: p.recurring,
+          metadata: p.metadata,
+          active: p.active,
+        })),
+        mode: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // ==================== NEWSLETTER CAMPAIGNS (ADMIN) ====================
   
   app.get("/api/admin/newsletter/campaigns", requireAdmin, async (req, res) => {
