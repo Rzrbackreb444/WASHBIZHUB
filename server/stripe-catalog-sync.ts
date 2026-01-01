@@ -52,16 +52,25 @@ export const PRODUCT_CATALOG = {
   },
 
   // ================================================
-  // ALL-ACCESS BUNDLES
+  // ALL-ACCESS BUNDLES (matches pricing page)
   // ================================================
   bundles: {
-    allAccess: {
+    business: {
       name: 'WashBizHub All-Access',
       description: 'Complete access to CLEANBI Pro, Service Guy AI Pro, POS Suite, and all premium templates.',
-      metadata: { tier: 'all_access', product_line: 'bundle' },
+      metadata: { tier: 'business', product_line: 'bundle' },
       prices: {
-        monthly: { amount: 19900, interval: 'month' as const, envKey: 'STRIPE_ALL_ACCESS_MONTHLY_PRICE_ID' },
-        annual: { amount: 199000, interval: 'year' as const, envKey: 'STRIPE_ALL_ACCESS_ANNUAL_PRICE_ID' },
+        monthly: { amount: 14900, interval: 'month' as const, envKey: 'STRIPE_BUSINESS_MONTHLY_PRICE_ID' },
+        annual: { amount: 149000, interval: 'year' as const, envKey: 'STRIPE_BUSINESS_ANNUAL_PRICE_ID' },
+      }
+    },
+    enterprise: {
+      name: 'WashBizHub Enterprise',
+      description: 'Everything in All-Access plus API access, white-label reports, multi-location management, team seats, and dedicated account manager.',
+      metadata: { tier: 'enterprise', product_line: 'bundle' },
+      prices: {
+        monthly: { amount: 29900, interval: 'month' as const, envKey: 'STRIPE_ENTERPRISE_MONTHLY_PRICE_ID' },
+        annual: { amount: 299000, interval: 'year' as const, envKey: 'STRIPE_ENTERPRISE_ANNUAL_PRICE_ID' },
       }
     },
     academyBundle: {
