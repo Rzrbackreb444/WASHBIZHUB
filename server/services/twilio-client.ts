@@ -137,13 +137,57 @@ export async function isTwilioConfigured(): Promise<boolean> {
   return creds !== null && !!creds.fromNumber;
 }
 
-export async function sendOwnerAlert(message: string): Promise<void> {
-  const ownerNumbers = [
-    process.env.NICK_PHONE || '4798834314',
-  ];
+/**
+ * Send SMS via AT&T Email-to-SMS Gateway
+ * Bypasses Twilio entirely for owner notifications
+ * Format: phonenumber@txt.att.net
+ */
+export async function sendSMSViaEmailGateway(options: {
+  to: string;
+  body: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { Resend } = await import('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // Format phone number and create email address
+    const phoneNumber = options.to.replace(/\D/g, '');
+    const emailAddress = `${phoneNumber}@txt.att.net`;
+    
+    console.log(`[SMS Gateway] Sending via email to ${emailAddress}`);
+    
+    const result = await resend.emails.send({
+      from: 'WashBizHub <alerts@washbizhub.com>',
+      to: emailAddress,
+      subject: '', // SMS doesn't show subject
+      text: options.body,
+    });
+    
+    if (result.error) {
+      console.error('[SMS Gateway] Send failed:', result.error);
+      return { success: false, error: result.error.message };
+    }
+    
+    console.log(`[SMS Gateway] SMS sent successfully via email gateway`);
+    return { success: true };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[SMS Gateway] Error:', errorMessage);
+    return { success: false, error: errorMessage };
+  }
+}
 
-  for (const number of ownerNumbers) {
-    await sendSMS({ to: number, body: message });
+export async function sendOwnerAlert(message: string): Promise<void> {
+  // Use direct email-to-SMS gateway for owner notifications (AT&T)
+  // Nick's phone: 4798834314@txt.att.net
+  const ownerPhone = process.env.NICK_PHONE || '4798834314';
+  
+  // Try email gateway first (more reliable, no Twilio dependency)
+  const emailResult = await sendSMSViaEmailGateway({ to: ownerPhone, body: message });
+  
+  if (!emailResult.success) {
+    console.log('[Owner Alert] Email gateway failed, trying Twilio fallback');
+    await sendSMS({ to: ownerPhone, body: message });
   }
 }
 

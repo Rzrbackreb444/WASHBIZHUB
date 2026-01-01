@@ -33,6 +33,7 @@ import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 const navLinks = [
   { href: "/cleanbi-explorer", label: "CLEANBI Explorer", featured: true, icon: Search },
   { href: "/marketplace", label: "Marketplace", featured: false, icon: ShoppingBag },
+  { href: "/funding", label: "FundingHub", featured: true, icon: DollarSign },
   { href: "/design-studio", label: "Design Studio", featured: false, icon: Palette },
   { href: "/service-guy-ai", label: "Service Guy AI", featured: false, icon: Bot },
   { href: "/pricing", label: "Pricing", featured: true, icon: DollarSign },
