@@ -1976,7 +1976,6 @@ export class MemStorage implements IStorage {
   async cleanupExpiredRateLimits(): Promise<void> { }
   async createEmailVerificationToken(): Promise<EmailVerificationToken> { throw new Error("Use DbStorage for security features"); }
   async getEmailVerificationToken(): Promise<EmailVerificationToken | undefined> { return undefined; }
-  async markEmailVerified(): Promise<void> { throw new Error("Use DbStorage for security features"); }
   async cleanupExpiredTokens(): Promise<void> { }
   
   // Buyer Engagement System Stubs (use DbStorage for actual functionality)

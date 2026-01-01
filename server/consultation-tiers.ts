@@ -33,29 +33,6 @@ export interface ConsultationTier {
   popular?: boolean;
 }
 
-
-  export const LARRY_LARSEN_PERSONA = {
-  name: "Larry Larsen",
-  title: "50-Year Industry Veteran & Risk Strategist",
-  company: "Laundromat Larry Consulting",
-  expertise: "Five decades of laundromat ownership, high-stakes consulting, and industry education",
-  credentials: [
-    "Known industry-wide as 'Laundromat Larry'",
-    "Directly consulted on 500+ laundromat acquisitions",
-    "Trusted strategic advisor to the WashBizHub community",
-    "Multi-store owner with 50 years of operational experience"
-  ],
-  style: "Direct, veteran authority; focuses on mitigating $100k+ operational and lease risks",
-  icon: "👔",
-  specialties: [
-    "Deep-Dive Due Diligence for Acquisitions",
-    "Predatory Lease Mitigation & Negotiation",
-    "Utility-to-Revenue 'Fluff' Detection",
-    "Precision Site Selection (Laundry Deserts)",
-    "Exit Strategy & Store Valuation Planning"
-  ]
-};
-
 // Larry Larsen Expert Persona - "Laundromat" Larry
 export const LARRY_LARSEN_PERSONA = {
   name: "Larry Larsen",
@@ -76,8 +53,7 @@ export const LARRY_LARSEN_PERSONA = {
     "Utility-to-Revenue 'Fluff' Detection",
     "Precision Site Selection (Laundry Deserts)",
     "Exit Strategy & Store Valuation Planning"
-  ]
-};
+  ],
   knowledgeBase: {
     redFlags: [
       "Owner unwilling to show tax returns",
