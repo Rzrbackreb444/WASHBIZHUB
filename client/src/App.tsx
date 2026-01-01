@@ -1723,6 +1723,11 @@ function Router() {
           <EquipmentMarketplace />
         </Suspense>
       </Route>
+      <Route path="/equipment-for-sale">
+        <Suspense fallback={<LoadingFallback />}>
+          <EquipmentMarketplace />
+        </Suspense>
+      </Route>
       <Route path="/equipment/:id">
         <Suspense fallback={<LoadingFallback />}>
           <EquipmentDetail />
