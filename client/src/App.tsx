@@ -14,6 +14,7 @@ import { AuthModalProvider } from "@/components/AuthModal";
 import { SignOutConfirmationProvider } from "@/components/SignOutConfirmation";
 import { NavigationMenu } from "@/components/NavigationMenu";
 import { PersonaHeader } from "@/components/PersonaHeader";
+import { MegaMenu } from "@/components/MegaMenu";
 import { Footer } from "@/components/Footer";
 import { DeferredAIChatWidget } from "@/components/DeferredAIChatWidget";
 import { FloatingFeedbackButton } from "@/components/FloatingFeedbackButton";
@@ -305,6 +306,7 @@ const UtilityRateForecaster = lazy(() => import("@/pages/utility-rate-forecaster
 const CACCalculator = lazy(() => import("@/pages/cac-calculator"));
 const LTVCACDashboard = lazy(() => import("@/pages/ltv-cac-dashboard"));
 const WDFEfficiencyCalculator = lazy(() => import("@/pages/wdf-efficiency-calculator"));
+const WDFMarginMaster = lazy(() => import("@/pages/wdf-margin-master"));
 const WDFPricingOptimizer = lazy(() => import("@/pages/wdf-pricing-optimizer"));
 const WhatIfAnalysis = lazy(() => import("@/pages/what-if-analysis"));
 const EquipmentMixOptimizer = lazy(() => import("@/pages/equipment-mix-optimizer"));
@@ -1166,6 +1168,11 @@ function Router() {
       <Route path="/wdf-efficiency-calculator">
         <Suspense fallback={<LoadingFallback />}>
           <WDFEfficiencyCalculator />
+        </Suspense>
+      </Route>
+      <Route path="/wdf-margin-master">
+        <Suspense fallback={<LoadingFallback />}>
+          <WDFMarginMaster />
         </Suspense>
       </Route>
       <Route path="/wdf-pricing-optimizer">
@@ -2483,7 +2490,7 @@ function AppContent() {
         <Suspense fallback={null}>
           <DeferredAnalytics />
         </Suspense>
-        <PersonaHeader />
+        <MegaMenu />
         <main id="main-content" role="main" className="flex-1">
           <RouteErrorBoundary>
             <PageTransition>
