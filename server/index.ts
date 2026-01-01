@@ -1,4 +1,6 @@
+
 import express, { type Request, Response, NextFunction } from "express";
+import { isEventProcessed, markEventProcessed } from "./utils/webhook-cache";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import path from "path";
@@ -25,35 +27,7 @@ import {
   sendTrialEndingEmail 
 } from "./subscription-emails";
 
-// Idempotency cache for webhook events (prevents duplicate processing)
-// Uses Map with TTL to auto-cleanup old entries
-const processedWebhookEvents = new Map<string, number>();
-const WEBHOOK_EVENT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-function isEventProcessed(eventId: string): boolean {
-  const processedAt = processedWebhookEvents.get(eventId);
-  if (processedAt) {
-    // Event was already processed
-    console.log(`⚠️ Duplicate webhook event detected: ${eventId} (processed ${Date.now() - processedAt}ms ago)`);
-    return true;
-  }
-  return false;
-}
-
-function markEventProcessed(eventId: string): void {
-  processedWebhookEvents.set(eventId, Date.now());
   
-  // Cleanup old entries periodically (every 100 events)
-  if (processedWebhookEvents.size % 100 === 0) {
-    const now = Date.now();
-    for (const [id, timestamp] of processedWebhookEvents.entries()) {
-      if (now - timestamp > WEBHOOK_EVENT_TTL_MS) {
-        processedWebhookEvents.delete(id);
-      }
-    }
-    console.log(`🧹 Cleaned up old webhook events. Current cache size: ${processedWebhookEvents.size}`);
-  }
-}
 import { db } from "./db";
 import { promoCodes, promoCodeRedemptions, adminActivityLog } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
@@ -77,6 +51,7 @@ import { globalRateLimiter, aiRateLimiter, exportRateLimiter } from "./middlewar
 import { auditLogMiddleware } from "./middleware/audit-log";
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Enable gzip compression for all responses (major performance boost)
 app.use(compression({
@@ -1410,7 +1385,7 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
+  const port = parseInt(process.env.PORT || '3000', 10);
   server.listen({
     port,
     host: "0.0.0.0",
