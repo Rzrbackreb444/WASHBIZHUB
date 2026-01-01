@@ -219,12 +219,16 @@ export function PremiumHero() {
 
             <motion.div variants={itemVariants} className="flex items-center gap-4 sm:gap-8">
               <div className="flex -space-x-2 sm:-space-x-3">
-                {[...Array(4)].map((_, i) => (
+                {[
+                  { grade: "A", color: "from-green-500/30 to-green-600/20 border-green-500/50" },
+                  { grade: "B", color: "from-lime-500/30 to-lime-600/20 border-lime-500/50" },
+                  { grade: "C", color: "from-amber-500/30 to-amber-600/20 border-amber-500/50" },
+                ].map((item, i) => (
                   <div 
                     key={i}
-                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-white/20 to-white/5 border-2 border-[#1e3a5f] flex items-center justify-center text-white/60 text-xs font-bold"
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${item.color} border-2 flex items-center justify-center text-white text-xs font-bold`}
                   >
-                    {String.fromCharCode(65 + i)}
+                    {item.grade}
                   </div>
                 ))}
               </div>
