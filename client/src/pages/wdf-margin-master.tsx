@@ -24,6 +24,7 @@ import {
   ResponsiveContainer, AreaChart, Area, ReferenceLine, Legend 
 } from "recharts";
 import { Helmet } from "react-helmet-async";
+import calculatorBgUrl from "@assets/generated_images/calculator_results_premium_background.png";
 
 interface WDFInputs {
   monthlyPounds: number;
@@ -190,7 +191,7 @@ function WDFCalculator({ inputs, setInputs }: { inputs: WDFInputs; setInputs: (i
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-[#C8A661]/20 to-transparent border-[#C8A661]/30">
+        <Card className="bg-slate-900/90 backdrop-blur-sm border border-[#C8A661]/40 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <DollarSign className="h-5 w-5 text-[#C8A661]" />
@@ -207,7 +208,7 @@ function WDFCalculator({ inputs, setInputs }: { inputs: WDFInputs; setInputs: (i
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-500/20 to-transparent border-green-500/30">
+        <Card className="bg-slate-900/90 backdrop-blur-sm border border-green-500/40 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-500" />
@@ -224,7 +225,7 @@ function WDFCalculator({ inputs, setInputs }: { inputs: WDFInputs; setInputs: (i
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-blue-500/20 to-transparent border-blue-500/30">
+        <Card className="bg-slate-900/90 backdrop-blur-sm border border-blue-500/40 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-blue-500" />
@@ -241,7 +242,7 @@ function WDFCalculator({ inputs, setInputs }: { inputs: WDFInputs; setInputs: (i
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-purple-500/20 to-transparent border-purple-500/30">
+        <Card className="bg-slate-900/90 backdrop-blur-sm border border-purple-500/40 shadow-lg">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5 text-purple-500" />
@@ -567,20 +568,39 @@ export default function WDFMarginMaster() {
                   Wash-Dry-Fold Profitability Calculator
                 </p>
               </div>
-              <Badge className="ml-auto bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
-                <Crown className="h-3 w-3 mr-1" />
-                Premium
-              </Badge>
+              <div className="ml-auto flex items-center gap-3">
+                <Link href="/funding">
+                  <Button variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/20" data-testid="button-get-funding">
+                    <DollarSign className="h-4 w-4 mr-1" />
+                    Get Funding
+                  </Button>
+                </Link>
+                <Badge className="bg-[#C8A661]/20 text-[#C8A661] border-[#C8A661]/30">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Premium
+                </Badge>
+              </div>
             </div>
           </div>
           
           <div className="relative">
-            {!hasAccess && <PremiumGate />}
-            {!hasAccess ? (
-              <BlurredPreview />
-            ) : (
-              <WDFCalculator inputs={inputs} setInputs={setInputs} />
-            )}
+            {/* Premium background for calculator results */}
+            <div 
+              className="absolute inset-0 opacity-[0.12] pointer-events-none rounded-2xl overflow-hidden"
+              style={{ 
+                backgroundImage: `url(${calculatorBgUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            />
+            <div className="relative">
+              {!hasAccess && <PremiumGate />}
+              {!hasAccess ? (
+                <BlurredPreview />
+              ) : (
+                <WDFCalculator inputs={inputs} setInputs={setInputs} />
+              )}
+            </div>
           </div>
         </div>
       </div>
