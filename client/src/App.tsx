@@ -313,6 +313,7 @@ const EquipmentMixOptimizer = lazy(() => import("@/pages/equipment-mix-optimizer
 const CalculatorsHub = lazy(() => import("@/pages/calculators"));
 const CalculatorsSuite = lazy(() => import("@/pages/calculators-suite"));
 const CalculatorBuilder = lazy(() => import("@/pages/calculator-builder"));
+const IndustryBenchmarksPage = lazy(() => import("@/pages/industry-benchmarks"));
 const CalculatorMarketplace = lazy(() => import("@/pages/calculator-marketplace"));
 const StaffingLevelCalculator = lazy(() => import("@/pages/staffing-level-calculator"));
 const DowntimeCostCalculator = lazy(() => import("@/pages/downtime-cost-calculator"));
@@ -996,6 +997,13 @@ function Router() {
       <Route path="/help-center">
         <Suspense fallback={<LoadingFallback />}>
           <HelpCenter />
+        </Suspense>
+      </Route>
+
+      {/* Industry Benchmarks */}
+      <Route path="/industry-benchmarks">
+        <Suspense fallback={<LoadingFallback />}>
+          <IndustryBenchmarksPage />
         </Suspense>
       </Route>
 
