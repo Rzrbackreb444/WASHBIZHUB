@@ -38,6 +38,7 @@ const resourcesLinks = [
   { href: "/blog", label: "Blog", testId: "link-footer-blog" },
   { href: "/courses", label: "Courses", testId: "link-footer-courses" },
   { href: "/book", label: "The Laundromat Bible", testId: "link-footer-laundromat-bible" },
+  { href: "/industry-benchmarks", label: "Industry Benchmarks", testId: "link-footer-industry-benchmarks" },
 ];
 
 const companyLinks = [
