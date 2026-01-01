@@ -82,6 +82,7 @@ export default function Pricing() {
 
   const enterpriseFeatures = [
     "Everything in All-Access",
+    "Direct access to Larry Larsen's expert analysis",
     "API access for integrations",
     "White-label reports",
     "Multi-location management",
