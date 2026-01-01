@@ -462,7 +462,7 @@ export function MobileMenu() {
       </SheetTrigger>
       <SheetContent 
         side="right" 
-        className="w-[300px] p-0 flex flex-col [&>button]:hidden bg-background z-50"
+        className="w-[300px] p-0 flex flex-col [&>button]:hidden bg-slate-950 z-50"
       >
         <SheetHeader className="sr-only">
           <SheetTitle>Navigation Menu</SheetTitle>

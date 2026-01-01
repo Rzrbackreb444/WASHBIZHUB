@@ -19,6 +19,7 @@ import {
   AlertTriangle, CheckCircle, BarChart3, PieChart, Zap,
   ArrowRight, Crown
 } from "lucide-react";
+import { StickyConsultationBar } from "@/components/StickyConsultationBar";
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, AreaChart, Area, ReferenceLine, Legend 
@@ -604,6 +605,8 @@ export default function WDFMarginMaster() {
           </div>
         </div>
       </div>
+      
+      <StickyConsultationBar context="wdf" />
     </>
   );
 }

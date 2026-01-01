@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import { RoadshowBanner } from "@/components/RoadshowPromo";
 import { AAdvantageSpotlight } from "@/components/AAdvantageSpotlight";
+import { ConsultationHero } from "@/components/ConsultationHero";
 
 // Testimonials data
 const testimonials = [
@@ -778,6 +779,9 @@ export default function Home() {
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
+        
+        {/* CONSULTATION HERO - Larry Larsen expert consultation CTA */}
+        <ConsultationHero />
         
         {/* AADVANTAGE SPOTLIGHT - Featured partner section */}
         <AAdvantageSpotlight />
