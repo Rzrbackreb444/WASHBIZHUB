@@ -1380,7 +1380,12 @@ app.use((req, res, next) => {
       console.error("⚠️  Error seeding templates:", error.message);
     }
   }
-
+// Google RISC Handler for Cross-Account Protection (CAP)
+app.post('/api/risc-handler', async (req, res) => {
+  const securityEventToken = req.body;
+  console.log('RISC Security Event Received for WashBizHub:', securityEventToken);
+  res.status(202).send('Accepted'); // Required 202 status for Google pings
+});
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
