@@ -446,10 +446,7 @@ export function BentoGrid() {
               border: '1px solid rgba(6,182,212,0.2)'
             }}
             data-testid="tile-platform-intelligence"
-            onClick={() => {
-              const section = document.getElementById('platform-intelligence');
-              section?.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onClick={() => navigate('/cleanbi-explorer')}
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl" />
             
