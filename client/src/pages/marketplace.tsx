@@ -1,8 +1,11 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Star, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ShoppingBag, Star, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap, Search, Plus, Store, DollarSign, TrendingUp, Loader2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import heroImage from "@assets/AdobeStock_711286802_1765733834364.jpeg";
 import { Link } from "wouter";
@@ -207,12 +210,42 @@ function EquipmentIcon({ type }: { type: string }) {
   }
 }
 
+// CLEANBI grade colors
+const GRADE_COLORS: Record<string, string> = {
+  "A": "#22C55E",
+  "B": "#A3E635", 
+  "C": "#FBBF24",
+  "Needs Work": "#d4af37"
+};
+
+function getGradeFromScore(score: number): string {
+  if (score >= 85) return "A";
+  if (score >= 70) return "B";
+  if (score >= 55) return "C";
+  return "Needs Work";
+}
+
 export default function Marketplace() {
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Fetch laundromat listings
+  const { data: listings, isLoading: listingsLoading } = useQuery<any[]>({
+    queryKey: ['/api/listings'],
+  });
+
   const handleDistributorInquiry = (itemName: string, itemType: string) => {
     const subject = encodeURIComponent(`Distributor Inquiry: ${itemName}`);
     const body = encodeURIComponent(`Hi,\n\nI'm interested in purchasing:\n\n${itemName} (${itemType})\n\nPlease connect me with an authorized distributor in my area.\n\nThank you!`);
     window.location.href = `mailto:${CONSULT_EMAIL}?subject=${subject}&body=${body}`;
   };
+
+  // Filter listings by search
+  const filteredListings = listings?.filter(listing => 
+    !searchQuery || 
+    listing.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    listing.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    listing.state?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   return (
     <>
@@ -359,32 +392,72 @@ export default function Marketplace() {
         ]}
         speakableSelectors={["h1", "h2", ".speakable"]}
       />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-        <div className="relative py-12 md:py-20">
+      <div className="min-h-screen bg-[#09090b] pt-16">
+        {/* Hero Section with Obsidian Glass */}
+        <div className="relative py-16 md:py-24">
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center opacity-30"
             style={{ backgroundImage: `url(${heroImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/90 via-[#0A1628]/75 to-[#0A1628]/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-[#09090b]/80 to-[#09090b]" />
           <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <div className="text-center mb-8 md:mb-12">
-              <ShoppingBag className="h-12 w-12 md:h-16 md:w-16 text-accent mx-auto mb-4" />
-              <h1 className="text-3xl md:text-5xl font-black text-white mb-4" data-testid="text-marketplace-title">
-                Marketplace
+            <div className="text-center mb-8">
+              <h1 className="text-4xl md:text-6xl font-black text-white mb-4" data-testid="text-marketplace-title">
+                Laundromat <span className="text-[#d4af37]">Marketplace</span>
               </h1>
-              <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto" data-testid="text-marketplace-subtitle">
-                Equipment through authorized distributors, supplies direct to you
+              <p className="text-lg text-white/60 max-w-xl mx-auto mb-8" data-testid="text-marketplace-subtitle">
+                Find. Analyze. Acquire.
               </p>
+              
+              {/* Search Bar and CTA */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
+                <div className="relative flex-1 w-full">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+                  <Input
+                    placeholder="Search by city, state, or keyword..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-12 h-12 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#d4af37]/50"
+                    data-testid="input-marketplace-search"
+                  />
+                </div>
+                <Link href="/list-your-laundromat">
+                  <Button 
+                    size="lg"
+                    className="bg-[#d4af37] hover:bg-[#c49f2f] text-black font-semibold h-12 px-6 whitespace-nowrap"
+                    data-testid="button-list-laundromat"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    List Your Laundromat
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
+        
         <div className="max-w-7xl mx-auto px-4 py-8">
-
-          <Tabs defaultValue="supplies" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/10 h-auto">
+          <Tabs defaultValue="laundromats" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 mb-8 bg-white/5 border border-white/10 h-auto rounded-xl p-1">
+              <TabsTrigger 
+                value="laundromats" 
+                className="data-[state=active]:bg-[#d4af37] data-[state=active]:text-black text-white py-3 text-xs sm:text-sm rounded-lg"
+                data-testid="tab-laundromats"
+              >
+                <Store className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
+                <span className="truncate">Laundromats</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="equipment" 
+                className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 py-3 text-xs sm:text-sm rounded-lg"
+                data-testid="tab-equipment"
+              >
+                <WashingMachine className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
+                <span className="truncate">Equipment</span>
+              </TabsTrigger>
               <TabsTrigger 
                 value="supplies" 
-                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-white py-3 text-xs sm:text-sm"
+                className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-white/60 py-3 text-xs sm:text-sm rounded-lg"
                 data-testid="tab-supplies"
               >
                 <Droplets className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
@@ -392,21 +465,122 @@ export default function Marketplace() {
               </TabsTrigger>
               <TabsTrigger 
                 value="aadvantage" 
-                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white py-3 text-xs sm:text-sm"
+                className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white/60 py-3 text-xs sm:text-sm rounded-lg"
                 data-testid="tab-aadvantage"
               >
                 <Zap className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
                 <span className="truncate">AAdvantage</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="equipment" 
-                className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground text-white py-3 text-xs sm:text-sm"
-                data-testid="tab-equipment"
-              >
-                <WashingMachine className="h-4 w-4 mr-1 sm:mr-2 shrink-0" />
-                <span className="truncate">Equipment</span>
-              </TabsTrigger>
             </TabsList>
+
+            {/* LAUNDROMATS TAB - Primary listing feed */}
+            <TabsContent value="laundromats">
+              {listingsLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" />
+                </div>
+              ) : filteredListings.length === 0 ? (
+                <div className="text-center py-20">
+                  <Store className="h-16 w-16 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Listings Found</h3>
+                  <p className="text-white/50 mb-6">Try adjusting your search or check back soon for new listings.</p>
+                  <Link href="/list-your-laundromat">
+                    <Button className="bg-[#d4af37] hover:bg-[#c49f2f] text-black">
+                      <Plus className="h-4 w-4 mr-2" />
+                      List Your Laundromat
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredListings.map((listing: any) => {
+                    const grade = listing.cleanbiGrade || getGradeFromScore(listing.cleanbiScore || 0);
+                    const gradeColor = GRADE_COLORS[grade] || "#d4af37";
+                    return (
+                      <Link key={listing.id} href={`/listing/${listing.id}`}>
+                        <Card 
+                          className="h-full cursor-pointer transition-all hover:scale-[1.02] overflow-hidden"
+                          style={{ 
+                            background: 'rgba(255,255,255,0.03)',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                          }}
+                          data-testid={`card-listing-${listing.id}`}
+                        >
+                          {/* Image placeholder */}
+                          <div className="h-48 bg-gradient-to-br from-white/5 to-white/10 relative">
+                            {listing.featured && (
+                              <Badge className="absolute top-3 left-3 bg-[#d4af37] text-black">Featured</Badge>
+                            )}
+                            {listing.cleanbiScore && (
+                              <div 
+                                className="absolute top-3 right-3 w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg"
+                                style={{ backgroundColor: gradeColor }}
+                              >
+                                {grade}
+                              </div>
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Store className="h-16 w-16 text-white/20" />
+                            </div>
+                          </div>
+                          
+                          <CardContent className="p-5">
+                            <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">
+                              {listing.title}
+                            </h3>
+                            <div className="flex items-center gap-1 text-white/50 text-sm mb-4">
+                              <MapPin className="h-4 w-4" />
+                              <span>{listing.location}, {listing.state}</span>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="flex items-center gap-1 text-white/40 text-xs mb-1">
+                                  <DollarSign className="h-3 w-3" />
+                                  Asking Price
+                                </div>
+                                <div className="text-[#d4af37] font-bold">
+                                  ${(listing.price || 0).toLocaleString()}
+                                </div>
+                              </div>
+                              <div className="bg-white/5 rounded-lg p-3">
+                                <div className="flex items-center gap-1 text-white/40 text-xs mb-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  Revenue
+                                </div>
+                                <div className="text-white font-bold">
+                                  ${(listing.annualRevenue || 0).toLocaleString()}/yr
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              {listing.includesRealEstate && (
+                                <Badge variant="outline" className="border-[#d4af37]/30 text-[#d4af37]">
+                                  <Building2 className="h-3 w-3 mr-1" />
+                                  Includes RE
+                                </Badge>
+                              )}
+                              <span className="text-[#d4af37] text-sm font-medium ml-auto">View Details →</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* CTA to view all listings */}
+              <div className="text-center mt-12">
+                <Link href="/laundromat-listings">
+                  <Button variant="outline" size="lg" className="border-[#d4af37]/40 text-[#d4af37] hover:bg-[#d4af37]/10">
+                    View All Listings
+                  </Button>
+                </Link>
+              </div>
+            </TabsContent>
 
             {/* Supplies Tab - Amazon Affiliates */}
             <TabsContent value="supplies">

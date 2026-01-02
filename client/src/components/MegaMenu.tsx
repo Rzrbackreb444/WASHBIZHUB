@@ -4,7 +4,7 @@
  * Obsidian Glass aesthetic with Matte Gold accents
  */
 
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -378,6 +378,24 @@ export function MegaMenu() {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [openPillar, setOpenPillar] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Initialize scroll state immediately to avoid flicker
+  const [scrolled, setScrolled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.scrollY > 50;
+    }
+    return false;
+  });
+  
+  // Track scroll for transparent → solid header transition
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    // Check immediately on mount
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   const handlePillarToggle = useCallback((pillarId: string) => {
     setOpenPillar(prev => prev === pillarId ? null : pillarId);
@@ -397,9 +415,15 @@ export function MegaMenu() {
         Skip to main content
       </a>
       
-      <header className="sticky top-0 z-50" style={{ background: '#09090b' }}>
+      <header 
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{ 
+          background: scrolled ? 'rgba(9, 9, 11, 0.95)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(12px)' : 'none'
+        }}
+      >
         {/* Single streamlined navigation bar */}
-        <div className="border-b border-[#d4af37]/10" onClick={closePillars}>
+        <div className={`border-b transition-colors duration-300 ${scrolled ? 'border-[#d4af37]/10' : 'border-transparent'}`} onClick={closePillars}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-16 flex items-center justify-between gap-4">
               {/* Logo */}

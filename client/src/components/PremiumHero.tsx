@@ -153,7 +153,7 @@ export function PremiumHero() {
                 <Button 
                   variant="outline"
                   size="lg"
-                  className="font-medium text-base px-8 h-12"
+                  className="font-medium text-base px-8 h-12 border-[#d4af37]/50 text-white bg-white/10 hover:bg-white/20 hover:border-[#d4af37]"
                   data-testid="button-book-larry"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
