@@ -63,8 +63,7 @@ const mobileSections: MenuSection[] = [
       { href: "/machine-booking", label: "Machine Booking", icon: Calendar },
       { href: "/service-guy-ai", label: "Service Guy AI", icon: Bot, featured: true },
       { href: "/design-studio-pro", label: "Design Studio", icon: Palette },
-      { href: "/website-builder", label: "Website Builder", icon: Globe, featured: true },
-      { href: "/seo-command-center", label: "SEO Dashboard", icon: TrendingUp },
+      { href: "/seo-command-center", label: "SEO Dashboard", icon: TrendingUp, featured: true },
       { href: "/utility-calculator", label: "Utility Calculator", icon: Zap },
     ]
   },

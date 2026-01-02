@@ -65,13 +65,6 @@ export const solutionsSection: NavSection = {
       featured: true,
     },
     {
-      href: "/website-builder",
-      label: "Website Builder",
-      description: "Build your laundromat site",
-      icon: Building2,
-      tier: "pro",
-    },
-    {
       href: "/service-guy-ai",
       label: "Service Guy AI",
       description: "Equipment diagnostics",
