@@ -42,18 +42,20 @@ const resourcesLinks = [
 ];
 
 const companyLinks = [
-  { href: "/larry-larsen", label: "Consult with Larry", testId: "link-footer-larry", featured: true },
+  { href: "/consultation", label: "Consult with Larry", testId: "link-footer-larry", featured: true },
   { href: "/pricing", label: "Pricing", testId: "link-footer-pricing" },
+  { href: "/courses", label: "Academy", testId: "link-footer-academy" },
   { href: "/brokers", label: "Brokers", testId: "link-footer-brokers" },
   { href: "/our-partnership", label: "About Us", testId: "link-footer-about" },
-  { href: "/feedback", label: "Feedback & Suggestions", testId: "link-footer-feedback" },
+  { href: "/support", label: "Support", testId: "link-footer-support" },
+  { href: "/feedback", label: "Feedback", testId: "link-footer-feedback" },
 ];
 
 function FooterComponent() {
   return (
-    <footer className="relative mt-auto border-t border-border" data-testid="footer-main">
-      {/* Navy gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a2e4a] to-[#0f1d30]" aria-hidden="true" />
+    <footer className="relative mt-auto border-t border-[#d4af37]/10" data-testid="footer-main">
+      {/* Obsidian Glass background */}
+      <div className="absolute inset-0 bg-[#09090b]" aria-hidden="true" />
       
       <div className="relative z-10">
         {/* Trust Stats Bar */}
@@ -61,19 +63,19 @@ function FooterComponent() {
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div data-testid="stat-community">
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">73K+</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#d4af37]">73K+</div>
                 <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Community</div>
               </div>
               <div data-testid="stat-analyses">
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">50K+</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#d4af37]">50K+</div>
                 <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Analyses</div>
               </div>
               <div data-testid="stat-funding">
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">$500M+</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#d4af37]">$500M+</div>
                 <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Funding</div>
               </div>
               <div data-testid="stat-experience">
-                <div className="text-2xl md:text-3xl font-bold text-[#C8A661]">50+ Yrs</div>
+                <div className="text-2xl md:text-3xl font-bold text-[#d4af37]">50+ Yrs</div>
                 <div className="text-xs text-white/50 uppercase tracking-wider mt-1">Experience</div>
               </div>
             </div>
@@ -102,7 +104,7 @@ function FooterComponent() {
                   href="https://facebook.com/groups/thelaundromat"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-white/60 hover:text-[#C8A661] transition-colors text-sm"
+                  className="inline-flex items-center gap-2 text-white/60 hover:text-[#d4af37] transition-colors text-sm"
                   data-testid="link-footer-facebook-group"
                 >
                   <Facebook className="h-4 w-4" />
@@ -113,7 +115,7 @@ function FooterComponent() {
                     href="https://facebook.com/washbizhub1"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-white/60 hover:text-[#C8A661] transition-colors"
+                    className="inline-flex items-center text-white/60 hover:text-[#d4af37] transition-colors"
                     data-testid="link-footer-facebook-page"
                   >
                     <Facebook className="h-4 w-4" />
@@ -122,7 +124,7 @@ function FooterComponent() {
                     href="https://twitter.com/washbizhub"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-white/60 hover:text-[#C8A661] transition-colors"
+                    className="inline-flex items-center text-white/60 hover:text-[#d4af37] transition-colors"
                     data-testid="link-footer-twitter"
                   >
                     <Twitter className="h-4 w-4" />
@@ -141,7 +143,7 @@ function FooterComponent() {
                       href={link.href}
                       className={`text-sm cursor-pointer transition-colors block ${
                         link.featured 
-                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          ? "text-[#d4af37] hover:text-[#d4a030]" 
                           : "text-white/60 hover:text-white"
                       }`}
                       data-testid={link.testId}
@@ -163,7 +165,7 @@ function FooterComponent() {
                       href={link.href}
                       className={`text-sm cursor-pointer transition-colors block ${
                         link.featured 
-                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          ? "text-[#d4af37] hover:text-[#d4a030]" 
                           : "text-white/60 hover:text-white"
                       }`}
                       data-testid={link.testId}
@@ -185,7 +187,7 @@ function FooterComponent() {
                       href={link.href}
                       className={`text-sm cursor-pointer transition-colors block ${
                         link.featured 
-                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          ? "text-[#d4af37] hover:text-[#d4a030]" 
                           : "text-white/60 hover:text-white"
                       }`}
                       data-testid={link.testId}
@@ -207,7 +209,7 @@ function FooterComponent() {
                       href={link.href}
                       className={`text-sm cursor-pointer transition-colors block ${
                         link.featured 
-                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          ? "text-[#d4af37] hover:text-[#d4a030]" 
                           : "text-white/60 hover:text-white"
                       }`}
                       data-testid={link.testId}
@@ -229,7 +231,7 @@ function FooterComponent() {
                       href={link.href}
                       className={`text-sm cursor-pointer transition-colors block ${
                         link.featured 
-                          ? "text-[#C8A661] hover:text-[#d4a030]" 
+                          ? "text-[#d4af37] hover:text-[#d4a030]" 
                           : "text-white/60 hover:text-white"
                       }`}
                       data-testid={link.testId}
@@ -260,8 +262,8 @@ function FooterComponent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Human Oversight */}
               <div className="flex items-start gap-4" data-testid="section-human-oversight">
-                <div className="flex-shrink-0 p-2 bg-[#C8A661]/10 rounded-lg">
-                  <UserCheck className="h-6 w-6 text-[#C8A661]" />
+                <div className="flex-shrink-0 p-2 bg-[#d4af37]/10 rounded-lg">
+                  <UserCheck className="h-6 w-6 text-[#d4af37]" />
                 </div>
                 <div>
                   <h4 className="text-white font-semibold text-sm mb-1">Human-Verified Intelligence</h4>
@@ -274,15 +276,15 @@ function FooterComponent() {
 
               {/* Direct Contact */}
               <div className="flex items-start gap-4" data-testid="section-direct-contact">
-                <div className="flex-shrink-0 p-2 bg-[#C8A661]/10 rounded-lg">
-                  <Phone className="h-6 w-6 text-[#C8A661]" />
+                <div className="flex-shrink-0 p-2 bg-[#d4af37]/10 rounded-lg">
+                  <Phone className="h-6 w-6 text-[#d4af37]" />
                 </div>
                 <div>
                   <h4 className="text-white font-semibold text-sm mb-2">Talk to a Human</h4>
                   <div className="space-y-1.5">
                     <a 
                       href={`tel:${OWNER_PHONE}`}
-                      className="flex items-center gap-2 text-white/70 hover:text-[#C8A661] transition-colors text-sm"
+                      className="flex items-center gap-2 text-white/70 hover:text-[#d4af37] transition-colors text-sm"
                       data-testid="link-footer-phone"
                     >
                       <Phone className="h-3.5 w-3.5" />
@@ -290,7 +292,7 @@ function FooterComponent() {
                     </a>
                     <a 
                       href={`mailto:${OWNER_EMAIL}`}
-                      className="flex items-center gap-2 text-white/70 hover:text-[#C8A661] transition-colors text-sm"
+                      className="flex items-center gap-2 text-white/70 hover:text-[#d4af37] transition-colors text-sm"
                       data-testid="link-footer-owner-email"
                     >
                       <Mail className="h-3.5 w-3.5" />
@@ -327,7 +329,7 @@ function FooterComponent() {
             {/* Editorial Standards Note */}
             <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10" data-testid="section-editorial-standards">
               <div className="flex items-start gap-3">
-                <Shield className="h-5 w-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
+                <Shield className="h-5 w-5 text-[#d4af37] flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-white font-semibold text-sm mb-1">Editorial Standards</h4>
                   <p className="text-white/50 text-xs leading-relaxed">
@@ -344,7 +346,7 @@ function FooterComponent() {
           <div className="mt-8 pt-6 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="text-white/50 hover:text-[#C8A661] transition-colors text-sm"
+              className="text-white/50 hover:text-[#d4af37] transition-colors text-sm"
               data-testid="link-footer-email"
             >
               {CONTACT_EMAIL}
@@ -388,13 +390,13 @@ function FooterComponent() {
           <div className="relative h-full flex items-center justify-center">
             <div className="text-center px-4">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <Building2 className="h-5 w-5 text-[#C8A661]" />
-                <span className="text-[#C8A661] font-semibold tracking-wide text-sm uppercase">Enterprise Coverage</span>
-                <Building2 className="h-5 w-5 text-[#C8A661]" />
+                <Building2 className="h-5 w-5 text-[#d4af37]" />
+                <span className="text-[#d4af37] font-semibold tracking-wide text-sm uppercase">Enterprise Coverage</span>
+                <Building2 className="h-5 w-5 text-[#d4af37]" />
               </div>
               <p className="text-white/70 text-sm max-w-xl">
-                Serving <span className="text-[#C8A661] font-bold">73,000+</span> laundromat professionals across{" "}
-                <span className="text-[#C8A661] font-bold">220+ countries</span> with enterprise-grade tools
+                Serving <span className="text-[#d4af37] font-bold">73,000+</span> laundromat professionals across{" "}
+                <span className="text-[#d4af37] font-bold">220+ countries</span> with enterprise-grade tools
               </p>
             </div>
           </div>
