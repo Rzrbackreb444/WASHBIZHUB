@@ -1435,8 +1435,10 @@ app.post('/api/risc-handler', async (req, res) => {
     
     await seedTemplatesIfNeeded();
     
-    // Start the indexing scheduler for automatic URL submission
-    const { startIndexingScheduler } = await import('./indexing-scheduler');
-    await startIndexingScheduler();
+    // MANUAL SEO MODE: Auto-indexing disabled to prevent quota exhaustion
+    // Use AdminBar "Index Now" button for manual submissions
+    // const { startIndexingScheduler } = await import('./indexing-scheduler');
+    // await startIndexingScheduler();
+    console.log('📋 SEO Mode: Manual indexing enabled. Use AdminBar to submit URLs.');
   });
 })();

@@ -680,6 +680,44 @@ export default function AdminBar() {
             <span className="hidden sm:inline">SEO</span>
           </Button>
 
+          {/* Manual Indexing Button - MANUAL SEO MODE */}
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-7 px-2 text-[#c3c4c7] hover:text-white hover:bg-[#32373c] gap-1"
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/admin/manual-index-priority', {
+                  method: 'POST',
+                  credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                  toast({
+                    title: "IndexNow Submitted",
+                    description: `${data.pages?.length || 7} priority pages sent to search engines`,
+                  });
+                } else {
+                  toast({
+                    title: "Indexing Failed",
+                    description: data.error || "Could not submit pages",
+                    variant: "destructive"
+                  });
+                }
+              } catch (error) {
+                toast({
+                  title: "Indexing Error",
+                  description: "Network error submitting pages",
+                  variant: "destructive"
+                });
+              }
+            }}
+            data-testid="admin-bar-index-now"
+          >
+            <Zap className="w-4 h-4 text-amber-400" />
+            <span className="hidden sm:inline">Index Now</span>
+          </Button>
+
           {/* Quick AI Generate Dialog */}
           <Dialog open={quickGenOpen} onOpenChange={setQuickGenOpen}>
             <DialogContent className="sm:max-w-md bg-[#1d2327] text-[#c3c4c7] border-[#3c4043]">
