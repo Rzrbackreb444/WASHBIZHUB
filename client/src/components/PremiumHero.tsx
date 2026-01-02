@@ -151,9 +151,9 @@ export function PremiumHero() {
               </Link>
               <Link href="/consultation">
                 <Button 
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  className="font-medium text-base px-8 h-12 border-[#d4af37]/50 text-white bg-white/10 hover:bg-white/20 hover:border-[#d4af37]"
+                  className="font-medium text-base px-8 h-12 border border-white/30 text-white bg-transparent hover:bg-white/10 hover:border-white/50"
                   data-testid="button-book-larry"
                 >
                   <Calendar className="mr-2 h-5 w-5" />

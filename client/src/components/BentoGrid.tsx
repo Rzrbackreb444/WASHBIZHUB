@@ -1,10 +1,13 @@
 import { useLocation } from "wouter";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Target, ShoppingBag, Calculator, ArrowRight, Search, 
-  Calendar, Star, Phone, Award, Clock
+  Calendar, Star, Phone, Award, Clock, Mail, Loader2
 } from "lucide-react";
 
 function RadarChartPreview() {
@@ -66,14 +69,58 @@ function RadarChartPreview() {
 export function BentoGrid() {
   const [, navigate] = useLocation();
   const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const { toast } = useToast();
 
   const handleCleanbiNavigate = () => {
     const url = address ? `/cleanbi-explorer?address=${encodeURIComponent(address)}` : '/cleanbi-explorer';
     navigate(url);
   };
 
+  const subscribeMutation = useMutation({
+    mutationFn: async (data: { email: string }) => {
+      return apiRequest("POST", "/api/newsletter/subscribe", {
+        email: data.email,
+        primaryIndustry: "laundromat",
+        industries: ["laundromat"],
+        source: "inner_circle_bento",
+        leadMagnet: "inner_circle",
+      });
+    },
+    onSuccess: () => {
+      setSubscribed(true);
+      toast({
+        title: "Welcome to the Inner Circle!",
+        description: "Check your inbox for exclusive insights.",
+      });
+    },
+    onError: (error: Error) => {
+      if (error?.message?.includes("already subscribed")) {
+        setSubscribed(true);
+        toast({
+          title: "You're already a member!",
+          description: "Check your inbox for the latest updates.",
+        });
+      } else {
+        toast({
+          title: "Something went wrong",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
+    },
+  });
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!email) return;
+    subscribeMutation.mutate({ email });
+  };
+
   return (
-    <section className="py-16 md:py-20" style={{ background: '#09090b' }} data-testid="section-bento-grid">
+    <section className="py-24 md:py-32" style={{ background: '#09090b' }} data-testid="section-bento-grid">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -151,7 +198,8 @@ export function BentoGrid() {
                   </div>
                   
                   <Button 
-                    className="bg-[#d4af37] hover:bg-[#c49f2f] text-black font-semibold"
+                    variant="ghost"
+                    className="border border-white/30 text-white bg-transparent hover:bg-white/10 hover:border-white/50 font-semibold"
                     onClick={(e) => { e.stopPropagation(); navigate('/consultation'); }}
                     data-testid="button-book-consultation"
                   >
@@ -323,6 +371,68 @@ export function BentoGrid() {
             <div className="absolute bottom-4 right-4 flex items-center gap-1 text-white/30 text-xs group-hover:text-[#d4af37] transition-colors">
               <span>Calculate</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Tile 5: Inner Circle Email Capture */}
+          <div 
+            className="relative min-h-[180px] rounded-2xl overflow-hidden"
+            style={{ 
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}
+            data-testid="tile-inner-circle"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl" />
+            
+            <div className="relative z-10 p-5 h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-white/40 uppercase tracking-wider">Exclusive</span>
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-1" data-testid="text-inner-circle-title">
+                Inner Circle
+              </h3>
+              <p className="text-white/50 text-sm mb-4 flex-1">
+                Weekly insights. Early deal access. Industry intel.
+              </p>
+              
+              {subscribed ? (
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <span className="text-sm font-medium">You're in!</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-9 bg-white/5 border-white/20 text-white placeholder:text-white/30 text-sm flex-1"
+                    data-testid="input-inner-circle-email"
+                  />
+                  <Button 
+                    type="submit"
+                    size="sm"
+                    className="bg-white text-black hover:bg-white/90 h-9 px-4"
+                    disabled={subscribeMutation.isPending}
+                    onClick={(e) => e.stopPropagation()}
+                    data-testid="button-inner-circle-subscribe"
+                  >
+                    {subscribeMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Join"
+                    )}
+                  </Button>
+                </form>
+              )}
             </div>
           </div>
 

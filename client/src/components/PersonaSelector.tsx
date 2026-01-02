@@ -103,17 +103,17 @@ export function PersonaSelector() {
   };
 
   return (
-    <section className="py-16 px-4 bg-gradient-to-b from-background to-muted/30">
+    <section className="py-24 md:py-32 px-4" style={{ background: '#09090b' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <Badge variant="outline" className="mb-4 border-[#C8A661]/50 text-[#C8A661]">
             <Star className="w-3 h-3 mr-1 fill-current" />
             Personalized Experience
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             What brings you to WashBizHub?
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-white/60 max-w-2xl mx-auto">
             Select your path for a tailored experience with the right tools, resources, and guidance for your journey.
           </p>
         </div>
@@ -132,11 +132,11 @@ export function PersonaSelector() {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className={`h-full border-2 transition-all duration-300 cursor-pointer overflow-hidden ${
-                    isHovered ? 'border-[' + persona.color + ']/50 shadow-lg' : 'border-border'
+                  className={`h-full border transition-all duration-300 cursor-pointer overflow-hidden bg-white/[0.03] backdrop-blur-xl ${
+                    isHovered ? 'border-white/30 shadow-lg' : 'border-white/10'
                   }`}
                   style={{ 
-                    borderColor: isHovered ? persona.color + '40' : undefined 
+                    borderColor: isHovered ? persona.color + '60' : undefined 
                   }}
                   data-testid={`card-persona-${persona.id}`}
                 >
@@ -148,10 +148,10 @@ export function PersonaSelector() {
                       >
                         <Icon className="w-7 h-7" style={{ color: persona.color }} />
                       </div>
-                      <h3 className="text-2xl font-bold text-foreground mb-2">
+                      <h3 className="text-2xl font-bold text-white mb-2">
                         {persona.title}
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-white/70">
                         {persona.subtitle}
                       </p>
                     </div>
@@ -166,7 +166,7 @@ export function PersonaSelector() {
                             >
                               {stat.value}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-white/60">
                               {stat.label}
                             </div>
                           </div>
@@ -180,29 +180,29 @@ export function PersonaSelector() {
                             <Link 
                               key={feature.name} 
                               href={feature.link}
-                              className="flex items-center gap-3 p-2 rounded-lg hover-elevate transition-colors group"
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group"
                               data-testid={`link-feature-${feature.name.toLowerCase().replace(/\s+/g, '-')}`}
                             >
                               <FeatureIcon 
                                 className="w-4 h-4 flex-shrink-0" 
                                 style={{ color: persona.color }} 
                               />
-                              <span className="text-sm text-foreground group-hover:text-foreground">
+                              <span className="text-sm text-white/90 group-hover:text-white">
                                 {feature.name}
                               </span>
-                              <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
+                              <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-white/50" />
                             </Link>
                           );
                         })}
                         {persona.features.length > 4 && (
-                          <div className="text-xs text-muted-foreground text-center pt-1">
+                          <div className="text-xs text-white/50 text-center pt-1">
                             +{persona.features.length - 4} more tools
                           </div>
                         )}
                       </div>
 
                       <Button 
-                        className="w-full"
+                        className="w-full text-white"
                         style={{ 
                           backgroundColor: persona.color,
                           borderColor: persona.color
@@ -222,10 +222,10 @@ export function PersonaSelector() {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-muted-foreground mb-4">
+          <p className="text-white/50 mb-4">
             Not sure where to start? Our AI can guide you.
           </p>
-          <Button variant="outline" asChild>
+          <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
             <Link href="/ai-council" data-testid="link-ai-council">
               <Star className="w-4 h-4 mr-2" />
               Talk to AI Council
