@@ -13,7 +13,7 @@ import blogRoutes, { adminBlogRoutes } from "./blog-routes";
 import feedbackRoutes from "./routes/feedback";
 import referralRoutes from "./routes/referrals";
 // Cloudflare auth removed - using Google OAuth + Email OTP only
-import { setupVite, serveStatic, log } from "./vite";
+import { setupVite, serveStatic, log } from "./vite-wrapper";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { initializeCacheLayer } from "./cleanbi-cache-layer";
