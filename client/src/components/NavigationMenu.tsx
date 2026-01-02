@@ -97,8 +97,7 @@ const OPERATE_LINKS = {
     { href: "/labor-calculator", label: "Labor Calculator", desc: "Staffing optimization" },
   ],
   growth: [
-    { href: "/website-builder", label: "Website Builder", desc: "Build your site", featured: true },
-    { href: "/seo-command-center", label: "SEO Dashboard", desc: "Search optimization" },
+    { href: "/seo-command-center", label: "SEO Dashboard", desc: "Search optimization", featured: true },
     { href: "/seo-command-center?tab=citations", label: "Local Citations", desc: "Build local presence" },
     { href: "/seo-command-center?tab=llm", label: "AI Visibility", desc: "Track ChatGPT mentions" },
   ],
