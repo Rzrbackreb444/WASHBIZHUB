@@ -7,7 +7,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Target, ShoppingBag, Calculator, ArrowRight, Search, 
-  Calendar, Star, Phone, Award, Clock, Mail, Loader2
+  Calendar, Star, Phone, Award, Clock, Mail, Loader2,
+  Flame, TrendingUp, BarChart3, MapPin
 } from "lucide-react";
 
 function RadarChartPreview() {
@@ -433,6 +434,160 @@ export function BentoGrid() {
                   </Button>
                 </form>
               )}
+            </div>
+          </div>
+
+          {/* Tile 6: Platform Intelligence */}
+          <div 
+            className="relative min-h-[180px] rounded-2xl overflow-hidden group cursor-pointer"
+            style={{ 
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(6,182,212,0.2)'
+            }}
+            data-testid="tile-platform-intelligence"
+            onClick={() => {
+              const section = document.getElementById('platform-intelligence');
+              section?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl" />
+            
+            <div className="relative z-10 p-5 h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs text-cyan-400 font-medium">Live</span>
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-1" data-testid="text-platform-intel-title">
+                Platform Intel
+              </h3>
+              <p className="text-white/50 text-sm mb-3 flex-1">
+                Real-time analytics dashboard
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-white/40">Analyzed</p>
+                  <p className="text-lg font-bold text-cyan-400">12,847+</p>
+                </div>
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-white/40">Saved</p>
+                  <p className="text-lg font-bold text-cyan-400">$127M</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="absolute bottom-4 right-4 flex items-center gap-1 text-white/30 text-xs group-hover:text-cyan-400 transition-colors">
+              <span>View Stats</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Tile 7: Hot Markets */}
+          <div 
+            className="relative min-h-[180px] rounded-2xl overflow-hidden group cursor-pointer"
+            style={{ 
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(251,146,60,0.2)'
+            }}
+            data-testid="tile-hot-markets"
+            onClick={() => navigate('/cleanbi-explorer')}
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl" />
+            
+            <div className="relative z-10 p-5 h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-orange-400" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+                  <span className="text-xs text-orange-400 font-medium">Live</span>
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-1" data-testid="text-hot-markets-title">
+                Hot Markets
+              </h3>
+              <p className="text-white/50 text-sm mb-3 flex-1">
+                Top opportunity zones this week
+              </p>
+              
+              <div className="space-y-2">
+                {[
+                  { city: "Austin, TX", score: 87 },
+                  { city: "Tampa, FL", score: 84 },
+                  { city: "Denver, CO", score: 82 },
+                ].map((market, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3 h-3 text-orange-400" />
+                      <span className="text-white/70">{market.city}</span>
+                    </div>
+                    <span className="text-orange-400 font-semibold">{market.score}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="absolute bottom-4 right-4 flex items-center gap-1 text-white/30 text-xs group-hover:text-orange-400 transition-colors">
+              <span>Explore</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Tile 8: Industry Benchmarks */}
+          <div 
+            className="relative min-h-[180px] rounded-2xl overflow-hidden group cursor-pointer"
+            style={{ 
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(34,197,94,0.2)'
+            }}
+            data-testid="tile-benchmarks"
+            onClick={() => {
+              const section = document.getElementById('industry-benchmarks');
+              section?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl" />
+            
+            <div className="relative z-10 p-5 h-full flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-emerald-400" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-1" data-testid="text-benchmarks-title">
+                Industry Benchmarks
+              </h3>
+              <p className="text-white/50 text-sm mb-3 flex-1">
+                2025 market data & performance metrics
+              </p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-white/40">Market Size</p>
+                  <p className="text-lg font-bold text-emerald-400">$6.8B</p>
+                </div>
+                <div className="p-2 rounded-lg bg-white/5">
+                  <p className="text-xs text-white/40">Avg Revenue</p>
+                  <p className="text-lg font-bold text-emerald-400">$300K</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="absolute bottom-4 right-4 flex items-center gap-1 text-white/30 text-xs group-hover:text-emerald-400 transition-colors">
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
 

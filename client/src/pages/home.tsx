@@ -801,7 +801,7 @@ export default function Home() {
         <IndustryBenchmarks />
         
         {/* LIVE PLATFORM INTELLIGENCE - Futuristic dashboard preview */}
-        <section className="py-24 md:py-32 bg-[#09090b] relative overflow-hidden" data-testid="section-platform-intelligence">
+        <section id="platform-intelligence" className="py-24 md:py-32 bg-[#09090b] relative overflow-hidden" data-testid="section-platform-intelligence">
           {/* Background effects */}
           <HexGrid opacity={0.03} />
           <div className="absolute top-20 right-10 opacity-20 pointer-events-none">

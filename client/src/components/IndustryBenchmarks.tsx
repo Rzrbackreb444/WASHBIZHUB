@@ -135,7 +135,7 @@ export function IndustryBenchmarks({
   }
 
   return (
-    <section className="py-24 md:py-32 px-4" style={{ background: '#09090b' }}>
+    <section id="industry-benchmarks" className="py-24 md:py-32 px-4" style={{ background: '#09090b' }}>
       <div className="max-w-7xl mx-auto">
         {showTitle && (
           <div className="text-center mb-8">
