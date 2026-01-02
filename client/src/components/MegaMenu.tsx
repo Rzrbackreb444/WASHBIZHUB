@@ -16,7 +16,8 @@ import {
   Menu, X, ChevronRight, ChevronDown, LogOut,
   ShoppingBag, Building2, MapPin, Plus,
   BarChart3, Calculator, Target, LineChart,
-  MessageSquare, Calendar, Star, Settings, Phone
+  MessageSquare, Calendar, Star, Settings, Phone,
+  Wallet, Landmark, Briefcase, Wrench, ExternalLink
 } from "lucide-react";
 import logoUrl from "@assets/WBH_LOGO_TRANSPARENT_1766327248095.png";
 
@@ -27,6 +28,7 @@ interface NavItem {
   featured?: boolean;
   icon?: any;
   badge?: string;
+  external?: boolean;
 }
 
 interface NavPillar {
@@ -80,41 +82,99 @@ const EXPERT_PILLAR: NavPillar = {
   ]
 };
 
-const ALL_PILLARS = [MARKETPLACE_PILLAR, ANALYSIS_PILLAR, EXPERT_PILLAR];
+const FUNDING_PILLAR: NavPillar = {
+  id: "funding",
+  label: "Funding",
+  icon: Wallet,
+  color: "#d4af37",
+  tagline: "Finance Your Laundromat Investment",
+  items: [
+    { 
+      href: "/funding-wizard", 
+      label: "Funding Wizard", 
+      desc: "Find your best lender match in 5 steps", 
+      featured: true, 
+      icon: Target,
+      badge: "Recommended"
+    },
+    { 
+      href: "https://preferredfundinggroup.wufoo.com/forms/z84eu6p0dp3x12/", 
+      label: "Startup Capital", 
+      desc: "First-time buyer & startup funding", 
+      icon: Wallet,
+      external: true
+    },
+    { 
+      href: "https://go.mypartner.io/business-financing/?ref=001Qk00000KW1FBIA1", 
+      label: "Commercial Real Estate", 
+      desc: "Property & equipment acquisition", 
+      icon: Landmark,
+      external: true
+    },
+    { 
+      href: "https://southendcapital.com/?rp=RP020811&sub_id=Laundromat", 
+      label: "SBA Programs", 
+      desc: "Government-backed SBA 7(a) loans", 
+      icon: Briefcase,
+      external: true
+    },
+    { 
+      href: "https://davidallencapital.com/nicholaskremers", 
+      label: "Working Capital", 
+      desc: "Fast funding & equipment financing", 
+      icon: Wrench,
+      external: true
+    },
+  ]
+};
 
-const DropdownLink = memo(function DropdownLink({ href, label, desc, featured, icon: Icon, badge }: NavItem) {
-  return (
-    <Link href={href}>
-      <div 
-        className={`group flex items-center justify-between px-3 py-2.5 rounded-lg transition-all cursor-pointer ${
-          featured 
-            ? 'bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30' 
-            : 'hover:bg-white/10'
-        }`}
-        data-testid={`link-mega-${label.toLowerCase().replace(/\s+/g, '-')}`}
-      >
-        <div className="flex items-center gap-3">
-          {Icon && <Icon className={`h-4 w-4 ${featured ? 'text-[#d4af37]' : 'text-white/50'}`} />}
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`block text-sm font-medium ${featured ? 'text-[#d4af37]' : 'text-white'}`}>
-                {label}
-              </span>
-              {badge && (
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[#d4af37]/20 text-[#d4af37] border-0">
-                  {badge}
-                </Badge>
-              )}
-            </div>
-            {desc && (
-              <span className="block text-xs text-white/40 mt-0.5">{desc}</span>
+const ALL_PILLARS = [MARKETPLACE_PILLAR, ANALYSIS_PILLAR, EXPERT_PILLAR, FUNDING_PILLAR];
+
+const DropdownLink = memo(function DropdownLink({ href, label, desc, featured, icon: Icon, badge, external }: NavItem) {
+  const content = (
+    <div 
+      className={`group flex items-center justify-between px-3 py-2.5 rounded-lg transition-all cursor-pointer ${
+        featured 
+          ? 'bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30' 
+          : 'hover:bg-white/10'
+      }`}
+      data-testid={`link-mega-${label.toLowerCase().replace(/\s+/g, '-')}`}
+    >
+      <div className="flex items-center gap-3">
+        {Icon && <Icon className={`h-4 w-4 ${featured ? 'text-[#d4af37]' : 'text-white/50'}`} />}
+        <div>
+          <div className="flex items-center gap-2">
+            <span className={`block text-sm font-medium ${featured ? 'text-[#d4af37]' : 'text-white'}`}>
+              {label}
+            </span>
+            {badge && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[#d4af37]/20 text-[#d4af37] border-0">
+                {badge}
+              </Badge>
             )}
           </div>
+          {desc && (
+            <span className="block text-xs text-white/40 mt-0.5">{desc}</span>
+          )}
         </div>
-        <ChevronRight className="w-4 h-4 text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
-    </Link>
+      {external ? (
+        <ExternalLink className="w-4 h-4 text-[#d4af37]/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+      ) : (
+        <ChevronRight className="w-4 h-4 text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+      )}
+    </div>
   );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    );
+  }
+
+  return <Link href={href}>{content}</Link>;
 });
 
 function DesktopPillarDropdown({ pillar, isOpen, onToggle }: { pillar: NavPillar; isOpen: boolean; onToggle: () => void }) {
