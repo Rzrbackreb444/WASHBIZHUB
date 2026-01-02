@@ -1,0 +1,49 @@
+Perform a platform-wide 'Absolute Premium' refactor to achieve elite minimalism, futuristic professionalism, and blazing-fast performance. Execute all these changes simultaneously:
+
+1. Radical Homepage & UI Simplification:
+
+Elite Minimalism: Remove all text blocks, long paragraphs, and narrative content from the homepage. Move educational content to the Academy.
+
+Hero Refactor: Shorten the sub-headline to: 'Expert Intelligence for Laundromat Investors'. Set the header background to 100% transparent on load.
+
+Button Hierarchy: Make 'List Your Laundromat' the only solid gold (#d4af37) button. Turn 'Book Strategy Session' into a transparent ghost button with a thin white border.
+
+Whitespace Injection: Increase vertical padding between all sections by 100% using Obsidian (#09090b) spacing to create a gallery feel.
+
+2. The Intelligence Bento Grid:
+
+Unified Dashboard: Consolidate 'Platform Intelligence' stats, 'Hot Markets,' and 'Industry Benchmarks' into a single row of sleek Bento Grid tiles.
+
+Larry Larsen Spotlight: Create the largest tile in the grid for Larry Larsen’s expert consultation with a high-end photo and a clear 'Book Now' CTA.
+
+3. Four-Pillar Navigation & Funding Pillar:
+
+Header Consolidation: Simplify the MegaMenu to four core pillars: Marketplace, Analysis Suite, Funding, and Expert Consultation.
+
+Funding Dropdown: Create a sub-menu under 'Funding' including:
+
+Startup Capital → Preferred Funding Group
+
+Commercial Real Estate → MyPartner.io
+
+SBA Programs → South End Capital
+
+Working Capital → David Allen Capital
+
+Funding Wizard: Keep the Funding Wizard as the featured 'Find Your Match' link at the top of the dropdown.
+
+4. Marketplace Recovery & Lead Gen:
+
+Laundromat-First: Set the primary view for /marketplace to show laundromat listings only. Move 'Supplies' and 'Equipment' to secondary tabs.
+
+Premium Email Capture: Add an 'Inner Circle' tile to the Bento Grid for newsletter signup with Obsidian Glass styling. Ensure it connects to the SendGrid and Resend APIs.
+
+Exit Intent: Activate the ExitIntentModal.tsx on the marketplace to offer 'Early Deal Alerts'.
+
+5. Visual Polish & Performance:
+
+Obsidian Glass Theme: Apply backdrop-blur-2xl, bg-white/5, and border-white/10 to all tool cards and menus.
+
+Fix Header Spacing: Resolve the container spacing issue so the logo and menu are perfectly centered and professional.
+
+Speed Audit: Consolidate duplicate SEO files into a single SEO.tsx and optimize all SVG icons for instant loading."**
