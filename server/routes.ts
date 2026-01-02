@@ -14754,6 +14754,43 @@ Be strict but fair in scoring. Provide actionable suggestions.`
     }
   });
 
+  // POST /api/admin/manual-index-priority - MANUAL SEO MODE: Submit only high-value pages
+  app.post("/api/admin/manual-index-priority", requireAdmin, async (req: any, res) => {
+    try {
+      const baseUrl = 'https://washbizhub.com';
+      
+      // High-value priority pages only
+      const priorityPages = [
+        `${baseUrl}/`,                    // Homepage
+        `${baseUrl}/marketplace`,         // Marketplace
+        `${baseUrl}/calculators`,         // Calculator suite
+        `${baseUrl}/industry-benchmarks`, // Benchmarks
+        `${baseUrl}/cleanbi-explorer`,    // CLEANBI
+        `${baseUrl}/funding`,             // Funding
+        `${baseUrl}/pricing`,             // Pricing
+      ];
+      
+      console.log(`\n📋 [MANUAL SEO MODE] Submitting ${priorityPages.length} priority pages to IndexNow...`);
+      
+      await submitToIndexNow(priorityPages);
+      
+      res.json({
+        success: true,
+        mode: 'manual',
+        message: `Submitted ${priorityPages.length} high-value pages to IndexNow`,
+        pages: priorityPages.map(url => url.replace(baseUrl, '')),
+        engines: ['Bing', 'Yandex', 'DuckDuckGo', 'IndexNow API'],
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      console.error("Manual priority indexing failed:", error);
+      res.status(500).json({ 
+        success: false,
+        error: error.message 
+      });
+    }
+  });
+
   // POST /api/admin/trigger-indexnow - Manually trigger IndexNow for new content
   app.post("/api/admin/trigger-indexnow", requireAdmin, async (req: any, res) => {
     try {
