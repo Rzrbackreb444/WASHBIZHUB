@@ -135,7 +135,7 @@ export function IndustryBenchmarks({
   }
 
   return (
-    <section className="py-12 px-4 bg-muted/30">
+    <section className="py-24 md:py-32 px-4" style={{ background: '#09090b' }}>
       <div className="max-w-7xl mx-auto">
         {showTitle && (
           <div className="text-center mb-8">
@@ -143,10 +143,10 @@ export function IndustryBenchmarks({
               <BarChart3 className="w-3 h-3 mr-1" />
               Industry Intelligence
             </Badge>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
               2025 Laundromat Industry Benchmarks
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-white/60 max-w-2xl mx-auto">
               Real-time data from IBISWorld, CLA, and our proprietary analysis of 2,500+ locations
             </p>
           </div>
@@ -159,23 +159,23 @@ export function IndustryBenchmarks({
               <Tooltip key={benchmark.label}>
                 <TooltipTrigger asChild>
                   <Card 
-                    className="hover-elevate cursor-help border-border"
+                    className="hover-elevate cursor-help bg-white/[0.03] border-white/10 backdrop-blur-xl"
                     data-testid={`benchmark-${benchmark.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <CardContent className="p-4 text-center">
                       <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-[#C8A661]/10 mb-3">
                         <Icon className="w-5 h-5 text-[#C8A661]" />
                       </div>
-                      <div className="text-2xl font-bold text-foreground flex items-center justify-center gap-1">
+                      <div className="text-2xl font-bold text-white flex items-center justify-center gap-1">
                         {benchmark.value}
                         {benchmark.trend === "up" && (
                           <TrendingUp className="w-4 h-4 text-green-500" />
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground">{benchmark.label}</div>
+                      <div className="text-sm text-white/60">{benchmark.label}</div>
                       <div className="flex items-center justify-center gap-1 mt-2">
-                        <Info className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{benchmark.source}</span>
+                        <Info className="w-3 h-3 text-white/40" />
+                        <span className="text-xs text-white/40">{benchmark.source}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -189,7 +189,7 @@ export function IndustryBenchmarks({
         </div>
 
         <div className="mt-8 text-center">
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-white/50">
             <CheckCircle className="w-4 h-4 text-green-500" />
             <span>Data updated December 2025</span>
             <span className="mx-2">|</span>

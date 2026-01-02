@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ShoppingBag, Star, Mail, ExternalLink, Droplets, Dog, Sparkles, WashingMachine, Refrigerator, Wrench, MapPin, Building2, Zap, Search, Plus, Store, DollarSign, TrendingUp, Loader2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { ExitIntentModal } from "@/components/ExitIntentModal";
 import heroImage from "@assets/AdobeStock_711286802_1765733834364.jpeg";
 import { Link } from "wouter";
 
@@ -915,6 +916,9 @@ export default function Marketplace() {
           </Tabs>
         </div>
       </div>
+      
+      {/* Exit Intent Modal for Early Deal Alerts */}
+      <ExitIntentModal variant="marketplace" delay={3000} />
     </>
   );
 }

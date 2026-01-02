@@ -15,34 +15,59 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, TrendingUp } from "lucide-react";
 
 const STORAGE_KEY = "washbizhub_exit_modal_shown";
+const MARKETPLACE_STORAGE_KEY = "washbizhub_marketplace_exit_shown";
 
 interface ExitIntentModalProps {
   enabled?: boolean;
   delay?: number;
+  variant?: "default" | "marketplace";
 }
 
-export function ExitIntentModal({ enabled = true, delay = 2000 }: ExitIntentModalProps) {
+export function ExitIntentModal({ enabled = true, delay = 2000, variant = "default" }: ExitIntentModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
+  const storageKey = variant === "marketplace" ? MARKETPLACE_STORAGE_KEY : STORAGE_KEY;
+  
+  // Variant-specific content
+  const content = variant === "marketplace" ? {
+    badge: "Early Access",
+    title: "Get Early Deal Alerts",
+    description: "Be first to know when new laundromats hit the market",
+    successTitle: "You're on the List!",
+    successDescription: "We'll notify you when new deals match your criteria.",
+    buttonText: "Get Deal Alerts",
+    source: "marketplace_exit_intent",
+    leadMagnet: "deal_alerts"
+  } : {
+    badge: "Free Tool",
+    title: "Wait! Don't Miss Your Free CLEANBI Score",
+    description: "See how any laundromat location scores before you go",
+    successTitle: "You're All Set!",
+    successDescription: "Check your email for your free CLEANBI Score access.",
+    buttonText: "Get My Free Score",
+    source: "exit_intent_modal",
+    leadMagnet: "cleanbi"
+  };
+
   const hasBeenShown = useCallback(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) === "true";
+      return localStorage.getItem(storageKey) === "true";
     } catch {
       return false;
     }
-  }, []);
+  }, [storageKey]);
 
   const markAsShown = useCallback(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, "true");
+      localStorage.setItem(storageKey, "true");
     } catch {
       // localStorage not available
     }
-  }, []);
+  }, [storageKey]);
 
   const subscribeMutation = useMutation({
     mutationFn: async (data: { email: string; firstName: string }) => {
@@ -51,15 +76,17 @@ export function ExitIntentModal({ enabled = true, delay = 2000 }: ExitIntentModa
         firstName: data.firstName,
         primaryIndustry: "laundromat",
         industries: ["laundromat"],
-        source: "exit_intent_modal",
-        leadMagnet: "cleanbi",
+        source: content.source,
+        leadMagnet: content.leadMagnet,
       });
     },
     onSuccess: () => {
       setSubmitted(true);
       toast({
         title: "Success!",
-        description: "Check your email for your free CLEANBI Score access.",
+        description: variant === "marketplace" 
+          ? "You'll receive early deal alerts before they hit the market." 
+          : "Check your email for your free CLEANBI Score access.",
       });
       setTimeout(() => {
         handleClose();
@@ -70,7 +97,9 @@ export function ExitIntentModal({ enabled = true, delay = 2000 }: ExitIntentModa
         setSubmitted(true);
         toast({
           title: "You're already subscribed!",
-          description: "Access CLEANBI scores anytime from our site.",
+          description: variant === "marketplace"
+            ? "You're already on the early deal alerts list."
+            : "Access CLEANBI scores anytime from our site.",
         });
         setTimeout(() => {
           handleClose();
@@ -148,22 +177,22 @@ export function ExitIntentModal({ enabled = true, delay = 2000 }: ExitIntentModa
             <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">You're All Set!</h3>
-            <p className="text-muted-foreground">Check your email for your free CLEANBI Score access.</p>
+            <h3 className="text-xl font-semibold text-foreground mb-2">{content.successTitle}</h3>
+            <p className="text-muted-foreground">{content.successDescription}</p>
           </div>
         ) : (
           <>
             <DialogHeader className="space-y-3">
               <div className="inline-flex">
                 <span className="text-xs font-medium tracking-wider uppercase text-[hsl(var(--accent))] bg-[hsl(var(--accent))]/10 px-3 py-1 rounded-full">
-                  Free Tool
+                  {content.badge}
                 </span>
               </div>
               <DialogTitle className="text-xl font-semibold" data-testid="text-exit-intent-headline">
-                Wait! Don't Miss Your Free CLEANBI Score
+                {content.title}
               </DialogTitle>
               <DialogDescription data-testid="text-exit-intent-subheadline">
-                See how any laundromat location scores before you go
+                {content.description}
               </DialogDescription>
             </DialogHeader>
 
@@ -207,7 +236,7 @@ export function ExitIntentModal({ enabled = true, delay = 2000 }: ExitIntentModa
                 {subscribeMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  "Get My Free Score"
+                  content.buttonText
                 )}
               </Button>
 
