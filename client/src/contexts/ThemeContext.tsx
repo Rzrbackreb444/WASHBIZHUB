@@ -13,10 +13,10 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("washbizhub-theme");
-    return (stored as Theme) || "light";
+    return (stored as Theme) || "dark";
   });
 
-  const [effectiveTheme, setEffectiveTheme] = useState<"light" | "dark">("light");
+  const [effectiveTheme, setEffectiveTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const root = document.documentElement;

@@ -228,7 +228,7 @@ export default function FundingWizard() {
         return (
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 What are you funding? (Select all that apply)
               </Label>
               <div className="grid grid-cols-2 gap-3">
@@ -246,12 +246,12 @@ export default function FundingWizard() {
                     className={`flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
                       formData.fundingType.includes(type.id)
                         ? "border-[#C8A661] bg-[#C8A661]/10"
-                        : "border-border hover:border-[#C8A661]/50"
+                        : "border-white/20 hover:border-[#C8A661]/50"
                     }`}
                     data-testid={`checkbox-funding-type-${type.id}`}
                   >
-                    <type.icon className={`w-5 h-5 ${formData.fundingType.includes(type.id) ? "text-[#C8A661]" : "text-muted-foreground"}`} />
-                    <span className="font-medium">{type.label}</span>
+                    <type.icon className={`w-5 h-5 ${formData.fundingType.includes(type.id) ? "text-[#C8A661]" : "text-gray-400"}`} />
+                    <span className="font-medium text-white">{type.label}</span>
                     {formData.fundingType.includes(type.id) && (
                       <CheckCircle2 className="w-4 h-4 text-[#C8A661] ml-auto" />
                     )}
@@ -261,7 +261,7 @@ export default function FundingWizard() {
             </div>
 
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 How much funding do you need?
               </Label>
               <div className="space-y-4">
@@ -277,7 +277,7 @@ export default function FundingWizard() {
                   className="py-4"
                   data-testid="slider-funding-amount"
                 />
-                <div className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex justify-between text-sm text-gray-400">
                   <span>$10K</span>
                   <span>$5M+</span>
                 </div>
@@ -285,7 +285,7 @@ export default function FundingWizard() {
             </div>
 
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 When do you need funding?
               </Label>
               <RadioGroup
@@ -302,11 +302,11 @@ export default function FundingWizard() {
                     <RadioGroupItem value={option.value} id={option.value} className="peer sr-only" />
                     <Label
                       htmlFor={option.value}
-                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
+                      className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-white/20 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
                       data-testid={`radio-timeline-${option.value}`}
                     >
-                      <option.icon className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">{option.label}</span>
+                      <option.icon className="w-5 h-5 text-gray-400" />
+                      <span className="font-medium text-white">{option.label}</span>
                     </Label>
                   </div>
                 ))}
@@ -319,7 +319,7 @@ export default function FundingWizard() {
         return (
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 Business Stage
               </Label>
               <RadioGroup
@@ -336,11 +336,11 @@ export default function FundingWizard() {
                     <RadioGroupItem value={option.value} id={option.value} className="peer sr-only" />
                     <Label
                       htmlFor={option.value}
-                      className="flex flex-col p-4 rounded-lg border-2 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
+                      className="flex flex-col p-4 rounded-lg border-2 border-white/20 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
                       data-testid={`radio-stage-${option.value}`}
                     >
-                      <span className="font-medium">{option.label}</span>
-                      <span className="text-sm text-muted-foreground">{option.desc}</span>
+                      <span className="font-medium text-white">{option.label}</span>
+                      <span className="text-sm text-gray-400">{option.desc}</span>
                     </Label>
                   </div>
                 ))}
@@ -348,11 +348,11 @@ export default function FundingWizard() {
             </div>
 
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 Current/Projected Annual Revenue
               </Label>
               <Select value={formData.annualRevenue} onValueChange={(value) => updateFormData("annualRevenue", value)}>
-                <SelectTrigger data-testid="select-annual-revenue">
+                <SelectTrigger className="border-white/20 text-white" data-testid="select-annual-revenue">
                   <SelectValue placeholder="Select revenue range" />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,7 +365,7 @@ export default function FundingWizard() {
                 </SelectContent>
               </Select>
               {formData.businessStage === "startup" && (
-                <p className="mt-2 text-sm text-muted-foreground flex items-center gap-2">
+                <p className="mt-2 text-sm text-gray-400 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                   No business history? We have startup-friendly options up to $750K combined!
                 </p>
@@ -378,7 +378,7 @@ export default function FundingWizard() {
         return (
           <div className="space-y-6">
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 Personal Credit Score (Estimate)
               </Label>
               <RadioGroup
@@ -395,11 +395,11 @@ export default function FundingWizard() {
                     <RadioGroupItem value={option.value} id={`credit-${option.value}`} className="peer sr-only" />
                     <Label
                       htmlFor={`credit-${option.value}`}
-                      className="flex flex-col items-center justify-center p-4 rounded-lg border-2 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
+                      className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-white/20 cursor-pointer transition-all peer-data-[state=checked]:border-[#C8A661] peer-data-[state=checked]:bg-[#C8A661]/10 hover:border-[#C8A661]/50"
                       data-testid={`radio-credit-${option.value}`}
                     >
                       <CreditCard className={`w-5 h-5 mb-1 ${option.color}`} />
-                      <span className="font-bold">{option.label}</span>
+                      <span className="font-bold text-white">{option.label}</span>
                     </Label>
                   </div>
                 ))}
@@ -407,11 +407,11 @@ export default function FundingWizard() {
             </div>
 
             <div>
-              <Label className="text-base font-semibold mb-4 block">
+              <Label className="text-base font-semibold mb-4 block text-white">
                 Location (State)
               </Label>
               <Select value={formData.state} onValueChange={(value) => updateFormData("state", value)}>
-                <SelectTrigger data-testid="select-state">
+                <SelectTrigger className="border-white/20 text-white" data-testid="select-state">
                   <SelectValue placeholder="Select your state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -437,45 +437,45 @@ export default function FundingWizard() {
         return (
           <div className="space-y-6">
             <div>
-              <Label htmlFor="name" className="text-base font-semibold">Full Name</Label>
+              <Label htmlFor="name" className="text-base font-semibold text-white">Full Name</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => updateFormData("name", e.target.value)}
                 placeholder="John Smith"
-                className="mt-2"
+                className="mt-2 border-white/20 bg-white/5 text-white placeholder:text-gray-500"
                 data-testid="input-name"
               />
             </div>
 
             <div>
-              <Label htmlFor="email" className="text-base font-semibold">Email</Label>
+              <Label htmlFor="email" className="text-base font-semibold text-white">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => updateFormData("email", e.target.value)}
                 placeholder="john@example.com"
-                className="mt-2"
+                className="mt-2 border-white/20 bg-white/5 text-white placeholder:text-gray-500"
                 data-testid="input-email"
               />
             </div>
 
             <div>
-              <Label htmlFor="phone" className="text-base font-semibold">Phone Number</Label>
+              <Label htmlFor="phone" className="text-base font-semibold text-white">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => updateFormData("phone", e.target.value)}
                 placeholder="(555) 123-4567"
-                className="mt-2"
+                className="mt-2 border-white/20 bg-white/5 text-white placeholder:text-gray-500"
                 data-testid="input-phone"
               />
             </div>
 
             <div>
-              <Label htmlFor="additional" className="text-base font-semibold">
+              <Label htmlFor="additional" className="text-base font-semibold text-white">
                 Additional Information (Optional)
               </Label>
               <textarea
@@ -483,7 +483,7 @@ export default function FundingWizard() {
                 value={formData.additionalInfo}
                 onChange={(e) => updateFormData("additionalInfo", e.target.value)}
                 placeholder="Tell us more about your laundromat project..."
-                className="mt-2 w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="mt-2 w-full min-h-[100px] rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8A661] focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                 data-testid="textarea-additional-info"
               />
             </div>
@@ -494,35 +494,35 @@ export default function FundingWizard() {
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-foreground mb-2">Review Your Information</h3>
-              <p className="text-muted-foreground">Confirm your details before we match you with lenders</p>
+              <h3 className="text-xl font-bold text-white mb-2">Review Your Information</h3>
+              <p className="text-gray-400">Confirm your details before we match you with lenders</p>
             </div>
 
             <div className="grid gap-4">
-              <div className="p-4 rounded-lg bg-muted/50">
-                <div className="text-sm text-muted-foreground mb-1">Funding Needs</div>
-                <div className="font-semibold">
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="text-sm text-gray-400 mb-1">Funding Needs</div>
+                <div className="font-semibold text-white">
                   ${formData.fundingAmount.toLocaleString()} for {formData.fundingType.join(", ")}
                 </div>
-                <div className="text-sm text-muted-foreground">Timeline: {formData.timeline}</div>
+                <div className="text-sm text-gray-400">Timeline: {formData.timeline}</div>
               </div>
 
-              <div className="p-4 rounded-lg bg-muted/50">
-                <div className="text-sm text-muted-foreground mb-1">Business Profile</div>
-                <div className="font-semibold">{formData.businessStage}</div>
-                <div className="text-sm text-muted-foreground">Revenue: {formData.annualRevenue}</div>
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="text-sm text-gray-400 mb-1">Business Profile</div>
+                <div className="font-semibold text-white">{formData.businessStage}</div>
+                <div className="text-sm text-gray-400">Revenue: {formData.annualRevenue}</div>
               </div>
 
-              <div className="p-4 rounded-lg bg-muted/50">
-                <div className="text-sm text-muted-foreground mb-1">Qualifications</div>
-                <div className="font-semibold">Credit Score: {formData.creditScore}</div>
-                <div className="text-sm text-muted-foreground">Location: {formData.state}</div>
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="text-sm text-gray-400 mb-1">Qualifications</div>
+                <div className="font-semibold text-white">Credit Score: {formData.creditScore}</div>
+                <div className="text-sm text-gray-400">Location: {formData.state}</div>
               </div>
 
-              <div className="p-4 rounded-lg bg-muted/50">
-                <div className="text-sm text-muted-foreground mb-1">Contact</div>
-                <div className="font-semibold">{formData.name}</div>
-                <div className="text-sm text-muted-foreground">{formData.email} | {formData.phone}</div>
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="text-sm text-gray-400 mb-1">Contact</div>
+                <div className="font-semibold text-white">{formData.name}</div>
+                <div className="text-sm text-gray-400">{formData.email} | {formData.phone}</div>
               </div>
             </div>
 
@@ -530,8 +530,8 @@ export default function FundingWizard() {
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-[#C8A661] flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-foreground">Your information is secure</p>
-                  <p className="text-muted-foreground">We only share your details with matched funding partners. No spam, ever.</p>
+                  <p className="font-medium text-white">Your information is secure</p>
+                  <p className="text-gray-400">We only share your details with matched funding partners. No spam, ever.</p>
                 </div>
               </div>
             </div>
