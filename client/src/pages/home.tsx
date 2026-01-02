@@ -62,6 +62,7 @@ import {
 import { RoadshowBanner } from "@/components/RoadshowPromo";
 import { AAdvantageSpotlight } from "@/components/AAdvantageSpotlight";
 import { ConsultationHero } from "@/components/ConsultationHero";
+import { BentoGrid } from "@/components/BentoGrid";
 
 // Testimonials data
 const testimonials = [
@@ -143,7 +144,6 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
 const stats = [
   { value: "73,000+", label: "Industry Professionals" },
   { value: "All 50", label: "States Covered" },
-  { value: "50+", label: "Expert Tools" },
   { value: "Human", label: "Verified Intelligence", icon: Shield }
 ];
 
@@ -774,14 +774,19 @@ export default function Home() {
       />
       
       <div className="min-h-screen bg-white">
-        {/* PREMIUM HERO - With hero image background */}
+        {/* PREMIUM HERO - Centered with primary CTA */}
         <PremiumHero />
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
         
-        {/* CONSULTATION HERO - Larry Larsen expert consultation CTA */}
-        <ConsultationHero />
+        {/* BENTO GRID - Premium tool showcase */}
+        <BentoGrid />
+        
+        {/* CONSULTATION HERO - Larry Larsen expert consultation CTA with significant whitespace */}
+        <div className="py-24 bg-gradient-to-b from-[#050a14] to-[#0A1628]">
+          <ConsultationHero />
+        </div>
         
         {/* AADVANTAGE SPOTLIGHT - Featured partner section */}
         <AAdvantageSpotlight />

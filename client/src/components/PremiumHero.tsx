@@ -151,13 +151,13 @@ export function PremiumHero() {
         className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         style={{ opacity }}
       >
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[85vh] py-16 sm:py-20 lg:py-32">
-          {/* Left content - 6 columns on desktop */}
+        <div className="flex flex-col items-center justify-center text-center min-h-[85vh] py-16 sm:py-20 lg:py-32">
+          {/* Centered Hero Content */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-6 max-w-xl lg:max-w-none"
+            className="max-w-4xl mx-auto"
           >
             <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
               <span 
@@ -185,7 +185,7 @@ export function PremiumHero() {
             
             <motion.p 
               variants={itemVariants}
-              className="text-base sm:text-xl lg:text-2xl text-white/70 leading-relaxed mb-8 sm:mb-10 font-light speakable"
+              className="text-base sm:text-xl lg:text-2xl text-white/70 leading-relaxed mb-10 sm:mb-12 font-light speakable max-w-3xl mx-auto"
               data-testid="text-hero-description"
             >
               Funding, calculators, guides, courses, listings, marketplace — 
@@ -193,60 +193,65 @@ export function PremiumHero() {
               intelligence, connecting 73,000+ industry professionals.
             </motion.p>
             
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12">
-              <Link href="/cleanbi-explorer">
+            {/* Centered CTA Section - Primary + Secondary */}
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-10 sm:mb-12">
+              <Link href="/list-your-laundromat">
                 <Button 
                   size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold bg-[#C8A661] hover:bg-[#9a7209] text-white shadow-xl shadow-[#C8A661]/25 transition-all duration-300 hover:shadow-2xl hover:shadow-[#C8A661]/30 hover:-translate-y-0.5"
-                  data-testid="button-analyze-location"
+                  className="bg-[#C8A661] text-[#0A1628] shadow-lg shadow-[#C8A661]/25"
+                  data-testid="button-list-laundromat"
                 >
-                  Score Any Location Free
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  List Your Laundromat
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/pricing">
+              <Link href="/cleanbi-explorer">
                 <Button 
-                  variant="outline" 
+                  variant="ghost"
                   size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm transition-all duration-300"
-                  data-testid="button-view-plans"
+                  className="text-white/80"
+                  data-testid="link-analyze-deal"
                 >
-                  <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  See Plans & Pricing
+                  Analyze a Deal
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="flex items-center gap-4 sm:gap-8">
-              <div className="flex -space-x-2 sm:-space-x-3">
-                {[
-                  { grade: "A", color: "from-green-500/30 to-green-600/20 border-green-500/50" },
-                  { grade: "B", color: "from-lime-500/30 to-lime-600/20 border-lime-500/50" },
-                  { grade: "C", color: "from-amber-500/30 to-amber-600/20 border-amber-500/50" },
-                ].map((item, i) => (
-                  <div 
-                    key={i}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br ${item.color} border-2 flex items-center justify-center text-white text-xs font-bold`}
-                  >
-                    {item.grade}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-[#C8A661] text-[#C8A661]" />
+            {/* Trust Indicators - Centered */}
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {[
+                    { grade: "A", color: "from-green-500/30 to-green-600/20 border-green-500/50" },
+                    { grade: "B", color: "from-lime-500/30 to-lime-600/20 border-lime-500/50" },
+                    { grade: "C", color: "from-amber-500/30 to-amber-600/20 border-amber-500/50" },
+                  ].map((item, i) => (
+                    <div 
+                      key={i}
+                      className={`w-8 h-8 rounded-full bg-gradient-to-br ${item.color} border-2 flex items-center justify-center text-white text-xs font-bold`}
+                    >
+                      {item.grade}
+                    </div>
                   ))}
                 </div>
-                <p className="text-xs sm:text-sm text-white/60">
+                <span className="text-sm text-white/60">CLEANBI Grades</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-[#C8A661] text-[#C8A661]" />
+                  ))}
+                </div>
+                <p className="text-sm text-white/60">
                   <span className="text-white font-semibold">2,400+</span> operators trust WashBizHub
                 </p>
               </div>
             </motion.div>
           </motion.div>
 
-          {/* Right floating cards - 6 columns on desktop */}
-          <div className="hidden lg:block lg:col-span-6 relative h-[500px] xl:h-[600px]" style={{ perspective: '1000px' }}>
+          {/* Floating cards hidden for centered hero design */}
+          <div className="hidden" style={{ perspective: '1000px' }}>
             {/* Background glow */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-64 xl:w-80 h-64 xl:h-80 bg-[#C8A661]/20 rounded-full blur-[100px]" />
