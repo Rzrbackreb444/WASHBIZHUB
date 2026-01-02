@@ -773,8 +773,8 @@ export default function Home() {
         dateModified={new Date().toISOString().split('T')[0]}
       />
       
-      <div className="min-h-screen bg-white">
-        {/* PREMIUM HERO - Centered with primary CTA */}
+      <div className="min-h-screen bg-[#09090b] pt-16">
+        {/* PREMIUM HERO - Full-bleed first fold (header is now transparent) */}
         <PremiumHero />
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
@@ -801,7 +801,7 @@ export default function Home() {
         <IndustryBenchmarks />
         
         {/* LIVE PLATFORM INTELLIGENCE - Futuristic dashboard preview */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-platform-intelligence">
+        <section className="py-24 md:py-32 bg-[#09090b] relative overflow-hidden" data-testid="section-platform-intelligence">
           {/* Background effects */}
           <HexGrid opacity={0.03} />
           <div className="absolute top-20 right-10 opacity-20 pointer-events-none">
@@ -1060,7 +1060,7 @@ export default function Home() {
         </section>
 
         {/* STARTUP FUNDING BANNER - Premium futuristic design */}
-        <section className="py-16 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-startup-funding-banner">
+        <section className="py-24 md:py-32 bg-[#09090b] relative overflow-hidden" data-testid="section-startup-funding-banner">
           <HexGrid opacity={0.02} />
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#C8A661]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-green-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -1131,7 +1131,7 @@ export default function Home() {
         <EquipmentCarousel showListCTA={true} />
         
         {/* EXPERT SERVICES FUNNEL - AI Council → Larry → Funding */}
-        <section className="py-16 md:py-20 bg-gradient-to-br from-[#050a14] via-[#0a1628] to-[#0f172a] relative overflow-hidden" data-testid="section-expert-services">
+        <section className="py-24 md:py-32 bg-[#09090b] relative overflow-hidden" data-testid="section-expert-services">
           <HexGrid opacity={0.02} />
           <div className="absolute top-10 left-10 opacity-15 pointer-events-none">
             <GlowOrb size="md" color="gold" />
@@ -1445,7 +1445,7 @@ export default function Home() {
         </section>
 
         {/* INTERACTIVE DEAL RISK CALCULATOR - Try before you buy */}
-        <section className="py-16 bg-muted/20" data-testid="section-deal-calculator">
+        <section className="py-24 md:py-32 bg-[#09090b]" data-testid="section-deal-calculator">
           <div className="max-w-2xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-8">
               <Badge variant="outline" className="mb-4 border-[#C8A661]/40 text-[#C8A661]" data-testid="badge-try-it">
@@ -1611,14 +1611,14 @@ export default function Home() {
         <HomepageNewsletter source="homepage" />
         
         {/* TRUST SIGNALS - Testimonials */}
-        <section className="py-16 md:py-20 bg-muted/30" data-testid="section-homepage-testimonials">
+        <section className="py-24 md:py-32 bg-[#09090b]" data-testid="section-homepage-testimonials">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <TrustSignals variant="testimonials" showTitle />
           </div>
         </section>
 
         {/* VISIBLE FAQ SECTION - SEO & E-E-A-T */}
-        <section className="py-16 md:py-20 bg-background" data-testid="section-homepage-faqs">
+        <section className="py-24 md:py-32 bg-[#09090b]" data-testid="section-homepage-faqs">
           <div className="max-w-4xl mx-auto px-6 lg:px-8">
             <FAQSection 
               faqs={homepageFaqs.slice(0, 8)}
@@ -1627,8 +1627,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOT MARKETS CAROUSEL - Live market intelligence */}
-        <section className="py-12 bg-background border-t border-border/50" data-testid="section-hot-markets">
+        {/* HOT MARKETS CAROUSEL - Hidden, merged into BentoGrid */}
+        <section className="py-24 bg-[#09090b] hidden" data-testid="section-hot-markets">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="text-center mb-6">
               <Badge variant="outline" className="mb-3 border-red-500/40 text-red-500 bg-red-500/10" data-testid="badge-hot-markets">
