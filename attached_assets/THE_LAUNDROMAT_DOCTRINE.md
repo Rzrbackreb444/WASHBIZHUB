@@ -116,6 +116,10 @@ You're not just washing clothes — you're building something that lasts.
 
 ## List of Figures
 
+### Chapter 3: Location Is Law
+- **Figure 3.1:** CLEANBI Score Breakdown
+- **Figure 3.2:** Location Decision Flowchart
+
 ### Chapter 5: Equipment Intelligence
 - **Figure 5.1:** Premium Boutique Laundromat with Brand Identity (Tumble Fresh)
 - **Figure 5.2:** Modern Dexter Store with Full Equipment Range
@@ -123,12 +127,28 @@ You're not just washing clothes — you're building something that lasts.
 - **Figure 5.4:** Front-Loaders in Operation
 - **Figure 5.5:** Boutique Laundromat with Personality (Named Machines)
 
+### Chapter 6: Softmount vs. Hardmount
+- **Figure 6.1:** Softmount vs. Hardmount Visual Comparison
+- **Figure 6.2:** Total Cost of Ownership Over 15 Years
+
 ### Chapter 8: Design, Layout, and Customer Flow
 - **Figure 8.1:** Modern Premium Laundromat Interior
 - **Figure 8.2:** Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)
 - **Figure 8.3:** Large Format Laundromat Layout
 - **Figure 8.4:** Commercial WDF (Wash-Dry-Fold) Layout
 - **Figure 8.5:** Hotel/Commercial Laundry Facility (374 sq. ft.)
+
+### Chapter 12: Fire Prevention & Safety
+- **Figure 12.1:** Lint Accumulation Danger Zones
+- **Figure 12.2:** Fire Safety Equipment Placement
+
+### Appendix C: Due Diligence Master Checklist
+- **Figure C.1:** Due Diligence Workflow (4-6 Week Timeline)
+- **Figure C.2:** Due Diligence Decision Tree
+
+### Appendix D: Water Bill Analysis Tutorial
+- **Figure D.1:** Water Bill Analysis Flowchart
+- **Figure D.2:** Water Usage by Machine Type
 
 ---
 
@@ -523,6 +543,120 @@ The Kremers doctrine uses **C.L.E.A.N.** for every potential location:
 | **N** | Numbers | Rent ratio, utilities, projected EBITDA |
 
 Run these checks before you ever sign a lease.
+
+---
+
+### Figure 3.1: CLEANBI Score Breakdown
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         CLEANBI SCORING SYSTEM                              │
+│                    Location Intelligence Score (0-100)                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  COMPONENT              │ WEIGHT │ WHAT IT MEASURES                         │
+├─────────────────────────┼────────┼──────────────────────────────────────────┤
+│  ████████ Rent Ratio    │  15%   │ Monthly rent ÷ projected revenue         │
+│  ████████████████ Turn  │  20%   │ Expected turns/day based on density      │
+│  ████████ Parking       │  10%   │ Spaces per washer ratio                  │
+│  ████████████ Income    │  15%   │ Demographics match to sweet spot         │
+│  ████████ Utilities     │  10%   │ Expected costs vs. market average        │
+│  ████████████ Compete   │  15%   │ Quality/proximity of competitors         │
+│  ████████ Demographics  │  10%   │ Renter %, family size, trend             │
+│  ████ EBITDA            │   5%   │ Projected profitability                  │
+└─────────────────────────┴────────┴──────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           GRADE INTERPRETATION                              │
+├──────────┬─────────────┬────────────────────────────────────────────────────┤
+│  SCORE   │   GRADE     │  RECOMMENDATION                                    │
+├──────────┼─────────────┼────────────────────────────────────────────────────┤
+│  85-100  │  ██████ A   │  EXCELLENT — Top 5% of locations. Move fast.      │
+│          │  (Green)    │  Strong fundamentals across all factors.           │
+├──────────┼─────────────┼────────────────────────────────────────────────────┤
+│  70-84   │  █████ B    │  GOOD — Above average, solid investment.           │
+│          │  (Lime)     │  Minor weaknesses easily addressed.                │
+├──────────┼─────────────┼────────────────────────────────────────────────────┤
+│  55-69   │  ████ C     │  FAIR — Workable with improvements.                │
+│          │  (Amber)    │  Negotiate hard on price. Know the risks.          │
+├──────────┼─────────────┼────────────────────────────────────────────────────┤
+│  Below   │  NEEDS      │  HIGH RISK — Walk away or deep discount only.      │
+│   55     │  WORK       │  Fundamental issues unlikely to be fixed.          │
+│          │  (Gold)     │                                                    │
+└──────────┴─────────────┴────────────────────────────────────────────────────┘
+
+    NOTE: We use A-C grading only. There is no D or F — just "pass" or 
+          "don't waste your money."
+```
+
+---
+
+### Figure 3.2: Location Decision Flowchart
+
+```
+                              ┌─────────────────┐
+                              │  POTENTIAL      │
+                              │  LOCATION       │
+                              └────────┬────────┘
+                                       │
+                                       ▼
+                         ┌─────────────────────────┐
+                         │ Renter households > 1500│
+                         │ within 1 mile?          │
+                         └───────────┬─────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+                   YES                                NO
+                    │                                 │
+                    ▼                                 ▼
+         ┌──────────────────┐              ┌──────────────────┐
+         │ Rent < 25% of    │              │    STOP          │
+         │ projected revenue│              │    Walk away     │
+         └────────┬─────────┘              └──────────────────┘
+                  │
+     ┌────────────┴────────────┐
+     │                         │
+    YES                        NO
+     │                         │
+     ▼                         ▼
+┌────────────┐          ┌─────────────────┐
+│ Competitors│          │ Can rent be     │
+│ ≤ 2 within │          │ negotiated?     │
+│ 1 mile?    │          └────────┬────────┘
+└─────┬──────┘                   │
+      │                   YES    │    NO
+      │                    │     │     │
+     YES                   │     │     ▼
+      │                    ▼     │  ┌──────┐
+      ▼              ┌───────────┘  │ STOP │
+┌────────────┐       │              └──────┘
+│ Lease term │       │
+│ ≥ 10 years │◄──────┘
+│ available? │
+└─────┬──────┘
+      │
+     YES
+      │
+      ▼
+┌─────────────────────────────────┐
+│     RUN FULL CLEANBI ANALYSIS   │
+│     Calculate weighted score    │
+└────────────────┬────────────────┘
+                 │
+    ┌────────────┼────────────┬────────────┐
+    │            │            │            │
+   A (85+)     B (70-84)    C (55-69)   Below 55
+    │            │            │            │
+    ▼            ▼            ▼            ▼
+┌────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ PURSUE │ │ PROCEED  │ │ NEGOTIATE│ │   PASS   │
+│ FAST   │ │ CAREFULLY│ │ HARD     │ │          │
+└────────┘ └──────────┘ └──────────┘ └──────────┘
+```
+
+---
 
 ### Red Flags to Avoid
 
@@ -925,6 +1059,81 @@ The softmount vs. hardmount debate has divided the industry for decades. Here's 
 - No special floor requirements
 - Higher spin speeds (300-400+ G-force)
 - Clothes come out drier
+
+---
+
+### Figure 6.1: Softmount vs. Hardmount Visual Comparison
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SOFTMOUNT vs. HARDMOUNT COMPARISON                       │
+├─────────────────────────────────┬───────────────────────────────────────────┤
+│          HARDMOUNT              │              SOFTMOUNT                    │
+├─────────────────────────────────┼───────────────────────────────────────────┤
+│                                 │                                           │
+│    ┌─────────────────┐          │       ┌─────────────────┐                 │
+│    │                 │          │       │                 │                 │
+│    │    WASHER       │          │       │    WASHER       │                 │
+│    │                 │          │       │                 │                 │
+│    │  100-200 G      │          │       │  300-400+ G     │                 │
+│    │                 │          │       │                 │                 │
+│    └────────┬────────┘          │       └───────┬─────────┘                 │
+│             │                   │           ┌───┴───┐                       │
+│    ┌────────┴────────┐          │       ┌───┴───────┴───┐                   │
+│    │ ANCHOR BOLTS    │          │       │ RUBBER ISOLATORS│                  │
+│    └────────┬────────┘          │       └───────┬───────┘                   │
+│    ┌────────┴────────┐          │       ┌───────┴───────┐                   │
+│    │ 8-12" REINFORCED│          │       │ STANDARD FLOOR │                  │
+│    │  CONCRETE PAD   │          │       │   (any type)   │                  │
+│    └─────────────────┘          │       └───────────────┘                   │
+│                                 │                                           │
+├─────────────────────────────────┼───────────────────────────────────────────┤
+│  ✓ 20-25 year lifespan          │  ✓ 30-40% less dryer time needed         │
+│  ✓ Lower equipment cost         │  ✓ No concrete work required             │
+│  ✓ Simpler maintenance          │  ✓ Can be relocated easily               │
+│  ✗ Requires concrete work       │  ✓ Quieter operation                     │
+│  ✗ More moisture in clothes     │  ✓ Lower utility costs long-term         │
+│  ✗ Can't relocate easily        │  ✗ Slightly higher equipment cost        │
+│  ✗ Louder operation             │  ✗ 15-20 year lifespan                   │
+└─────────────────────────────────┴───────────────────────────────────────────┘
+```
+
+---
+
+### Figure 6.2: Total Cost of Ownership Over 15 Years
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    15-YEAR TOTAL COST COMPARISON                            │
+│                        (10-Machine Store Example)                           │
+├─────────────────────────────────┬───────────────────────────────────────────┤
+│          HARDMOUNT              │              SOFTMOUNT                    │
+├─────────────────────────────────┼───────────────────────────────────────────┤
+│                                 │                                           │
+│  Equipment (10 machines)        │  Equipment (10 machines)                  │
+│  $50,000                        │  $65,000                                  │
+│                                 │                                           │
+│  Concrete Installation          │  Standard Installation                    │
+│  $15,000                        │  $3,000                                   │
+│                                 │                                           │
+│  15-Year Gas Costs              │  15-Year Gas Costs                        │
+│  (baseline dryer time)          │  (30% less dryer time)                    │
+│  $90,000                        │  $63,000                                  │
+│                                 │                                           │
+│  Maintenance                    │  Maintenance                              │
+│  $15,000                        │  $20,000                                  │
+│                                 │                                           │
+├─────────────────────────────────┼───────────────────────────────────────────┤
+│  15-YEAR TOTAL:                 │  15-YEAR TOTAL:                           │
+│  $170,000                       │  $151,000                                 │
+│                                 │                                           │
+│                                 │  SAVINGS: $19,000                         │
+│                                 │  + Customer satisfaction                  │
+│                                 │  + Flexibility to relocate                │
+└─────────────────────────────────┴───────────────────────────────────────────┘
+```
+
+---
 
 ### The Comparison
 
@@ -1641,6 +1850,133 @@ Fire is the laundromat owner's worst nightmare. Every year, commercial laundry f
 
 Lint is the #1 fire risk in any laundry facility. It's highly combustible and accumulates in hidden areas.
 
+---
+
+### Figure 12.1: Lint Accumulation Danger Zones
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DRYER LINT ACCUMULATION DANGER ZONES                     │
+│                         (Cross-Section View)                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                              ┌─────────────────┐
+                              │  ROOF EXHAUST   │ ◄─── 6. Check annually
+                              │     VENT        │      (Professional)
+                              └────────┬────────┘
+                                       │
+           ┌───────────────────────────┤
+           │                           │
+           │                    ┌──────┴──────┐
+           │  5. CEILING        │ EXHAUST DUCT│ ◄─── 3. Professional
+           │     AREA           │             │      cleaning quarterly
+           │   (floats up,      └──────┬──────┘
+           │    settles)               │
+           │     ▲                     │
+           │     │                     │
+┌──────────┼─────┼─────────────────────┼──────────────────────────────────────┐
+│          │     │                     │                                      │
+│        ┌─┴─────┴─────────────────────┴────────────────────┐                 │
+│        │                                                   │                 │
+│        │              ┌─────────────────┐                  │                 │
+│        │              │                 │                  │                 │
+│        │              │   DRYER DRUM    │◄─── 2. Wipe      │                 │
+│        │              │                 │     weekly       │                 │
+│        │              │    ●●●●●●●●●    │                  │                 │
+│        │              │    (clothes)    │                  │                 │
+│        │              └────────┬────────┘                  │                 │
+│        │                       │                           │                 │
+│        │              ┌────────┴────────┐                  │                 │
+│        │              │   LINT TRAP     │◄─── 1. CRITICAL! │                 │
+│        │              │   ▓▓▓▓▓▓▓▓▓▓▓   │     Clean DAILY  │                 │
+│        │              └─────────────────┘                  │                 │
+│        │                                                   │                 │
+│        │                    DRYER                          │                 │
+│        └───────────────────────────────────────────────────┘                 │
+│                                                                              │
+│   4. BEHIND MACHINE ◄─── Clean monthly (often neglected!)                   │
+│      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                      │
+│                                                                              │
+│ ════════════════════════════════════════════════════════════════════════════│
+│                              FLOOR                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                    ⚠️  FIRE TRIANGLE  ⚠️
+                    
+                         HEAT
+                          ▲
+                         /│\
+                        / │ \
+                       /  │  \
+                      /   │   \
+                     /    │    \
+                    /     │     \
+                   /      │      \
+                  /   FIRE 🔥   \
+                 /________|_______\
+               FUEL              OXYGEN
+              (Lint)           (Airflow)
+              
+    ⚠️ Lint + Heat + Airflow = FIRE RISK
+    ✓ Remove lint regularly to break the triangle
+```
+
+---
+
+### Figure 12.2: Fire Safety Equipment Placement
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FIRE SAFETY EQUIPMENT PLACEMENT                          │
+│                        (Typical Laundromat Layout)                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                                                                     │
+    │   [🧯]                    DRYERS                            [🧯]   │
+    │    │     ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐    │    │
+    │    │     │ D │ │ D │ │ D │ │ D │ │ D │ │ D │ │ D │ │ D │    │    │
+    │    │     └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘    │    │
+    │    │     │ D │ │ D │ │ D │ │ D │ │ D │ │ D │ │ D │ │ D │    │    │
+    │    │     └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘    │    │
+    │    │                                                         │    │
+    │    ▼                                                         ▼    │
+    │  FIRE                    FOLDING                           FIRE   │
+    │  EXTINGUISHER           ┌───────────┐                      EXT.   │
+    │  (ABC Type)             │  TABLES   │                             │
+    │                         └───────────┘                             │
+    │         [💨]                                                      │
+    │         SMOKE                   WASHERS                           │
+    │         DETECTOR   ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐          │
+    │                    │ W │ │ W │ │ W │ │ W │ │ W │ │ W │          │
+    │  [⚡]              └───┘ └───┘ └───┘ └───┘ └───┘ └───┘          │
+    │  ELECTRICAL        │ W │ │ W │ │ W │ │ W │ │ W │ │ W │          │
+    │  SHUTOFF           └───┘ └───┘ └───┘ └───┘ └───┘ └───┘          │
+    │  (Labeled)                                                       │
+    │                                          [🔥] EMERGENCY          │
+    │  [🔴]                                       EXIT SIGN            │
+    │  GAS SHUTOFF                                 ▼                   │
+    │  (Labeled)              ┌────┐          ┌────────┐               │
+    │                         │VEND│          │  EXIT  │◄──────────────│
+    │                         └────┘          └────────┘    CLEAR!     │
+    │  🧯 = Fire Extinguisher (every 75 ft of travel, near exits)     │
+    │  💨 = Smoke/Heat Detector                                        │
+    │  ⚡ = Electrical Shutoff                                         │
+    │  🔴 = Gas Shutoff                                                │
+    └─────────────────────────────────────────────────────────────────────┘
+
+    PLACEMENT RULES:
+    ─────────────────
+    ✓ Fire extinguisher within 75 feet of any point
+    ✓ Extinguisher near every exit
+    ✓ Extinguisher near dryer section (highest risk)
+    ✓ All shutoffs clearly labeled
+    ✓ Exit path NEVER blocked
+    ✓ Emergency lighting at all exits
+```
+
+---
+
 **Where Lint Accumulates:**
 
 1. **Lint traps** — Obvious, should be cleaned daily
@@ -2290,6 +2626,142 @@ Channel frustration into discipline, not destruction.
 
 *Adapted from Larry's 50-year evaluation system at Laundromat123.com*
 
+---
+
+### Figure C.1: Due Diligence Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DUE DILIGENCE TIMELINE (Larry Larsen Method)             │
+│                              4-6 Week Process                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  WEEK 1                WEEK 2                WEEK 3-4              WEEK 5-6
+  ──────                ──────                ────────              ────────
+    │                     │                     │                     │
+    ▼                     ▼                     ▼                     ▼
+┌─────────┐         ┌─────────┐         ┌─────────────┐         ┌─────────┐
+│ INITIAL │         │FINANCIAL│         │   LEASE &   │         │ FINAL   │
+│  VISIT  │────────▶│ REVIEW  │────────▶│   LEGAL     │────────▶│DECISION │
+└─────────┘         └─────────┘         └─────────────┘         └─────────┘
+    │                     │                     │                     │
+    │                     │                     │                     │
+    ▼                     ▼                     ▼                     ▼
+
+┌─────────────┐   ┌─────────────────┐   ┌───────────────┐   ┌─────────────┐
+│• Count      │   │• 3 yr tax returns│   │• Lease review │   │• Final walk │
+│  machines   │   │• 24 mo P&L      │   │• Assignment   │   │• Verify all │
+│• Test 5     │   │• Bank statements│   │  rights       │   │  findings   │
+│  random     │   │• Water bills    │   │• Attorney     │   │• Calculate  │
+│• Check      │   │• Calculate      │   │  review       │   │  final offer│
+│  payment    │   │  true EBITDA    │   │• Landlord     │   │• Walk away  │
+│  systems    │   │                 │   │  meeting      │   │  OR proceed │
+│• Photograph │   │                 │   │               │   │             │
+│  everything │   │                 │   │               │   │             │
+└─────────────┘   └─────────────────┘   └───────────────┘   └─────────────┘
+        │                   │                   │                   │
+        │                   │                   │                   │
+        ▼                   ▼                   ▼                   ▼
+   ┌─────────┐         ┌─────────┐         ┌─────────┐         ┌─────────┐
+   │ GO/NO-GO│         │ GO/NO-GO│         │ GO/NO-GO│         │ GO/NO-GO│
+   │  GATE   │         │  GATE   │         │  GATE   │         │  GATE   │
+   └─────────┘         └─────────┘         └─────────┘         └─────────┘
+
+                    ⚠️ AT EACH GATE: ANY MAJOR RED FLAG = STOP ⚠️
+```
+
+---
+
+### Figure C.2: Due Diligence Decision Tree
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    DEAL OR NO DEAL DECISION TREE                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                              START HERE
+                                  │
+                                  ▼
+                    ┌─────────────────────────┐
+                    │ Does water bill analysis │
+                    │ match claimed revenue    │
+                    │ (within 15%)?            │
+                    └────────────┬────────────┘
+                                 │
+              ┌──────────────────┴──────────────────┐
+              │                                     │
+             YES                                    NO
+              │                                     │
+              ▼                                     ▼
+    ┌──────────────────┐               ┌──────────────────┐
+    │ Is rent ≤25% of  │               │ Can seller       │
+    │ gross revenue?   │               │ explain the      │
+    └────────┬─────────┘               │ discrepancy?     │
+             │                         └─────────┬────────┘
+    ┌────────┴────────┐                          │
+    │                 │               ┌──────────┴──────────┐
+   YES                NO              │                     │
+    │                 │              YES                    NO
+    ▼                 ▼               │                     │
+┌────────┐     ┌──────────────┐       │                     ▼
+│Continue│     │ Can rent be  │       │            ┌────────────────┐
+│  ▼     │     │ renegotiated?│       ▼            │ ⛔ WALK AWAY   │
+└────────┘     └───────┬──────┘  ┌────────────┐    │ Numbers don't  │
+    │                  │         │ Investigate│    │ add up         │
+    │         ┌────────┴───────┐ │ further    │    └────────────────┘
+    │         │                │ └────────────┘
+    │        YES               NO
+    │         │                │
+    │         ▼                ▼
+    │    ┌─────────┐    ┌────────────────┐
+    │    │Continue │    │ ⛔ WALK AWAY   │
+    │    │  ▼      │    │ Economics      │
+    │    └─────────┘    │ don't work     │
+    │         │         └────────────────┘
+    │         │
+    ▼         ▼
+┌─────────────────────────────┐
+│ Is lease assignable with    │
+│ 10+ years remaining         │
+│ (including options)?        │
+└──────────────┬──────────────┘
+               │
+     ┌─────────┴─────────┐
+     │                   │
+    YES                  NO
+     │                   │
+     ▼                   ▼
+┌─────────────┐   ┌─────────────────────┐
+│ Continue ▼  │   │ Can lease terms be  │
+└─────────────┘   │ negotiated with     │
+     │            │ landlord?           │
+     │            └──────────┬──────────┘
+     │                       │
+     │            ┌──────────┴──────────┐
+     │            │                     │
+     │           YES                    NO
+     │            │                     │
+     │            ▼                     ▼
+     │       ┌─────────┐        ┌────────────────┐
+     │       │Continue │        │ ⛔ WALK AWAY   │
+     │       │  ▼      │        │ No exit        │
+     │       └─────────┘        │ strategy       │
+     │            │             └────────────────┘
+     │            │
+     ▼            ▼
+┌─────────────────────────────────────────────────┐
+│           ✅ PROCEED TO FINAL OFFER             │
+│                                                 │
+│  Calculate offer based on:                      │
+│  • Verified EBITDA × appropriate multiple       │
+│  • Equipment age/condition adjustments          │
+│  • Required improvements                        │
+│  • Lease risk factors                           │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
 ### Physical Inspection (Visit #1)
 
 | # | Item | Status | Notes |
@@ -2354,6 +2826,122 @@ Channel frustration into discipline, not destruction.
 ---
 
 Water bills are the closest thing to an impartial witness of a laundromat's actual usage.
+
+---
+
+### Figure D.1: Water Bill Analysis Flowchart
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    WATER BILL REVENUE VERIFICATION                          │
+│                         Larry Larsen Method                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌───────────────────────────────────────┐
+    │  STEP 1: GET 12 MONTHS WATER BILLS    │
+    │  (Request from seller or utility)      │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+    ┌───────────────────────────────────────┐
+    │  STEP 2: CALCULATE MONTHLY AVERAGE    │
+    │                                       │
+    │  Example: 540,000 gallons ÷ 12 months │
+    │         = 45,000 gallons/month        │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+    ┌───────────────────────────────────────┐
+    │  STEP 3: ESTIMATE WASH CYCLES         │
+    │                                       │
+    │  Monthly gallons ÷ 20 gal/cycle       │
+    │  45,000 ÷ 20 = 2,250 cycles/month     │
+    │                                       │
+    │  (Use 20 gal as conservative avg)     │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+    ┌───────────────────────────────────────┐
+    │  STEP 4: CALCULATE WASHER REVENUE     │
+    │                                       │
+    │  Cycles × Average vend price          │
+    │  2,250 × $4.00 = $9,000/month         │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+    ┌───────────────────────────────────────┐
+    │  STEP 5: ADD DRYER REVENUE (35%)      │
+    │                                       │
+    │  $9,000 × 1.35 = $12,150/month        │
+    │  (Dryers typically 30-40% of washer)  │
+    └───────────────────┬───────────────────┘
+                        │
+                        ▼
+    ┌───────────────────────────────────────┐
+    │  STEP 6: COMPARE TO CLAIMED REVENUE   │
+    └───────────────────┬───────────────────┘
+                        │
+           ┌────────────┴────────────┐
+           │                         │
+           ▼                         ▼
+    ┌─────────────┐           ┌─────────────┐
+    │  WITHIN 15% │           │  MORE THAN  │
+    │  OF CLAIMED │           │  15% OFF    │
+    └──────┬──────┘           └──────┬──────┘
+           │                         │
+           ▼                         ▼
+    ┌─────────────┐           ┌─────────────────────────────┐
+    │ ✓ PROCEED   │           │ ⚠️ RED FLAG                 │
+    │   with due  │           │                             │
+    │   diligence │           │ Ask seller to explain:      │
+    │             │           │ • Different equipment mix?  │
+    │             │           │ • WDF water usage?          │
+    │             │           │ • Recent changes?           │
+    │             │           │ • Inflated revenue claims?  │
+    └─────────────┘           └─────────────────────────────┘
+```
+
+---
+
+### Figure D.2: Water Usage by Machine Type
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 WATER USAGE REFERENCE CHART (Gallons per Cycle)             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    MACHINE TYPE              WATER USAGE              FOR CALCULATIONS
+    ────────────────────────────────────────────────────────────────────
+    
+    TOP LOADERS
+    ├── 18-25 lb             20-25 gallons            Use 22 gal
+    │   ████████████████████████████████████
+    │
+    FRONT LOADERS
+    ├── 20-30 lb             10-15 gallons            Use 12 gal
+    │   ████████████████████
+    │
+    ├── 40-50 lb             12-18 gallons            Use 15 gal
+    │   █████████████████████████
+    │
+    ├── 60-80 lb             16-22 gallons            Use 19 gal
+    │   ██████████████████████████████
+    │
+    └── 80+ lb               20-28 gallons            Use 24 gal
+        ██████████████████████████████████████
+    
+    ────────────────────────────────────────────────────────────────────
+    
+    QUICK REFERENCE:
+    ✓ Mixed store average: 18-20 gallons/cycle
+    ✓ All front-load store: 14-16 gallons/cycle
+    ✓ Heavy top-load store: 22-25 gallons/cycle
+    
+    ⚠️ If calculated revenue is MORE than claimed → possible underpayment
+    ⚠️ If calculated revenue is LESS than claimed → possible inflation
+```
+
+---
 
 ### The Basic Calculation
 
@@ -2849,7 +3437,7 @@ It cleans up lives — one cycle at a time.
 ### Nicholas "Stroked-Out Sasquatch" Kremers
 
 **Founder:** Stroke Lyfe Inc. and WashBizHub.com  
-**Author:** *The Stroked-Out Sasquatch: Form Over Function* and *The Laundromat Doctrine*
+**Author:** *The Ultimate Stroke Recovery Bible: Your Complete Guide to Hope, Healing, and Extraordinary Comeback*, *The Stroked-Out Sasquatch: An Architect's Manifesto for Reconstruction*, and *The Laundromat Doctrine*
 
 A third-generation Arkansas laundromat professional turned survivor, Nick brings humor, grit, and deep experience to both the laundry and recovery industries.
 
