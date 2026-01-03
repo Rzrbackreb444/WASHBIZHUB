@@ -8,6 +8,7 @@ import { useBlogPost, useBlogPosts } from "@/hooks/use-blog";
 import { SEO } from "@/components/SEO";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { defaultBlogImages, laundromatImages } from "@/lib/laundromat-images";
 
 // Nick's author image for EEAT optimization  
@@ -212,7 +213,7 @@ export default function BlogPost() {
                   prose-blockquote:border-accent prose-blockquote:text-white/70"
                 data-testid="content-body"
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                   {postContent}
                 </ReactMarkdown>
               </div>
