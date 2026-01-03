@@ -3544,4 +3544,60 @@ Larry specializes in:
 
 ---
 
+## BACK COVER COPY
+
+---
+
+### Three Generations. Fifty Years. One Complete System.
+
+**You're about to buy a laundromat. Or you already own one.**
+
+Either way, you're holding the most comprehensive laundromat playbook ever written.
+
+This isn't theory from business school professors. This is **lived experience** — three generations of the Kremers family combined with Larry Larsen's 50+ years in the trenches.
+
+---
+
+**WHAT YOU'LL LEARN:**
+
+**✓ The CLEANBI System** — A 17-factor location intelligence framework that separates gold mines from money pits. Know the score before you sign.
+
+**✓ Larry's Due Diligence Method** — The exact 4-6 week process that has saved operators millions. Water bill analysis, lease traps, equipment audits — nothing gets missed.
+
+**✓ The Real Numbers** — Actual revenue breakdowns, expense ratios, and valuation multiples. No fluff, no hype — just what the business really looks like.
+
+**✓ Equipment Intelligence** — Softmount vs. hardmount, brand comparisons, 15-year cost analysis. Make the right choice the first time.
+
+**✓ Operations That Scale** — From staffing systems to fire prevention, from marketing that works to exit strategies that maximize value.
+
+---
+
+**WHO THIS BOOK IS FOR:**
+
+• First-time buyers who want to avoid expensive mistakes  
+• Current owners looking to optimize and scale  
+• Investors seeking data-driven deal evaluation  
+• Sellers preparing for maximum exit value  
+• Anyone tired of vague advice and ready for real systems
+
+---
+
+> "The laundromat business isn't complicated — it's just unforgiving. You either do your homework, or the industry will educate you the hard way."
+> 
+> **— Larry Larsen, 50+ years in the industry**
+
+---
+
+**Visit WashBizHub.com for:**
+- CLEANBI Location Intelligence Reports
+- Equipment diagnostics and valuation tools
+- Funding Wizard (up to $50M, 24-48hr approval)
+- 74K+ member community
+
+---
+
+*Apply this, wash away the BS, build wealth.*
+
+---
+
 **[END OF BOOK]**
