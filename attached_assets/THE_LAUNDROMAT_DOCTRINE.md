@@ -169,7 +169,7 @@ Nick Kremers knows this world from the ground up. Three generations of Arkansas 
 
 - **Jerry Kremers** hauling coin boxes through backroads in a beat-up pickup
 - **Guy Kremers** fixing Dexters by hand during power outages
-- **Nick** dragging himself back from a wheelchair after a stroke at 35 to re-engineer what "modern laundry intelligence" really means
+- **Nick** dragging himself back from a wheelchair after a stroke at 36 to re-engineer what "modern laundry intelligence" really means
 
 This book is different because it's **lived** — not just learned.
 
@@ -3468,7 +3468,7 @@ We all built something — not just for money, but for meaning.
 
 This business has been in my blood for three generations. It's paid for homes, educated children, and weathered recessions. It's given people second chances — including me.
 
-When I was lying in that hospital bed after my stroke at 35, wondering if I'd ever walk again, I didn't think about stock portfolios or crypto gains. I thought about the fundamentals: family, purpose, and building something that lasts.
+When I was lying in that hospital bed after my stroke at 36, wondering if I'd ever walk again, I didn't think about stock portfolios or crypto gains. I thought about the fundamentals: family, purpose, and building something that lasts.
 
 The laundromat business taught me that.
 
@@ -3496,7 +3496,7 @@ It cleans up lives — one cycle at a time.
 
 A third-generation Arkansas laundromat professional turned survivor, Nick brings humor, grit, and deep experience to both the laundry and recovery industries.
 
-After a stroke at 35, Nick rebuilt his life using the same principles he teaches in this book: structure, discipline, and systems thinking. He now leads **WashBizHub: Laundromat Marketplace & Resources**, a 74,000+ member Facebook community of laundromat operators, and is dedicated to helping operators build profitable, sustainable laundry businesses through data-driven intelligence and proven operational frameworks.
+After a stroke at 36, Nick rebuilt his life using the same principles he teaches in this book: structure, discipline, and systems thinking. He now leads **WashBizHub: Laundromat Marketplace & Resources**, a 74,000+ member Facebook community of laundromat operators, and is dedicated to helping operators build profitable, sustainable laundry businesses through data-driven intelligence and proven operational frameworks.
 
 Nick's platform, **WashBizHub.com**, combines three generations of family expertise with modern technology to provide operators with institutional-grade property analysis, equipment diagnostics, and business intelligence tools.
 
