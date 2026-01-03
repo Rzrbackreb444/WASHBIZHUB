@@ -34,7 +34,7 @@ const categories: FAQCategory[] = [
       },
       {
         q: "How many CLEANBI analyses can I run?",
-        a: "Free users get 5 analyses total. Starter ($29/mo) and Pro ($99/mo) get unlimited analyses. Enterprise ($699/mo) includes API access and team collaboration. Admin emails have unlimited quotas."
+        a: "Free users get 3 analyses total (lifetime). Starter ($29/mo) and Pro ($99/mo) get unlimited analyses. Enterprise ($699/mo) includes API access and team collaboration. Admin emails have unlimited quotas."
       },
       {
         q: "What's the difference between A, B, C grades and 'Needs Work'?",
@@ -82,7 +82,7 @@ const categories: FAQCategory[] = [
     faqs: [
       {
         q: "What subscription plans are available?",
-        a: "We offer 4 tiers: Free (5 CLEANBI analyses total, basic calculators), Starter ($29/mo - unlimited analyses, all calculators), Pro ($99/mo - unlimited analyses, PDF reports, ROI calculators, API access), Enterprise ($699/mo - everything in Pro plus ownership data, team features, white-label, priority support)."
+        a: "We offer 4 tiers: Free (3 CLEANBI analyses total, basic calculators), Starter ($29/mo - unlimited analyses, all calculators), Pro ($99/mo - unlimited analyses, PDF reports, ROI calculators, API access), Enterprise ($699/mo - everything in Pro plus ownership data, team features, white-label, priority support)."
       },
       {
         q: "Do you offer annual discounts?",
