@@ -211,7 +211,7 @@ Then came me — the third generation. I learned to lift machines before I learn
 
 ### The Stroke That Changed Everything
 
-That legacy didn't end when a stroke almost took me out at 35.
+That legacy didn't end when a stroke almost took me out at 36.
 
 One day I'm running service calls. The next day I'm in a hospital bed wondering if I'll ever walk again.
 
@@ -324,7 +324,7 @@ Then came me — the third generation. I grew up in the back of a service truck.
 
 ### The Stroke That Changed Everything
 
-That legacy didn't end when a stroke almost took me out at 35. It just shifted focus.
+That legacy didn't end when a stroke almost took me out at 36. It just shifted focus.
 
 What started as survival became a doctrine — structure, discipline, and accountability. That same mindset drives this book.
 
