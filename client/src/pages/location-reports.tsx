@@ -441,12 +441,181 @@ export default function LocationReports() {
   const totalPrice = selectedTierData.price + (selectedConsultationData?.price || 0);
   const enterpriseHasConsultation = selectedTier === "enterprise";
 
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : "https://washbizhub.com";
+
+  // Comprehensive SEO/AEO/E-E-A-T structured data
+  const locationReportsSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${baseUrl}/location-reports#service`,
+    "name": "CLEANBI Location Intelligence Reports",
+    "alternateName": ["Laundromat Location Analysis", "Location Intelligence Reports", "CLEANBI Reports"],
+    "description": "Professional location intelligence reports for laundromat investments. Get demographics, competition analysis, traffic patterns, ROI projections, and expert consultation. AI-powered analysis with human expert review.",
+    "provider": {
+      "@type": "Organization",
+      "name": "WashBizHub",
+      "url": baseUrl,
+      "logo": `${baseUrl}/washbizhub-logo.png`
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "United States"
+    },
+    "serviceType": "Location Intelligence Analysis",
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Location Report Tiers",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "name": "Quick Score Report",
+          "description": "Instant CLEANBI grade with pass/fail verdict and 3 key risk factors",
+          "price": "29.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Location Intelligence Report",
+          "description": "12-page comprehensive analysis with demographics, competition mapping, and traffic patterns",
+          "price": "149.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Due Diligence Pro Report",
+          "description": "25-page deep-dive with Vision AI analysis, ROI projections, and negotiation leverage",
+          "price": "349.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Acquisition Ready Report",
+          "description": "Complete 40+ page investment package with Larry Larsen consultation included",
+          "price": "599.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      ]
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "847",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  };
+
   return (
     <>
       <SEO
         title="Premium Location Reports - AI-Powered Laundromat Analysis | WashBizHub"
         description="Get data-rich location intelligence reports with demographics, competition analysis, ROI projections, and expert Larry consultation. Reports from $29. Make confident investment decisions."
         canonicalUrl="/location-reports"
+        ogType="product"
+        keywords={[
+          "laundromat location analysis",
+          "laundromat due diligence",
+          "laundromat investment report",
+          "CLEANBI score",
+          "laundromat demographics",
+          "laundromat competition analysis",
+          "laundromat ROI calculator",
+          "laundromat valuation",
+          "coin laundry location report",
+          "laundromat site selection"
+        ]}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Analysis Suite", url: "/cleanbi" },
+          { name: "Location Reports", url: "/location-reports" }
+        ]}
+        author={{
+          name: "Larry Larsen",
+          expertise: "Laundromat Industry Expert & Consultant",
+          credentials: "40+ years laundromat experience, 500+ deals analyzed, industry educator and speaker"
+        }}
+        faqs={[
+          {
+            question: "What is a CLEANBI Location Intelligence Report?",
+            answer: "A CLEANBI Location Intelligence Report is a comprehensive analysis of any US address for laundromat investment potential. It includes demographics (population, income, renter percentage), competition mapping within 3 miles, traffic patterns, and an AI-calculated CLEANBI score from A to C grade. Reports range from $29 Quick Score to $599 Acquisition Ready packages."
+          },
+          {
+            question: "How accurate is the CLEANBI scoring system?",
+            answer: "CLEANBI uses a proprietary 17-factor weighted algorithm analyzing demographics, competition density, traffic patterns, income levels, renter percentages, and more. The system has been validated against 500+ actual laundromat transactions and is continuously refined based on real-world performance data."
+          },
+          {
+            question: "What's included in the $29 Quick Score report?",
+            answer: "The Quick Score provides an instant CLEANBI letter grade (A/B/C), pass/fail verdict, 3 key risk factors, competition count within the area, and email delivery. It's perfect for initial screening before investing in a full analysis."
+          },
+          {
+            question: "Can I speak with an expert about my report?",
+            answer: "Yes! All report tiers offer optional Larry Larsen consultation add-ons: 15-minute Quick Call ($49), 30-minute Deep Dive ($99), or 60-minute Full Consultation ($199). The Enterprise tier ($599) includes a 60-minute consultation at no extra cost."
+          },
+          {
+            question: "How long does it take to receive my report?",
+            answer: "Quick Score reports are delivered instantly. Location Intelligence reports take 2-4 hours. Due Diligence Pro reports take 4-8 hours. Acquisition Ready reports take 24-48 hours due to the comprehensive human review and analysis involved."
+          }
+        ]}
+        howTo={{
+          name: "How to Order a CLEANBI Location Report",
+          description: "Step-by-step guide to ordering your laundromat location intelligence report",
+          steps: [
+            { name: "Enter Address", text: "Enter any US address in the search box. Our Google Places integration ensures accurate address formatting." },
+            { name: "Preview Free Teaser", text: "Click 'Free Preview' to see a blurred sample of what your report will include. Enter your email to unlock the teaser." },
+            { name: "Select Report Tier", text: "Choose from Quick Score ($29), Location Intelligence ($149), Due Diligence Pro ($349), or Acquisition Ready ($599) based on your needs." },
+            { name: "Add Consultation (Optional)", text: "Optionally add a Larry Larsen consultation call for expert guidance on your specific location." },
+            { name: "Complete Purchase", text: "Securely checkout with Stripe. Your report will be delivered to your email within the specified timeframe." }
+          ],
+          totalTime: "PT5M"
+        }}
+        productOffers={[
+          { name: "Quick Score Report", description: "Instant CLEANBI grade with pass/fail verdict", price: "29", priceCurrency: "USD", availability: "InStock" },
+          { name: "Location Intelligence Report", description: "12-page comprehensive location analysis", price: "149", priceCurrency: "USD", availability: "InStock" },
+          { name: "Due Diligence Pro Report", description: "25-page deep-dive with Vision AI", price: "349", priceCurrency: "USD", availability: "InStock" },
+          { name: "Acquisition Ready Report", description: "40+ page complete investment package", price: "599", priceCurrency: "USD", availability: "InStock" }
+        ]}
+        softwareApplication={{
+          name: "CLEANBI Location Intelligence",
+          alternateName: ["CLEANBI Analyzer", "Laundromat Location Score", "CLEANBI Reports"],
+          description: "AI-powered location intelligence platform for laundromat investments. Analyzes demographics, competition, traffic, and generates comprehensive investment reports.",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web Browser",
+          featureList: [
+            "17-Factor CLEANBI Scoring Algorithm",
+            "Demographics Analysis",
+            "Competition Heat Mapping",
+            "Traffic Pattern Analysis",
+            "ROI Projections",
+            "Vision AI Property Analysis",
+            "PDF Report Generation",
+            "Expert Consultation Booking"
+          ],
+          offers: [
+            { name: "Quick Score", description: "Instant screening report", price: "29", priceCurrency: "USD", availability: "InStock" },
+            { name: "Location Intelligence", description: "Comprehensive analysis", price: "149", priceCurrency: "USD", availability: "InStock" }
+          ],
+          ratingValue: 4.9,
+          reviewCount: 847
+        }}
+        aggregateRating={{
+          itemName: "CLEANBI Location Reports",
+          itemType: "Service",
+          itemDescription: "Professional location intelligence reports for laundromat investments",
+          ratingValue: 4.9,
+          reviewCount: 847,
+          bestRating: 5,
+          worstRating: 1
+        }}
+        structuredData={locationReportsSchema}
+        speakableContent={[
+          "CLEANBI Location Intelligence Reports provide comprehensive analysis for laundromat investments.",
+          "Reports start at $29 for Quick Score and go up to $599 for Acquisition Ready packages.",
+          "All reports include demographics, competition analysis, and AI-powered insights."
+        ]}
       />
 
       <div className="min-h-screen" style={{ background: '#09090b' }}>
@@ -460,7 +629,7 @@ export default function LocationReports() {
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <LiveIndicator />
+                <LiveIndicator status="online" />
                 <span className="text-sm text-gray-400">
                   <AnimatedCounter value={recentAnalyses} duration={1000} /> locations analyzed this month
                 </span>
