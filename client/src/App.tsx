@@ -332,6 +332,7 @@ const PlatformDirectory = lazy(() => import("@/pages/platform-directory"));
 // CLEANBI Explorer (Immersive Map Experience)
 const CleanBIExplorer = lazy(() => import("@/pages/cleanbi-explorer"));
 const CleanBIReports = lazy(() => import("@/pages/cleanbi-reports"));
+const LocationReports = lazy(() => import("@/pages/location-reports"));
 const CLEANBIMarketReport = lazy(() => import("@/pages/cleanbi-market-report"));
 const ExpansionPlanner = lazy(() => import("@/pages/expansion-planner"));
 const CompetitorDashboard = lazy(() => import("@/pages/competitor-dashboard"));
@@ -618,6 +619,11 @@ function Router() {
       <Route path="/cleanbi-reports">
         <Suspense fallback={<LoadingFallback />}>
           <CleanBIReports />
+        </Suspense>
+      </Route>
+      <Route path="/location-reports">
+        <Suspense fallback={<LoadingFallback />}>
+          <LocationReports />
         </Suspense>
       </Route>
       <Route path="/market-report">
