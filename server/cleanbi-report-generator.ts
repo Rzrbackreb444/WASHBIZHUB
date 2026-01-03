@@ -7,6 +7,9 @@
  * - Google Places API (competitor data)
  * - Street View Static API (location images)
  * - Gemini AI (insights and recommendations)
+ * - Walk Score API (walkability, transit, bike scores)
+ * - Census Data (demographics)
+ * - ATTOM Data (property intelligence)
  * - jsPDF (PDF generation)
  */
 
@@ -14,74 +17,92 @@ import { jsPDF } from "jspdf";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { objectStorageClient, ObjectStorageService } from "./objectStorage";
 import { calculateGoogleCleanbi } from "./google-cleanbi-engine";
+import { getWalkScore, WalkScoreResult } from "./walk-score-service";
+import { enrichCLEANBIData, EnrichedCLEANBIData } from "./cleanbi-data-enrichment";
 import { CleanbiReport } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export const REPORT_TIERS = {
   quick: {
     id: "quick",
-    name: "Quick Valuation Report",
-    price: 9900, // $99.00 in cents - Entry-level product
+    name: "Quick Score",
+    price: 2900, // $29.00 in cents - Gateway product
     features: [
-      "CLEANBI Score & Grade",
-      "Location Overview",
-      "Estimated Business Value Range",
-      "3-Page PDF Report",
+      "CLEANBI Letter Grade (A/B/C)",
+      "Pass/Fail Verdict",
+      "3 Key Risk Factors",
+      "Competition Count",
       "Email Delivery"
     ],
     includesVision: false,
     includesAiInsights: false,
     includesDeepCompetitor: false,
-    includesValuation: true,
+    includesValuation: false,
+    includesWalkScore: false,
+    includesDemographics: false,
+    includesProperty: false,
   },
   standard: {
     id: "standard",
-    name: "Standard Report",
-    price: 19900, // $199.00 in cents
+    name: "Location Intelligence",
+    price: 14900, // $149.00 in cents
     features: [
-      "CLEANBI Score & Grade",
-      "Location Overview",
-      "Basic Competitor Analysis",
-      "Traffic Insights",
-      "5-Page PDF Report"
+      "Everything in Quick Score",
+      "17-Factor CLEANBI Score",
+      "Walk Score / Transit / Bike Score",
+      "Population & Demographics",
+      "Median Income Analysis",
+      "Competitor Mapping (3-mile)",
+      "12-Page PDF Report"
     ],
     includesVision: false,
     includesAiInsights: false,
     includesDeepCompetitor: false,
     includesValuation: false,
+    includesWalkScore: true,
+    includesDemographics: true,
+    includesProperty: false,
   },
   pro: {
     id: "pro",
-    name: "Pro Report",
+    name: "Due Diligence",
     price: 34900, // $349.00 in cents
     features: [
-      "Everything in Standard",
-      "Vision AI Image Analysis",
+      "Everything in Location Intelligence",
+      "Vision AI Photo Analysis",
       "Deep Competitor Analysis",
-      "Demographic Data",
-      "12-Page PDF Report"
+      "Property Intelligence (ATTOM)",
+      "3-Method Valuation Range",
+      "25-Page PDF Report"
     ],
     includesVision: true,
     includesAiInsights: false,
     includesDeepCompetitor: true,
     includesValuation: true,
+    includesWalkScore: true,
+    includesDemographics: true,
+    includesProperty: true,
   },
   enterprise: {
     id: "enterprise",
-    name: "Enterprise Report",
-    price: 49900, // $499.00 in cents
+    name: "Acquisition Ready",
+    price: 59900, // $599.00 in cents
     features: [
-      "Everything in Pro",
-      "AI-Powered Recommendations",
-      "ROI Projections",
+      "Everything in Due Diligence",
+      "AI Executive Summary",
+      "Strategic Recommendations",
+      "ROI Projections (5-year)",
       "Market Opportunity Analysis",
-      "Executive Summary",
-      "20+ Page Premium Report"
+      "30-min Larry Consultation",
+      "40+ Page Premium Report"
     ],
     includesVision: true,
     includesAiInsights: true,
     includesDeepCompetitor: true,
     includesValuation: true,
+    includesWalkScore: true,
+    includesDemographics: true,
+    includesProperty: true,
   }
 } as const;
 
@@ -358,7 +379,9 @@ function generatePDF(
   visionAnalysis?: VisionAnalysisResult,
   competitorData?: CompetitorDeepDive,
   demographicData?: DemographicData,
-  aiInsights?: AiInsights
+  aiInsights?: AiInsights,
+  walkScoreData?: WalkScoreResult,
+  enrichedData?: EnrichedCLEANBIData
 ): Buffer {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -493,6 +516,198 @@ function generatePDF(
     yPos += 10;
   }
 
+  // Walk Score Section (Standard tier and above)
+  if (walkScoreData && walkScoreData.status === "success") {
+    addSection("Walkability & Accessibility Scores");
+    
+    // Walk Score
+    const walkColor = walkScoreData.walkScore >= 70 ? [34, 197, 94] : 
+                      walkScoreData.walkScore >= 50 ? [251, 191, 36] : [239, 68, 68];
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(walkColor[0], walkColor[1], walkColor[2]);
+    doc.text(`Walk Score: ${walkScoreData.walkScore}/100`, margin, yPos);
+    doc.setTextColor(60, 60, 60);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(` - ${walkScoreData.walkDescription}`, margin + 55, yPos);
+    yPos += 8;
+    
+    // Transit Score
+    if (walkScoreData.transitScore !== null) {
+      const transitColor = walkScoreData.transitScore >= 70 ? [34, 197, 94] : 
+                           walkScoreData.transitScore >= 50 ? [251, 191, 36] : [239, 68, 68];
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(transitColor[0], transitColor[1], transitColor[2]);
+      doc.text(`Transit Score: ${walkScoreData.transitScore}/100`, margin, yPos);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(` - ${walkScoreData.transitDescription || ""}`, margin + 55, yPos);
+      yPos += 8;
+    }
+    
+    // Bike Score
+    if (walkScoreData.bikeScore !== null) {
+      const bikeColor = walkScoreData.bikeScore >= 70 ? [34, 197, 94] : 
+                        walkScoreData.bikeScore >= 50 ? [251, 191, 36] : [239, 68, 68];
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(bikeColor[0], bikeColor[1], bikeColor[2]);
+      doc.text(`Bike Score: ${walkScoreData.bikeScore}/100`, margin, yPos);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(` - ${walkScoreData.bikeDescription || ""}`, margin + 55, yPos);
+      yPos += 8;
+    }
+    
+    yPos += 10;
+  }
+
+  // Demographics Section (Standard tier and above)
+  if (demographicData || enrichedData?.demographics) {
+    addSection("Demographics & Market Data");
+    
+    if (enrichedData?.demographics) {
+      const demo = enrichedData.demographics;
+      addText(`Population Density: ${demo.populationDensity.toLocaleString()} people/sq mi`);
+      addText(`Median Household Income: $${demo.medianHouseholdIncome.toLocaleString()}`);
+      addText(`Renter Percentage: ${Math.round(demo.renterPercentage)}%`);
+      addText(`Housing Units: ${demo.housingUnits.toLocaleString()}`);
+      addText(`Median Age: ${demo.medianAge}`);
+      addText(`Laundry Demand Index: ${demo.laundryDemandIndex}/100`);
+      
+      // Data source indicator
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(`Data Source: ${demo.dataSource} (${Math.round(demo.dataConfidence * 100)}% confidence)`, margin, yPos);
+      doc.setTextColor(60, 60, 60);
+      doc.setFontSize(10);
+      yPos += 8;
+    } else if (demographicData) {
+      addText(`Population Density: ${demographicData.populationDensity}`);
+      addText(`Median Income: ${demographicData.medianIncome}`);
+      addText(`${demographicData.householdTypes}`);
+      addText(`${demographicData.ageDistribution}`);
+    }
+    yPos += 10;
+  }
+
+  // Property Intelligence Section (Pro tier and above)
+  if (enrichedData?.property) {
+    addSection("Property Intelligence");
+    const prop = enrichedData.property;
+    
+    addText(`Assessed Value: $${prop.assessedValue.toLocaleString()}`);
+    addText(`Market Value: $${prop.marketValue.toLocaleString()}`);
+    addText(`Year Built: ${prop.yearBuilt}`);
+    addText(`Building Size: ${prop.buildingSqFt.toLocaleString()} sq ft`);
+    addText(`Property Type: ${prop.propertyType}`);
+    addText(`Annual Taxes: $${prop.taxAmount.toLocaleString()}`);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`Data Source: ${prop.dataSource} (${Math.round(prop.dataConfidence * 100)}% confidence)`, margin, yPos);
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(10);
+    yPos += 10;
+  }
+
+  // Growth Signals Section (Pro tier and above)
+  if (enrichedData?.growthSignals) {
+    addSection("Market Growth Signals");
+    const growth = enrichedData.growthSignals;
+    
+    addText(`Growth Score: ${growth.growthScore}/100`);
+    addText(`Recent Permits: ${growth.recentPermits}`);
+    addText(`New Construction Permits: ${growth.newConstructionPermits}`);
+    addText(`1-Year Home Value Change: ${growth.homeValueChange1Yr >= 0 ? '+' : ''}${growth.homeValueChange1Yr.toFixed(1)}%`);
+    addText(`5-Year Home Value Change: ${growth.homeValueChange5Yr >= 0 ? '+' : ''}${growth.homeValueChange5Yr.toFixed(1)}%`);
+    addText(`Inventory Level: ${growth.inventoryLevel}`);
+    yPos += 10;
+  }
+
+  // Valuation Estimate Section (Pro tier and above)
+  const tierConfig = REPORT_TIERS[tier];
+  if (tierConfig.includesValuation) {
+    doc.addPage();
+    yPos = 30;
+    addSection("Business Valuation Estimate");
+    
+    // Get EBITDA multiples based on CLEANBI grade
+    const gradeMultiples: Record<string, { min: number; mid: number; max: number }> = {
+      'A': { min: 4.0, mid: 4.75, max: 5.5 },
+      'B': { min: 2.8, mid: 3.4, max: 4.0 },
+      'C': { min: 1.8, mid: 2.3, max: 2.8 },
+      'Needs Work': { min: 0.8, mid: 1.3, max: 1.8 }
+    };
+    const multiples = gradeMultiples[cleanbiResult.grade] || gradeMultiples['C'];
+    
+    // Industry benchmark revenue for valuation example
+    const avgRevenue = 250000; // Industry average
+    const avgEbitdaMargin = 0.25; // 25% EBITDA margin
+    const estimatedEbitda = avgRevenue * avgEbitdaMargin;
+    
+    addText("EBITDA Multiple Analysis (Based on CLEANBI Grade):");
+    yPos += 5;
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Grade ${cleanbiResult.grade} Multiple Range: ${multiples.min}x - ${multiples.max}x EBITDA`, margin, yPos);
+    yPos += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    
+    addText("Valuation Methodology:");
+    addBullet(`EBITDA Multiple: ${multiples.mid}x (mid-range for Grade ${cleanbiResult.grade})`);
+    addBullet(`Revenue Multiple: 0.8x - 1.2x (industry standard)`);
+    addBullet(`Asset-Based: Equipment FMV + working capital`);
+    yPos += 5;
+    
+    addText("Example Valuation (Using Industry Average $250K Revenue):");
+    const lowVal = Math.round(estimatedEbitda * multiples.min);
+    const midVal = Math.round(estimatedEbitda * multiples.mid);
+    const highVal = Math.round(estimatedEbitda * multiples.max);
+    
+    doc.setFillColor(245, 247, 250);
+    doc.roundedRect(margin, yPos - 2, pageWidth - 2 * margin, 35, 3, 3, "F");
+    yPos += 8;
+    
+    doc.setFontSize(11);
+    addText(`Estimated EBITDA: $${estimatedEbitda.toLocaleString()} (at 25% margin)`);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    const gradeColor = cleanbiResult.grade === "A" ? [34, 197, 94] :
+                       cleanbiResult.grade === "B" ? [59, 130, 246] :
+                       cleanbiResult.grade === "C" ? [251, 191, 36] : [239, 68, 68];
+    doc.setTextColor(gradeColor[0], gradeColor[1], gradeColor[2]);
+    doc.text(`Valuation Range: $${lowVal.toLocaleString()} - $${highVal.toLocaleString()}`, margin, yPos);
+    yPos += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Mid-Point Estimate: $${midVal.toLocaleString()}`, margin, yPos);
+    yPos += 12;
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(60, 60, 60);
+    
+    addText("Note: This is an illustrative example. Actual valuation requires verified financials.");
+    addText("For a precise valuation, schedule a consultation with Larry Larsen.");
+    yPos += 10;
+    
+    // Disclaimer
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    addText("DISCLAIMER: This valuation estimate is for informational purposes only and does not constitute financial advice. Actual business value may vary significantly based on verified financial data, market conditions, and other factors. Consult with qualified professionals before making investment decisions.");
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(10);
+  }
+
   if (visionAnalysis) {
     doc.addPage();
     yPos = 30;
@@ -602,11 +817,50 @@ export async function generateCleanbiReport(
 
   const lat = cleanbiResult.breakdown.location.data.coordinates.lat;
   const lng = cleanbiResult.breakdown.location.data.coordinates.lng;
+  const formattedAddress = cleanbiResult.breakdown.location.data.formattedAddress || address;
 
   let visionAnalysis: VisionAnalysisResult | undefined;
   let competitorData: CompetitorDeepDive | undefined;
   let demographicData: DemographicData | undefined;
   let aiInsights: AiInsights | undefined;
+  let walkScoreData: WalkScoreResult | undefined;
+  let enrichedData: EnrichedCLEANBIData | undefined;
+
+  // Fetch Walk Score for standard tier and above
+  if (tierConfig.includesWalkScore) {
+    try {
+      walkScoreData = await getWalkScore(lat, lng, formattedAddress);
+      console.log(`📊 Walk Score fetched: ${walkScoreData.walkScore}`);
+    } catch (error) {
+      console.error("Walk Score fetch error:", error);
+    }
+  }
+
+  // Fetch enriched data (demographics, property, etc.) for standard tier and above
+  if (tierConfig.includesDemographics || tierConfig.includesProperty) {
+    try {
+      const enrichmentTier = tier === 'quick' ? 'free' : 
+                             tier === 'standard' ? 'starter' : 
+                             tier === 'pro' ? 'pro' : 'enterprise';
+      enrichedData = await enrichCLEANBIData(address, { tier: enrichmentTier });
+      
+      // Build demographic data for PDF
+      if (enrichedData) {
+        demographicData = {
+          populationDensity: `${enrichedData.demographics.populationDensity.toLocaleString()} people/sq mi`,
+          medianIncome: `$${enrichedData.demographics.medianHouseholdIncome.toLocaleString()}`,
+          ageDistribution: `Median age: ${enrichedData.demographics.medianAge}`,
+          householdTypes: `${Math.round(enrichedData.demographics.renterPercentage)}% renters`,
+          growthTrend: enrichedData.growthSignals?.growthScore 
+            ? `Growth Score: ${enrichedData.growthSignals.growthScore}/100` 
+            : "Data not available"
+        };
+      }
+      console.log(`📊 Enriched data fetched: ${enrichedData?.dataQuality.sourcesUsed.join(', ')}`);
+    } catch (error) {
+      console.error("Data enrichment error:", error);
+    }
+  }
 
   if (tierConfig.includesVision) {
     const streetViewUrl = await fetchStreetViewImage(lat, lng);
@@ -632,7 +886,9 @@ export async function generateCleanbiReport(
     visionAnalysis,
     competitorData,
     demographicData,
-    aiInsights
+    aiInsights,
+    walkScoreData,
+    enrichedData
   );
 
   let pdfUrl = "";
