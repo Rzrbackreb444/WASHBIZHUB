@@ -116,6 +116,13 @@ You're not just washing clothes — you're building something that lasts.
 
 ## List of Figures
 
+### Chapter 5: Equipment Intelligence
+- **Figure 5.1:** Premium Boutique Laundromat with Brand Identity (Tumble Fresh)
+- **Figure 5.2:** Modern Dexter Store with Full Equipment Range
+- **Figure 5.3:** Clean Aisle Configuration with Stacked Equipment
+- **Figure 5.4:** Front-Loaders in Operation
+- **Figure 5.5:** Boutique Laundromat with Personality (Named Machines)
+
 ### Chapter 8: Design, Layout, and Customer Flow
 - **Figure 8.1:** Modern Premium Laundromat Interior
 - **Figure 8.2:** Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)
@@ -774,6 +781,96 @@ The ideal ratio depends on your market, but here's a starting framework:
 | **Continental** | High efficiency, good warranty | Smaller dealer network | Energy-focused markets |
 | **Huebsch** | Alliance quality, competitive pricing | Less brand recognition | Value seekers |
 | **Electrolux** | Premium features, efficiency | Parts availability, cost | High-end markets |
+
+---
+
+### Equipment in Action: Real-World Examples
+
+The following photos demonstrate different equipment configurations and store styles.
+
+---
+
+**Figure 5.1: Premium Boutique Laundromat with Brand Identity**
+
+![Tumble Fresh Premium Laundromat](Twin_Cities_Laundromat_1767436123334.jpg)
+
+*A premium boutique laundromat (Tumble Fresh) featuring custom LED lighting, branded signage, and "Giant Load Machines" marketing. This represents the top tier of laundromat design — transforming a utility service into a destination experience.*
+
+**Premium Design Elements:**
+- Custom architectural ceiling with LED accent lighting
+- Strong brand identity throughout space
+- Marketing signage promoting large-capacity machines
+- Premium flooring (polished concrete)
+- Professional-grade equipment islands
+- Multiple TV screens for customer entertainment
+
+---
+
+**Figure 5.2: Modern Dexter Store with Full Equipment Range**
+
+![Dexter Laundromat Full Range](Dexter_Laundromat_Stock_photo_1767436123334.jpg)
+
+*A well-organized modern laundromat featuring Dexter equipment with a complete size range — from standard front-loaders to large-capacity machines. Note the stacked dryer configuration on the back wall and L-shaped washer layout.*
+
+**Equipment Layout Analysis:**
+- **Stacked dryers (back wall):** Maximizes floor space
+- **L-shaped washer configuration:** Creates efficient customer flow
+- **Multiple size options:** Small, medium, and large capacity visible
+- **Central folding tables:** Positioned for easy access
+- **24-hour video surveillance:** Security signage visible
+
+---
+
+**Figure 5.3: Clean Aisle Configuration with Stacked Equipment**
+
+![Dexter Stacked Equipment Aisle](Dexter_Laundromat_1767436123334.jpg)
+
+*A clean equipment aisle showing proper machine spacing and stacked washer/dryer configuration. This layout maximizes machine count while maintaining comfortable customer access.*
+
+**Space Optimization Features:**
+- Stacked front-load washers on both sides
+- Stacked dryers with overhead positioning
+- Wide center aisle for carts and foot traffic
+- Uniform equipment sizing for visual consistency
+- Clean flooring with no obstructions
+
+---
+
+**Figure 5.4: Front-Loaders in Operation**
+
+![Dexter Front-Loaders Running](dexter_laundromat_corner_shot_1767436123333.jpg)
+
+*Close-up of commercial Dexter front-load washers in mid-cycle. Note the clear viewing windows, warning labels, and digital controls. This shows the machine quality customers expect in a modern facility.*
+
+**Machine Features Visible:**
+- Large-diameter doors for easy loading
+- Clear view of tumble action
+- Digital cycle displays
+- Safety warning labels
+- Stainless steel construction
+- Multiple capacity options in row
+
+---
+
+**Figure 5.5: Boutique Laundromat with Personality**
+
+![Dexter Boutique Store](dexter_laundromat_corner_pic_1767436123333.jpeg)
+
+*A creative boutique laundromat featuring named machines (Elvis, Gandolf, Jay-Z, Tom Selleck), bold wall graphics, and a welcoming atmosphere. This demonstrates how equipment can be part of brand storytelling.*
+
+**Branding & Personality Elements:**
+- Named machines create customer connection
+- Bold wall mural (target/bullseye design)
+- Neon Dexter Laundry signage
+- Change machine and soap vending visible
+- Large windows for natural light and visibility
+- Landfill recycling signage (sustainability focus)
+- Wood folding counter for warmth
+
+**Why This Works:**
+This store transforms a mundane task into an experience. Customers remember "washing at Elvis" — creating word-of-mouth marketing and repeat visits.
+
+---
 
 ### Equipment Valuation in a Sale
 
