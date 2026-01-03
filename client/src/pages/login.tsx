@@ -351,7 +351,7 @@ export default function Login() {
                               placeholder="you@example.com"
                               value={magicLinkEmail}
                               onChange={(e) => setMagicLinkEmail(e.target.value)}
-                              className="pl-10 h-11"
+                              className="pl-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                               disabled={isSendingMagicLink}
                               autoComplete="email"
                               inputMode="email"
@@ -432,7 +432,7 @@ export default function Login() {
                             placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="pl-10 h-11"
+                            className="pl-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                             disabled={isSubmitting}
                             autoComplete="email"
                             inputMode="email"
@@ -466,7 +466,7 @@ export default function Login() {
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="pl-10 pr-10 h-11"
+                            className="pl-10 pr-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                             disabled={isSubmitting}
                             autoComplete="current-password"
                             data-testid="input-password"

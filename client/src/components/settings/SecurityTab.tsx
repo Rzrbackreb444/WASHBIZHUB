@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
@@ -24,7 +25,63 @@ import {
   Eye,
   EyeOff,
   Lock,
+  Plus,
+  Check,
+  X,
 } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
+
+function getPasswordStrength(password: string): { 
+  label: string; 
+  color: string; 
+  bgColor: string; 
+  progress: number;
+  tips: string[];
+} {
+  if (!password) return { label: "", color: "", bgColor: "", progress: 0, tips: [] };
+  
+  let score = 0;
+  const tips: string[] = [];
+  
+  if (password.length >= 8) score++;
+  else tips.push("At least 8 characters");
+  
+  if (password.length >= 12) score++;
+  
+  if (/[A-Z]/.test(password)) score++;
+  else tips.push("Add uppercase letter");
+  
+  if (/[a-z]/.test(password)) score++;
+  else tips.push("Add lowercase letter");
+  
+  if (/[0-9]/.test(password)) score++;
+  else tips.push("Add a number");
+  
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  else tips.push("Add special character (!@#$%)");
+  
+  if (score <= 2) return { 
+    label: "Weak", 
+    color: "text-red-500", 
+    bgColor: "bg-red-500", 
+    progress: 33,
+    tips
+  };
+  if (score <= 4) return { 
+    label: "Medium", 
+    color: "text-amber-500", 
+    bgColor: "bg-amber-500", 
+    progress: 66,
+    tips
+  };
+  return { 
+    label: "Strong", 
+    color: "text-green-500", 
+    bgColor: "bg-green-500", 
+    progress: 100,
+    tips: []
+  };
+}
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,11 +120,15 @@ interface SecurityProps {
 export default function SecurityTab({ user }: SecurityProps) {
   const { toast } = useToast();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showSetPasswordForm, setShowSetPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  
+  const hasPassword = user?.hasPassword ?? true;
+  const passwordStrength = useMemo(() => getPasswordStrength(newPassword), [newPassword]);
 
   const sessions: Session[] = [
     {
@@ -144,6 +205,33 @@ export default function SecurityTab({ user }: SecurityProps) {
     },
   });
 
+  const setPasswordMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/auth/set-password", {
+        newPassword,
+        confirmPassword,
+      });
+      return res.json();
+    },
+    onSuccess: () => {
+      setShowSetPasswordForm(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({
+        title: "Password Set Successfully",
+        description: "You can now sign in with email and password too!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to set password",
+        variant: "destructive",
+      });
+    },
+  });
+
   const revokeSessionMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       await apiRequest("POST", `/api/auth/sessions/${sessionId}/revoke`);
@@ -214,10 +302,53 @@ export default function SecurityTab({ user }: SecurityProps) {
     return <Laptop className="w-5 h-5" />;
   };
 
-  const isPasswordValid = 
+  const isChangePasswordValid = 
     newPassword.length >= 8 && 
+    /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
+    /[0-9]/.test(newPassword) &&
     newPassword === confirmPassword &&
     currentPassword.length > 0;
+
+  const isSetPasswordValid = 
+    newPassword.length >= 8 && 
+    /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
+    /[0-9]/.test(newPassword) &&
+    newPassword === confirmPassword;
+
+  const passwordRequirements = [
+    { met: newPassword.length >= 8, text: "At least 8 characters" },
+    { met: /[A-Z]/.test(newPassword), text: "One uppercase letter" },
+    { met: /[a-z]/.test(newPassword), text: "One lowercase letter" },
+    { met: /[0-9]/.test(newPassword), text: "One number" },
+  ];
+
+  const PasswordStrengthIndicator = () => (
+    newPassword ? (
+      <div className="space-y-2 mt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Password strength</span>
+          <span className={`text-xs font-medium ${passwordStrength.color}`}>{passwordStrength.label}</span>
+        </div>
+        <Progress value={passwordStrength.progress} className="h-1.5" />
+        <div className="grid grid-cols-2 gap-1 mt-2">
+          {passwordRequirements.map((req, i) => (
+            <div key={i} className="flex items-center gap-1.5 text-xs">
+              {req.met ? (
+                <Check className="w-3 h-3 text-green-500" />
+              ) : (
+                <X className="w-3 h-3 text-muted-foreground" />
+              )}
+              <span className={req.met ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
+                {req.text}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ) : null
+  );
 
   return (
     <div className="space-y-6">
@@ -229,10 +360,103 @@ export default function SecurityTab({ user }: SecurityProps) {
             </div>
             Password
           </CardTitle>
-          <CardDescription>Update your password to keep your account secure</CardDescription>
+          <CardDescription>
+            {hasPassword 
+              ? "Update your password to keep your account secure" 
+              : "Add a password to enable email login alongside Google"
+            }
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {showPasswordForm ? (
+          {!hasPassword && !showSetPasswordForm ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                <SiGoogle className="w-5 h-5 text-[#4285F4]" />
+                <div>
+                  <p className="text-sm font-medium">Signed in with Google</p>
+                  <p className="text-xs text-muted-foreground">Add a password to also sign in with email</p>
+                </div>
+              </div>
+              <Button onClick={() => setShowSetPasswordForm(true)} data-testid="button-set-password">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Password for Email Login
+              </Button>
+            </div>
+          ) : showSetPasswordForm ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPasswords ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Create a strong password"
+                    data-testid="input-new-password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+                    onClick={() => setShowPasswords(!showPasswords)}
+                    data-testid="button-toggle-password"
+                  >
+                    {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <PasswordStrengthIndicator />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPasswords ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    data-testid="input-confirm-password"
+                  />
+                </div>
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <X className="w-3 h-3" /> Passwords do not match
+                  </p>
+                )}
+                {confirmPassword && newPassword === confirmPassword && confirmPassword.length > 0 && (
+                  <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Passwords match
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setPasswordMutation.mutate()}
+                  disabled={!isSetPasswordValid || setPasswordMutation.isPending}
+                  data-testid="button-save-password"
+                >
+                  {setPasswordMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                  )}
+                  Set Password
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowSetPasswordForm(false);
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : showPasswordForm ? (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current Password</Label>
@@ -251,6 +475,7 @@ export default function SecurityTab({ user }: SecurityProps) {
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
                     onClick={() => setShowPasswords(!showPasswords)}
+                    data-testid="button-toggle-password"
                   >
                     {showPasswords ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
@@ -258,36 +483,45 @@ export default function SecurityTab({ user }: SecurityProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type={showPasswords ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  data-testid="input-new-password"
-                />
-                {newPassword && newPassword.length < 8 && (
-                  <p className="text-xs text-destructive">Password must be at least 8 characters</p>
-                )}
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showPasswords ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                    data-testid="input-new-password"
+                  />
+                </div>
+                <PasswordStrengthIndicator />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type={showPasswords ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                  data-testid="input-confirm-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPasswords ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    data-testid="input-confirm-password"
+                  />
+                </div>
                 {confirmPassword && newPassword !== confirmPassword && (
-                  <p className="text-xs text-destructive">Passwords do not match</p>
+                  <p className="text-xs text-destructive flex items-center gap-1">
+                    <X className="w-3 h-3" /> Passwords do not match
+                  </p>
+                )}
+                {confirmPassword && newPassword === confirmPassword && confirmPassword.length > 0 && (
+                  <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Passwords match
+                  </p>
                 )}
               </div>
               <div className="flex gap-2">
                 <Button
                   onClick={() => changePasswordMutation.mutate()}
-                  disabled={!isPasswordValid || changePasswordMutation.isPending}
+                  disabled={!isChangePasswordValid || changePasswordMutation.isPending}
                   data-testid="button-save-password"
                 >
                   {changePasswordMutation.isPending ? (
