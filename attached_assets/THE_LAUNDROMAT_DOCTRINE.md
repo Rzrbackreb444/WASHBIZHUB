@@ -3477,7 +3477,7 @@ Larry specializes in:
 *THE LAUNDROMAT DOCTRINE*  
 *A Three-Generation Playbook for Building, Optimizing, and Scaling Profitable Stores*
 
-*Copyright © 2025 Nicholas Kremers / Stroke Lyfe Inc.*  
+*Copyright © 2026 Nicholas Kremers / Stroke Lyfe Inc.*  
 *All Rights Reserved*
 
 *ISBN: 978-1-XXXXXX-XX-X*  
