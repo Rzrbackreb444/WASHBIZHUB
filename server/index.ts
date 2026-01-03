@@ -1277,8 +1277,15 @@ app.use('/api/export', exportRateLimiter());
 app.use('/api/pdf', exportRateLimiter());
 app.use('/api/download', exportRateLimiter());
 
-// Rate limit authentication endpoints (brute force protection)
-app.use('/api/auth', authRateLimiter);
+// Rate limit authentication MUTATION endpoints only (brute force protection)
+// NOTE: Do NOT rate limit /api/auth/user or /api/auth/providers - they are called on every page load
+app.use('/api/auth/login', authRateLimiter);
+app.use('/api/auth/register', authRateLimiter);
+app.use('/api/auth/magic-link', authRateLimiter);
+app.use('/api/auth/otp', authRateLimiter);
+app.use('/api/auth/verify-otp', authRateLimiter);
+app.use('/api/auth/forgot-password', authRateLimiter);
+app.use('/api/auth/reset-password', authRateLimiter);
 app.use('/api/login', authRateLimiter);
 app.use('/api/register', authRateLimiter);
 
