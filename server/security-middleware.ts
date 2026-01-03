@@ -107,49 +107,73 @@ export function corsMiddleware(req: Request, res: Response, next: NextFunction) 
   next();
 }
 
-const authAttempts = new Map<string, { count: number; firstAttempt: number; blocked: boolean }>();
-const AUTH_WINDOW_MS = 15 * 60 * 1000;
-const MAX_AUTH_ATTEMPTS = 10;
-const BLOCK_DURATION_MS = 30 * 60 * 1000;
+// Auth rate limiting - balanced security with user experience
+const authAttempts = new Map<string, { count: number; firstAttempt: number; blockedUntil: number }>();
+const AUTH_WINDOW_MS = 10 * 60 * 1000; // 10 minute window
+const MAX_AUTH_ATTEMPTS = 20; // 20 attempts before soft block (generous for typos)
+const SOFT_BLOCK_MS = 5 * 60 * 1000; // 5 minute cooldown (short recovery)
+const HARD_BLOCK_THRESHOLD = 50; // 50 attempts triggers longer block
+const HARD_BLOCK_MS = 30 * 60 * 1000; // 30 minute block for persistent abuse
 
 export function authRateLimiter(req: Request, res: Response, next: NextFunction) {
-  const clientIP = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || 
+  const clientIP = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
                    req.socket.remoteAddress || 
                    'unknown';
   
   const now = Date.now();
   let record = authAttempts.get(clientIP);
   
+  // Clean slate after window expires
   if (!record || now - record.firstAttempt > AUTH_WINDOW_MS) {
-    record = { count: 0, firstAttempt: now, blocked: false };
+    record = { count: 0, firstAttempt: now, blockedUntil: 0 };
     authAttempts.set(clientIP, record);
   }
   
-  if (record.blocked && now - record.firstAttempt < BLOCK_DURATION_MS) {
+  // Check if currently blocked
+  if (record.blockedUntil > now) {
+    const secondsLeft = Math.ceil((record.blockedUntil - now) / 1000);
+    const minutesLeft = Math.ceil(secondsLeft / 60);
     return res.status(429).json({
-      error: "Too many authentication attempts. Please try again later.",
-      retryAfter: Math.ceil((BLOCK_DURATION_MS - (now - record.firstAttempt)) / 1000)
+      error: `Too many attempts. Please wait ${minutesLeft} minute${minutesLeft > 1 ? 's' : ''} before trying again.`,
+      retryAfter: secondsLeft
     });
   }
   
   record.count++;
   
-  if (record.count > MAX_AUTH_ATTEMPTS) {
-    record.blocked = true;
-    console.warn(`[SECURITY] Blocked IP ${clientIP} for excessive auth attempts`);
+  // Hard block for persistent abuse
+  if (record.count >= HARD_BLOCK_THRESHOLD) {
+    record.blockedUntil = now + HARD_BLOCK_MS;
+    console.warn(`[SECURITY] Hard blocked IP ${clientIP} for ${HARD_BLOCK_THRESHOLD}+ auth attempts`);
     return res.status(429).json({
-      error: "Too many authentication attempts. Please try again later.",
-      retryAfter: Math.ceil(BLOCK_DURATION_MS / 1000)
+      error: "Account temporarily locked due to unusual activity. Please try again in 30 minutes or use Google sign-in.",
+      retryAfter: Math.ceil(HARD_BLOCK_MS / 1000)
+    });
+  }
+  
+  // Soft block after max attempts
+  if (record.count > MAX_AUTH_ATTEMPTS) {
+    record.blockedUntil = now + SOFT_BLOCK_MS;
+    console.warn(`[SECURITY] Soft blocked IP ${clientIP} for ${record.count} auth attempts`);
+    return res.status(429).json({
+      error: "Too many attempts. Please wait 5 minutes or try signing in with Google.",
+      retryAfter: Math.ceil(SOFT_BLOCK_MS / 1000)
     });
   }
   
   next();
 }
 
+// Helper to clear rate limit on successful login (call from auth routes)
+export function clearAuthRateLimit(ip: string) {
+  authAttempts.delete(ip);
+}
+
+// Cleanup old entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [ip, record] of authAttempts.entries()) {
-    if (now - record.firstAttempt > AUTH_WINDOW_MS + BLOCK_DURATION_MS) {
+    if (now - record.firstAttempt > AUTH_WINDOW_MS + HARD_BLOCK_MS) {
       authAttempts.delete(ip);
     }
   }
