@@ -691,8 +691,8 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="Laundromat For Sale | Buy a Laundromat | WashBizHub - #1 Laundromat Business Platform"
-        description="Find laundromats for sale, calculate ROI & valuations, analyze locations with CLEANBI scoring. The #1 platform for buying, selling & operating laundromats. 73,000+ professionals. Free tools."
+        title="Laundromats For Sale Near You | How to Buy a Laundromat in 2025 | WashBizHub"
+        description="Find laundromats for sale by owner and brokers. Free laundromat valuation calculator, ROI tools, location analysis. Learn how to buy a laundromat with our step-by-step guides. 73,000+ professionals trust WashBizHub."
         canonicalUrl="/"
         ogType="website"
         keywords={[

@@ -191,8 +191,8 @@ export default function CalculatorsSuite() {
   return (
     <AuthGuard title="Sign In to Access Calculator Suite" description="Sign in to access this calculator and track your usage.">
       <SEO
-        title="Laundromat ROI Calculator & Business Tools | Free CLEANBI Score, Valuation & Profit Calculators | WashBizHub"
-        description="Free laundromat calculators: ROI, valuation, break-even, machine yield, CLEANBI score. Calculate investment returns, pricing, and profitability. Industry-standard tools."
+        title="Free Laundromat ROI Calculator | How Much Does a Laundromat Make? | WashBizHub"
+        description="Calculate laundromat ROI, profit, and valuation free. Answer: How much does a laundromat make? Average laundromat profit is $5K-$15K/month. Use our calculators for accurate projections."
         canonicalUrl="/calculators-suite"
         ogType="website"
         keywords={[

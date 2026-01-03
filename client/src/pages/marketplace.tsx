@@ -251,8 +251,8 @@ export default function Marketplace() {
   return (
     <>
       <SEO 
-        title="Laundromat Equipment & Supplies Marketplace | Commercial Washers & Dryers For Sale | WashBizHub" 
-        description="Shop commercial laundromat equipment, parts & supplies. Speed Queen, Dexter, Continental Girbau washers/dryers. Authorized distributors, best prices. Free quotes." 
+        title="Commercial Laundry Equipment For Sale | Speed Queen, Dexter Washers & Dryers | WashBizHub" 
+        description="Buy commercial washers and dryers for laundromats. Speed Queen, Dexter, Continental Girbau equipment from 585+ authorized distributors. Compare prices, get free quotes. Financing available." 
         canonicalUrl="/marketplace"
         ogType="website"
         keywords={[

@@ -205,8 +205,8 @@ export default function LaundromatListings() {
   return (
     <>
       <SEO
-        title="Laundromats For Sale | Browse Verified Listings - WashBizHub"
-        description="Find laundromats for sale with verified listings and CLEANBI location scores. Browse coin laundries, wash-dry-fold businesses across the US. Filter by price, location, real estate. Updated daily."
+        title="Laundromats For Sale Near Me | Coin Laundry Businesses For Sale by Owner | WashBizHub"
+        description="Find laundromats for sale by owner and broker. Browse coin laundry businesses with CLEANBI location scores, verified financials, real estate options. Filter by state, price, revenue. Updated daily."
         canonicalUrl="/laundromat-listings"
         ogType="website"
         keywords={[
