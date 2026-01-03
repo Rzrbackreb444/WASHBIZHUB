@@ -68,6 +68,7 @@ You're not just washing clothes — you're building something that lasts.
 - Foreword by Larry "Laundromat Larry" Larsen
 - Preface: Legacy and Grit
 - How to Use This Book
+- List of Figures
 
 ### PART I: FOUNDATIONS OF A LEGACY
 - Chapter 1: The Three-Generation Blueprint
@@ -110,6 +111,17 @@ You're not just washing clothes — you're building something that lasts.
 ### Back Matter
 - Epilogue: The Legacy Load
 - About the Authors
+
+---
+
+## List of Figures
+
+### Chapter 8: Design, Layout, and Customer Flow
+- **Figure 8.1:** Modern Premium Laundromat Interior
+- **Figure 8.2:** Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)
+- **Figure 8.3:** Large Format Laundromat Layout
+- **Figure 8.4:** Commercial WDF (Wash-Dry-Fold) Layout
+- **Figure 8.5:** Hotel/Commercial Laundry Facility (374 sq. ft.)
 
 ---
 
@@ -966,6 +978,114 @@ Design your layout to make this path intuitive and efficient.
 3. **Folding tables near dryers** — Minimize carry distance
 4. **Exit path clear** — Easy departure with clean clothes
 5. **Sight lines open** — Security and supervision
+
+---
+
+### Sample Floor Plans
+
+The following layouts demonstrate proven configurations for different store types and sizes.
+
+---
+
+**Figure 8.1: Modern Premium Laundromat Interior**
+
+![Modern Premium Laundromat Interior](image_1767435989236.png)
+
+*A well-designed modern laundromat showing proper equipment spacing, clear sight lines, comfortable seating areas, and professional finishes. Note the stacked dryers on the left wall, large-capacity front-loaders in the center, and designated seating that doesn't obstruct traffic flow.*
+
+**Key Design Elements Shown:**
+- Stacked dryers maximize floor space
+- Central island with large-capacity machines
+- Clean sight lines from entrance to back
+- Adequate seating without blocking aisles
+- Professional signage and branding
+- Good lighting throughout
+
+---
+
+**Figure 8.2: Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)**
+
+![40M Coin Laundry Floor Plan](image_1767435947489.png)
+
+*Professional floor plan for a compact coin laundry. Dimensions shown in millimeters. Note the separation of washer and dryer zones, dedicated seating area, and clear customer flow path from entrance through the facility.*
+
+**Layout Analysis:**
+- **Entrance:** Clear entry with immediate visibility of machines
+- **Washers:** Grouped on left wall with rear access for service
+- **Dryers:** Top section with individual roof venting
+- **Seating:** Comfortable waiting area with TV entertainment
+- **Utilities:** Dedicated storage and utility room
+- **Soap vending:** Positioned near entrance for convenience
+
+---
+
+**Figure 8.3: Large Format Laundromat Layout**
+
+![Large Format Laundromat Layout](image_1767435953350.png)
+
+*Comprehensive floor plan for a larger self-service laundromat showing full equipment placement, customer amenities, and operational zones.*
+
+**Zone Breakdown:**
+- **Washer Zone (Top):** Multiple rows of washers with basket storage
+- **Dryer Zone (Right Wall):** Stacked dryers along exterior wall
+- **Folding Area (Left):** Dedicated folding tables away from traffic
+- **Customer Comfort:** Vending machine, seating, multiple sinks
+- **Operations:** Coin machines, office area with desk and printer
+- **Entry/Exit:** Double-door entrance with clear sightlines
+
+**Design Lessons:**
+- Baskets stored near washers for customer convenience
+- Dryers positioned for optimal venting to exterior
+- Central vending accessible from all areas
+- Office positioned for visibility and security
+
+---
+
+**Figure 8.4: Commercial WDF (Wash-Dry-Fold) Layout**
+
+![Commercial Laundry Layout](image_1767435931510.png)
+
+*Floor plan optimized for commercial wash-dry-fold operations showing workflow from receiving through packing.*
+
+**Workflow Zones:**
+- **Receiving Area:** Dedicated space for incoming dirty laundry
+- **Machine Wash:** High-capacity commercial washers
+- **Hand Wash:** Station for delicates and special items
+- **Gas Dryers:** Positioned for efficient venting
+- **Sorting/Folding/Packing:** Central work area for processing
+- **Packed Clothes Storage:** Organized staging for customer pickup
+- **Consumables:** Supplies stored near work stations
+
+**WDF-Specific Considerations:**
+- Workflow moves logically from dirty to clean
+- Adequate space between stations for carts
+- Storage for both incoming and outgoing items
+- Work station positioned centrally for efficiency
+
+---
+
+**Figure 8.5: Hotel/Commercial Laundry Facility (374 sq. ft.)**
+
+![Hotel Laundry Facility](image_1767435959108.png)
+
+*Professional specification drawing for a compact commercial laundry facility. Note the detailed dimensions, equipment specifications, and code-compliant clearances.*
+
+**Technical Specifications:**
+- **Dryer Venting:** Individual roof exhaust ports
+- **Service Access:** 36" minimum clearance behind equipment
+- **Eye Wash Station:** Safety compliance
+- **Chemical Storage:** Dedicated secured area
+- **Laundry Carts:** Staging area for workflow
+- **Soak Sink:** Pre-treatment station
+
+**Professional Standards Shown:**
+- All dimensions to code requirements
+- Equipment models specified
+- Utility connections marked
+- Minimum clearances noted
+- Safety equipment included
+
+---
 
 ### Space Allocation Guidelines
 
