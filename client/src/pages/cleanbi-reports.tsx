@@ -350,23 +350,30 @@ export default function CleanbiReports() {
 
   const productOffers = [
     {
-      name: "CLEANBI Standard Report",
-      description: "Essential 17-factor location analysis with demographics, competition count, and PDF report delivery.",
-      price: "199",
+      name: "CLEANBI Quick Score Report",
+      description: "Instant location grade with overall score summary. Gateway product for quick assessments.",
+      price: "29",
       priceCurrency: "USD",
       availability: "InStock" as const
     },
     {
-      name: "CLEANBI Pro Report",
-      description: "Comprehensive analysis with Vision AI photo assessment, Street View imagery, competitor mapping, and AI recommendations.",
+      name: "CLEANBI Location Intelligence Report",
+      description: "Full 17-factor analysis with competitor mapping, Walk Score, demographics, and PDF export.",
+      price: "149",
+      priceCurrency: "USD",
+      availability: "InStock" as const
+    },
+    {
+      name: "CLEANBI Due Diligence Report",
+      description: "Comprehensive analysis with Vision AI, ROI projections, property intelligence, and growth signals.",
       price: "349",
       priceCurrency: "USD",
       availability: "InStock" as const
     },
     {
-      name: "CLEANBI Enterprise Report",
-      description: "Full analysis with aerial 3D flyover, investment projections, 30-minute consultation, and white-label options.",
-      price: "499",
+      name: "CLEANBI Acquisition Ready Report",
+      description: "Full enterprise analysis with ownership data, motivated seller detection, AI insights, and 60-min consultation.",
+      price: "599",
       priceCurrency: "USD",
       availability: "InStock" as const
     }
@@ -374,7 +381,7 @@ export default function CleanbiReports() {
 
   const howToSteps = [
     { name: "Enter Your Address", text: "Use the address search to input the exact location you want to analyze. Our Google Places integration ensures accurate geocoding." },
-    { name: "Select Report Tier", text: "Choose between Standard ($199), Pro ($349), or Enterprise ($499) based on your analysis needs. Pro is recommended for most investors." },
+    { name: "Select Report Tier", text: "Choose between Quick Score ($29), Location Intelligence ($149), Due Diligence ($349), or Acquisition Ready ($599) based on your analysis needs. Location Intelligence is recommended for most investors." },
     { name: "Review Features", text: "Compare the feature table to ensure your selected tier includes the analysis components you need, such as Vision AI or aerial views." },
     { name: "Complete Checkout", text: "Click 'Generate Report' to proceed to secure Stripe checkout. You'll receive email confirmation immediately after purchase." },
     { name: "Receive Your Report", text: "Standard reports deliver within 24 hours. Check your email or return to this page to download your professional PDF analysis." }
@@ -384,7 +391,7 @@ export default function CleanbiReports() {
     <AuthGuard title="Sign In to Access Reports" description="Sign in to access this feature.">
       <SEO
         title="Premium CLEANBI Location Reports - AI-Powered Laundromat Feasibility Analysis"
-        description="Get professional laundromat location analysis with Vision AI, Street View imagery, and 17-factor CLEANBI scoring. Reports from $199. Competitor mapping, demographics, and AI recommendations for informed investment decisions."
+        description="Get professional laundromat location analysis with Vision AI, Street View imagery, and 17-factor CLEANBI scoring. Reports from $29. Competitor mapping, demographics, and AI recommendations for informed investment decisions."
         canonicalUrl="/cleanbi-reports"
         ogType="product"
         keywords={[
@@ -693,9 +700,9 @@ export default function CleanbiReports() {
                         ))}
                         <tr className="bg-muted/50 font-bold">
                           <td className="py-3 pr-4">Price</td>
-                          <td className="text-center py-3 px-4">$199</td>
+                          <td className="text-center py-3 px-4">$149</td>
                           <td className="text-center py-3 px-4 bg-accent/10">$349</td>
-                          <td className="text-center py-3 px-4">$499</td>
+                          <td className="text-center py-3 px-4">$599</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1001,7 +1008,7 @@ export default function CleanbiReports() {
             </h2>
             <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
               Get the data-driven insights you need to make confident investment decisions.
-              Professional reports starting at just $199.
+              Professional reports starting at just $29.
             </p>
             <Button
               size="lg"

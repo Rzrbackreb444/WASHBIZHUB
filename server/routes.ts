@@ -1659,7 +1659,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // CLEANBI Score creation - free users get 3 analyses, all_access gets unlimited
+  // CLEANBI Score creation - free users get 1 analysis, paid users get unlimited
   app.post("/api/cleanbi", requireAuth, checkQuota('cleanbi_analyses'), async (req: any, res) => {
     try {
       const currentUser = await getCurrentUser(req);
@@ -3002,7 +3002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/cleanbi/purchase-report - Create Stripe checkout for $97 full report
+  // POST /api/cleanbi/purchase-report - Create Stripe checkout for Location Intelligence report ($149)
   app.post("/api/cleanbi/purchase-report", async (req, res) => {
     try {
       if (!stripe) {
@@ -3015,7 +3015,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Address is required" });
       }
 
-      // Create Stripe checkout session for $97 CLEANBI report
+      // Create Stripe checkout session for CLEANBI Location Intelligence report ($149)
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -3023,11 +3023,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             price_data: {
               currency: "usd",
               product_data: {
-                name: "CLEANBI Full Intelligence Report",
+                name: "CLEANBI Location Intelligence Report",
                 description: `Comprehensive ${addressType === 'residential' ? 'property' : 'business'} analysis for: ${address.substring(0, 100)}`,
                 images: ["https://washbizhub.com/cleanbi-report-preview.png"],
               },
-              unit_amount: 9700, // $97.00
+              unit_amount: 14900, // $149.00
             },
             quantity: 1,
           },
@@ -13893,10 +13893,10 @@ Be strict but fair in scoring. Provide actionable suggestions.`
   
   // Report tier pricing (in cents)
   const REPORT_TIER_PRICING: Record<string, { price: number; name: string; description: string }> = {
-    quick: { price: 9900, name: 'Quick Valuation Report', description: 'Fast valuation estimate with CLEANBI score' },
-    standard: { price: 19900, name: 'Standard Report', description: 'Essential location analysis with competitor data' },
-    pro: { price: 34900, name: 'Pro Report', description: 'Comprehensive analysis with Vision AI insights' },
-    enterprise: { price: 49900, name: 'Enterprise Report', description: 'Full analysis with aerial views & consultation' },
+    quick: { price: 2900, name: 'Quick Score Report', description: 'Instant location grade with overall score summary' },
+    standard: { price: 14900, name: 'Location Intelligence Report', description: 'Full 17-factor analysis with competitor mapping and PDF export' },
+    pro: { price: 34900, name: 'Due Diligence Report', description: 'Comprehensive analysis with Vision AI and ROI projections' },
+    enterprise: { price: 59900, name: 'Acquisition Ready Report', description: 'Full enterprise analysis with ownership data and 60-min consultation' },
   };
 
   // Consistent API error response structure
@@ -14038,7 +14038,8 @@ Be strict but fair in scoring. Provide actionable suggestions.`
   });
 
   /**
-   * POST /api/cleanbi/checkout - Create Stripe checkout for $97 CLEANBI report
+   * POST /api/cleanbi/checkout - Create Stripe checkout for CLEANBI reports
+   * Tiers: Quick Score ($29) → Location Intelligence ($149) → Due Diligence ($349) → Acquisition Ready ($599)
    * 
    * SECURITY NOTE: Guest checkout is intentionally allowed for e-commerce conversion.
    * - Address is validated and sanitized before use

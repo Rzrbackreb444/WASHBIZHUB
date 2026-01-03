@@ -177,7 +177,7 @@ async function getStripeSubscriptionTier(stripeCustomerId: string): Promise<keyo
 
 export const CLEANBI_PRICING_TIERS = {
   // ========================================
-  // FREE TIER: 3 analyses total (lifetime)
+  // FREE TIER: 1 analysis total (lifetime) - show value, then convert
   // ========================================
   FREE: {
     id: 'free',
@@ -185,7 +185,7 @@ export const CLEANBI_PRICING_TIERS = {
     price: 0,
     interval: 'month',
     features: {
-      reportsTotal: 3, // 3 FREE ANALYSES TOTAL (lifetime) - then must upgrade
+      reportsTotal: 1, // 1 FREE ANALYSIS TOTAL (lifetime) - show value, then upgrade
       reportsPerDay: -1, // No daily limit - just total
       reportsPerMonth: -1, // No monthly limit - just total
       basicScore: true, // Show score only - no breakdown
@@ -419,8 +419,8 @@ export async function trackCLEANBIUsage(userId: string, reportType: 'basic' | 'd
     month: monthStart.toISOString().slice(0, 7) // YYYY-MM
   });
   
-  // Check if this was the user's 3rd free analysis (triggers milestone email)
-  const FREE_TIER_LIMIT = 3;
+  // Check if this was the user's 1st free analysis (triggers milestone email)
+  const FREE_TIER_LIMIT = 1;
   try {
     const totalUsage = await getUserUsageTotal(userId);
     if (totalUsage === FREE_TIER_LIMIT) {
@@ -517,11 +517,11 @@ export async function checkCLEANBIQuota(userId: string, tier: keyof typeof CLEAN
   const features = tierConfig.features as any;
   
   // Get limits
-  const totalLimit = features.reportsTotal ?? -1; // Lifetime total (FREE tier = 3)
+  const totalLimit = features.reportsTotal ?? -1; // Lifetime total (FREE tier = 1)
   const dailyLimit = features.reportsPerDay ?? -1;
   const monthlyLimit = features.reportsPerMonth ?? features.apiCallsPerMonth ?? -1;
   
-  // FREE tier: Check TOTAL LIFETIME limit (3 analyses total)
+  // FREE tier: Check TOTAL LIFETIME limit (1 analysis total)
   if (tier === 'FREE' && totalLimit !== -1) {
     const totalUsage = await getUserUsageTotal(userId);
     const remaining = Math.max(0, totalLimit - totalUsage);
