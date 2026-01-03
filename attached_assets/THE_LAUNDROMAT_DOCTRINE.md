@@ -2620,6 +2620,41 @@ Channel frustration into discipline, not destruction.
 
 ---
 
+### WashBizHub Funding Wizard — Get Matched in 5 Minutes
+
+**The fastest way to find funding for your laundromat project.**
+
+Instead of calling lenders one by one, use the **WashBizHub Funding Wizard** at:
+
+> **washbizhub.com/funding-wizard**
+
+**How It Works:**
+
+1. Complete a 5-minute questionnaire (no credit check)
+2. Get matched with pre-vetted funding partners
+3. Receive 24-48 hour approvals with $0 application fees
+
+**Funding Available:**
+
+| Purpose | Amount | Rates |
+|---------|--------|-------|
+| New Build / Startup | Up to $50M | From 0.5% |
+| Acquisition | Up to $50M | From 0.5% |
+| Equipment Upgrade | Up to $5M | From 1% |
+| Refinance | Up to $50M | From 0.5% |
+| Working Capital | Up to $1M | From 2% |
+| Expansion | Up to $50M | From 0.5% |
+
+**Why Use It:**
+- No credit check required to get matched
+- Pre-vetted partners only (no predatory lenders)
+- Free to use — we negotiate on your behalf
+- 24-48 hour approval turnaround
+
+This tool was built specifically for laundromat buyers, owners, and investors by WashBizHub.
+
+---
+
 ## Appendix C: Due Diligence Master Checklist (Larry Larsen Method)
 
 ---
@@ -3210,7 +3245,8 @@ Water bills are the closest thing to an impartial witness of a laundromat's actu
 | **Laundromat Resource** | laundromatresource.com | Jordan Berry's podcast and community |
 | **Laundromat123** | laundromat123.com | Larry Larsen's buyer/seller resources |
 | **The Laundromat Millionaire** | laundromatmillionaire.com | Dave Menz's investor education |
-| **WashBizHub** | washbizhub.com | Nick Kremers' platform and courses |
+| **WashBizHub** | washbizhub.com | Nick Kremers' platform, courses, and Funding Wizard |
+| **WashBizHub Facebook Group** | facebook.com/groups/washbizhub | 74K+ member laundromat community |
 
 ### Equipment Manufacturers
 
@@ -3221,6 +3257,25 @@ Water bills are the closest thing to an impartial witness of a laundromat's actu
 | **Continental Girbau** | continentalgirbau.com | Continental |
 | **Electrolux Professional** | electroluxprofessional.com | Electrolux, Wascomat |
 | **Maytag Commercial** | maytagcommerciallaundry.com | Maytag |
+
+### Recommended Equipment Distributors
+
+| Distributor | Location | Brands | Services |
+|-------------|----------|--------|----------|
+| **AAdvantage Laundry Systems** | Garland, TX (National) | Dexter, Continental Girbau | New/used equipment, financing, parts, consultation, installation, service |
+
+**AAdvantage Laundry Systems** is a leading Dexter and Continental Girbau distributor with 200+ master technicians operating in 50+ states. They offer:
+
+- New and used laundromat equipment
+- Equipment and laundromat financing
+- Startup consultation and planning
+- Best-in-class warranties
+- Largest parts inventory in the industry
+- Installation and ongoing service
+
+**WashBizHub Facebook Group Members:** For exclusive access to AAdvantage resources, visit:
+
+> **go.laundry.equipment/laundromat-fb-group-aadvantage-laundry**
 
 ### Essential Software
 
@@ -3441,14 +3496,14 @@ It cleans up lives — one cycle at a time.
 
 A third-generation Arkansas laundromat professional turned survivor, Nick brings humor, grit, and deep experience to both the laundry and recovery industries.
 
-After a stroke at 35, Nick rebuilt his life using the same principles he teaches in this book: structure, discipline, and systems thinking. He now leads a 70,000+ member Facebook community of laundromat operators and is dedicated to helping operators build profitable, sustainable laundry businesses through data-driven intelligence and proven operational frameworks.
+After a stroke at 35, Nick rebuilt his life using the same principles he teaches in this book: structure, discipline, and systems thinking. He now leads **WashBizHub: Laundromat Marketplace & Resources**, a 74,000+ member Facebook community of laundromat operators, and is dedicated to helping operators build profitable, sustainable laundry businesses through data-driven intelligence and proven operational frameworks.
 
 Nick's platform, **WashBizHub.com**, combines three generations of family expertise with modern technology to provide operators with institutional-grade property analysis, equipment diagnostics, and business intelligence tools.
 
 **Connect with Nick:**
 - Website: WashBizHub.com
 - Email: nick@washbizhub.com
-- Facebook: Laundromat Owners Group (70K+ members)
+- Facebook: **WashBizHub: Laundromat Marketplace & Resources** (74K+ members)
 
 ---
 
