@@ -458,7 +458,7 @@ export default function Signup() {
                                   {...field}
                                   type="email"
                                   placeholder="you@example.com"
-                                  className="pl-10 h-11"
+                                  className="pl-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                   disabled={isSendingMagicLink}
                                   data-testid="input-magic-link-email"
                                 />
@@ -506,7 +506,7 @@ export default function Signup() {
                                 <Input
                                   {...field}
                                   placeholder="John"
-                                  className="pl-10 h-11"
+                                  className="pl-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                   disabled={isSubmitting}
                                   data-testid="input-firstname"
                                 />
@@ -527,7 +527,7 @@ export default function Signup() {
                               <Input
                                 {...field}
                                 placeholder="Doe"
-                                className="h-11"
+                                className="h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                 disabled={isSubmitting}
                                 data-testid="input-lastname"
                               />
@@ -551,7 +551,7 @@ export default function Signup() {
                                 {...field}
                                 type="email"
                                 placeholder="you@example.com"
-                                className="pl-10 h-11"
+                                className="pl-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                 disabled={isSubmitting}
                                 data-testid="input-email"
                               />
@@ -575,7 +575,7 @@ export default function Signup() {
                                 {...field}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Create a strong password"
-                                className="pl-10 pr-10 h-11"
+                                className="pl-10 pr-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                 disabled={isSubmitting}
                                 data-testid="input-password"
                               />
@@ -620,7 +620,7 @@ export default function Signup() {
                                 {...field}
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Confirm your password"
-                                className="pl-10 pr-10 h-11"
+                                className="pl-10 pr-10 h-11 text-foreground bg-background placeholder:text-muted-foreground"
                                 disabled={isSubmitting}
                                 data-testid="input-confirm-password"
                               />
