@@ -559,7 +559,9 @@ router.post("/login", async (req: Request, res: Response) => {
 
     if (!user.passwordHash) {
       return res.status(401).json({ 
-        error: "This account uses social login. Please sign in with Replit or set a password." 
+        error: "This account was created with Google. Click 'Continue with Google' below, or set a password in Settings after signing in.",
+        code: "SOCIAL_LOGIN_REQUIRED",
+        canSetPassword: true
       });
     }
 
@@ -938,6 +940,65 @@ router.post("/reset-password", async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Reset password error:", error);
     res.status(500).json({ error: "Failed to reset password. Please try again." });
+  }
+});
+
+// POST /api/auth/set-password - Set password for social login users (requires authentication)
+// This allows Google users to add email/password as an additional login method
+router.post("/set-password", async (req: Request, res: Response) => {
+  try {
+    // Get authenticated user
+    const passportUser = (req as any).user;
+    let userId = (req as any).session?.userId;
+    
+    if (!userId && passportUser?.claims?.sub) {
+      userId = passportUser.claims.sub;
+    }
+    if (!userId && passportUser?.id) {
+      userId = passportUser.id;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Please sign in first to set a password" });
+    }
+
+    const { newPassword, confirmPassword } = req.body;
+
+    if (!newPassword || !confirmPassword) {
+      return res.status(400).json({ error: "Password and confirmation are required" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+
+    // Validate password complexity
+    const passwordCheck = validatePasswordComplexity(newPassword);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: passwordCheck.error });
+    }
+
+    // Find user
+    const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Hash and save password
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    await db.update(users)
+      .set({ passwordHash })
+      .where(eq(users.id, user.id));
+
+    res.json({ 
+      success: true, 
+      message: "Password set successfully! You can now sign in with email and password."
+    });
+  } catch (error: any) {
+    console.error("Set password error:", error);
+    res.status(500).json({ error: "Failed to set password. Please try again." });
   }
 });
 
