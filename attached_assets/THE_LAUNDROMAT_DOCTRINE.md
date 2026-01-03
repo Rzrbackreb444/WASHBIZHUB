@@ -3246,7 +3246,7 @@ Water bills are the closest thing to an impartial witness of a laundromat's actu
 | **Laundromat123** | laundromat123.com | Larry Larsen's buyer/seller resources |
 | **The Laundromat Millionaire** | laundromatmillionaire.com | Dave Menz's investor education |
 | **WashBizHub** | washbizhub.com | Nick Kremers' platform, courses, and Funding Wizard |
-| **WashBizHub Facebook Group** | facebook.com/groups/washbizhub | 74K+ member laundromat community |
+| **WashBizHub Facebook Group** | facebook.com/groups/thelaundromat | 74K+ member laundromat community |
 
 ### Equipment Manufacturers
 
@@ -3503,7 +3503,8 @@ Nick's platform, **WashBizHub.com**, combines three generations of family expert
 **Connect with Nick:**
 - Website: WashBizHub.com
 - Email: nick@washbizhub.com
-- Facebook: **WashBizHub: Laundromat Marketplace & Resources** (74K+ members)
+- Facebook: **WashBizHub: Laundromat Marketplace & Resources** (74K+ members)  
+  → facebook.com/groups/thelaundromat
 
 ---
 
