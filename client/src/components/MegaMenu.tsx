@@ -128,7 +128,49 @@ const FUNDING_PILLAR: NavPillar = {
   ]
 };
 
-const ALL_PILLARS = [MARKETPLACE_PILLAR, ANALYSIS_PILLAR, EXPERT_PILLAR, FUNDING_PILLAR];
+const NEWS_PILLAR: NavPillar = {
+  id: "news",
+  label: "News & Insights",
+  icon: Star,
+  color: "#d4af37",
+  tagline: "Expert Guides & Industry Updates",
+  items: [
+    { 
+      href: "/blog", 
+      label: "Blog", 
+      desc: "Expert articles & industry news", 
+      featured: true, 
+      icon: Star,
+      badge: "New"
+    },
+    { 
+      href: "/blog/how-to-buy-a-laundromat-complete-guide", 
+      label: "Buying Guide", 
+      desc: "Complete acquisition walkthrough", 
+      icon: ShoppingBag
+    },
+    { 
+      href: "/blog/laundromat-valuation-guide", 
+      label: "Valuation Guide", 
+      desc: "How to calculate true worth", 
+      icon: BarChart3
+    },
+    { 
+      href: "/blog/commercial-laundry-equipment-guide", 
+      label: "Equipment Guide", 
+      desc: "Choosing machines for max ROI", 
+      icon: Wrench
+    },
+    { 
+      href: "/blog/how-to-run-profitable-laundromat-operations-guide", 
+      label: "Operations Guide", 
+      desc: "Running a profitable store", 
+      icon: Target
+    },
+  ]
+};
+
+const ALL_PILLARS = [MARKETPLACE_PILLAR, ANALYSIS_PILLAR, EXPERT_PILLAR, FUNDING_PILLAR, NEWS_PILLAR];
 
 const DropdownLink = memo(function DropdownLink({ href, label, desc, featured, icon: Icon, badge, external }: NavItem) {
   const content = (
