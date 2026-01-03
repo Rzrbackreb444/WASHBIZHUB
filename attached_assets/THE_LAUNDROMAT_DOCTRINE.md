@@ -3282,7 +3282,7 @@ A: Plan for $150K-$400K total for an existing store, including:
 - Initial repairs/improvements ($10K-$50K)
 - Working capital reserve ($10K-$30K)
 
-With financing, you may need 20-30% down ($30K-$120K cash).
+With financing, you may need 20-30% down ($30K-$120K cash). This range covers typical deals, but can reach $1M+ depending on size, location, and whether the business includes real estate.
 
 ---
 
