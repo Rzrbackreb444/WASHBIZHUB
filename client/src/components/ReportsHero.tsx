@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
 declare global {
   interface Window {
     google: any;
+    initReportsHeroMaps?: () => void;
   }
 }
 
@@ -42,6 +43,7 @@ export function ReportsHero() {
   const [address, setAddress] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recentSearches, setRecentSearches] = useState(847);
+  const [mapsLoaded, setMapsLoaded] = useState(false);
   const addressInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
 
@@ -52,24 +54,65 @@ export function ReportsHero() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (!window.google || !addressInputRef.current) return;
+  const initAutocomplete = useCallback(() => {
+    if (!window.google?.maps?.places || !addressInputRef.current || autocompleteRef.current) return;
 
-    autocompleteRef.current = new window.google.maps.places.Autocomplete(
-      addressInputRef.current,
-      {
-        types: ["address"],
-        componentRestrictions: { country: "us" },
-      }
-    );
+    try {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        {
+          types: ["address"],
+          componentRestrictions: { country: "us" },
+        }
+      );
 
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current.getPlace();
-      if (place?.formatted_address) {
-        setAddress(place.formatted_address);
-      }
-    });
+      autocompleteRef.current.addListener("place_changed", () => {
+        const place = autocompleteRef.current?.getPlace();
+        if (place?.formatted_address) {
+          setAddress(place.formatted_address);
+        }
+      });
+      setMapsLoaded(true);
+    } catch (e) {
+      console.warn("Google Places Autocomplete not available");
+    }
   }, []);
+
+  useEffect(() => {
+    if (window.google?.maps?.places) {
+      initAutocomplete();
+      return;
+    }
+
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+    if (existingScript) {
+      const handleLoad = () => initAutocomplete();
+      existingScript.addEventListener('load', handleLoad);
+      if ((existingScript as HTMLScriptElement).dataset.loaded === 'true') {
+        initAutocomplete();
+      }
+      return () => {
+        existingScript.removeEventListener('load', handleLoad);
+      };
+    }
+
+    window.initReportsHeroMaps = () => {
+      setMapsLoaded(true);
+      initAutocomplete();
+      const scriptEl = document.querySelector('script[src*="maps.googleapis.com"]') as HTMLScriptElement;
+      if (scriptEl) scriptEl.dataset.loaded = 'true';
+    };
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initReportsHeroMaps`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    return () => {
+      delete window.initReportsHeroMaps;
+    };
+  }, [initAutocomplete]);
 
   const handleAnalyze = () => {
     if (!address.trim()) return;
@@ -98,7 +141,7 @@ export function ReportsHero() {
             transition={{ duration: 0.5 }}
           >
             <div className="flex items-center justify-center gap-2 mb-6">
-              <LiveIndicator />
+              <LiveIndicator status="online" />
               <span className="text-sm text-gray-400">
                 <AnimatedCounter value={recentSearches} duration={1000} /> locations analyzed this week
               </span>
