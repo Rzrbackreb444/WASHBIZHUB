@@ -42,7 +42,7 @@ const TIER_NAMES: Record<SubscriptionTier, string> = {
 };
 
 const QUOTA_LIMITS: Record<string, { free: number; pro: number; business: number | "unlimited"; enterprise: number | "unlimited" }> = {
-  cleanbi_analyses: { free: 3, pro: 25, business: "unlimited", enterprise: "unlimited" },
+  cleanbi_analyses: { free: 1, pro: 25, business: "unlimited", enterprise: "unlimited" },
   calculator_uses: { free: 5, pro: 50, business: "unlimited", enterprise: "unlimited" },
   design_exports: { free: 0, pro: 10, business: "unlimited", enterprise: "unlimited" },
   service_guy_diagnoses: { free: 3, pro: 20, business: "unlimited", enterprise: "unlimited" },
