@@ -2701,8 +2701,8 @@ function CleanBIExplorerContent() {
   return (
     <>
       <SEO 
-        title="CLEANBI Explorer - AI Location Intelligence for Laundromats"
-        description="Free CLEANBI scoring system analyzes laundromat locations. Get demographic data, competition mapping, traffic analysis & site scores for any US address."
+        title="Laundromat Location Analysis Tool | Is This Location Good for a Laundromat? | CLEANBI"
+        description="Free laundromat location analysis. Check demographics, competition, foot traffic & Walk Score for any address. Find out if a location is good for a laundromat before you invest. Instant results."
         canonicalUrl="/cleanbi-explorer"
         ogType="website"
         keywords={[
