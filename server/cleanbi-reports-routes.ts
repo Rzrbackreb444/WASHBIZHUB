@@ -9,9 +9,15 @@ import { z } from "zod";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { generateCleanbiReport, REPORT_TIERS, ReportTier } from "./cleanbi-report-generator";
+import { calculateGoogleCleanbi } from "./google-cleanbi-engine";
 import { insertCleanbiReportSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { isAuthenticated } from "./replitAuth";
+
+// Simple in-memory rate limiting for free teasers (by IP)
+const teaserRateLimit = new Map<string, { count: number; resetAt: number }>();
+const TEASER_LIMIT = 5; // 5 free teasers per hour per IP
+const TEASER_WINDOW = 60 * 60 * 1000; // 1 hour
 
 const router = Router();
 
@@ -34,6 +40,75 @@ router.get("/tiers", async (req: Request, res: Response) => {
       priceDisplay: `$${(tier.price / 100).toFixed(0)}`,
     })),
   });
+});
+
+/**
+ * FREE TEASER ENDPOINT
+ * Returns real CLEANBI data (grade + competitor count) but no detailed analysis
+ * Rate limited to prevent abuse
+ */
+router.post("/teaser", async (req: Request, res: Response) => {
+  try {
+    const { address } = req.body;
+    
+    if (!address || typeof address !== "string" || address.length < 5) {
+      return res.status(400).json({ error: "Valid address is required" });
+    }
+
+    // Rate limiting by IP
+    const clientIp = req.ip || req.headers["x-forwarded-for"] || "unknown";
+    const ipKey = typeof clientIp === "string" ? clientIp : clientIp[0];
+    const now = Date.now();
+    
+    const rateData = teaserRateLimit.get(ipKey);
+    if (rateData) {
+      if (now > rateData.resetAt) {
+        teaserRateLimit.set(ipKey, { count: 1, resetAt: now + TEASER_WINDOW });
+      } else if (rateData.count >= TEASER_LIMIT) {
+        return res.status(429).json({ 
+          error: "Rate limit exceeded. Please try again later or purchase a full report.",
+          retryAfter: Math.ceil((rateData.resetAt - now) / 1000)
+        });
+      } else {
+        rateData.count++;
+      }
+    } else {
+      teaserRateLimit.set(ipKey, { count: 1, resetAt: now + TEASER_WINDOW });
+    }
+
+    // Call the real CLEANBI engine
+    const cleanbiResult = await calculateGoogleCleanbi({ address });
+
+    // Calculate market potential based on score
+    let marketPotential: "High" | "Moderate" | "Research Needed";
+    if (cleanbiResult.score >= 70) {
+      marketPotential = "High";
+    } else if (cleanbiResult.score >= 55) {
+      marketPotential = "Moderate";
+    } else {
+      marketPotential = "Research Needed";
+    }
+
+    // Return limited teaser data (no detailed breakdown)
+    res.json({
+      success: true,
+      teaser: {
+        grade: cleanbiResult.grade,
+        score: cleanbiResult.score,
+        competitorCount: cleanbiResult.breakdown.competition.data?.competitors?.length || 0,
+        marketPotential,
+        dataQuality: cleanbiResult.dataQuality,
+        disclaimer: "For informational purposes only. Not investment advice. Full analysis available in paid reports."
+      }
+    });
+
+  } catch (error: any) {
+    console.error("Teaser generation error:", error);
+    res.status(500).json({ 
+      error: "Unable to analyze this location. Please try again or contact support.",
+      fallback: true
+    });
+  }
 });
 
 router.post("/checkout", async (req: Request, res: Response) => {

@@ -318,13 +318,23 @@ export default function LocationReports() {
   const [captureEmail, setCaptureEmail] = useState("");
   const [showTeaserPreview, setShowTeaserPreview] = useState(false);
   const [recentAnalyses, setRecentAnalyses] = useState(847);
+  const [teaserData, setTeaserData] = useState<{
+    grade: string;
+    score: number;
+    competitorCount: number;
+    marketPotential: "High" | "Moderate" | "Research Needed";
+    dataQuality: string;
+    disclaimer: string;
+  } | null>(null);
+  const [teaserLoading, setTeaserLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const addressParam = params.get("address");
     if (addressParam) {
       setAddress(addressParam);
-      setShowTeaserPreview(true);
+      // Automatically fetch teaser for addresses coming from homepage
+      setShowEmailCapture(true);
     }
   }, []);
 
@@ -376,13 +386,52 @@ export default function LocationReports() {
     },
     onSuccess: () => {
       setShowEmailCapture(false);
-      setShowTeaserPreview(true);
-      toast({
-        title: "Preview Unlocked!",
-        description: "Check out your free location preview below.",
-      });
+      // After email capture, fetch the real teaser
+      fetchTeaser();
     }
   });
+
+  const fetchTeaser = async () => {
+    if (!address.trim()) return;
+    
+    setTeaserLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/cleanbi/teaser", { address });
+      const data = await response.json();
+      
+      if (data.success && data.teaser) {
+        setTeaserData(data.teaser);
+        setShowTeaserPreview(true);
+        toast({
+          title: "Location Analyzed!",
+          description: "See your real CLEANBI score below.",
+        });
+      } else if (data.fallback) {
+        // API failed, show fallback
+        toast({
+          title: "Analysis Unavailable",
+          description: "Unable to analyze this location. Please try a different address.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      if (error.message?.includes("429")) {
+        toast({
+          title: "Rate Limit Reached",
+          description: "You've used your free previews. Purchase a report for full analysis.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Analysis Error",
+          description: "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setTeaserLoading(false);
+    }
+  };
 
   useEffect(() => {
     const loadGooglePlaces = () => {
@@ -729,11 +778,14 @@ export default function LocationReports() {
                   </div>
                 </GoldBorderCard>
 
-                {showTeaserPreview && address && (
+                {(showTeaserPreview || teaserLoading) && address && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
+                    <p className="text-center text-sm text-gray-500 mb-3 italic">
+                      Built for laundromats. Works anywhere.
+                    </p>
                     <GlassmorphismCard intensity="medium" glowColor="gold">
                       <div className="p-6 relative">
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#09090b]/90 pointer-events-none" />
@@ -744,55 +796,79 @@ export default function LocationReports() {
                           </Badge>
                           <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                             <Sparkles className="w-3 h-3 mr-1" />
-                            AI-Analyzed
+                            {teaserLoading ? "Analyzing..." : "AI-Analyzed"}
                           </Badge>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-6 mb-6">
-                          <div className="text-center p-4 bg-white/5 rounded-lg">
-                            <div className="text-4xl font-black text-[#C8A661] mb-1">B+</div>
-                            <div className="text-sm text-gray-400">CLEANBI Grade</div>
+                        {teaserLoading ? (
+                          <div className="flex flex-col items-center justify-center py-12">
+                            <Loader2 className="w-10 h-10 text-[#C8A661] animate-spin mb-4" />
+                            <p className="text-white font-medium">Analyzing location...</p>
+                            <p className="text-gray-400 text-sm mt-1">Checking competitors, demographics, and market data</p>
                           </div>
-                          <div className="text-center p-4 bg-white/5 rounded-lg">
-                            <div className="text-4xl font-black text-white mb-1">4</div>
-                            <div className="text-sm text-gray-400">Competitors (3mi)</div>
-                          </div>
-                          <div className="text-center p-4 bg-white/5 rounded-lg">
-                            <div className="text-4xl font-black text-green-400 mb-1">GO</div>
-                            <div className="text-sm text-gray-400">Initial Verdict</div>
-                          </div>
-                        </div>
+                        ) : teaserData ? (
+                          <>
+                            <div className="grid md:grid-cols-3 gap-6 mb-6">
+                              <div className="text-center p-4 bg-white/5 rounded-lg">
+                                <div className={`text-4xl font-black mb-1 ${
+                                  teaserData.grade === 'A' ? 'text-green-400' :
+                                  teaserData.grade === 'B' ? 'text-[#C8A661]' :
+                                  teaserData.grade === 'C' ? 'text-amber-400' :
+                                  'text-orange-400'
+                                }`} data-testid="text-teaser-grade">{teaserData.grade}</div>
+                                <div className="text-sm text-gray-400">CLEANBI Grade</div>
+                                <div className="text-xs text-gray-500 mt-1">{teaserData.score}/100</div>
+                              </div>
+                              <div className="text-center p-4 bg-white/5 rounded-lg">
+                                <div className="text-4xl font-black text-white mb-1" data-testid="text-competitor-count">{teaserData.competitorCount}</div>
+                                <div className="text-sm text-gray-400">Competitors (5mi)</div>
+                              </div>
+                              <div className="text-center p-4 bg-white/5 rounded-lg">
+                                <div className={`text-2xl font-black mb-1 ${
+                                  teaserData.marketPotential === 'High' ? 'text-green-400' :
+                                  teaserData.marketPotential === 'Moderate' ? 'text-amber-400' :
+                                  'text-orange-400'
+                                }`} data-testid="text-market-potential">{teaserData.marketPotential}</div>
+                                <div className="text-sm text-gray-400">Market Potential</div>
+                              </div>
+                            </div>
 
-                        <div className="relative">
-                          <div className="blur-sm opacity-50 pointer-events-none">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div className="p-3 bg-white/5 rounded">
-                                <span className="text-gray-400">Population (1mi):</span>
-                                <span className="text-white ml-2">24,892</span>
+                            <div className="relative">
+                              <div className="blur-sm opacity-50 pointer-events-none">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div className="p-3 bg-white/5 rounded">
+                                    <span className="text-gray-400">Population (1mi):</span>
+                                    <span className="text-white ml-2">••,•••</span>
+                                  </div>
+                                  <div className="p-3 bg-white/5 rounded">
+                                    <span className="text-gray-400">Median Income:</span>
+                                    <span className="text-white ml-2">$••,•••</span>
+                                  </div>
+                                  <div className="p-3 bg-white/5 rounded">
+                                    <span className="text-gray-400">Renter %:</span>
+                                    <span className="text-white ml-2">••%</span>
+                                  </div>
+                                  <div className="p-3 bg-white/5 rounded">
+                                    <span className="text-gray-400">Traffic Score:</span>
+                                    <span className="text-white ml-2">••/100</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="p-3 bg-white/5 rounded">
-                                <span className="text-gray-400">Median Income:</span>
-                                <span className="text-white ml-2">$67,450</span>
-                              </div>
-                              <div className="p-3 bg-white/5 rounded">
-                                <span className="text-gray-400">Renter %:</span>
-                                <span className="text-white ml-2">42%</span>
-                              </div>
-                              <div className="p-3 bg-white/5 rounded">
-                                <span className="text-gray-400">Traffic Score:</span>
-                                <span className="text-white ml-2">78/100</span>
+                              
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-center p-4 bg-[#09090b]/90 rounded-lg border border-[#C8A661]/30">
+                                  <Lock className="w-6 h-6 text-[#C8A661] mx-auto mb-2" />
+                                  <p className="text-white font-semibold mb-1">Unlock Full Analysis</p>
+                                  <p className="text-gray-400 text-sm">Purchase a report to see all data</p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center p-4 bg-[#09090b]/90 rounded-lg border border-[#C8A661]/30">
-                              <Lock className="w-6 h-6 text-[#C8A661] mx-auto mb-2" />
-                              <p className="text-white font-semibold mb-1">Unlock Full Analysis</p>
-                              <p className="text-gray-400 text-sm">Purchase a report to see all data</p>
-                            </div>
-                          </div>
-                        </div>
+
+                            <p className="text-xs text-gray-500 text-center mt-4 italic">
+                              {teaserData.disclaimer}
+                            </p>
+                          </>
+                        ) : null}
                       </div>
                     </GlassmorphismCard>
                   </motion.div>
