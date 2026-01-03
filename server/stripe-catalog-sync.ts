@@ -206,39 +206,40 @@ export const PRODUCT_CATALOG = {
   },
 
   // ================================================
-  // CLEANBI SINGLE REPORTS
+  // CLEANBI SINGLE REPORTS (One-time purchases)
+  // Pricing: $29 Quick → $149 Standard → $349 Pro → $599 Enterprise
   // ================================================
   cleanbiReports: {
     quick: {
-      name: 'CLEANBI Quick Report',
-      description: 'Basic location score with grade and summary.',
+      name: 'CLEANBI Quick Score Report',
+      description: 'Instant location grade with overall score summary. Gateway product for quick assessments.',
       metadata: { type: 'report', report_tier: 'quick' },
       prices: {
         oneTime: { amount: 2900, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_QUICK' },
       }
     },
     standard: {
-      name: 'CLEANBI Standard Report',
-      description: 'Full analysis with 6-factor breakdown and competitor mapping.',
+      name: 'CLEANBI Location Intelligence Report',
+      description: 'Full 17-factor analysis with competitor mapping, Walk Score, demographics, and PDF export.',
       metadata: { type: 'report', report_tier: 'standard' },
       prices: {
-        oneTime: { amount: 9700, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_STANDARD' },
+        oneTime: { amount: 14900, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_STANDARD' },
       }
     },
     pro: {
-      name: 'CLEANBI Pro Report',
-      description: 'Comprehensive analysis with ROI projections and demographic deep-dive.',
+      name: 'CLEANBI Due Diligence Report',
+      description: 'Comprehensive analysis with ROI projections, property intelligence, growth signals, and valuation estimates.',
       metadata: { type: 'report', report_tier: 'pro' },
       prices: {
-        oneTime: { amount: 19700, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_PRO' },
+        oneTime: { amount: 34900, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_PRO' },
       }
     },
     enterprise: {
-      name: 'CLEANBI Enterprise Report',
-      description: 'Full enterprise analysis with ownership data and motivated seller detection.',
+      name: 'CLEANBI Acquisition Ready Report',
+      description: 'Full enterprise analysis with ownership data, motivated seller detection, AI insights, and deep competitor intelligence.',
       metadata: { type: 'report', report_tier: 'enterprise' },
       prices: {
-        oneTime: { amount: 49700, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_ENTERPRISE' },
+        oneTime: { amount: 59900, interval: null, envKey: 'STRIPE_PRICE_CLEANBI_ENTERPRISE' },
       }
     },
   },

@@ -627,7 +627,7 @@ export default function Home() {
     },
     {
       question: "What is the CLEANBI location score?",
-      answer: "CLEANBI is WashBizHub's proprietary location intelligence system that rates any address from 0-100 for business potential. Our 17-factor algorithm analyzes: rental density, household income, competition saturation, traffic patterns, parking availability, demographics, and more. Scores 85+ indicate excellent opportunities, 70-84 good potential, 55-69 fair, and below 55 needs strategic consideration. Free tier includes 5 analyses total."
+      answer: "CLEANBI is WashBizHub's proprietary location intelligence system that rates any address from 0-100 for business potential. Our 17-factor algorithm analyzes: rental density, household income, competition saturation, traffic patterns, parking availability, demographics, and more. Scores 85+ indicate excellent opportunities, 70-84 good potential, 55-69 fair, and below 55 needs strategic consideration. Free tier includes 3 analyses total, upgrade to Starter ($29/mo) for unlimited."
     },
     {
       question: "What is the average ROI for a laundromat?",
@@ -1293,7 +1293,7 @@ export default function Home() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-foreground">Free</div>
                   <div className="text-3xl font-bold text-accent mt-1">$0</div>
-                  <p className="text-sm text-muted-foreground mt-2">5 CLEANBI total, basic tools</p>
+                  <p className="text-sm text-muted-foreground mt-2">3 CLEANBI total, basic tools</p>
                   <Link href="/subscribe">
                     <Button variant="outline" size="sm" className="mt-4 w-full" data-testid="button-free-tier">
                       Get Started
