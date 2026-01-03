@@ -387,7 +387,7 @@ export default function Signup() {
                   variant={showMagicLink ? "default" : "outline"}
                   size="sm"
                   onClick={() => setShowMagicLink(true)}
-                  className={showMagicLink ? "bg-[#0A1628]" : ""}
+                  className={showMagicLink ? "bg-[#0A1628] text-white hover:bg-[#1a3a5c]" : ""}
                   data-testid="button-toggle-magic-link"
                 >
                   <Sparkles className="h-4 w-4 mr-1.5" />
@@ -397,7 +397,7 @@ export default function Signup() {
                   variant={!showMagicLink ? "default" : "outline"}
                   size="sm"
                   onClick={() => setShowMagicLink(false)}
-                  className={!showMagicLink ? "bg-[#0A1628]" : ""}
+                  className={!showMagicLink ? "bg-[#0A1628] text-white hover:bg-[#1a3a5c]" : ""}
                   data-testid="button-toggle-email"
                 >
                   <Mail className="h-4 w-4 mr-1.5" />
