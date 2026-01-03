@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { PremiumHero } from "@/components/PremiumHero";
+import { ReportsHero } from "@/components/ReportsHero";
 import { CredibilityBar } from "@/components/CredibilityBar";
 import { FeaturedListingsCarousel } from "@/components/FeaturedListingsCarousel";
 import {
@@ -774,7 +775,7 @@ export default function Home() {
       
       <div className="min-h-screen bg-[#09090b] pt-16">
         {/* PREMIUM HERO - Full-bleed first fold (header is now transparent) */}
-        <PremiumHero />
+        <ReportsHero />
         
         {/* CREDIBILITY BAR - Trust signals below hero */}
         <CredibilityBar />
