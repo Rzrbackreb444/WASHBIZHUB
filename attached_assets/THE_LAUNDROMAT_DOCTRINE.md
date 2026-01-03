@@ -549,45 +549,62 @@ Run these checks before you ever sign a lease.
 ### Figure 3.1: CLEANBI Score Breakdown
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         CLEANBI SCORING SYSTEM                              │
-│                    Location Intelligence Score (0-100)                      │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                         CLEANBI™ SCORING SYSTEM                             ║
+║                    Location Intelligence Score (0-100)                      ║
+║                         washbizhub.com/cleanbi                              ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  COMPONENT              │ WEIGHT │ WHAT IT MEASURES                         │
+│                         WEIGHTED SCORING FACTORS                            │
+├─────────────────────────┬────────┬──────────────────────────────────────────┤
+│  FACTOR                 │ WEIGHT │ WHAT IT MEASURES                         │
 ├─────────────────────────┼────────┼──────────────────────────────────────────┤
-│  ████████ Rent Ratio    │  15%   │ Monthly rent ÷ projected revenue         │
 │  ████████████████ Turn  │  20%   │ Expected turns/day based on density      │
-│  ████████ Parking       │  10%   │ Spaces per washer ratio                  │
+│  ████████████ Rent      │  15%   │ Monthly rent ÷ projected revenue         │
 │  ████████████ Income    │  15%   │ Demographics match to sweet spot         │
-│  ████████ Utilities     │  10%   │ Expected costs vs. market average        │
 │  ████████████ Compete   │  15%   │ Quality/proximity of competitors         │
+│  ████████ Parking       │  10%   │ Spaces per washer ratio                  │
+│  ████████ Utilities     │  10%   │ Expected costs vs. market average        │
 │  ████████ Demographics  │  10%   │ Renter %, family size, trend             │
 │  ████ EBITDA            │   5%   │ Projected profitability                  │
-└─────────────────────────┴────────┴──────────────────────────────────────────┘
+├─────────────────────────┴────────┴──────────────────────────────────────────┤
+│                              TOTAL: 100%                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           GRADE INTERPRETATION                              │
 ├──────────┬─────────────┬────────────────────────────────────────────────────┤
 │  SCORE   │   GRADE     │  RECOMMENDATION                                    │
 ├──────────┼─────────────┼────────────────────────────────────────────────────┤
-│  85-100  │  ██████ A   │  EXCELLENT — Top 5% of locations. Move fast.      │
-│          │  (Green)    │  Strong fundamentals across all factors.           │
+│          │             │                                                    │
+│  85-100  │  ▓▓▓▓▓▓ A   │  EXCELLENT — Top 5% of locations. Move fast.      │
+│          │  #22C55E    │  Strong fundamentals across all factors.           │
+│          │             │                                                    │
 ├──────────┼─────────────┼────────────────────────────────────────────────────┤
-│  70-84   │  █████ B    │  GOOD — Above average, solid investment.           │
-│          │  (Lime)     │  Minor weaknesses easily addressed.                │
+│          │             │                                                    │
+│  70-84   │  ▓▓▓▓▓ B    │  GOOD — Above average, solid investment.           │
+│          │  #A3E635    │  Minor weaknesses easily addressed.                │
+│          │             │                                                    │
 ├──────────┼─────────────┼────────────────────────────────────────────────────┤
-│  55-69   │  ████ C     │  FAIR — Workable with improvements.                │
-│          │  (Amber)    │  Negotiate hard on price. Know the risks.          │
+│          │             │                                                    │
+│  55-69   │  ▓▓▓▓ C     │  FAIR — Workable with strategic improvements.      │
+│          │  #FBBF24    │  Negotiate hard on price. Know the risks.          │
+│          │             │                                                    │
 ├──────────┼─────────────┼────────────────────────────────────────────────────┤
-│  Below   │  NEEDS      │  HIGH RISK — Walk away or deep discount only.      │
-│   55     │  WORK       │  Fundamental issues unlikely to be fixed.          │
-│          │  (Gold)     │                                                    │
+│          │             │                                                    │
+│  Below   │  NEEDS      │  STRATEGIC OPPORTUNITY — Deep discount required.   │
+│   55     │  WORK       │  Requires significant improvements to succeed.     │
+│          │  #C8A661    │  Not a "fail" — just needs the right buyer.        │
+│          │             │                                                    │
 └──────────┴─────────────┴────────────────────────────────────────────────────┘
 
-    NOTE: We use A-C grading only. There is no D or F — just "pass" or 
-          "don't waste your money."
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │  NOTE: We use A, B, C grading only. There is no D or F.            │
+    │        Every location has potential — some just need more work.     │
+    │        "Needs Work" is not failure — it's opportunity for the      │
+    │        right operator with the right strategy.                      │
+    └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -595,65 +612,82 @@ Run these checks before you ever sign a lease.
 ### Figure 3.2: Location Decision Flowchart
 
 ```
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    LOCATION EVALUATION DECISION TREE                        ║
+║                         The Kremers Method                                  ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
                               ┌─────────────────┐
-                              │  POTENTIAL      │
-                              │  LOCATION       │
+                              │   POTENTIAL     │
+                              │   LOCATION      │
                               └────────┬────────┘
                                        │
+                    ═══════════════════╪═══════════════════
+                           STAGE 1: QUICK DISQUALIFIERS
+                    ═══════════════════╪═══════════════════
                                        ▼
                          ┌─────────────────────────┐
-                         │ Renter households > 1500│
+                         │ Renter households >1500 │
                          │ within 1 mile?          │
                          └───────────┬─────────────┘
                                      │
                     ┌────────────────┴────────────────┐
-                    │                                 │
                    YES                                NO
                     │                                 │
                     ▼                                 ▼
          ┌──────────────────┐              ┌──────────────────┐
-         │ Rent < 25% of    │              │    STOP          │
-         │ projected revenue│              │    Walk away     │
-         └────────┬─────────┘              └──────────────────┘
-                  │
+         │ Rent < 25% of    │              │   ⛔ STOP        │
+         │ projected revenue│              │   Walk away      │
+         │ possible?        │              │   (Not enough    │
+         └────────┬─────────┘              │    customers)    │
+                  │                        └──────────────────┘
      ┌────────────┴────────────┐
-     │                         │
-    YES                        NO
-     │                         │
-     ▼                         ▼
-┌────────────┐          ┌─────────────────┐
-│ Competitors│          │ Can rent be     │
-│ ≤ 2 within │          │ negotiated?     │
-│ 1 mile?    │          └────────┬────────┘
-└─────┬──────┘                   │
-      │                   YES    │    NO
-      │                    │     │     │
-     YES                   │     │     ▼
-      │                    ▼     │  ┌──────┐
-      ▼              ┌───────────┘  │ STOP │
-┌────────────┐       │              └──────┘
-│ Lease term │       │
-│ ≥ 10 years │◄──────┘
+    YES                        NO ─────► Can rent be negotiated?
+     │                                         │
+     ▼                              ┌──────────┴──────────┐
+┌────────────┐                     YES                    NO
+│ Competitors│                      │                     │
+│ ≤ 2 within │                      │                     ▼
+│ 1 mile?    │◄─────────────────────┘            ┌────────────────┐
+└─────┬──────┘                                   │   ⛔ STOP      │
+      │                                          │   Economics    │
+     YES                                         │   don't work   │
+      │                                          └────────────────┘
+      ▼
+┌────────────┐
+│ Lease term │
+│ ≥ 10 years │
 │ available? │
 └─────┬──────┘
       │
      YES
       │
-      ▼
-┌─────────────────────────────────┐
-│     RUN FULL CLEANBI ANALYSIS   │
-│     Calculate weighted score    │
-└────────────────┬────────────────┘
-                 │
-    ┌────────────┼────────────┬────────────┐
-    │            │            │            │
-   A (85+)     B (70-84)    C (55-69)   Below 55
-    │            │            │            │
-    ▼            ▼            ▼            ▼
-┌────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│ PURSUE │ │ PROCEED  │ │ NEGOTIATE│ │   PASS   │
-│ FAST   │ │ CAREFULLY│ │ HARD     │ │          │
-└────────┘ └──────────┘ └──────────┘ └──────────┘
+      ═══════════════════╪═══════════════════
+           STAGE 2: RUN FULL CLEANBI ANALYSIS
+      ═══════════════════╪═══════════════════
+                         ▼
+          ┌─────────────────────────────────┐
+          │     CLEANBI SCORE RESULT        │
+          │     (17-factor weighted)        │
+          └────────────────┬────────────────┘
+                           │
+      ┌────────────────────┼────────────────────┐
+      │                    │                    │
+      ▼                    ▼                    ▼
+ ┌─────────┐         ┌───────────┐        ┌───────────┐
+ │ A (85+) │         │ B (70-84) │        │ C (55-69) │
+ │ ▓▓▓▓▓▓  │         │ ▓▓▓▓▓     │        │ ▓▓▓▓      │
+ └────┬────┘         └─────┬─────┘        └─────┬─────┘
+      │                    │                    │
+      ▼                    ▼                    ▼
+ ┌─────────┐         ┌───────────┐        ┌───────────┐
+ │ PURSUE  │         │ PROCEED   │        │ NEGOTIATE │
+ │ FAST    │         │ CAREFULLY │        │ HARD      │
+ │ Top 5%  │         │ Good deal │        │ 15-25%    │
+ │ Move!   │         │ due dilig.│        │ discount  │
+ └─────────┘         └───────────┘        └───────────┘
+
+      Below 55: NEEDS WORK — Deep discount only or pass
 ```
 
 ---
@@ -1065,37 +1099,50 @@ The softmount vs. hardmount debate has divided the industry for decades. Here's 
 ### Figure 6.1: Softmount vs. Hardmount Visual Comparison
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    SOFTMOUNT vs. HARDMOUNT COMPARISON                       │
-├─────────────────────────────────┬───────────────────────────────────────────┤
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    SOFTMOUNT vs. HARDMOUNT COMPARISON                       ║
+║                      The Equipment Decision That Matters                    ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────┬───────────────────────────────────────────┐
 │          HARDMOUNT              │              SOFTMOUNT                    │
+│      (Traditional Method)       │          (Modern Standard)                │
 ├─────────────────────────────────┼───────────────────────────────────────────┤
 │                                 │                                           │
 │    ┌─────────────────┐          │       ┌─────────────────┐                 │
-│    │                 │          │       │                 │                 │
-│    │    WASHER       │          │       │    WASHER       │                 │
-│    │                 │          │       │                 │                 │
-│    │  100-200 G      │          │       │  300-400+ G     │                 │
-│    │                 │          │       │                 │                 │
-│    └────────┬────────┘          │       └───────┬─────────┘                 │
-│             │                   │           ┌───┴───┐                       │
-│    ┌────────┴────────┐          │       ┌───┴───────┴───┐                   │
-│    │ ANCHOR BOLTS    │          │       │ RUBBER ISOLATORS│                  │
-│    └────────┬────────┘          │       └───────┬───────┘                   │
-│    ┌────────┴────────┐          │       ┌───────┴───────┐                   │
-│    │ 8-12" REINFORCED│          │       │ STANDARD FLOOR │                  │
-│    │  CONCRETE PAD   │          │       │   (any type)   │                  │
-│    └─────────────────┘          │       └───────────────┘                   │
+│    │ ╔═════════════╗ │          │       │ ╔═════════════╗ │                 │
+│    │ ║   WASHER    ║ │          │       │ ║   WASHER    ║ │                 │
+│    │ ║             ║ │          │       │ ║             ║ │                 │
+│    │ ║  100-200 G  ║ │          │       │ ║  300-400+ G ║ │                 │
+│    │ ║  (slower)   ║ │          │       │ ║  (faster)   ║ │                 │
+│    │ ╚══════╤══════╝ │          │       │ ╚══════╤══════╝ │                 │
+│    │        │        │          │       │    ┌───┴───┐    │                 │
+│    │   ┌────┴────┐   │          │       │ ┌──┴───────┴──┐ │                 │
+│    │   │ BOLTS   │   │          │       │ │  ISOLATORS  │ │                 │
+│    │   └────┬────┘   │          │       │ │  (rubber)   │ │                 │
+│    │ ┌──────┴──────┐ │          │       │ └──────┬──────┘ │                 │
+│    │ │ 8-12" SLAB  │ │          │       │ ┌──────┴──────┐ │                 │
+│    │ │ (concrete)  │ │          │       │ │STANDARD FLR │ │                 │
+│    │ └─────────────┘ │          │       │ └─────────────┘ │                 │
+│    └─────────────────┘          │       └─────────────────┘                 │
 │                                 │                                           │
 ├─────────────────────────────────┼───────────────────────────────────────────┤
+│        ADVANTAGES               │        ADVANTAGES                         │
 │  ✓ 20-25 year lifespan          │  ✓ 30-40% less dryer time needed         │
 │  ✓ Lower equipment cost         │  ✓ No concrete work required             │
 │  ✓ Simpler maintenance          │  ✓ Can be relocated easily               │
-│  ✗ Requires concrete work       │  ✓ Quieter operation                     │
-│  ✗ More moisture in clothes     │  ✓ Lower utility costs long-term         │
+│                                 │  ✓ Quieter operation                     │
+│        DISADVANTAGES            │  ✓ Lower utility costs long-term         │
+│  ✗ Requires concrete work       │                                           │
+│  ✗ More moisture in clothes     │        DISADVANTAGES                      │
 │  ✗ Can't relocate easily        │  ✗ Slightly higher equipment cost        │
 │  ✗ Louder operation             │  ✗ 15-20 year lifespan                   │
-└─────────────────────────────────┴───────────────────────────────────────────┘
+├─────────────────────────────────┴───────────────────────────────────────────┤
+│                                                                             │
+│  BOTTOM LINE: Softmount wins on total cost of ownership over 15 years.     │
+│               Higher spin = drier clothes = less dryer time = lower gas.   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -1103,34 +1150,46 @@ The softmount vs. hardmount debate has divided the industry for decades. Here's 
 ### Figure 6.2: Total Cost of Ownership Over 15 Years
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    15-YEAR TOTAL COST COMPARISON                            │
-│                        (10-Machine Store Example)                           │
-├─────────────────────────────────┬───────────────────────────────────────────┤
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    15-YEAR TOTAL COST OF OWNERSHIP                          ║
+║                        (10-Machine Store Example)                           ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────┬───────────────────────────────────────────┐
 │          HARDMOUNT              │              SOFTMOUNT                    │
 ├─────────────────────────────────┼───────────────────────────────────────────┤
 │                                 │                                           │
-│  Equipment (10 machines)        │  Equipment (10 machines)                  │
-│  $50,000                        │  $65,000                                  │
+│  EQUIPMENT (10 machines)        │  EQUIPMENT (10 machines)                  │
+│  ████████████████ $50,000       │  █████████████████████ $65,000            │
 │                                 │                                           │
-│  Concrete Installation          │  Standard Installation                    │
-│  $15,000                        │  $3,000                                   │
+│  INSTALLATION                   │  INSTALLATION                             │
+│  ██████ $15,000 (concrete)      │  █ $3,000 (standard)                      │
 │                                 │                                           │
-│  15-Year Gas Costs              │  15-Year Gas Costs                        │
-│  (baseline dryer time)          │  (30% less dryer time)                    │
-│  $90,000                        │  $63,000                                  │
+│  15-YEAR GAS COSTS              │  15-YEAR GAS COSTS                        │
+│  ██████████████████████████████ │  █████████████████████ $63,000            │
+│  $90,000 (baseline)             │  (30% LESS dryer time)                    │
 │                                 │                                           │
-│  Maintenance                    │  Maintenance                              │
-│  $15,000                        │  $20,000                                  │
+│  MAINTENANCE                    │  MAINTENANCE                              │
+│  █████ $15,000                  │  ██████ $20,000                           │
 │                                 │                                           │
 ├─────────────────────────────────┼───────────────────────────────────────────┤
-│  15-YEAR TOTAL:                 │  15-YEAR TOTAL:                           │
-│  $170,000                       │  $151,000                                 │
 │                                 │                                           │
-│                                 │  SAVINGS: $19,000                         │
-│                                 │  + Customer satisfaction                  │
-│                                 │  + Flexibility to relocate                │
+│  ╔═══════════════════════════╗  │  ╔═══════════════════════════╗            │
+│  ║  15-YEAR TOTAL:           ║  │  ║  15-YEAR TOTAL:           ║            │
+│  ║  $170,000                 ║  │  ║  $151,000                 ║            │
+│  ╚═══════════════════════════╝  │  ╚═══════════════════════════╝            │
+│                                 │                                           │
+│                                 │  ┌─────────────────────────────┐          │
+│                                 │  │  SAVINGS: $19,000           │          │
+│                                 │  │  + Customer satisfaction    │          │
+│                                 │  │  + Flexibility to relocate  │          │
+│                                 │  │  + Quieter operation        │          │
+│                                 │  └─────────────────────────────┘          │
+│                                 │                                           │
 └─────────────────────────────────┴───────────────────────────────────────────┘
+
+    KEY INSIGHT: The "cheaper" hardmount option costs $19,000 MORE over 15 years.
+                 Gas savings from faster spin cycles offset higher equipment cost.
 ```
 
 ---
@@ -1855,10 +1914,10 @@ Lint is the #1 fire risk in any laundry facility. It's highly combustible and ac
 ### Figure 12.1: Lint Accumulation Danger Zones
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    DRYER LINT ACCUMULATION DANGER ZONES                     │
-│                         (Cross-Section View)                                │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    DRYER LINT ACCUMULATION DANGER ZONES                     ║
+║                 (Cross-Section View — Fire Prevention Critical)             ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
                               ┌─────────────────┐
                               │  ROOF EXHAUST   │ ◄─── 6. Check annually
@@ -1926,10 +1985,10 @@ Lint is the #1 fire risk in any laundry facility. It's highly combustible and ac
 ### Figure 12.2: Fire Safety Equipment Placement
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    FIRE SAFETY EQUIPMENT PLACEMENT                          │
-│                        (Typical Laundromat Layout)                          │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    FIRE SAFETY EQUIPMENT PLACEMENT                          ║
+║               (Typical Laundromat Layout — Code Compliance)                 ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
     ┌─────────────────────────────────────────────────────────────────────┐
     │                                                                     │
@@ -2666,10 +2725,10 @@ This tool was built specifically for laundromat buyers, owners, and investors by
 ### Figure C.1: Due Diligence Workflow
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    DUE DILIGENCE TIMELINE (Larry Larsen Method)             │
-│                              4-6 Week Process                               │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    DUE DILIGENCE TIMELINE (Larry Larsen Method)             ║
+║                      4-6 Week Process — Never Skip Steps                    ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
   WEEK 1                WEEK 2                WEEK 3-4              WEEK 5-6
   ──────                ──────                ────────              ────────
@@ -2710,9 +2769,10 @@ This tool was built specifically for laundromat buyers, owners, and investors by
 ### Figure C.2: Due Diligence Decision Tree
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    DEAL OR NO DEAL DECISION TREE                            │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    DEAL OR NO DEAL DECISION TREE                            ║
+║                     When to Walk Away — When to Proceed                     ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
                               START HERE
                                   │
@@ -2867,10 +2927,10 @@ Water bills are the closest thing to an impartial witness of a laundromat's actu
 ### Figure D.1: Water Bill Analysis Flowchart
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    WATER BILL REVENUE VERIFICATION                          │
-│                         Larry Larsen Method                                 │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                    WATER BILL REVENUE VERIFICATION                          ║
+║                  Larry Larsen Method — The Ultimate BS Detector             ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
     ┌───────────────────────────────────────┐
     │  STEP 1: GET 12 MONTHS WATER BILLS    │
@@ -2941,9 +3001,10 @@ Water bills are the closest thing to an impartial witness of a laundromat's actu
 ### Figure D.2: Water Usage by Machine Type
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                 WATER USAGE REFERENCE CHART (Gallons per Cycle)             │
-└─────────────────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                 WATER USAGE REFERENCE CHART (Gallons per Cycle)             ║
+║                    Use These Numbers for Revenue Verification               ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
     MACHINE TYPE              WATER USAGE              FOR CALCULATIONS
     ────────────────────────────────────────────────────────────────────
