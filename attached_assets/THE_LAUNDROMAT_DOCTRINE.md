@@ -117,26 +117,15 @@ You're not just washing clothes — you're building something that lasts.
 ## List of Figures
 
 ### Chapter 3: Location Is Law
-- **Figure 3.1:** CLEANBI Score Breakdown
-- **Figure 3.2:** Location Decision Flowchart
-
-### Chapter 5: Equipment Intelligence
-- **Figure 5.1:** Premium Boutique Laundromat with Brand Identity (Tumble Fresh)
-- **Figure 5.2:** Modern Dexter Store with Full Equipment Range
-- **Figure 5.3:** Clean Aisle Configuration with Stacked Equipment
-- **Figure 5.4:** Front-Loaders in Operation
-- **Figure 5.5:** Boutique Laundromat with Personality (Named Machines)
+- **Figure 3.1:** CLEANBI Score Breakdown (17-Factor Weighted Scoring)
+- **Figure 3.2:** Location Decision Flowchart (The Kremers Method)
 
 ### Chapter 6: Softmount vs. Hardmount
 - **Figure 6.1:** Softmount vs. Hardmount Visual Comparison
 - **Figure 6.2:** Total Cost of Ownership Over 15 Years
 
 ### Chapter 8: Design, Layout, and Customer Flow
-- **Figure 8.1:** Modern Premium Laundromat Interior
-- **Figure 8.2:** Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)
-- **Figure 8.3:** Large Format Laundromat Layout
-- **Figure 8.4:** Commercial WDF (Wash-Dry-Fold) Layout
-- **Figure 8.5:** Hotel/Commercial Laundry Facility (374 sq. ft.)
+- **Figure 8.1:** Optimized Laundromat Floor Plan (2,400 sq. ft.)
 
 ### Chapter 12: Fire Prevention & Safety
 - **Figure 12.1:** Lint Accumulation Danger Zones
@@ -952,94 +941,6 @@ The ideal ratio depends on your market, but here's a starting framework:
 
 ---
 
-### Equipment in Action: Real-World Examples
-
-The following photos demonstrate different equipment configurations and store styles.
-
----
-
-**Figure 5.1: Premium Boutique Laundromat with Brand Identity**
-
-![Tumble Fresh Premium Laundromat](Twin_Cities_Laundromat_1767436123334.jpg)
-
-*A premium boutique laundromat (Tumble Fresh) featuring custom LED lighting, branded signage, and "Giant Load Machines" marketing. This represents the top tier of laundromat design — transforming a utility service into a destination experience.*
-
-**Premium Design Elements:**
-- Custom architectural ceiling with LED accent lighting
-- Strong brand identity throughout space
-- Marketing signage promoting large-capacity machines
-- Premium flooring (polished concrete)
-- Professional-grade equipment islands
-- Multiple TV screens for customer entertainment
-
----
-
-**Figure 5.2: Modern Dexter Store with Full Equipment Range**
-
-![Dexter Laundromat Full Range](Dexter_Laundromat_Stock_photo_1767436123334.jpg)
-
-*A well-organized modern laundromat featuring Dexter equipment with a complete size range — from standard front-loaders to large-capacity machines. Note the stacked dryer configuration on the back wall and L-shaped washer layout.*
-
-**Equipment Layout Analysis:**
-- **Stacked dryers (back wall):** Maximizes floor space
-- **L-shaped washer configuration:** Creates efficient customer flow
-- **Multiple size options:** Small, medium, and large capacity visible
-- **Central folding tables:** Positioned for easy access
-- **24-hour video surveillance:** Security signage visible
-
----
-
-**Figure 5.3: Clean Aisle Configuration with Stacked Equipment**
-
-![Dexter Stacked Equipment Aisle](Dexter_Laundromat_1767436123334.jpg)
-
-*A clean equipment aisle showing proper machine spacing and stacked washer/dryer configuration. This layout maximizes machine count while maintaining comfortable customer access.*
-
-**Space Optimization Features:**
-- Stacked front-load washers on both sides
-- Stacked dryers with overhead positioning
-- Wide center aisle for carts and foot traffic
-- Uniform equipment sizing for visual consistency
-- Clean flooring with no obstructions
-
----
-
-**Figure 5.4: Front-Loaders in Operation**
-
-![Dexter Front-Loaders Running](dexter_laundromat_corner_shot_1767436123333.jpg)
-
-*Close-up of commercial Dexter front-load washers in mid-cycle. Note the clear viewing windows, warning labels, and digital controls. This shows the machine quality customers expect in a modern facility.*
-
-**Machine Features Visible:**
-- Large-diameter doors for easy loading
-- Clear view of tumble action
-- Digital cycle displays
-- Safety warning labels
-- Stainless steel construction
-- Multiple capacity options in row
-
----
-
-**Figure 5.5: Boutique Laundromat with Personality**
-
-![Dexter Boutique Store](dexter_laundromat_corner_pic_1767436123333.jpeg)
-
-*A creative boutique laundromat featuring named machines (Elvis, Gandolf, Jay-Z, Tom Selleck), bold wall graphics, and a welcoming atmosphere. This demonstrates how equipment can be part of brand storytelling.*
-
-**Branding & Personality Elements:**
-- Named machines create customer connection
-- Bold wall mural (target/bullseye design)
-- Neon Dexter Laundry signage
-- Change machine and soap vending visible
-- Large windows for natural light and visibility
-- Landfill recycling signage (sustainability focus)
-- Wood folding counter for warmth
-
-**Why This Works:**
-This store transforms a mundane task into an experience. Customers remember "washing at Elvis" — creating word-of-mouth marketing and repeat visits.
-
----
-
 ### Equipment Valuation in a Sale
 
 *From Larry Larsen's expertise*
@@ -1346,109 +1247,116 @@ Design your layout to make this path intuitive and efficient.
 
 ---
 
-### Sample Floor Plans
+### Optimized Laundromat Layout
 
-The following layouts demonstrate proven configurations for different store types and sizes.
-
----
-
-**Figure 8.1: Modern Premium Laundromat Interior**
-
-![Modern Premium Laundromat Interior](image_1767435989236.png)
-
-*A well-designed modern laundromat showing proper equipment spacing, clear sight lines, comfortable seating areas, and professional finishes. Note the stacked dryers on the left wall, large-capacity front-loaders in the center, and designated seating that doesn't obstruct traffic flow.*
-
-**Key Design Elements Shown:**
-- Stacked dryers maximize floor space
-- Central island with large-capacity machines
-- Clean sight lines from entrance to back
-- Adequate seating without blocking aisles
-- Professional signage and branding
-- Good lighting throughout
+The following floor plan demonstrates a proven 2,400 sq. ft. configuration with proper flow, equipment placement, and operational zones.
 
 ---
 
-**Figure 8.2: Self-Service Coin Laundry Layout (40 sq. meters / ~430 sq. ft.)**
+### Figure 8.1: Optimized Laundromat Floor Plan (2,400 sq. ft.)
 
-![40M Coin Laundry Floor Plan](image_1767435947489.png)
+```
+╔═════════════════════════════════════════════════════════════════════════════╗
+║              OPTIMIZED LAUNDROMAT FLOOR PLAN (2,400 SQ. FT.)                ║
+║                    The Kremers Design — Proven Flow Pattern                 ║
+╚═════════════════════════════════════════════════════════════════════════════╝
 
-*Professional floor plan for a compact coin laundry. Dimensions shown in millimeters. Note the separation of washer and dryer zones, dedicated seating area, and clear customer flow path from entrance through the facility.*
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                              REAR WALL (Exterior)                       │
+    │                                                                         │
+    │   ┌─────────────────────────────────────────────────────────────────┐   │
+    │   │  GAS DRYERS (Stacked) — Vent to Exterior                        │   │
+    │   │  ═══════════════════════════════════════════════════════════    │   │
+    │   │  ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐  │   │
+    │   │  │D1 │ │D2 │ │D3 │ │D4 │ │D5 │ │D6 │ │D7 │ │D8 │ │D9 │ │D10│  │   │
+    │   │  │ 30│ │ 30│ │ 30│ │ 30│ │ 45│ │ 45│ │ 45│ │ 75│ │ 75│ │ 75│  │   │
+    │   │  ├───┤ ├───┤ ├───┤ ├───┤ ├───┤ ├───┤ ├───┤ ├───┤ ├───┤ ├───┤  │   │
+    │   │  │D11│ │D12│ │D13│ │D14│ │D15│ │D16│ │D17│ │D18│ │D19│ │D20│  │   │
+    │   │  │ 30│ │ 30│ │ 30│ │ 30│ │ 45│ │ 45│ │ 45│ │ 75│ │ 75│ │ 75│  │   │
+    │   │  └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └───┘  │   │
+    │   │          (8x30lb)          (6x45lb)         (6x75lb)           │   │
+    │   └─────────────────────────────────────────────────────────────────┘   │
+    │                                                                         │
+    │   ═══════════════════════════════════════════════════════════════════   │
+    │                         FOLDING TABLES (4)                              │
+    │   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
+    │   │  TABLE 1    │ │  TABLE 2    │ │  TABLE 3    │ │  TABLE 4    │       │
+    │   │  (36"x72")  │ │  (36"x72")  │ │  (36"x72")  │ │  (36"x72")  │       │
+    │   └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘       │
+    │                                                                         │
+    │   ═════════════════════ MAIN AISLE (6' wide) ═══════════════════════    │
+    │                                                                         │
+    │   ┌─────────────────────────────────────────────────────────────────┐   │
+    │   │  FRONT-LOAD WASHERS — Multiple Sizes                            │   │
+    │   │  ───────────────────────────────────────────────────────────    │   │
+    │   │  ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌────┐ ┌────┐ ┌────┐      │   │
+    │   │  │W1 │ │W2 │ │W3 │ │W4 │ │W5 │ │W6 │ │W7  │ │W8  │ │W9  │      │   │
+    │   │  │20#│ │20#│ │20#│ │20#│ │35#│ │35#│ │ 55#│ │ 55#│ │ 80#│      │   │
+    │   │  └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └────┘ └────┘ └────┘      │   │
+    │   │  ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌────┐ ┌────┐ ┌────┐      │   │
+    │   │  │W10│ │W11│ │W12│ │W13│ │W14│ │W15│ │W16 │ │W17 │ │W18 │      │   │
+    │   │  │20#│ │20#│ │20#│ │20#│ │35#│ │35#│ │ 55#│ │ 55#│ │ 80#│      │   │
+    │   │  └───┘ └───┘ └───┘ └───┘ └───┘ └───┘ └────┘ └────┘ └────┘      │   │
+    │   │     (8x20lb)        (4x35lb)       (4x55lb)    (2x80lb)         │   │
+    │   └─────────────────────────────────────────────────────────────────┘   │
+    │                                                                         │
+    ├─────────────────────────────────────────────────────────────────────────┤
+    │                                                                         │
+    │   ┌───────────┐   ┌─────────────────────────┐   ┌───────────────────┐   │
+    │   │  UTILITY  │   │     SEATING AREA        │   │   PAYMENT/VEND    │   │
+    │   │   ROOM    │   │  ┌──────┐  ┌──────┐     │   │                   │   │
+    │   │  ───────  │   │  │Bench │  │Bench │     │   │  ┌─────┐ ┌─────┐  │   │
+    │   │ • Water   │   │  └──────┘  └──────┘     │   │  │Chngr│ │Soap │  │   │
+    │   │   heater  │   │      TV mounted ↑       │   │  │     │ │Vend │  │   │
+    │   │ • Storage │   │  ┌──────┐  ┌──────┐     │   │  └─────┘ └─────┘  │   │
+    │   │ • Chem.   │   │  │Chair │  │Chair │     │   │                   │   │
+    │   └───────────┘   │  └──────┘  └──────┘     │   │  ┌─────┐ ┌─────┐  │   │
+    │        │          └─────────────────────────┘   │  │ATM  │ │Drink│  │   │
+    │   [RESTROOM]                                    │  └─────┘ └─────┘  │   │
+    │        ↓                                        └───────────────────┘   │
+    │   ┌─────────┐                                                           │
+    │   │   WC    │                   ┌────────────────┐                      │
+    │   │  (ADA)  │                   │ 📹 CAMERAS     │                      │
+    │   └─────────┘                   │ (All corners)  │                      │
+    │                                 └────────────────┘                      │
+    ├─────────────────────────────────────────────────────────────────────────┤
+    │                                                                         │
+    │   ◄═══════════════════════ STOREFRONT (Glass) ═══════════════════════►  │
+    │                                                                         │
+    │              ┌─────────────────────────────────┐                        │
+    │              │         ENTRANCE (Double)       │                        │
+    │              │             ⇧ ⇧                 │                        │
+    │              │          CUSTOMER FLOW          │                        │
+    │              └─────────────────────────────────┘                        │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘
 
-**Layout Analysis:**
-- **Entrance:** Clear entry with immediate visibility of machines
-- **Washers:** Grouped on left wall with rear access for service
-- **Dryers:** Top section with individual roof venting
-- **Seating:** Comfortable waiting area with TV entertainment
-- **Utilities:** Dedicated storage and utility room
-- **Soap vending:** Positioned near entrance for convenience
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           EQUIPMENT SUMMARY                                 │
+├──────────────────┬──────────────────┬───────────────────────────────────────┤
+│  WASHERS (18)    │  DRYERS (20)     │  KEY DIMENSIONS                       │
+├──────────────────┼──────────────────┼───────────────────────────────────────┤
+│  8 x 20 lb       │  8 x 30 lb       │  Main aisle: 6' minimum               │
+│  4 x 35 lb       │  6 x 45 lb       │  Dryer clearance: 36" behind          │
+│  4 x 55 lb       │  6 x 75 lb       │  Folding tables: 36" x 72" each       │
+│  2 x 80 lb       │                  │  ADA restroom required                │
+├──────────────────┴──────────────────┴───────────────────────────────────────┤
+│                                                                             │
+│  CUSTOMER FLOW: Enter → Washers → Dryers → Fold → Exit                     │
+│  REVENUE ZONES: 80% of space = revenue-generating equipment                 │
+│  DRYER RATIO: 20 pockets ÷ 18 washers = 1.1:1 (add 2-4 more if possible)   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
----
+**Design Principles Applied:**
 
-**Figure 8.3: Large Format Laundromat Layout**
-
-![Large Format Laundromat Layout](image_1767435953350.png)
-
-*Comprehensive floor plan for a larger self-service laundromat showing full equipment placement, customer amenities, and operational zones.*
-
-**Zone Breakdown:**
-- **Washer Zone (Top):** Multiple rows of washers with basket storage
-- **Dryer Zone (Right Wall):** Stacked dryers along exterior wall
-- **Folding Area (Left):** Dedicated folding tables away from traffic
-- **Customer Comfort:** Vending machine, seating, multiple sinks
-- **Operations:** Coin machines, office area with desk and printer
-- **Entry/Exit:** Double-door entrance with clear sightlines
-
-**Design Lessons:**
-- Baskets stored near washers for customer convenience
-- Dryers positioned for optimal venting to exterior
-- Central vending accessible from all areas
-- Office positioned for visibility and security
-
----
-
-**Figure 8.4: Commercial WDF (Wash-Dry-Fold) Layout**
-
-![Commercial Laundry Layout](image_1767435931510.png)
-
-*Floor plan optimized for commercial wash-dry-fold operations showing workflow from receiving through packing.*
-
-**Workflow Zones:**
-- **Receiving Area:** Dedicated space for incoming dirty laundry
-- **Machine Wash:** High-capacity commercial washers
-- **Hand Wash:** Station for delicates and special items
-- **Gas Dryers:** Positioned for efficient venting
-- **Sorting/Folding/Packing:** Central work area for processing
-- **Packed Clothes Storage:** Organized staging for customer pickup
-- **Consumables:** Supplies stored near work stations
-
-**WDF-Specific Considerations:**
-- Workflow moves logically from dirty to clean
-- Adequate space between stations for carts
-- Storage for both incoming and outgoing items
-- Work station positioned centrally for efficiency
-
----
-
-**Figure 8.5: Hotel/Commercial Laundry Facility (374 sq. ft.)**
-
-![Hotel Laundry Facility](image_1767435959108.png)
-
-*Professional specification drawing for a compact commercial laundry facility. Note the detailed dimensions, equipment specifications, and code-compliant clearances.*
-
-**Technical Specifications:**
-- **Dryer Venting:** Individual roof exhaust ports
-- **Service Access:** 36" minimum clearance behind equipment
-- **Eye Wash Station:** Safety compliance
-- **Chemical Storage:** Dedicated secured area
-- **Laundry Carts:** Staging area for workflow
-- **Soak Sink:** Pre-treatment station
-
-**Professional Standards Shown:**
-- All dimensions to code requirements
-- Equipment models specified
-- Utility connections marked
-- Minimum clearances noted
-- Safety equipment included
+1. **Natural Flow:** Customers move front-to-back (wash) then back-to-front (fold, exit)
+2. **Exterior Venting:** All dryers on back wall for direct exhaust
+3. **Size Progression:** Small machines near entrance, large in back
+4. **Sight Lines:** Clear view from entrance to back wall
+5. **Revenue Optimization:** 80% of floor = income-generating equipment
+6. **ADA Compliance:** Accessible restroom, 6' aisles for wheelchair access
 
 ---
 
