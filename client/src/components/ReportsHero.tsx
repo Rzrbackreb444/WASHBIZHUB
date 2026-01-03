@@ -160,6 +160,9 @@ export function ReportsHero() {
               </span>
             </h1>
 
+            <p className="text-sm text-[#C8A661] mb-3 tracking-wide uppercase">
+              Built for laundromats. Works for any address.
+            </p>
             <p className="text-lg sm:text-xl text-white/60 mb-8 max-w-2xl mx-auto">
               Enter any address. Get demographics, competition, traffic data, and AI-powered insights in minutes.
             </p>

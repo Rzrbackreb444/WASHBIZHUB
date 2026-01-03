@@ -27,10 +27,18 @@ const stripe = process.env.STRIPE_SECRET_KEY
 
 const checkoutSchema = z.object({
   address: z.string().min(5, "Address is required"),
-  tier: z.enum(["standard", "pro", "enterprise"]),
+  tier: z.enum(["quick", "standard", "pro", "enterprise"]),
+  consultationAddon: z.string().optional(),
   successUrl: z.string().optional(),
   cancelUrl: z.string().optional(),
 });
+
+// Larry consultation add-ons (prices in cents)
+const CONSULTATION_ADDONS: Record<string, { name: string; price: number; duration: string }> = {
+  "quick-call": { name: "15-min Quick Call with Larry", price: 4900, duration: "15 min" },
+  "deep-dive": { name: "30-min Deep Dive with Larry", price: 9900, duration: "30 min" },
+  "full-consult": { name: "60-min Full Consultation with Larry", price: 19900, duration: "60 min" },
+};
 
 router.get("/tiers", async (req: Request, res: Response) => {
   res.json({
@@ -122,46 +130,69 @@ router.post("/checkout", async (req: Request, res: Response) => {
       return res.status(400).json({ error: result.error.issues[0].message });
     }
 
-    const { address, tier, successUrl, cancelUrl } = result.data;
+    const { address, tier, consultationAddon, successUrl, cancelUrl } = result.data;
     const tierConfig = REPORT_TIERS[tier as ReportTier];
+    const addonConfig = consultationAddon ? CONSULTATION_ADDONS[consultationAddon] : null;
 
     const userId = (req as any).user?.claims?.sub;
+
+    // Calculate total price
+    const totalPrice = tierConfig.price + (addonConfig?.price || 0);
 
     const report = await storage.createCleanbiReport({
       userId: userId || null,
       address,
       reportType: tier,
       status: "pending",
-      price: tierConfig.price,
+      price: totalPrice,
     });
 
     const baseUrl = process.env.REPLIT_DEV_DOMAIN 
       ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
       : req.headers.origin || "https://washbizhub.com";
 
+    // Build line items
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: `CLEANBI ${tierConfig.name}`,
+            description: `Location intelligence report for: ${address.substring(0, 100)}`,
+            images: ["https://washbizhub.com/cleanbi-report-preview.png"],
+          },
+          unit_amount: tierConfig.price,
+        },
+        quantity: 1,
+      },
+    ];
+
+    // Add consultation addon if selected
+    if (addonConfig) {
+      lineItems.push({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: addonConfig.name,
+            description: `${addonConfig.duration} consultation with Larry Larsen, 40+ year laundromat industry expert`,
+          },
+          unit_amount: addonConfig.price,
+        },
+        quantity: 1,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `CLEANBI ${tierConfig.name}`,
-              description: `Comprehensive location analysis report for: ${address.substring(0, 100)}`,
-              images: ["https://washbizhub.com/cleanbi-report-preview.png"],
-            },
-            unit_amount: tierConfig.price,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: "payment",
-      success_url: successUrl || `${baseUrl}/cleanbi-reports?session_id=${report.id}&success=true`,
-      cancel_url: cancelUrl || `${baseUrl}/cleanbi-reports?canceled=true`,
+      success_url: successUrl || `${baseUrl}/location-reports?session_id=${report.id}&success=true`,
+      cancel_url: cancelUrl || `${baseUrl}/location-reports?canceled=true`,
       metadata: {
         reportId: report.id,
         address,
         tier,
+        consultationAddon: consultationAddon || "",
         userId: userId || "anonymous",
       },
     });
@@ -173,6 +204,7 @@ router.post("/checkout", async (req: Request, res: Response) => {
     res.json({
       sessionId: session.id,
       url: session.url,
+      checkoutUrl: session.url,
       reportId: report.id,
     });
   } catch (error: any) {
