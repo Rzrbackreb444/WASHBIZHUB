@@ -634,6 +634,7 @@ router.get("/user", async (req: Request, res: Response) => {
       subscriptionTier: user.subscriptionTier,
       cleanbiTier: user.cleanbiTier,
       role: user.role,
+      hasPassword: !!user.passwordHash,
       // Add claims for backwards compatibility
       claims: { sub: user.id, email: user.email },
       sub: user.id,
