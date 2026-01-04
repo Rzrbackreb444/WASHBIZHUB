@@ -88,8 +88,9 @@ export function usePageTracking() {
 
   useEffect(() => {
     // Google Analytics pageview
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX', {
+    const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+    if (measurementId && typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('config', measurementId, {
         page_path: location,
       });
     }
